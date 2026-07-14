@@ -1,0 +1,46 @@
+schema: spec-driven
+
+context: |
+  ERP v2 SaaS multi-tenant (Laravel 13 + Inertia v2 + React 19/TS + Tailwind 4 + MySQL),
+  reconstrucción del ERP Viuda Vila v1 (referencia: C:\laragon\www\laravel8_erp_viudavila_github).
+  Visión y decisiones de producto: docs/vision-v2.md.
+
+  NORMATIVO para todo artefacto: docs/standards/ (leer antes de proponer o diseñar).
+  - module-playbook.md: las tasks de un change deben calcar sus checklists §3-§7,
+    incluida la checklist de vinculaciones §6 (V-01..V-20) y el DoD §9.
+  - architecture.md: reglas R-* (tenancy BD única por company_id, Policies+Spatie,
+    Actions transaccionales, eventos entre dominios, enums de estado, NumberingService,
+    decimales 3/4/2, MySQL strict).
+  - module-map.md: matriz de dependencias entre dominios; si un change introduce una
+    dependencia nueva, debe actualizar el mapa en la misma propuesta.
+  - frontend.md: ServerTable (Tabulator) + catálogo de componentes; no duplicar componentes.
+  - glossary.md: naming en inglés normativo (Obra→Worksite...); UI en español vía i18n.
+  - libraries.md: canon cerrado de dependencias.
+  La ficha del módulo (docs/modules/<módulo>.md) es insumo obligatorio de la propuesta.
+
+rules:
+  proposal:
+    - Incluir sección "Excepciones a standards" solo si las hay; sin ella, docs/standards manda
+  tasks:
+    - Estructurar por entidad siguiendo module-playbook §3-§7 (datos → backend → frontend → tests)
+    - Una task por cada "sí" de la checklist de vinculaciones (§6) con su test de integración
+    - Incluir siempre el test de aislamiento de tenant (R-TEN-05) por entidad
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+# Example:
+#   context: |
+#     Tech stack: TypeScript, React, Node.js
+#     We use conventional commits
+#     Domain: e-commerce platform
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
