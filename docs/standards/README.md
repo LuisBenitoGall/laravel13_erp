@@ -15,7 +15,11 @@ cumplirla. Actúa como guardrail para cualquier desarrollo, humano o asistido po
 | [templates-backend.md](templates-backend.md) | Código canónico comentado: migración, modelo, enum, factory, policy, requests, action, controller, resource, rutas, tests |
 | [templates-frontend.md](templates-frontend.md) | Código canónico React/TS: tipos, Index con ServerTable, formulario RHF, patrón documento |
 | [glossary.md](glossary.md) | Glosario ES↔EN normativo (Obra→Worksite, Efecto→Effect…) con equivalencias v1 |
+| [e2e.md](e2e.md) | Estándar de tests de navegador: Pest 4 browser testing, qué flujos se cubren, convenciones de selectores y datos |
 | [tooling.md](tooling.md) | Guardrails mecánicos: generador `make:domain-entity`, tests de arquitectura, calidad estática, CI |
+
+La **metodología de agentes** (roles 10-architecture / 20-implementation / 30-testing,
+transversal a Claude/Cursor/Codex) vive en [../agents/](../agents/README.md).
 
 ## Jerarquía normativa
 

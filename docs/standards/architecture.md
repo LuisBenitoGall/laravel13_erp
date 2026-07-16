@@ -100,9 +100,12 @@ empresa preferente.
 - **R-AUT-01** Una **Policy por modelo**, registrada, con `viewAny/view/create/update/delete`
   (+ `restore/forceDelete` si soft delete, + habilidades específicas: `confirm`, `invoice`...).
   La Policy comprueba (a) pertenencia al tenant y (b) permiso Spatie.
-- **R-AUT-02** Permisos Spatie con naming `<módulo>.<acción>` (`invoices.create`,
-  `orders.change-date`). Cada módulo declara sus permisos en su seeder de permisos; nunca se
-  crean permisos "sueltos".
+- **R-AUT-02** Permisos Spatie con naming `<entidad>.<acción>` (`invoices.create`,
+  `orders.change-date`). **Importante**: el segmento no es el `Module` SaaS-activable
+  (Ventas, Contabilidad...) sino el slug de la entidad/pantalla concreta — en el catálogo
+  de Admin, el de su `Functionality` (R-AUT-07). Cada entidad declara sus permisos en el
+  seeder de permisos de su dominio, o los auto-provisiona el generador
+  ([tooling.md](tooling.md) §1); nunca se crean permisos "sueltos".
 - **R-AUT-03** Roles por empresa (patrón v1 `company_id/rol`); Super Admin de plataforma con
   bypass vía `Gate::before`.
 - **R-AUT-04** **Prohibidos los middleware ad-hoc de autorización** por módulo (los ~100
@@ -111,6 +114,26 @@ empresa preferente.
   activable (planes SaaS = módulos por empresa).
 - **R-AUT-06** El permiso que protege una ruta/acción coincide con el módulo real de la
   entidad (en v1 había facturas protegidas con `orders.edit`: prohibido).
+- **R-AUT-07** Catálogo `Module` / `Functionality` (Admin; excepción global de R-TEN-01, sin
+  `company_id`): `Module` es la unidad SaaS-activable (gate de plan vía `CompanyModules` +
+  `EnsureModuleIsActive`); `Functionality` es la unidad de permiso/menú dentro de un módulo
+  (slug **inmutable** tras crearse — lo usan los nombres de permiso y las asignaciones de
+  rol —, `label` editable, `status` activo/inactivo, reasignable de `module_id`). Al crear
+  una `Functionality` se auto-provisionan sus 5 permisos `viewAny/view/create/update/delete`
+  (nunca los 7 de v1 `index/create/show/search/edit/update/destroy`: `search` se absorbe en
+  `viewAny`, `edit`+`update` se funden en `update`).
+- **R-AUT-08** Visibilidad de menú (un único mecanismo para los 3 niveles de `Module` —
+  admin-only/básico/opcional —, no los dos sistemas paralelos de v1
+  `basic-menu.json`/`secondary-menu.json`):
+  - Un `Module` se muestra si `CompanyModules` lo tiene activo para la empresa **y**
+    (el usuario tiene el permiso comodín `<module-slug>.access` **o** tiene al menos un
+    permiso de alguna `Functionality` del módulo).
+  - Una `Functionality` se muestra si el usuario tiene el comodín `<module-slug>.access`
+    de su módulo (que **implica** el `viewAny` de todas sus Functionalities) **o** su
+    propio permiso `viewAny`.
+  - v1 hacía un AND estricto (exigía el comodín de módulo aunque el usuario tuviera permiso
+    de una Functionality concreta, dejando módulos enteros invisibles): prohibido replicar
+    ese comportamiento.
 
 ## 5. Capas y responsabilidades
 
@@ -153,6 +176,11 @@ empresa preferente.
   migraciones.
 - **R-BD-08** Datos traducibles por registro: `spatie/laravel-translatable` (columna JSON),
   no tablas espejo.
+- **R-BD-09** **Prohibido el tipo de columna `ENUM` de MySQL** (`$table->enum()`): ata los
+  valores al esquema y cada cambio exige un ALTER TABLE. Los estados se almacenan como
+  `string(32)` con cast a enum PHP (R-CAP-06) — añadir/quitar estados es solo código.
+  Estados configurables por el usuario/tenant (p. ej. columnas de un kanban) no son enums:
+  van a tabla propia.
 
 ## 7. Ledger contable (portado de v1 — intocable en espíritu)
 
@@ -217,3 +245,8 @@ español (y demás idiomas) vía i18n; el usuario nunca ve identificadores.
 8. Empresa preferente hardcodeada → R-TEN-06.
 9. Numeración manual → `NumberingService` (R-BD-05).
 10. Colas en sync / envíos comentados → R-TRV-01.
+11. Menú duplicado básico/secundario con lógica de visibilidad distinta → mecanismo único
+    `Module`/`Functionality` (R-AUT-08).
+12. Visibilidad de módulo con AND estricto sobre un permiso comodín (oculta funcionalidades
+    con permiso propio) → comodín que implica, o permiso propio, nunca ambos obligatorios
+    (R-AUT-08).

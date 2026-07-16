@@ -19,8 +19,15 @@ php artisan make:domain-entity {domain} {entity}
     {--numbered : documento numerado (integra NumberingService)}
     {--translatable : campos traducibles (HasTranslations + LangTabs)}
     {--lines : documento con líneas (integra LineItemsEditor)}
+    {--seed : genera Seeder de datos base/catálogo + registro en DatabaseSeeder}
+    {--notifiable : añade Jobs/Notifications esqueleto (company_id explícito, envío por cola)}
+    {--exportable : añade generación de PDF/Excel esqueleto (plantilla + Action por cola)}
     {--no-frontend : solo backend}
 ```
+
+Los flags mapean 1:1 con la columna "condicional" de la
+[matriz de artefactos](module-playbook.md#matriz-de-artefactos-por-entidad-referencia-rápida);
+lo marcado como "Siempre" en esa matriz se genera sin necesidad de flag.
 
 ### Salida (ejemplo `make:domain-entity Partners Worksite --status`)
 
@@ -41,9 +48,18 @@ resources/js/types/partners.d.ts                 # merge si ya existe
 lang/es.json · lang/en.json                      # claves base de la entidad (merge)
 ```
 
+Como último paso, el generador **registra la entrada de menú y provisiona los permisos**:
+crea (o actualiza) la fila `Functionality` de la entidad (`module_id`, `slug` = el mismo de
+sus permisos, `label`) y llama a `Permission::firstOrCreate` para sus 5 habilidades
+(`viewAny/view/create/update/delete` — R-AUT-07). Esto es lo que en v1 obligaba a
+desplegar las rutas primero y crear la Functionality después a mano; en v2 ambas cosas
+nacen en el mismo change. `PermissionSeeder` deja de ser la única vía de creación: solo
+siembra el estado inicial (instalación limpia/CI); la creación real vive en la Action de
+`Functionality` con `firstOrCreate` (idempotente, igual que hacía v1 en su comprobación
+defensiva de permisos "por si faltan").
+
 Además **imprime la checklist restante** que no puede automatizar (rutas al fichero del
-dominio, entrada de menú, permisos al seeder, ficha del módulo, vinculaciones §6) para
-copiarla a las tasks de OpenSpec.
+dominio, ficha del módulo, vinculaciones §6) para copiarla a las tasks de OpenSpec.
 
 ### Reglas
 
@@ -101,6 +117,33 @@ Complemento no-arch (feature tests globales):
   permisos (recorre la tabla de rutas — caza rutas sin authorize).
 - **Smoke de i18n**: las claves usadas en `lang/es.json` existen también en `en.json`.
 
+### Backstop de completitud (detectar huecos)
+
+Ni la disciplina documental ni el generador garantizan por sí solos que una entidad quede
+completa: el generador no cubre lo que se escribe a mano después (vinculaciones, ajustes).
+Dos mecanismos adicionales, complementarios entre sí:
+
+1. **Test de completitud** (`tests/Architecture/EntityCompletenessTest.php`) — no es un
+   `arch()` fluido (Pest arch no expresa "el fichero hermano existe"), es un test
+   convencional que recorre `app/Domains/*/Models/*.php` y, para cada modelo, comprueba
+   que existan sus artefactos "Siempre" de la
+   [matriz de module-playbook.md](module-playbook.md#matriz-de-artefactos-por-entidad-referencia-rápida)
+   (Policy, Factory, FormRequests, Resource, Controller, ruta con nombre, tipos TS, test
+   feature). Corre en CI con el resto de la suite: si falta algo, el build falla señalando
+   el fichero exacto ausente.
+2. **Comando `artisan module:audit {domain?} {entity?}`** — el mismo chequeo, bajo demanda
+   y con salida legible (tabla en consola: artefacto ✓/✗). Uso principal: paso explícito
+   del gate de [30-testing](../agents/30-testing.md) antes de dar una entidad por
+   terminada, y ayuda de desarrollo mientras se construye.
+
+Ambos mecanismos incluyen también la integridad `Functionality`↔permisos (R-AUT-07): toda
+`Functionality` con `status` activo debe tener sus 5 permisos `viewAny/view/create/update/
+delete` presentes en la tabla `permissions`. Es la comprobación mecánica de lo que en v1
+resolvía a mano la comprobación defensiva de `FunctionalityController::update()`.
+
+El test de completitud es innegociable (lo hace cumplir CI); el comando es la versión
+"para humanos" del mismo chequeo, pensada para ejecutarse antes de llegar a CI.
+
 ## 3. Calidad estática
 
 | Herramienta | Config | Regla |
@@ -118,7 +161,8 @@ push/PR →
   2. Pint --test · PHPStan · ESLint · tsc --noEmit
   3. Pest (unit + feature + arch) con MySQL de servicio (strict mode ON — mismo motor que prod, R-BD-01)
   4. npm run build (el frontend compila)
-  5. composer audit + npm audit (falla en vulnerabilidad alta)
+  5. Pest browser (E2E de flujos críticos, stage separado — docs/standards/e2e.md)
+  6. composer audit + npm audit (falla en vulnerabilidad alta)
 ```
 
 Regla: **rojo = no merge**. Sin excepciones "temporales".
@@ -126,9 +170,14 @@ Regla: **rojo = no merge**. Sin excepciones "temporales".
 > Nota: el proyecto aún no es repositorio git. Al inicializarlo (Fase 0), primer commit =
 > esqueleto + esta documentación; segundo = tooling de este documento.
 
-## 5. Flujo de trabajo con IA (Claude Code)
+## 5. Flujo de trabajo con IA (Claude Code / Cursor / Codex)
 
-- `CLAUDE.md` (raíz) carga los estándares como reglas de sesión.
+- Roles de agente 10-architecture / 20-implementation / 30-testing: fichas canónicas en
+  `docs/agents/`, cargadas por adaptadores finos por herramienta: `.cursor/rules/`
+  (Cursor), `.claude/agents/` (Claude Code, con modelo por rol: fable en 10, sonnet en
+  20/30) y `AGENTS.md` (Codex y compatibles).
+- `CLAUDE.md` (raíz) carga los estándares como reglas de sesión; en Cursor lo hace
+  `.cursor/rules/00-project.mdc` (alwaysApply).
 - Skill **`/new-module`**: ejecuta el playbook de forma guiada (ficha → propuesta → checklists).
 - Flujo OpenSpec: `/opsx:propose` → revisar → `/opsx:apply` → `/opsx:archive`; el contexto
   de `openspec/config.yaml` apunta a `docs/standards/` para que toda propuesta nazca

@@ -18,7 +18,7 @@ Capa 1 — Maestros        Partners · Catalog · Admin (+ Support sin dominio)
 
 | Dominio | Propósito | Entidades núcleo (v1 de referencia) | Fase |
 |---|---|---|---|
-| **Admin** | Usuarios, roles/permisos, módulos por empresa, configuración, series y patrones de numeración, menú | User, Role, Module, CompanyModules, `*Pattern`, InvoiceSerie | 0–1 |
+| **Admin** | Usuarios, roles/permisos, módulos por empresa, configuración, series y patrones de numeración, menú | User, Role, Module, Functionality, CompanyModules, `*Pattern`, InvoiceSerie | 0–1 |
 | **Platform** | Consola del operador SaaS: tenants, planes, uso, soporte, onboarding | Tenant/Subscription, Plan | 0 |
 | **Partners** | Empresas (tenant y tercero), clientes↔proveedores, obras, contactos, NIF histórico | Company, CustomerProviders, Worksite (Obra), Contact, CompanyIdentifier | 1 |
 | **Catalog** | Productos, precios versionados, tarifas (5 + A/B/C), familias/categorías/tags, unidades, catálogo proveedor | Product, ProductPrices, Rate, Family, Category, ProductProviders | 1 |
@@ -36,6 +36,12 @@ Capa 1 — Maestros        Partners · Catalog · Admin (+ Support sin dominio)
 `Support/` (sin dominio): formato es-ES, dinero/decimales, importe en letras
 (`MoneyToWordsEs`), IBAN/BIC, fechas. `Shared` conceptual: `NumberingService` y branding de
 documentos viven en **Admin** (configuración por empresa).
+
+`Module` y `Functionality` (Admin) son la primera excepción real a R-TEN-01: catálogo
+**global**, sin `company_id` — `Module` es la unidad SaaS-activable por empresa
+(`CompanyModules`); `Functionality` es la unidad de permiso y de entrada de menú dentro de
+un módulo. Detalle de la política de permisos/menú: [architecture.md](architecture.md)
+R-AUT-07/R-AUT-08.
 
 ## 2. Matriz de dependencias (quién usa a quién)
 

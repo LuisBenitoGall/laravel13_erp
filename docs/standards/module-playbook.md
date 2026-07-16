@@ -20,6 +20,52 @@ iteración consciente documentada en la propuesta.
 
 ---
 
+## Matriz de artefactos por entidad (referencia rápida)
+
+Vista de conjunto de "qué archivo, cuándo" — el detalle de cada fila (reglas `R-*`,
+templates) vive en §3–§5. Es la base de qué genera el comando `make:domain-entity`
+([tooling.md](tooling.md) §1) y de qué debe seguir comprobando el backstop de detección
+de huecos ([tooling.md](tooling.md) §2).
+
+| Artefacto | ¿Cuándo? |
+|---|---|
+| Migration | Siempre |
+| Model + traits (`BelongsToCompany`, `Auditable`, `SoftDeletes`) | Siempre |
+| Factory | Siempre (la usan todos los tests) |
+| Enum de estado + `canTransitionTo()` | Solo si la entidad tiene ciclo de vida |
+| Seeder (catálogo/datos base) | Solo si necesita datos semilla |
+| Policy | Siempre |
+| `Functionality` (entrada de menú + 5 permisos) | Siempre que sea navegable — la registra el generador (auto-provisión, [tooling.md](tooling.md) §1), no un `PermissionSeeder` a mano |
+| FormRequests `Store*`/`Update*` | Siempre que haya escritura |
+| `TableRequest` (contrato `*/table`) | Siempre que haya listado |
+| Actions (CRUD + ciclo de vida) | Siempre |
+| Eventos de dominio + Listeners | Solo si la checklist de vinculaciones (§6, V-01..V-20) responde "sí" — no es generable, es negocio |
+| Resource(s) | Siempre |
+| Controller | Siempre |
+| Entrada en `routes/domains/<dominio>.php` | Siempre |
+| Jobs/Notifications | Solo si hay envío asíncrono |
+| PDF/Excel | Solo si el documento lo exige |
+| Activity log | Si es documento/maestro relevante |
+| Tipos TS (`.d.ts`) | Siempre |
+| Página React Index (`ServerTable`) | Siempre que haya listado |
+| Páginas React Create/Edit | Siempre que haya escritura |
+| Página React Show | Solo si Edit no basta como detalle |
+| Claves i18n es/en | Siempre |
+| Tests CRUD + auth + aislamiento de tenant | Siempre |
+| Test por vinculación | Uno por cada "sí" de §6 (V-01..V-20) |
+
+No hay vistas Blade por módulo: el único Blade de todo el proyecto es la vista raíz del
+shell de Inertia (`resources/views/app.blade.php`); todo lo demás son páginas React. Los
+middleware de autorización ad-hoc por módulo no figuran en esta matriz porque están
+prohibidos (R-AUT-04): lo único que un módulo aplica es el middleware ya existente
+`EnsureModuleIsActive:<módulo>` (R-AUT-05), nunca uno propio nuevo.
+
+La fila `Migration`/`Model` de esta matriz asume `company_id` (R-TEN-01). La única
+excepción hoy documentada son las entidades de catálogo global `Module`/`Functionality`
+del dominio Admin (R-AUT-07) — sin `company_id`, con su propia matriz de permisos/menú.
+
+---
+
 ## 1. Ficha del módulo (antes de proponer)
 
 Se crea `docs/modules/<módulo>.md` con:

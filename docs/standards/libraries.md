@@ -34,6 +34,7 @@
 |---|---|
 | `pestphp/pest` ^4 + `pest-plugin-laravel` | Framework de tests (sustituye a PHPUnit puro del esqueleto) |
 | `pestphp/pest-plugin-arch` | Tests de arquitectura ([tooling.md](tooling.md)) |
+| `pestphp/pest-plugin-browser` (+ `playwright` en npm dev) | E2E integrado en la suite ([e2e.md](e2e.md)) |
 | `larastan/larastan` | PHPStan para Laravel |
 | `laravel/pint` (ya instalado) | Formato de código |
 | `barryvdh/laravel-ide-helper` (opcional) | Autocompletado de modelos |

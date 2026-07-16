@@ -30,7 +30,8 @@ return new class extends Migration
 
             $table->string('code', 32);
             $table->string('name');
-            $table->string('status', 32);              // enum PHP en el modelo (R-CAP-06)
+            $table->string('status', 32);              // enum PHP en el modelo (R-CAP-06);
+                                                       // NUNCA $table->enum() (R-BD-09)
             $table->string('address')->nullable();
             $table->date('starts_at')->nullable();
             $table->date('ends_at')->nullable();

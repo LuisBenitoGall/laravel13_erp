@@ -381,6 +381,15 @@ Cambios concretos respecto a v1:
    asentados de v1 (Effect, Seat, Store, Item). UI siempre en español vía i18n.
 7. **Alcance conceptual**: metodología + mapa global ahora; la ficha detallada de cada
    módulo (`docs/modules/`) se redacta al arrancarlo, como insumo de su propuesta OpenSpec.
+8. **Metodología de agentes 10/20/30** (heredada de la operativa de v1, adaptada):
+   10-architecture (propose) / 20-implementation (apply) / 30-testing (DoD + archive),
+   con fichas canónicas agnósticas de herramienta en `docs/agents/` y adaptadores finos
+   por tool: `.cursor/rules/`, `.claude/agents/` (modelo por rol: potente en 10, medio en
+   20/30) y `AGENTS.md` (Codex). El handoff entre roles/modelos son los artefactos
+   OpenSpec, lo que permite usar modelos baratos en implementación y potentes en diseño.
+9. **E2E con Pest 4 browser testing** (Playwright por debajo), integrado en la suite PHP
+   (`docs/standards/e2e.md`): sustituye al sandbox Playwright/TS de v1 (que existía por
+   el Node 16). Los CRUD los cubren feature tests; E2E solo flujos críticos completos.
 
 ### Abiertas (validar con negocio/propietario)
 

@@ -75,7 +75,8 @@
 | Ámbito (fiscal) | `TaxScope` | ámbito | nacional/intracom./extracom. |
 | SII | `Sii*` (`SiiCredential`…) | ídem | Nombre oficial AEAT |
 | VERI*FACTU | `Verifactu*` | — | Nuevo en v2 |
-| Módulo (activable) | `Module` | Module | Planes SaaS = módulos |
+| Módulo (activable) | `Module` | Module | Planes SaaS = módulos. Catálogo global (sin `company_id`); gate de plan vía `CompanyModules` |
+| Funcionalidad | `Functionality` | Functionality | **No confundir con `Module`**: es la unidad de permiso y de entrada de submenú dentro de un módulo (R-AUT-07). Catálogo global también |
 | Plan (suscripción) | `Plan` | — | Platform |
 | Tenant / suscriptor | `Tenant` | — | Empresa que contrata el SaaS |
 | Empleado / Fichaje | `Employee` / `TimeEntry` | Employee/fichaje | |
