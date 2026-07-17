@@ -390,6 +390,10 @@ Cambios concretos respecto a v1:
 9. **E2E con Pest 4 browser testing** (Playwright por debajo), integrado en la suite PHP
    (`docs/standards/e2e.md`): sustituye al sandbox Playwright/TS de v1 (que existía por
    el Node 16). Los CRUD los cubren feature tests; E2E solo flujos críticos completos.
+10. **Look & feel**: reseteo limpio respecto a Inspinia (v1), conservando solo el color por
+    módulo en el sidebar. Plantilla de referencia para adaptar: `shadcn-admin` (satnaing,
+    MIT). Branding por tenant limitado al logo (vista + documentos), sin theming completo
+    por empresa. Detalle en `docs/standards/frontend.md` §2.
 
 ### Abiertas (validar con negocio/propietario)
 

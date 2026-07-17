@@ -22,14 +22,21 @@ Por eso no se crea un `.claude/agents/05-explore.md` ni equivalente en otras her
 
 - **Nunca implementa código.** Puede crear/actualizar artefactos OpenSpec si se le pide
   (eso es capturar pensamiento, no implementar) — el resto es solo lectura del repo.
-- **Se usa en dos modos:**
-  1. **En la conversación principal** (caso normal): se invoca directamente, sin pasar
-     por el Agent tool, para aprovechar todo el contexto ya acumulado en la sesión.
-  2. **Delegado como subagente `10-architecture`** cuando conviene aislar contexto o
-     paralelizar la exploración de varias opciones a la vez — su misión ("pensar, no
-     implementar, no dejar huecos") ya coincide con la de explore, así que no hace
-     falta redefinir nada; el modelo se puede ajustar puntualmente con el override de
-     esa llamada sin crear un agente nuevo.
+- **Norma fija (2026-07-14): siempre delegado, nunca en el mismo hilo.** El flujo estándar
+  para CUALQUIER change es debate en `explore` → brief con
+  [`template_prompt.md`](../prompts/template_prompt.md) (protocolo estricto más abajo) →
+  ejecución con el agente `10-architecture` **como subagente nuevo**, no continuando la
+  conversación de explore bajo ese rol. Razón: un subagente nuevo arranca sin memoria de la
+  conversación (el brief es precisamente lo que lo compensa) y ese brief queda como
+  artefacto auditable — seguir "en caliente" en el mismo hilo no deja ese rastro y hace más
+  fácil que se cuelen decisiones no escritas. El modelo del subagente se puede ajustar
+  puntualmente con el override de esa llamada sin crear un agente nuevo.
+  - Excepción: tareas triviales fuera del ciclo de un change (una duda puntual, un fix de
+    una línea) pueden resolverse en el mismo hilo sin este circuito — pero eso no es
+    "avanzar un módulo", es una consulta aislada.
+  - El brief se persiste **siempre** como fichero en `docs/prompts/` (nunca solo en el
+    chat); quien decide cuándo y cómo lanzar el subagente `10-architecture` es el usuario,
+    no explore.
 - **Dónde encaja respecto a 10/20/30:**
   - Antes de `10-architecture`, cuando el problema aún no está maduro para una ficha de
     módulo o una propuesta (comparar opciones, investigar v1, dejar que la forma del
@@ -57,19 +64,22 @@ prompt"** para pasarlo a `10-architecture`, se aplican estas reglas sin excepci�
    debate dejó algo ambiguo, se PREGUNTA al usuario — cuantas veces sea necesario, sin
    límite de rondas. Nunca se rellena un hueco por inferencia o suposición razonable; esa
    decisión le corresponde a `10-architecture`, no a este paso.
-4. **No ejecuta nada**: redactar el brief es un acto de escritura de texto en el chat, no
-   una acción sobre el proyecto. Mientras dura esta tarea, prohibido crear el change de
-   OpenSpec (`openspec new change`), invocar `/opsx:propose`, escribir código o tocar
-   cualquier fichero del repo. Por defecto el prompt se entrega en el chat para copiar y
-   pegar; solo se escribe a disco si el usuario lo pide explícitamente.
-5. **Entrega**: el resultado es un bloque de texto listo para pegar como primer mensaje
-   de un subagente `10-architecture` fresco (o para continuar en el mismo hilo pidiendo la
-   propuesta directamente).
+4. **No ejecuta nada del change**: redactar el brief es escribir un fichero, no actuar
+   sobre el proyecto. Mientras dura esta tarea, prohibido crear el change de OpenSpec
+   (`openspec new change`), invocar `/opsx:propose`, escribir código o tocar cualquier
+   otro fichero del repo.
+5. **Entrega**: el brief se guarda **siempre** como fichero en `docs/prompts/<Change>.md`
+   (mismo slug que el campo `Change:` del propio brief) — nunca basta con mostrarlo solo en
+   el chat. Explore **no invoca** al subagente `10-architecture`: eso lo hace el usuario,
+   cuando decida, pegando el fichero como primer mensaje de un subagente/sesión nuevo.
 
 ## El contrato de handoff son los artefactos, no la conversación
 
 Todo el estado vive en el repo: `openspec/changes/<change>/` (proposal, design, specs,
-`tasks.md` con checkboxes) + `docs/modules/<módulo>.md` (ficha). Consecuencias:
+`tasks.md` con checkboxes) + `docs/modules/<módulo>.md` (ficha). El identificador del
+change es **siempre** `YYYY-MM-DD-<slug-corto>` (fecha ISO obligatoria; mismo slug que el
+campo `Change:` del brief y que `docs/prompts/<Change>.md`). Al archivar, no anteponer
+otra fecha si el change ya la lleva. Consecuencias:
 
 1. **Se puede cambiar de herramienta o de modelo a mitad de un change sin pérdida**: el
    siguiente agente lee los artefactos y continúa. Por eso conviene degradar a modelos

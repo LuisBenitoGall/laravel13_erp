@@ -34,13 +34,28 @@ Reglas:
 
 - Base **shadcn/ui** (Radix + Tailwind 4): los componentes se copian a `Components/ui/` y se
   ajustan a los tokens del proyecto. No se instalan kits alternativos.
+- **Plantilla de referencia (decisión 2026-07-14)**: [shadcn-admin](https://github.com/satnaing/shadcn-admin)
+  (satnaing, MIT) — mismo motor que el nuestro (shadcn/ui + Radix + Tailwind), Vite/React/TS
+  sin Next.js, iconos Lucide, claro/oscuro por tokens, sidebar data-driven y paleta de
+  comandos ⌘K. Se usa como **referencia de adaptación**: se copian sus patrones visuales a
+  `Components/`/`Layouts/AppLayout.tsx`, nunca se clona como scaffold completo — se descartan
+  su router (TanStack Router) y su integración de auth (Clerk), sustituidos por Inertia y el
+  auth propio del proyecto.
 - Tokens (colores, radios, spacing, tipografía) en CSS variables (`app.css` con `@theme` de
-  Tailwind 4). Branding por tenant = sobreescritura de variables en runtime (logo + acento).
+  Tailwind 4). Tema de marca único y fijo del proyecto — sin theming completo por tenant
+  (ver branding más abajo).
+- **Color por módulo conservado** (decisión 2026-07-14, continuidad deliberada con
+  Inspinia/v1): el `color`/`icon` de cada `Module` (R-AUT-07) tiñe su entrada en el sidebar
+  — única variación de color "por dominio" dentro de un tema por lo demás único.
+- **Branding por tenant limitado al logo** (decisión 2026-07-14): cada empresa puede traer
+  su logo, mostrado en el chrome de la app (topbar/sidebar) y en las plantillas de
+  documentos/PDF. Sin colores ni tipografía por tenant — simplifica los tokens (no hace
+  falta que sean sobreescribibles en runtime más allá del logo).
 - Densidad **compacta** por defecto: esto es un ERP de trabajo intensivo con tablas; se
   prima información por pantalla sobre aire (tamaño base 14px, filas de tabla ~32px).
 - Modo claro es el principal; el oscuro se soporta desde el día 1 vía tokens (no colores
   hardcodeados en componentes).
-- Iconos: exclusivamente `lucide-react`.
+- Iconos: exclusivamente `lucide-react` (coincide con la plantilla de referencia).
 
 ## 3. `<ServerTable>` — contrato estándar de listados (Tabulator)
 
@@ -117,7 +132,7 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 | `Feedback/ConfirmDialog` | Confirmaciones destructivas/irreversibles (borrar, remesar) |
 | `Feedback/EmptyState` · `ErrorBoundary` | Vacíos con CTA · captura de errores de página |
 | `ui/*` | Primitivas shadcn (Button, Dialog, DropdownMenu, Badge, Tooltip…) |
-| `SearchCommand` | Buscador global (⌘K) multi-entidad |
+| `SearchCommand` | Buscador global (⌘K) multi-entidad — adaptar el patrón ya resuelto en la plantilla de referencia (§2) |
 | `NotificationsPanel` | Campana + panel realtime (Echo/Reverb) |
 | `CompanySwitcher` / `WorksiteSwitcher` | Selector de empresa activa / obra en topbar |
 

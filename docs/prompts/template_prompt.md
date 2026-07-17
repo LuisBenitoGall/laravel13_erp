@@ -4,7 +4,7 @@
   un campo. Protocolo completo: docs/agents/README.md § "Redactar el brief de handoff".
 -->
 
-Change: CYYYY-MM-DD-<slug-corto>  (el slug corto debe empezar, si es posible, por el módulo al que pertenece)
+Change: YYYY-MM-DD-<slug-corto>  (OBLIGATORIO: siempre con fecha ISO; el slug corto debe empezar, si es posible, por el módulo al que pertenece)
 Rule: 10-architecture
 Summary: <1–3 frases cortas del cambio>
 Goals:

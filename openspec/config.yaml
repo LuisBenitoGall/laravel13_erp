@@ -5,6 +5,10 @@ context: |
   reconstrucción del ERP Viuda Vila v1 (referencia: C:\laragon\www\laravel8_erp_viudavila_github).
   Visión y decisiones de producto: docs/vision-v2.md.
 
+  NOMBRE DE CHANGE: siempre `YYYY-MM-DD-<slug-corto>` (fecha ISO obligatoria; el slug corto
+  debe empezar, si es posible, por el módulo). El brief en docs/prompts/<Change>.md usa el
+  mismo identificador. Al archivar, NO anteponer otra fecha si el change ya la lleva.
+
   NORMATIVO para todo artefacto: docs/standards/ (leer antes de proponer o diseñar).
   - module-playbook.md: las tasks de un change deben calcar sus checklists §3-§7,
     incluida la checklist de vinculaciones §6 (V-01..V-20) y el DoD §9.

@@ -27,12 +27,14 @@ change vive en `openspec/changes/<change>/` (los skills están en `.codex/skills
 conversación y artefactos chocan, mandan los artefactos. Regla de oro: **no inventar
 requisitos** — opciones A/B anotadas en el artefacto y decide 10-architecture (o Luis).
 
-`/opsx-explore` no es un rol: no implementa, no ejecuta comandos OpenSpec. Si en una
-sesión de explore se pide "redacta/prepara el prompt" para 10-architecture, sigue el
-protocolo estricto de `docs/agents/README.md` §"Redactar el brief de handoff": usa
-`docs/prompts/template_prompt.md` tal cual, cíñete solo a lo debatido (pregunta ante
-cualquier duda, cuantas veces haga falta, nunca infieras) y no ejecutes nada mientras
-redactas — el resultado se entrega en el chat para copiar y pegar.
+`/opsx-explore` no es un rol: no implementa, no ejecuta comandos OpenSpec. **Norma fija**:
+el flujo de cualquier change es siempre debate en explore → brief con
+`docs/prompts/template_prompt.md`, guardado como fichero en `docs/prompts/<Change>.md` →
+ejecución con `10-architecture` como **sesión/agente nuevo**, lanzada por el usuario
+(explore nunca la invoca ni continúa en el mismo hilo bajo ese rol). Al redactar el brief,
+sigue el protocolo estricto de `docs/agents/README.md` §"Redactar el brief de handoff": usa
+la plantilla tal cual, cíñete solo a lo debatido (pregunta ante cualquier duda, cuantas
+veces haga falta, nunca infieras) y no ejecutes nada del change mientras redactas.
 
 ## Mínimos innegociables (detalle en las fuentes de arriba)
 

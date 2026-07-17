@@ -42,12 +42,14 @@ archive). Al ejecutar cada fase, actuar según la ficha del rol correspondiente.
 del change vive en los artefactos OpenSpec: si conversación y artefactos chocan, mandan
 los artefactos; regla de oro: no inventar requisitos no especificados.
 
-`/opsx:explore` no es un rol (no implementa, no ejecuta comandos OpenSpec). Si en una
-sesión de explore se pide "redacta/prepara el prompt" para 10-architecture, seguir el
-protocolo estricto de `docs/agents/README.md` §"Redactar el brief de handoff": usar
-`docs/prompts/template_prompt.md` tal cual, ceñirse solo a lo debatido (preguntar ante
-cualquier duda, cuantas veces haga falta, nunca inferir) y no ejecutar nada mientras se
-redacta.
+`/opsx:explore` no es un rol (no implementa, no ejecuta comandos OpenSpec). **Norma fija**:
+el flujo de cualquier change es siempre debate en explore → brief con
+`docs/prompts/template_prompt.md`, guardado como fichero en `docs/prompts/<Change>.md` →
+ejecución con `10-architecture` como **subagente nuevo**, lanzado por el usuario (explore
+nunca lo invoca ni continúa en el mismo hilo bajo ese rol). Al redactar el brief, protocolo
+estricto de `docs/agents/README.md` §"Redactar el brief de handoff": usar la plantilla tal
+cual, ceñirse solo a lo debatido (preguntar ante cualquier duda, cuantas veces haga falta,
+nunca inferir) y no ejecutar nada del change mientras se redacta.
 
 ## Comandos
 
