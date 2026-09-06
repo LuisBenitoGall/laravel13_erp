@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Domains\{{ domain }}\Models;
+
+use App\Support\Models\Concerns\Auditable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+/** Catálogo global: sin BelongsToCompany (R-TEN-01 excepción --global). */
+class {{ entity }} extends Model
+{
+    use Auditable, HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'name',
+    ];
+}

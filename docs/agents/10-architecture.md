@@ -12,7 +12,7 @@ Convertir toda ambigüedad en decisión explícita o en tarea de "confirmar con 
 ## Cubre
 
 Playbook §1–2: ficha del módulo (`docs/modules/<módulo>.md`) + propuesta OpenSpec
-(comando `propose`). También responde las devoluciones de 20/30 durante el change.
+(comando `propose`). También responde las devoluciones de 20/30/40 durante el change.
 
 ## Lecturas obligatorias antes de proponer
 
@@ -33,6 +33,8 @@ Playbook §1–2: ficha del módulo (`docs/modules/<módulo>.md`) + propuesta Op
   y por qué; sección "Excepciones a standards" SOLO si las hay), specs delta y `tasks.md`.
 - `tasks.md` estructurado por entidad calcando playbook §3–§7 (datos → backend → frontend
   → tests), una task por vinculación, tasks de registro (§8), tareas pequeñas y verificables.
+  Si el change toca un flujo de `docs/standards/e2e.md` §4, incluir tasks E2E explícitas
+  (las ejecuta el rol 40). Si no aplica, declararlo en design.
 - Identificar invariantes del dominio: transiciones de estado, integridad de
   stock/reservas, cuadre contable, numeración, aislamiento de tenant.
 - Actualizar `module-map.md` si la propuesta introduce dependencias o eventos nuevos.
@@ -50,7 +52,8 @@ Playbook §1–2: ficha del módulo (`docs/modules/<módulo>.md`) + propuesta Op
 
 - [ ] Ficha del módulo completa, con vinculaciones V-01..V-20 respondidas.
 - [ ] `tasks.md` cubre: BD, backend, autorización (policy+permisos+seeder), frontend,
-      i18n, menú, tests (incluido aislamiento de tenant R-TEN-05), vinculaciones y registro.
+      i18n, menú, tests (incluido aislamiento de tenant R-TEN-05), vinculaciones, registro
+      y E2E (rol 40) si el change toca un flujo de `e2e.md` §4 — o “no aplica” en design.
 - [ ] Decisiones discutibles resueltas en design con alternativas descartadas.
 - [ ] Naming validado contra glosario; module-map actualizado si procede.
 - [ ] Validación OpenSpec limpia (`openspec validate <change>`).

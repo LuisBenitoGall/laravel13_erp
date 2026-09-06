@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Domains\{{ domain }}\Policies;
+
+use App\Domains\{{ domain }}\Models\{{ entity }};
+use App\Models\User;
+
+class {{ entity }}Policy
+{
+    public function viewAny(User $user): bool
+    {
+        return $user->can('{{ permission }}.viewAny');
+    }
+
+    public function view(User $user, {{ entity }} ${{ entitySnake }}): bool
+    {
+        return $user->can('{{ permission }}.view') && ${{ entitySnake }}->belongsToCurrentCompany();
+    }
+
+    public function create(User $user): bool
+    {
+        return $user->can('{{ permission }}.create');
+    }
+
+    public function update(User $user, {{ entity }} ${{ entitySnake }}): bool
+    {
+        return $user->can('{{ permission }}.update') && ${{ entitySnake }}->belongsToCurrentCompany();
+    }
+
+    public function delete(User $user, {{ entity }} ${{ entitySnake }}): bool
+    {
+        return $user->can('{{ permission }}.delete') && ${{ entitySnake }}->belongsToCurrentCompany();
+    }
+}

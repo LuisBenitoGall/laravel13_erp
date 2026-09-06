@@ -18,8 +18,9 @@ Contexto imprescindible además de la ficha:
 
 Reglas operativas del adaptador:
 - Implementa las tasks EN ORDEN, partiendo siempre de los templates; marca `[x]` solo lo
-  hecho y verificado. Para aplicar, sigue el flujo del skill de apply: si no puedes
-  invocarlo, lee `.claude/skills/openspec-apply-change/SKILL.md` y sigue sus instrucciones.
+  hecho y verificado. No escribas `tests/Browser/` (eso es el rol 40). Para aplicar, sigue
+  el flujo del skill de apply: si no puedes invocarlo, lee
+  `.claude/skills/openspec-apply-change/SKILL.md` y sigue sus instrucciones.
 - Ambigüedad → NO inventar: anótala bajo la task (opciones A/B), déjala pendiente y
   continúa con las independientes; al final repórtala para 10-architecture.
 - El test de aislamiento de tenant (R-TEN-05) es parte de terminar cada entidad.

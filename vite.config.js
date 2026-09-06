@@ -1,8 +1,12 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
     plugins: [
@@ -20,7 +24,7 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            '@': '/resources/js',
+            '@': path.resolve(dirname, 'resources/js'),
         },
     },
     server: {

@@ -1,8 +1,8 @@
 # Tooling de guardrails — generador, tests de arquitectura y CI
 
 > Especificación normativa de las herramientas que hacen cumplir los estándares
-> mecánicamente. **Estado: especificado; se implementa como primer change de la Fase 0**
-> (requiere instalar el canon de librerías de [libraries.md](libraries.md)).
+> mecánicamente. **Estado: implementado** (change `kernel-tooling-fase0`, 2026-07-16) salvo
+> el flag `--global` del generador (§1), añadido después y pendiente de construir.
 
 ## 1. Generador `make:domain-entity`
 
@@ -22,12 +22,35 @@ php artisan make:domain-entity {domain} {entity}
     {--seed : genera Seeder de datos base/catálogo + registro en DatabaseSeeder}
     {--notifiable : añade Jobs/Notifications esqueleto (company_id explícito, envío por cola)}
     {--exportable : añade generación de PDF/Excel esqueleto (plantilla + Action por cola)}
+    {--global : catálogo global sin tenancy — excepción de R-TEN-01 (ver más abajo)}
     {--no-frontend : solo backend}
 ```
 
 Los flags mapean 1:1 con la columna "condicional" de la
 [matriz de artefactos](module-playbook.md#matriz-de-artefactos-por-entidad-referencia-rápida);
 lo marcado como "Siempre" en esa matriz se genera sin necesidad de flag.
+
+### El flag `--global` (catálogos sin tenancy)
+
+R-TEN-01 ya preveía una excepción para "catálogos globales" (países, provincias, tipos de
+IVA base...) sin mecanismo para producirla — este flag es ese mecanismo. Categoría
+recurrente, no un caso aislado: `currencies`, `countries`, `provinces`, `banks`,
+`Module`/`Functionality` (R-AUT-07), y las que vayan apareciendo.
+
+**No confundir con relaciones N:M reales** (p. ej. `users` ↔ `companies` vía
+`user_companies`, un usuario en varias empresas a la vez): eso no es "sin tenancy", es una
+forma relacional distinta y no lo cubre este flag.
+
+Con `--global` activo, el generador omite:
+- **Migration**: sin columna/FK/índice `company_id`.
+- **Model**: sin trait `BelongsToCompany`.
+- **FormRequest**: `unique`/`exists` simples, sin el scoping de tenant de R-TEN-07 (no
+  aplica).
+- **Policy**: sin `belongsToCurrentCompany()` — autorización puramente por permiso.
+- **Factory**: sin `company_id => Company::factory()`.
+- **Test de aislamiento de tenant (R-TEN-05)**: no se genera — se sustituye por un test que
+  confirma que el dato se ve igual desde cualquier empresa (la inversa de la prueba
+  habitual).
 
 ### Salida (ejemplo `make:domain-entity Partners Worksite --status`)
 
@@ -161,7 +184,7 @@ push/PR →
   2. Pint --test · PHPStan · ESLint · tsc --noEmit
   3. Pest (unit + feature + arch) con MySQL de servicio (strict mode ON — mismo motor que prod, R-BD-01)
   4. npm run build (el frontend compila)
-  5. Pest browser (E2E de flujos críticos, stage separado — docs/standards/e2e.md)
+  5. Pest browser (E2E de flujos críticos, job `e2e` — docs/standards/e2e.md)
   6. composer audit + npm audit (falla en vulnerabilidad alta)
 ```
 
@@ -172,10 +195,10 @@ Regla: **rojo = no merge**. Sin excepciones "temporales".
 
 ## 5. Flujo de trabajo con IA (Claude Code / Cursor / Codex)
 
-- Roles de agente 10-architecture / 20-implementation / 30-testing: fichas canónicas en
-  `docs/agents/`, cargadas por adaptadores finos por herramienta: `.cursor/rules/`
-  (Cursor), `.claude/agents/` (Claude Code, con modelo por rol: fable en 10, sonnet en
-  20/30) y `AGENTS.md` (Codex y compatibles).
+- Roles de agente 10-architecture / 20-implementation / 40-e2e / 30-testing: fichas
+  canónicas en `docs/agents/`, cargadas por adaptadores finos por herramienta:
+  `.cursor/rules/` (Cursor), `.claude/agents/` (Claude Code, con modelo por rol: fable
+  en 10, sonnet en 20/30/40) y `AGENTS.md` (Codex y compatibles).
 - `CLAUDE.md` (raíz) carga los estándares como reglas de sesión; en Cursor lo hace
   `.cursor/rules/00-project.mdc` (alwaysApply).
 - Skill **`/new-module`**: ejecuta el playbook de forma guiada (ficha → propuesta → checklists).

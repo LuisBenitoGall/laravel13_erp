@@ -21,6 +21,11 @@
 /storage/*.key
 /storage/pail
 /vendor
+/tests/Browser/Screenshots
+/test-results
+/playwright-report
+/blob-report
+/playwright/.cache
 _ide_helper.php
 Homestead.json
 Homestead.yaml

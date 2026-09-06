@@ -1,0 +1,77 @@
+<?php
+
+namespace App\Domains\{{ domain }}\Http\Controllers;
+
+use App\Domains\{{ domain }}\Actions\Create{{ entity }};
+use App\Domains\{{ domain }}\Actions\Delete{{ entity }};
+use App\Domains\{{ domain }}\Actions\Update{{ entity }};
+use App\Domains\{{ domain }}\Http\Requests\Store{{ entity }}Request;
+use App\Domains\{{ domain }}\Http\Requests\Update{{ entity }}Request;
+use App\Domains\{{ domain }}\Http\Requests\{{ entity }}TableRequest;
+use App\Domains\{{ domain }}\Http\Resources\{{ entity }}Resource;
+use App\Domains\{{ domain }}\Models\{{ entity }};
+use App\Support\Table\TableBuilder;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Controller;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class {{ entity }}Controller extends Controller
+{
+    public function index(): Response
+    {
+        $this->authorize('viewAny', {{ entity }}::class);
+
+        return Inertia::render('{{ domain }}/{{ entityPlural }}/Index');
+    }
+
+    public function table({{ entity }}TableRequest $request, TableBuilder $table): JsonResponse
+    {
+        $this->authorize('viewAny', {{ entity }}::class);
+
+        return $table->for({{ entity }}::query())
+            ->searchable(['name'])
+            ->request($request)
+            ->through({{ entity }}Resource::class)
+            ->json();
+    }
+
+    public function create(): Response
+    {
+        $this->authorize('create', {{ entity }}::class);
+
+        return Inertia::render('{{ domain }}/{{ entityPlural }}/Create');
+    }
+
+    public function store(Store{{ entity }}Request $request, Create{{ entity }} $action): RedirectResponse
+    {
+        ${{ entitySnake }} = $action->handle($request->validated());
+
+        return to_route('{{ domainSnake }}.{{ permission }}.edit', ${{ entitySnake }});
+    }
+
+    public function edit({{ entity }} ${{ entitySnake }}): Response
+    {
+        $this->authorize('update', ${{ entitySnake }});
+
+        return Inertia::render('{{ domain }}/{{ entityPlural }}/Edit', [
+            '{{ entitySnake }}' => {{ entity }}Resource::make(${{ entitySnake }}),
+        ]);
+    }
+
+    public function update(Update{{ entity }}Request $request, {{ entity }} ${{ entitySnake }}, Update{{ entity }} $action): RedirectResponse
+    {
+        $action->handle(${{ entitySnake }}, $request->validated());
+
+        return back();
+    }
+
+    public function destroy({{ entity }} ${{ entitySnake }}, Delete{{ entity }} $action): RedirectResponse
+    {
+        $this->authorize('delete', ${{ entitySnake }});
+        $action->handle(${{ entitySnake }});
+
+        return to_route('{{ domainSnake }}.{{ permission }}.index');
+    }
+}

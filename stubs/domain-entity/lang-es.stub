@@ -1,0 +1,6 @@
+{
+  "{{ domainSnake }}.{{ permission }}.title": "{{ entityPlural }}",
+  "{{ domainSnake }}.{{ permission }}.created": "{{ entity }} creado",
+  "{{ domainSnake }}.{{ permission }}.updated": "{{ entity }} actualizado",
+  "{{ domainSnake }}.{{ permission }}.deleted": "{{ entity }} eliminado"
+}

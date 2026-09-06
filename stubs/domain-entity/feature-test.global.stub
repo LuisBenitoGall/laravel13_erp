@@ -1,0 +1,9 @@
+<?php
+
+use App\Domains\{{ domain }}\Models\{{ entity }};
+
+it('es visible igual desde cualquier contexto de empresa (catálogo global)', function () {
+    ${{ entitySnake }} = {{ entity }}::factory()->create();
+
+    expect({{ entity }}::query()->whereKey(${{ entitySnake }}->id)->exists())->toBeTrue();
+});

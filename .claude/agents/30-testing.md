@@ -18,6 +18,8 @@ Contexto imprescindible además de la ficha:
 Reglas operativas del adaptador:
 - Orden: leer artefactos → contrastar el diff → escribir tests que reproduzcan hallazgos
   → fixes mínimos (lo grande se devuelve a 20-implementation con el hallazgo documentado).
+  Los E2E de `tests/Browser/` los escribe el rol 40: si faltan o fallan, no archivas;
+  hand-off a 40.
 - Verifica el DoD del playbook §9 casilla a casilla; nada de archivar con tests en rojo o
   excepciones sin documentar. Para sync/archive sigue el flujo de los skills: si no puedes
   invocarlos, lee `.claude/skills/openspec-archive-change/SKILL.md` (y

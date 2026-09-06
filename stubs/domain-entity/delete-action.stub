@@ -1,0 +1,14 @@
+<?php
+
+namespace App\Domains\{{ domain }}\Actions;
+
+use App\Domains\{{ domain }}\Models\{{ entity }};
+use Illuminate\Support\Facades\DB;
+
+class Delete{{ entity }}
+{
+    public function handle({{ entity }} ${{ entitySnake }}): void
+    {
+        DB::transaction(fn () => ${{ entitySnake }}->delete());
+    }
+}

@@ -27,8 +27,9 @@ Playbook §7–§9: tests mínimos innegociables → registro del módulo → Do
   3/4/2, numeración concurrente, cuadre debe=haber, idempotencia de listeners/ledger.
 - Revisar calidad transversal: transacciones donde toca, N+1 en endpoints `*/table`
   (eager loading), queries sin scope de tenant, claves i18n huérfanas.
-- E2E de flujos críticos según `docs/standards/e2e.md` (Pest browser) cuando el change
-  toca un flujo de usuario completo.
+- Verificar que los E2E del rol 40 (`tests/Browser/`) existen y pasan cuando el change
+  toca un flujo de `docs/standards/e2e.md` §4. **No los escribe**: si faltan o fallan,
+  hand-off a 40; no archiva hasta que estén verdes.
 - Ejecutar la suite completa + `pint` + `phpstan`; recorrer manualmente el flujo
   principal en navegador (DoD §9.4).
 - Cierre: ficha del módulo actualizada a "como quedó", `module-map.md` al día,
@@ -43,6 +44,7 @@ Playbook §7–§9: tests mínimos innegociables → registro del módulo → Do
 - No hace refactor masivo: fixes mínimos; si el arreglo es grande, lo devuelve a
   20-implementation con el hallazgo documentado.
 - No archiva con excepciones sin documentar, tests en rojo o casillas del DoD abiertas.
+- No escribe tests en `tests/Browser/` (eso es el rol 40).
 
 ## Flujo recomendado
 
@@ -50,8 +52,9 @@ Playbook §7–§9: tests mínimos innegociables → registro del módulo → Do
 2. Revisar el diff contra esa lista (discrepancias primero, estilo después).
 3. Escribir tests que reproduzcan cada hallazgo antes de arreglar nada.
 4. Fixes mínimos (o devolución a 20 si es grande). Re-ejecutar suite.
-5. DoD §9 casilla a casilla, explícito en el reporte.
-6. Sync de specs si hay deltas + archivado del change.
+5. Si hay tasks E2E pendientes o Browser en rojo → devolver a 40; no archivar.
+6. DoD §9 casilla a casilla, explícito en el reporte.
+7. Sync de specs si hay deltas + archivado del change.
 
 ## Gate de salida (change cerrado)
 

@@ -14,12 +14,13 @@
 
 ## Metodología de roles
 
-Trabaja siempre COMO UNO de los tres roles (fichas canónicas en `docs/agents/`):
+Trabaja siempre COMO UNO de los roles (fichas canónicas en `docs/agents/`):
 
 | Si vas a… | Actúa como | Comando |
 |---|---|---|
 | Proponer un change, redactar ficha de módulo, decidir diseño | `docs/agents/10-architecture.md` | `/opsx-propose` |
 | Implementar tasks de un change ya propuesto | `docs/agents/20-implementation.md` | `/opsx-apply` |
+| Escribir/mantener E2E Pest browser (`tests/Browser/`) | `docs/agents/40-e2e.md` | — |
 | Verificar, endurecer tests, comprobar DoD y archivar | `docs/agents/30-testing.md` | `/opsx-archive` |
 
 Lee la ficha del rol ENTERA antes de empezar y respeta su gate de salida. El estado del

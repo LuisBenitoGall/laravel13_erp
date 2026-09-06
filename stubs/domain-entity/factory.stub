@@ -1,0 +1,21 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Domains\{{ domain }}\Models\{{ entity }};
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/** @extends Factory<{{ entity }}> */
+class {{ entity }}Factory extends Factory
+{
+    protected $model = {{ entity }}::class;
+
+    /** @return array<string, mixed> */
+    public function definition(): array
+    {
+        return [
+            'company_id' => 1,
+            'name' => fake()->words(3, true),
+        ];
+    }
+}

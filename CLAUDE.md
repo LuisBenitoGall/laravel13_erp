@@ -37,10 +37,11 @@ código nacen de una propuesta; la ficha del módulo (`docs/modules/<módulo>.md
 antes de proponer (checklist de vinculaciones incluida).
 
 Metodología de roles (transversal Claude/Cursor/Codex): fichas canónicas en `docs/agents/`
-— 10-architecture (propose), 20-implementation (apply), 30-testing (verificar DoD +
-archive). Al ejecutar cada fase, actuar según la ficha del rol correspondiente. El estado
-del change vive en los artefactos OpenSpec: si conversación y artefactos chocan, mandan
-los artefactos; regla de oro: no inventar requisitos no especificados.
+— 10-architecture (propose), 20-implementation (apply), 40-e2e (Pest browser),
+30-testing (verificar DoD + archive). Al ejecutar cada fase, actuar según la ficha del
+rol correspondiente. El estado del change vive en los artefactos OpenSpec: si
+conversación y artefactos chocan, mandan los artefactos; regla de oro: no inventar
+requisitos no especificados.
 
 `/opsx:explore` no es un rol (no implementa, no ejecuta comandos OpenSpec). **Norma fija**:
 el flujo de cualquier change es siempre debate en explore → brief con

@@ -36,6 +36,7 @@ ambigüedad más abajo.
   componente existente; promocionar a `Components/` si un privado se necesita en 2 dominios.
 - Escribir los tests que las tasks piden EN la misma task (no "al final"); el test de
   aislamiento de tenant es parte de terminar la entidad, no de la fase de testing.
+  Excepción: `tests/Browser/` lo escribe el rol 40, no 20.
 - Marcar `[x]` solo lo realmente hecho y verificado; añadir subtareas descubiertas SIN
   reescribir el contrato.
 - Dejar `pint` y `phpstan` limpios en el código que toca antes de dar una task por hecha.
@@ -48,6 +49,7 @@ ambigüedad más abajo.
   espera decisión (va al canon en el mismo PR si se acepta).
 - No hace refactors oportunistas fuera del alcance del change.
 - No marca casillas de tareas a medias ni tests en rojo.
+- No escribe tests en `tests/Browser/` (eso es el rol 40).
 
 ## Protocolo de ambigüedad
 
@@ -57,7 +59,7 @@ ambigüedad más abajo.
 3. Devolver a 10-architecture la pregunta concreta. Nunca "resolver provisionalmente"
    sin anotarlo.
 
-## Gate de salida (hacia 30-testing)
+## Gate de salida (hacia 40-e2e si hay tasks E2E; si no, hacia 30-testing)
 
 - [ ] Todas las tasks de implementación `[x]` (o pendientes SOLO por ambigüedad anotada).
 - [ ] `composer test` verde en local (incluidos arch tests), `pint` y `phpstan` limpios.

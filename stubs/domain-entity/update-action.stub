@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Domains\{{ domain }}\Actions;
+
+use App\Domains\{{ domain }}\Models\{{ entity }};
+use Illuminate\Support\Facades\DB;
+
+class Update{{ entity }}
+{
+    /** @param  array<string, mixed>  $data */
+    public function handle({{ entity }} ${{ entitySnake }}, array $data): {{ entity }}
+    {
+        return DB::transaction(function () use (${{ entitySnake }}, $data) {
+            ${{ entitySnake }}->update($data);
+
+            return ${{ entitySnake }}->refresh();
+        });
+    }
+}

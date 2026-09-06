@@ -1,6 +1,6 @@
-# Metodología de agentes (roles 10/20/30)
+# Metodología de agentes (roles 10/20/30 + 40)
 
-El desarrollo se organiza en **tres roles diferenciados** alineados con el ciclo OpenSpec.
+El desarrollo se organiza en **cuatro roles diferenciados** alineados con el ciclo OpenSpec.
 Cada rol tiene su ficha canónica en esta carpeta — **agnóstica de herramienta**: vale igual
 para Claude Code, Cursor o Codex. Cada herramienta la carga con un adaptador fino
 (`.cursor/rules/*.mdc`, `.claude/agents/*.md`, `AGENTS.md`), que nunca duplica contenido.
@@ -9,12 +9,17 @@ para Claude Code, Cursor o Codex. Cada herramienta la carga con un adaptador fin
 |---|---|---|---|---|
 | 10-architecture | [10-architecture.md](10-architecture.md) | propose | §1–2 (ficha + propuesta) | El más potente disponible |
 | 20-implementation | [20-implementation.md](20-implementation.md) | apply | §3–6 (datos/backend/frontend/vinculaciones) | Tier medio (Sonnet o equivalente) |
+| 40-e2e | [40-e2e.md](40-e2e.md) | — (sin comando propio) | E2E de flujos críticos (`tests/Browser`) | Tier medio |
 | 30-testing | [30-testing.md](30-testing.md) | archive (tras verificar) | §7–9 (tests + DoD + archivado) | Tier medio; potente para revisar diffs de dominios críticos |
+
+40 no propone ni archiva: escribe los Pest browser tests que 10 dejó en `tasks.md`
+cuando el change toca un flujo de [e2e.md](../standards/e2e.md) §4. 20 no los
+escribe; 30 no los redacta — los verifica y solo entonces archiva.
 
 Nomenclatura de comandos: en Claude Code son `/opsx:propose`, `/opsx:apply`, `/opsx:archive`,
 `/opsx:sync`; en Cursor/Codex, `/opsx-propose`, `/opsx-apply`, etc. Son las mismas skills.
 
-## `/opsx:explore` no es un cuarto rol
+## `/opsx:explore` no es un rol
 
 `explore` es una **skill/postura de pensamiento**, no un rol con ficha ni gate propio:
 no tiene alcance de herramientas distinto, ni modelo fijo, ni Definition of Ready/Done.
@@ -77,9 +82,10 @@ prompt"** para pasarlo a `10-architecture`, se aplican estas reglas sin excepci�
 
 Todo el estado vive en el repo: `openspec/changes/<change>/` (proposal, design, specs,
 `tasks.md` con checkboxes) + `docs/modules/<módulo>.md` (ficha). El identificador del
-change es **siempre** `YYYY-MM-DD-<slug-corto>` (fecha ISO obligatoria; mismo slug que el
-campo `Change:` del brief y que `docs/prompts/<Change>.md`). Al archivar, no anteponer
-otra fecha si el change ya la lleva. Consecuencias:
+change es **siempre** `cYYYY-MM-DD-<slug-corto>` (prefijo `c` + fecha ISO; el CLI OpenSpec
+exige empezar por letra; mismo slug que el campo `Change:` del brief y que
+`docs/prompts/<Change>.md`). Al archivar, no anteponer otra fecha si el change ya la
+lleva. Consecuencias:
 
 1. **Se puede cambiar de herramienta o de modelo a mitad de un change sin pérdida**: el
    siguiente agente lee los artefactos y continúa. Por eso conviene degradar a modelos
@@ -93,10 +99,10 @@ otra fecha si el change ya la lleva. Consecuencias:
 Si una decisión de negocio no está en spec/design/tasks ni en `docs/vision-v2.md`:
 **no se inventa**. Se plantean opciones (A/B con consecuencias), se anota en el artefacto
 correspondiente y decide 10-architecture (o Luis, si es de negocio). Esta regla obliga a
-los tres roles.
+los cuatro roles.
 
 ## Jerarquía normativa (recordatorio)
 
-`docs/standards/` obliga a los tres roles ([README](../standards/README.md)). Las
+`docs/standards/` obliga a los cuatro roles ([README](../standards/README.md)). Las
 excepciones solo existen si el design del change las declara por escrito. Si un estándar
 está mal: se corrige el estándar primero, después se sigue.

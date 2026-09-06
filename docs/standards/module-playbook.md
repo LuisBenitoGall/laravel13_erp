@@ -60,9 +60,14 @@ middleware de autorización ad-hoc por módulo no figuran en esta matriz porque 
 prohibidos (R-AUT-04): lo único que un módulo aplica es el middleware ya existente
 `EnsureModuleIsActive:<módulo>` (R-AUT-05), nunca uno propio nuevo.
 
-La fila `Migration`/`Model` de esta matriz asume `company_id` (R-TEN-01). La única
-excepción hoy documentada son las entidades de catálogo global `Module`/`Functionality`
-del dominio Admin (R-AUT-07) — sin `company_id`, con su propia matriz de permisos/menú.
+La fila `Migration`/`Model` de esta matriz asume `company_id` (R-TEN-01). Los catálogos
+globales (`Module`/`Functionality` del dominio Admin, R-AUT-07; y en general
+`currencies`/`countries`/`provinces`/`banks`/tipos de IVA base y similares) son la
+excepción: se generan con el flag `--global` del generador ([tooling.md](tooling.md) §1),
+que omite `company_id`, `BelongsToCompany` y el test de aislamiento de tenant (sustituido
+por uno que confirma que el dato se ve igual desde cualquier empresa). No confundir con
+relaciones N:M reales entre empresa y otra entidad (p. ej. `users`↔`companies`), que no
+son "sin tenancy" y no encajan en `--global`.
 
 ---
 

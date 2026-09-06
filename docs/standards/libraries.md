@@ -19,8 +19,8 @@
 
 | Paquete | Uso | Reglas asociadas |
 |---|---|---|
-| `spatie/laravel-permission` ^6 | Roles y permisos por empresa | R-AUT-* |
-| `spatie/laravel-translatable` | Datos traducibles por registro (JSON) | R-BD-08 |
+| `spatie/laravel-permission` ^8 | Roles y permisos por empresa (Teams; Laravel 12/13). Canon actualizado 2026-07-17: ^6 no soporta Laravel 13. | R-AUT-* |
+| `spatie/laravel-translatable` ^6 | Datos traducibles por registro (JSON) | R-BD-08 |
 | `spatie/laravel-activitylog` | Auditoría transversal | R-TRV-02 |
 | `laravel/reverb` + `laravel/echo` (front) | Realtime: notificaciones, chat | — |
 | `laravel/sanctum` | API tokens (integraciones) | V-19 |

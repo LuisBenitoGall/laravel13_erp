@@ -1,0 +1,16 @@
+<?php
+
+use App\Domains\{{ domain }}\Models\{{ entity }};
+
+it('aísla registros por empresa activa', function () {
+    withCurrentCompany(1);
+    ${{ entitySnake }}A = {{ entity }}::factory()->create();
+
+    withCurrentCompany(2);
+    ${{ entitySnake }}B = {{ entity }}::factory()->create();
+
+    withCurrentCompany(1);
+    expect({{ entity }}::query()->pluck('id')->all())
+        ->toContain(${{ entitySnake }}A->id)
+        ->not->toContain(${{ entitySnake }}B->id);
+});

@@ -76,8 +76,12 @@ empresa preferente.
 
 - **R-TEN-01** Toda tabla de datos de negocio lleva `company_id` (FK a `companies`) y todo
   índice útil empieza por `company_id` (índices compuestos `(company_id, ...)`).
-  Excepciones (catálogos globales: países, provincias, tipos de IVA base...) se listan
-  explícitamente en la ficha del módulo.
+  Excepciones (catálogos globales: países, provincias, tipos de IVA base, divisas,
+  entidades bancarias, `Module`/`Functionality`...) se generan con el flag `--global` del
+  generador ([tooling.md](tooling.md) §1) y se listan explícitamente en la ficha del
+  módulo. No aplica a relaciones N:M reales entre empresa y otra entidad (p. ej.
+  `users`↔`companies` vía `user_companies`): eso es una forma relacional distinta, no una
+  ausencia de tenancy.
 - **R-TEN-02** Todo modelo de negocio usa el trait `BelongsToCompany`, que aplica un global
   scope por la empresa activa y rellena `company_id` en `creating`.
 - **R-TEN-03** La empresa activa se resuelve UNA vez por request en el middleware

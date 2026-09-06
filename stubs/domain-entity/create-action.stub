@@ -1,0 +1,15 @@
+<?php
+
+namespace App\Domains\{{ domain }}\Actions;
+
+use App\Domains\{{ domain }}\Models\{{ entity }};
+use Illuminate\Support\Facades\DB;
+
+class Create{{ entity }}
+{
+    /** @param  array<string, mixed>  $data */
+    public function handle(array $data): {{ entity }}
+    {
+        return DB::transaction(fn () => {{ entity }}::query()->create($data));
+    }
+}

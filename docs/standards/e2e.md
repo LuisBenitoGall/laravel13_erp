@@ -19,10 +19,17 @@ determinismo).
 ## 2. Instalación (Fase 0, con el resto del canon)
 
 ```
-composer require pestphp/pest-plugin-browser --dev
+composer require pestphp/pest-plugin-browser:^4.3 --dev
 npm install playwright --save-dev
 npx playwright install chromium
 ```
+
+Constraint: **^4** (Pest 4 / PHP 8.3). No instalar v5: exige PHP 8.4 y Pest 5.
+Requisito PHP: extensión `sockets` habilitada (`extension=sockets` en el `php.ini`
+de Laragon). Sin ella el plugin no arranca.
+
+Quién escribe los E2E: rol **40** (`docs/agents/40-e2e.md`). 10-architecture los
+decide en `tasks.md`; 20-implementation no los escribe; 30-testing los verifica.
 
 Entorno Laragon/Windows (lecciones de v1 que siguen vigentes):
 - Playwright requiere **Node ≥ 18**: en Laragon, Menú → Node.js → v22, y reabrir la
@@ -60,12 +67,14 @@ feature tests del playbook §7):
 - Portal cliente: catálogo → carrito → checkout → pedido borrador (cuando exista).
 
 Regla: cada change que toque un flujo de estos añade/ajusta su E2E (lo decide
-10-architecture en las tasks; lo verifica 30-testing).
+10-architecture en las tasks; lo escribe el rol 40; lo verifica 30-testing).
 
 ## 5. Entornos
 
 - Local (Laragon) y CI: navegador headless contra la app de test. En CI, los browser
   tests son un stage separado de la suite rápida (pueden ser más lentos).
+- Inertia no se hidrata sin JS compilado: **`npm run build` antes** de
+  `php artisan test --testsuite=Browser`. Pest browser no arranca Vite.
 - **Prohibido apuntar E2E a producción** de ningún tenant. Cuando exista un entorno
   preview, solo flujos de lectura salvo datos marcados y purgables (patrón v1:
   marcar registros generados y comando `e2e:purge` idempotente).

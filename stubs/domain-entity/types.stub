@@ -1,0 +1,4 @@
+export interface {{ entity }}Row {
+  id: number
+  name: string
+}

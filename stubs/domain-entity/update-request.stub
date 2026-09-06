@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Domains\{{ domain }}\Http\Requests;
+
+use App\Domains\{{ domain }}\Models\{{ entity }};
+use Illuminate\Foundation\Http\FormRequest;
+
+class Update{{ entity }}Request extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return $this->user()->can('update', $this->route('{{ entitySnake }}'));
+    }
+
+    /** @return array<string, mixed> */
+    public function rules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:255'],
+        ];
+    }
+}

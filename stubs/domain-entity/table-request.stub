@@ -1,0 +1,12 @@
+<?php
+
+namespace App\Domains\{{ domain }}\Http\Requests;
+
+use App\Support\Table\TableRequest;
+
+class {{ entity }}TableRequest extends TableRequest
+{
+    protected array $sortable = ['name', 'created_at'];
+
+    protected array $filterable = ['search'];
+}
