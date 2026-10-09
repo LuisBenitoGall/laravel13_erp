@@ -1,13 +1,13 @@
 <?php
 
 use App\Domains\Admin\Actions\CreateFunctionality;
-use App\Domains\Admin\Actions\CreateModule;
 use App\Domains\Admin\Actions\UpdateFunctionality;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
+use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
@@ -19,18 +19,18 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     app()[PermissionRegistrar::class]->forgetCachedPermissions();
     setPermissionsTeamId(null);
+
+    $this->company = Company::factory()->create();
+    Module::factory()->create([
+        'slug' => 'admin',
+        'level' => ModuleLevel::AdminOnly,
+        'status' => ModuleStatus::Active,
+    ]);
+    enableModuleForCompany($this->company, 'admin');
 });
 
 it('crea Functionality y provisiona 5 permisos + comodín', function () {
-    $module = app(CreateModule::class)->handle([
-        'name' => 'Admin',
-        'slug' => 'admin',
-        'label' => ['es' => 'Admin', 'en' => 'Admin'],
-        'color' => '#0f766e',
-        'icon' => 'settings',
-        'level' => ModuleLevel::AdminOnly->value,
-        'status' => ModuleStatus::Active->value,
-    ]);
+    $module = Module::query()->where('slug', 'admin')->firstOrFail();
 
     $functionality = app(CreateFunctionality::class)->handle([
         'module_id' => $module->id,
@@ -49,7 +49,7 @@ it('crea Functionality y provisiona 5 permisos + comodín', function () {
 });
 
 it('rechaza cambio de slug en UpdateFunctionality', function () {
-    $module = Module::factory()->create();
+    $module = Module::factory()->create(['slug' => 'other']);
     $functionality = Functionality::factory()->create(['module_id' => $module->id, 'slug' => 'fixed']);
 
     expect(fn () => app(UpdateFunctionality::class)->handle($functionality, [
@@ -63,10 +63,9 @@ it('rechaza cambio de slug en UpdateFunctionality', function () {
 
 it('niega Functionality index sin permiso', function () {
     $user = User::factory()->create();
+    actingWithCompany($user, $this->company);
 
-    $this->actingAs($user)
-        ->get(route('admin.functionalities.index'))
-        ->assertForbidden();
+    $this->get(route('admin.functionalities.index'))->assertForbidden();
 });
 
 it('Functionality es visible globalmente', function () {
@@ -79,10 +78,9 @@ it('Super Admin bypasa Policy', function () {
     $user = User::factory()->create();
     Role::findOrCreate('Super Admin');
     $user->assignRole('Super Admin');
+    actingWithCompany($user, $this->company);
 
-    $this->actingAs($user)
-        ->get(route('admin.functionalities.index'))
-        ->assertOk();
+    $this->get(route('admin.functionalities.index'))->assertOk();
 
     $role = Role::findByName('Super Admin');
     expect($role->company_id ?? $role->getAttribute('company_id'))->toBeNull();

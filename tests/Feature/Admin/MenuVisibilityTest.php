@@ -2,10 +2,12 @@
 
 use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\CreateModule;
+use App\Domains\Admin\Actions\DisableModuleForCompany;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Services\MenuBuilder;
+use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
@@ -16,6 +18,8 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     app()[PermissionRegistrar::class]->forgetCachedPermissions();
     setPermissionsTeamId(null);
+
+    $this->company = Company::factory()->create();
 
     $this->module = app(CreateModule::class)->handle([
         'name' => 'Admin',
@@ -42,6 +46,9 @@ beforeEach(function () {
         'label' => ['es' => 'Funcionalidades', 'en' => 'Functionalities'],
         'status' => FunctionalityStatus::Active->value,
     ]);
+
+    enableModuleForCompany($this->company, 'admin');
+    withCurrentCompany($this->company);
 });
 
 it('muestra módulo con solo viewAny de Functionality sin comodín', function () {
@@ -66,4 +73,15 @@ it('comodín implica todas las Functionalities del módulo', function () {
     expect($menu)->toHaveCount(1)
         ->and(collect($menu[0]['functionalities'])->pluck('slug')->sort()->values()->all())
         ->toBe(['functionalities', 'modules']);
+});
+
+it('módulo solo visible si elegible y encendido', function () {
+    $user = User::factory()->create();
+    Permission::findOrCreate('admin.access');
+    $user->givePermissionTo('admin.access');
+
+    app(DisableModuleForCompany::class)
+        ->handle($this->company, $this->module);
+
+    expect(app(MenuBuilder::class)->forUser($user))->toBeEmpty();
 });

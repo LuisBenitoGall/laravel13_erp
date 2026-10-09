@@ -1,6 +1,19 @@
 {
-  "scratch_global.catalog_items.title": "CatalogItems",
-  "scratch_global.catalog_items.created": "CatalogItem created",
-  "scratch_global.catalog_items.updated": "CatalogItem updated",
-  "scratch_global.catalog_items.deleted": "CatalogItem deleted"
+    "scratch_global.catalog_items.title": "CatalogItems",
+    "scratch_global.catalog_items.created": "CatalogItem created",
+    "scratch_global.catalog_items.updated": "CatalogItem updated",
+    "scratch_global.catalog_items.deleted": "CatalogItem deleted",
+    "auth.no_company": "You have no active company linked.",
+    "auth.company_forbidden": "You cannot access that company.",
+    "auth.company_switched": "Company switched.",
+    "partners.companies.created": "Company created",
+    "partners.companies.updated": "Company updated",
+    "partners.companies.deleted": "Company deleted",
+    "admin.modules.created": "Module created",
+    "admin.modules.updated": "Module updated",
+    "admin.modules.deleted": "Module deleted",
+    "admin.company_modules.enabled": "Module enabled",
+    "admin.company_modules.disabled": "Module disabled",
+    "admin.company_module_authorizations.authorized": "Module authorized",
+    "admin.company_module_authorizations.revoked": "Authorization revoked"
 }

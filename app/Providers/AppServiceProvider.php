@@ -6,7 +6,9 @@ use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Policies\FunctionalityPolicy;
 use App\Domains\Admin\Policies\ModulePolicy;
-use App\Support\Modules\AlwaysActiveModuleChecker;
+use App\Domains\Admin\Services\CompanyModuleActivationChecker;
+use App\Domains\Partners\Models\Company;
+use App\Domains\Partners\Policies\CompanyPolicy;
 use App\Support\Modules\ModuleActivationChecker;
 use App\Support\Table\TableBuilder;
 use App\Support\Tenancy\CurrentCompany;
@@ -18,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(CurrentCompany::class);
-        $this->app->bind(ModuleActivationChecker::class, AlwaysActiveModuleChecker::class);
+        $this->app->bind(ModuleActivationChecker::class, CompanyModuleActivationChecker::class);
         $this->app->bind(TableBuilder::class);
     }
 
@@ -26,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Module::class, ModulePolicy::class);
         Gate::policy(Functionality::class, FunctionalityPolicy::class);
+        Gate::policy(Company::class, CompanyPolicy::class);
 
         // Super Admin bypass (R-AUT-03). Con Teams, el rol tiene company_id NULL;
         // setPermissionsTeamId(null) asegura hasRole sin team activo.

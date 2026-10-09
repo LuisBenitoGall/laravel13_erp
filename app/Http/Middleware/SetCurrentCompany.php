@@ -8,8 +8,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Fija CurrentCompany desde la sesión/header/usuario.
- * Hasta Admin: acepta X-Company-Id o session key; no inventa Company.
+ * Fija CurrentCompany desde sesión validando pertenencia a company activa.
  */
 class SetCurrentCompany
 {
@@ -19,11 +18,25 @@ class SetCurrentCompany
 
     public function handle(Request $request, Closure $next): Response
     {
-        $companyId = $request->header('X-Company-Id')
-            ?? $request->session()->get('current_company_id');
+        $rawCompanyId = $request->session()->get('current_company_id');
+        $user = $request->user();
 
-        if ($companyId !== null && $companyId !== '') {
-            $this->currentCompany->set((int) $companyId);
+        if ($rawCompanyId === null || $rawCompanyId === '') {
+            return $next($request);
+        }
+
+        $id = (int) $rawCompanyId;
+
+        if ($user !== null) {
+            if ($user->belongsToCompany($id)) {
+                $this->currentCompany->set($id);
+            } else {
+                $request->session()->forget('current_company_id');
+                $this->currentCompany->set(null);
+            }
+        } else {
+            // Tests sin user autenticado: solo int de sesión.
+            $this->currentCompany->set($id);
         }
 
         return $next($request);

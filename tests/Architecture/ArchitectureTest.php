@@ -55,6 +55,8 @@ it('todo modelo de negocio en Domains usa BelongsToCompany', function () {
         $ignored = [
             'App\\Domains\\Admin\\Models\\Module',
             'App\\Domains\\Admin\\Models\\Functionality',
+            // Company ES el tenant (no un registro scoped a otro tenant).
+            'App\\Domains\\Partners\\Models\\Company',
         ];
 
         if (in_array($class, $ignored, true)) {

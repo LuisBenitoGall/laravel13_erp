@@ -1,6 +1,19 @@
 {
-  "scratch_global.catalog_items.title": "CatalogItems",
-  "scratch_global.catalog_items.created": "CatalogItem creado",
-  "scratch_global.catalog_items.updated": "CatalogItem actualizado",
-  "scratch_global.catalog_items.deleted": "CatalogItem eliminado"
+    "scratch_global.catalog_items.title": "CatalogItems",
+    "scratch_global.catalog_items.created": "CatalogItem creado",
+    "scratch_global.catalog_items.updated": "CatalogItem actualizado",
+    "scratch_global.catalog_items.deleted": "CatalogItem eliminado",
+    "auth.no_company": "No tienes ninguna empresa activa vinculada.",
+    "auth.company_forbidden": "No puedes acceder a esa empresa.",
+    "auth.company_switched": "Empresa cambiada.",
+    "partners.companies.created": "Empresa creada",
+    "partners.companies.updated": "Empresa actualizada",
+    "partners.companies.deleted": "Empresa eliminada",
+    "admin.modules.created": "Módulo creado",
+    "admin.modules.updated": "Módulo actualizado",
+    "admin.modules.deleted": "Módulo eliminado",
+    "admin.company_modules.enabled": "Módulo encendido",
+    "admin.company_modules.disabled": "Módulo apagado",
+    "admin.company_module_authorizations.authorized": "Módulo autorizado",
+    "admin.company_module_authorizations.revoked": "Autorización revocada"
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Database\Seeders\AdminCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,7 +22,9 @@ it('siembra Super Admin con company_id NULL y usuario de trabajo', function () {
 
     $user = User::query()->where('email', config('superadmin.email'))->first();
     expect($user)->not->toBeNull()
-        ->and($user->hasRole('Super Admin'))->toBeTrue();
+        ->and($user->hasRole('Super Admin'))->toBeTrue()
+        ->and($user->companies()->count())->toBeGreaterThan(0)
+        ->and(Company::query()->where('slug', 'demo')->exists())->toBeTrue();
 });
 
 it('login del superadmin redirige al catálogo', function () {
@@ -32,7 +35,10 @@ it('login del superadmin redirige al catálogo', function () {
         'password' => config('superadmin.password'),
     ])->assertRedirect(route('admin.modules.index'));
 
-    $this->actingAs(User::query()->where('email', config('superadmin.email'))->first())
-        ->get(route('admin.modules.index'))
-        ->assertOk();
+    $user = User::query()->where('email', config('superadmin.email'))->first();
+    $company = $user->companies()->first();
+
+    actingWithCompany($user, $company);
+
+    $this->get(route('admin.modules.index'))->assertOk();
 });

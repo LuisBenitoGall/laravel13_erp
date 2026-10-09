@@ -1,64 +1,43 @@
 # Módulo Admin — catálogo, RBAC y shell
 
-> Ficha playbook §1. **Como quedó** tras `c2026-07-17-admin-catalog-permissions`
-> (Capa 1+2 Fase 0).
+> Ficha playbook §1. **Como quedó** tras `c2026-07-17-admin-catalog-permissions` y
+> `c2026-10-09-company-tenancy-modules`.
 
 ## Propósito y alcance
 
-**Entra:** catálogo global `Module` / `Functionality`; Spatie Permission con Teams
-(`company_id`); rol Super Admin + usuario de trabajo; visibilidad de menú R-AUT-08
-(sin gate `CompanyModules` todavía); AppLayout + ServerTable + formularios mínimos;
-login/logout de sesión.
+**Entra:** catálogo global `Module` / `Functionality`; Spatie Teams; Super Admin;
+elegibilidad (`company_module_authorizations`) + activación (`company_modules`);
+`MenuBuilder` y `EnsureModuleIsActive` con triple condición R-AUT-08; UI de módulos de
+empresa y autorización Super Admin.
 
-**No entra (esta iteración):** `Company` / `CompanyModules` / roles por empresa /
-`user_companies`; registro público ni reset de contraseña; otros catálogos globales
-(currencies, countries…); resto de dominios de negocio.
+**No entra:** roles Spatie por empresa; Platform/pago real de módulos; engorde Company.
 
 ## Entidades
 
 | Entidad | Dominio | Notas |
 |---|---|---|
-| `Module` | `App\Domains\Admin` | `--global --status --translatable`; enums `ModuleLevel`, `ModuleStatus` |
-| `Functionality` | `App\Domains\Admin` | `--global --status --translatable`; slug inmutable; FK `module_id` |
-
-Infra transversal: Spatie Teams (`config/permission.php`), `Gate::before` Super Admin,
-`MenuBuilder`, `AppLayout`, `ServerTable`, login sesión, `AdminCatalogSeeder`.
+| `Module` / `Functionality` | Admin | Catálogo global (`--global`) |
+| `CompanyModuleAuthorization` | Admin | Capa 3 elegibilidad (soft delete); pivote, sin CRUD generador |
+| `CompanyModule` | Admin | Capa 2 activación (soft delete); pivote, sin CRUD generador |
 
 ## Dependencias
 
-- Kernel tooling: generador con `--global`, Support, Table*, arch ignoring globales.
-- Frontend bootstrap: Inertia + React + TS + Tailwind.
-- Paquetes: `spatie/laravel-permission` **^8** (Laravel 13; canon `libraries.md`),
-  `spatie/laravel-translatable`, `tabulator-tables`, RHF + zod + Lucide.
-- `module-map.md`: sin cambio de dependencias entre dominios.
+- **Admin → Partners** (lectura `Company`): menú, middleware, autorizaciones, pertenencia.
+- `ModuleActivationChecker` implementado por `CompanyModuleActivationChecker` (Admin).
 
-## Checklist de vinculaciones (V-01..V-20)
+## Capas de módulos (como quedó)
 
-| # | ¿? | Respuesta | Cómo quedó |
-|---|---|---|---|
-| V-01..V-06 | No | — | — |
-| V-07 | Sí | Spatie Teams; seed Super Admin; CreateFunctionality provisiona 5 permisos + comodín | |
-| V-08 | Sí | `MenuBuilder` → prop Inertia `menu`; excepción sin CompanyModules documentada | |
-| V-09 | Sí (catálogo) | Seed Module `admin` + Functionalities `modules` / `functionalities` | |
-| V-10..V-11 | No | — | — |
-| V-12 | Sí | HasTranslations + forms con traducciones | |
-| V-13..V-20 | No (esta iteración) | Activity log diferido | |
+1. Global Active/Inactive.
+2. Encendido en `company_modules` (permiso `company-modules.*` + Super Admin).
+3. Autorizado en `company_module_authorizations` (solo Super Admin; Basic auto al crear
+   company activa / al activar Module Basic).
 
-## Permisos (como quedó)
+## Functionalities seed
 
-- Functionality: `{modules|functionalities}.{viewAny,view,create,update,delete}`
-- Comodín: `admin.access`
-- Rol **Super Admin** con `company_id` NULL; pivotes Spatie `company_id` nullable
-- Credenciales: `config/superadmin.php` / env
+`modules`, `functionalities`, `companies`, `company-modules`,
+`company-module-authorizations` bajo Module `admin`.
 
-## Rutas y UI
+## Menú / middleware
 
-- `routes/domains/admin.php` (auth): CRUD Modules / Functionalities + `*/table`
-- Login/logout en `routes/web.php`
-- Pages: `Admin/Modules/*`, `Admin/Functionalities/*`, `Auth/Login`
-- Shared Inertia: `auth`, `menu`, `flash`, `tenant.logo_url`
-
-## Referencia v1 / migración
-
-Sin cambio respecto a la ficha de propuesta: Policies (no middleware ad-hoc); menú
-data-driven único; migración v1→v2 fuera de alcance.
+`MenuBuilder` y `EnsureModuleIsActive` exigen Active + autorizado + encendido para la
+empresa de sesión; luego comodín OR `viewAny`. Excepción R-AUT-08 parcial **retirada**.

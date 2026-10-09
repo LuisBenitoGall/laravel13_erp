@@ -7,14 +7,21 @@ use Illuminate\Support\Facades\DB;
 
 class UpdateModule
 {
+    public function __construct(
+        private readonly AuthorizeModuleForActiveCompanies $authorizeModuleForActiveCompanies,
+    ) {}
+
     /** @param  array<string, mixed>  $data */
     public function handle(Module $module, array $data): Module
     {
         return DB::transaction(function () use ($module, $data) {
             unset($data['slug']);
             $module->update($data);
+            $module->refresh();
 
-            return $module->refresh();
+            $this->authorizeModuleForActiveCompanies->handle($module);
+
+            return $module;
         });
     }
 }

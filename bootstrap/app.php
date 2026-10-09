@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureCompanySelected;
 use App\Http\Middleware\EnsureModuleIsActive;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetCurrentCompany;
@@ -17,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function (): void {
             Route::middleware('web')
                 ->group(base_path('routes/domains/admin.php'));
+            Route::middleware('web')
+                ->group(base_path('routes/domains/partners.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -27,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'current_company' => SetCurrentCompany::class,
+            'company' => EnsureCompanySelected::class,
             'module' => EnsureModuleIsActive::class,
         ]);
     })

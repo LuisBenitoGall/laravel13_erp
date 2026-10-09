@@ -14,7 +14,8 @@ type SharedProps = {
     auth: { user: { id: number; name: string; email: string } | null };
     menu: MenuItem[];
     flash: { success?: string | null; error?: string | null };
-    tenant: { logo_url: string | null };
+    tenant: { id: number | null; name: string | null; logo_url: string | null };
+    available_companies: Array<{ id: number; name: string }>;
 };
 
 export default function AppLayout({
@@ -24,7 +25,7 @@ export default function AppLayout({
     title?: string;
     children: ReactNode;
 }) {
-    const { auth, menu, flash, tenant } = usePage<SharedProps>().props;
+    const { auth, menu, flash, tenant, available_companies } = usePage<SharedProps>().props;
 
     useEffect(() => {
         if (flash.success) {
@@ -42,7 +43,9 @@ export default function AppLayout({
                     {tenant.logo_url ? (
                         <img src={tenant.logo_url} alt="Logo" className="h-8 w-auto" />
                     ) : (
-                        <span className="text-sm font-semibold tracking-tight">ERP v2</span>
+                        <span className="text-sm font-semibold tracking-tight">
+                            {tenant.name ?? 'ERP v2'}
+                        </span>
                     )}
                 </div>
                 <nav className="flex-1 space-y-4 overflow-y-auto p-3">
@@ -76,6 +79,23 @@ export default function AppLayout({
                 <header className="flex h-14 items-center justify-between border-b border-slate-200 bg-white px-6">
                     <h1 className="text-base font-semibold">{title ?? ''}</h1>
                     <div className="flex items-center gap-3 text-sm">
+                        {available_companies.length > 1 && (
+                            <select
+                                className="rounded-md border border-slate-300 px-2 py-1"
+                                value={tenant.id ?? ''}
+                                onChange={(e) =>
+                                    router.post('/companies/switch', {
+                                        company_id: Number(e.target.value),
+                                    })
+                                }
+                            >
+                                {available_companies.map((company) => (
+                                    <option key={company.id} value={company.id}>
+                                        {company.name}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
                         <span className="text-slate-600">{auth.user?.name}</span>
                         <button
                             type="button"

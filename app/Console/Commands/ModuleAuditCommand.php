@@ -92,6 +92,11 @@ class ModuleAuditCommand extends Command
             $domain = $parts[0];
             $entity = Str::before($parts[2], '.php');
 
+            // Tablas pivote de capas (no entidades CRUD con checklist Siempre).
+            if (in_array($entity, ['CompanyModule', 'CompanyModuleAuthorization'], true)) {
+                continue;
+            }
+
             if ($domainFilter && Str::lower($domain) !== Str::lower((string) $domainFilter)) {
                 continue;
             }

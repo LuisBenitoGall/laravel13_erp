@@ -2,13 +2,18 @@
 
 namespace Database\Seeders;
 
+use App\Domains\Admin\Actions\AuthorizeModuleForCompany;
 use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\CreateModule;
+use App\Domains\Admin\Actions\EnableModuleForCompany;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
+use App\Domains\Partners\Actions\CreateCompany;
+use App\Domains\Partners\Enums\CompanyStatus;
+use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -67,6 +72,9 @@ class AdminCatalogSeeder extends Seeder
             foreach ([
                 ['name' => 'Modules', 'slug' => 'modules', 'label' => ['es' => 'Módulos', 'en' => 'Modules']],
                 ['name' => 'Functionalities', 'slug' => 'functionalities', 'label' => ['es' => 'Funcionalidades', 'en' => 'Functionalities']],
+                ['name' => 'Companies', 'slug' => 'companies', 'label' => ['es' => 'Empresas', 'en' => 'Companies']],
+                ['name' => 'Company modules', 'slug' => 'company-modules', 'label' => ['es' => 'Módulos de empresa', 'en' => 'Company modules']],
+                ['name' => 'Module authorizations', 'slug' => 'company-module-authorizations', 'label' => ['es' => 'Autorización de módulos', 'en' => 'Module authorizations']],
             ] as $item) {
                 if (Functionality::query()->where('slug', $item['slug'])->exists()) {
                     continue;
@@ -80,6 +88,26 @@ class AdminCatalogSeeder extends Seeder
                     'status' => FunctionalityStatus::Active->value,
                 ]);
             }
+
+            $company = Company::query()->where('slug', 'demo')->first();
+
+            if ($company === null) {
+                $company = app(CreateCompany::class)->handle([
+                    'name' => 'Demo Company',
+                    'slug' => 'demo',
+                    'tradename' => 'Demo',
+                    'nif' => 'B00000000',
+                    'status' => CompanyStatus::Active->value,
+                    'logo' => null,
+                ]);
+            }
+
+            if (! $user->companies()->where('companies.id', $company->id)->exists()) {
+                $user->companies()->attach($company->id);
+            }
+
+            app(AuthorizeModuleForCompany::class)->handle($company, $module);
+            app(EnableModuleForCompany::class)->handle($company, $module);
         } finally {
             setPermissionsTeamId($previousTeamId);
         }

@@ -3,12 +3,13 @@
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 
-it('pasa con conjunto vacío de modelos de dominio o solo catálogos globales', function () {
+it('pasa con conjunto vacío de modelos de dominio o solo catálogos/tenant shell', function () {
     $base = app_path('Domains');
     $files = (new Filesystem)->exists($base)
         ? collect((new Filesystem)->allFiles($base))
             ->filter(fn ($f) => preg_match('#[\\\\/]Models[\\\\/][^\\\\/]+\.php$#', $f->getPathname()))
             ->reject(fn ($f) => str_contains($f->getPathname(), 'Admin'.DIRECTORY_SEPARATOR.'Models'))
+            ->reject(fn ($f) => str_contains($f->getPathname(), 'Partners'.DIRECTORY_SEPARATOR.'Models'))
         : collect();
 
     expect($files)->toBeEmpty();
@@ -66,6 +67,12 @@ it('EntityCompleteness: todos los modelos de dominio tienen artefactos Siempre',
         $parts = preg_split('#[\\\\/]#', $relative) ?: [];
         $domain = $parts[0];
         $entity = $m[1];
+
+        // Pivotes de capas de módulos: UI custom, no checklist CRUD completo.
+        if (in_array($entity, ['CompanyModule', 'CompanyModuleAuthorization'], true)) {
+            continue;
+        }
+
         $entityPlural = Str::pluralStudly($entity);
         $domainSnake = Str::snake($domain);
 

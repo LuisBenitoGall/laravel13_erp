@@ -1,6 +1,7 @@
 <?php
 
 use App\Domains\Admin\Models\Module;
+use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Database\Seeders\AdminCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,9 +17,10 @@ beforeEach(function () {
 
 it('Index Module responde JSON de ServerTable', function () {
     $user = User::query()->where('email', config('superadmin.email'))->first();
+    $company = Company::query()->where('slug', 'demo')->firstOrFail();
+    actingWithCompany($user, $company);
 
-    $this->actingAs($user)
-        ->getJson(route('admin.modules.table'))
+    $this->getJson(route('admin.modules.table'))
         ->assertOk()
         ->assertJsonStructure(['data', 'last_page', 'total']);
 

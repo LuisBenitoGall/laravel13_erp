@@ -50,6 +50,7 @@ Fila = dominio que depende; columna = dominio del que depende.
 
 | ↓ usa → | Admin | Partners | Catalog | Inventory | Sales | Purchasing | Invoicing | Treasury | Accounting | Tax |
 |---|---|---|---|---|---|---|---|---|---|---|
+| **Admin** | — | D⁵ | | | | | | | | |
 | **Partners** | D | — | | | | | | | | |
 | **Catalog** | D | D | — | | | | | | | |
 | **Inventory** | D | D | D | — | | | | | | |
@@ -68,6 +69,9 @@ Fila = dominio que depende; columna = dominio del que depende.
 2. Facturar albarán ajusta stock SOLO vía eventos/Actions de Inventory.
 3. **Toda la contabilidad se alimenta por eventos** (R-LED-02): ningún dominio llama a
    Accounting directamente para escribir; Accounting escucha.
+5. Admin lee `Partners\Company` para menú, `EnsureModuleIsActive`, autorizaciones y
+   pertenencia (change `c2026-10-09-company-tenancy-modules`). Company es el tenant;
+   no usa `BelongsToCompany`.
 4. El portal desemboca en el motor estándar de pedidos de Sales (borrador + notificación).
 
 Una dependencia que no esté en esta matriz **no se puede introducir** sin actualizar este
