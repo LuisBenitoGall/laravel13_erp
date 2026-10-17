@@ -4,6 +4,7 @@ import { createInertiaApp, type ResolvedComponent } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
 
+import I18nSync from './Components/I18nSync';
 import i18n, { bootstrapI18n } from './i18n';
 
 createInertiaApp({
@@ -22,7 +23,14 @@ createInertiaApp({
 
         createRoot(el).render(
             <I18nextProvider i18n={i18n}>
-                <App {...props} />
+                <App {...props}>
+                    {({ Component, props: pageProps, key }) => (
+                        <>
+                            <I18nSync />
+                            <Component {...pageProps} key={key} />
+                        </>
+                    )}
+                </App>
             </I18nextProvider>,
         );
     },
