@@ -3,10 +3,10 @@
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\Module;
+use App\Domains\Admin\Models\Role;
 use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 uses(RefreshDatabase::class);

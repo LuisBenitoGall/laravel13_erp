@@ -14,13 +14,13 @@ use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
+use App\Domains\Admin\Models\Role;
 use App\Domains\Partners\Actions\CreateCompany;
 use App\Domains\Partners\Enums\CompanyStatus;
 use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 class AdminCatalogSeeder extends Seeder
@@ -33,7 +33,18 @@ class AdminCatalogSeeder extends Seeder
         setPermissionsTeamId(null);
 
         try {
-            Role::findOrCreate('Super Admin');
+            Role::findOrCreate(Role::SUPER_ADMIN);
+
+            foreach ([
+                [Role::MANAGER, 'Default company manager (permissions via sync)'],
+                [Role::GUEST, 'Default company guest (empty permissions by default)'],
+            ] as [$templateName, $description]) {
+                $template = Role::findOrCreate($templateName);
+                $template->forceFill([
+                    'universal' => true,
+                    'description' => $description,
+                ])->save();
+            }
 
             $email = (string) config('superadmin.email');
             $password = (string) config('superadmin.password');
@@ -50,8 +61,8 @@ class AdminCatalogSeeder extends Seeder
                 ],
             );
 
-            if (! $user->hasRole('Super Admin')) {
-                $user->assignRole('Super Admin');
+            if (! $user->hasRole(Role::SUPER_ADMIN)) {
+                $user->assignRole(Role::SUPER_ADMIN);
             }
 
             $module = Module::query()->where('slug', 'admin')->first();
@@ -78,6 +89,7 @@ class AdminCatalogSeeder extends Seeder
                 ['name' => 'Companies', 'slug' => 'companies', 'label' => ['es' => 'Empresas', 'en' => 'Companies']],
                 ['name' => 'Company modules', 'slug' => 'company-modules', 'label' => ['es' => 'Módulos de empresa', 'en' => 'Company modules']],
                 ['name' => 'Module authorizations', 'slug' => 'company-module-authorizations', 'label' => ['es' => 'Autorización de módulos', 'en' => 'Module authorizations']],
+                ['name' => 'Roles', 'slug' => 'roles', 'label' => ['es' => 'Roles', 'en' => 'Roles']],
             ] as $item) {
                 if (Functionality::query()->where('slug', $item['slug'])->exists()) {
                     continue;

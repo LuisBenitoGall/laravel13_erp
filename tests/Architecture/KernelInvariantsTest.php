@@ -4,6 +4,7 @@ use App\Domains\Admin\Models\CompanyModule;
 use App\Domains\Admin\Models\CompanyModuleAuthorization;
 use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
+use App\Domains\Admin\Models\Role;
 use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use App\Support\Models\Concerns\BelongsToCompany;
@@ -60,7 +61,8 @@ it('CurrentCompany existe y Company es el tenant sin BelongsToCompany', function
     expect(class_exists(CurrentCompany::class))->toBeTrue()
         ->and(class_uses_recursive(Company::class))->not->toHaveKey(BelongsToCompany::class)
         ->and(class_uses_recursive(Module::class))->not->toHaveKey(BelongsToCompany::class)
-        ->and(class_uses_recursive(Functionality::class))->not->toHaveKey(BelongsToCompany::class);
+        ->and(class_uses_recursive(Functionality::class))->not->toHaveKey(BelongsToCompany::class)
+        ->and(class_uses_recursive(Role::class))->not->toHaveKey(BelongsToCompany::class);
 });
 
 it('User expone pertenencia N:M a Company', function () {

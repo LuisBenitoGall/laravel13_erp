@@ -68,8 +68,8 @@ it('EntityCompleteness: todos los modelos de dominio tienen artefactos Siempre',
         $domain = $parts[0];
         $entity = $m[1];
 
-        // Pivotes de capas de módulos: UI custom, no checklist CRUD completo.
-        if (in_array($entity, ['CompanyModule', 'CompanyModuleAuthorization'], true)) {
+        // Infra no-CRUD Siempre: pivotes de capas; Spatie Role (CRUD = PlatformRole*).
+        if (in_array($entity, ['CompanyModule', 'CompanyModuleAuthorization', 'Role'], true)) {
             continue;
         }
 

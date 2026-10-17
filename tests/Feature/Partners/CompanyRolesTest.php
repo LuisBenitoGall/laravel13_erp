@@ -3,12 +3,12 @@
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\Module;
+use App\Domains\Admin\Models\Role;
 use App\Domains\Partners\Enums\CompanyStatus;
 use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 uses(RefreshDatabase::class);
@@ -45,13 +45,14 @@ it('al crear company genera manager y guest con company_id y asigna manager al c
 
     expect($this->actor->companies()->where('companies.id', $company->id)->exists())->toBeTrue();
 
-    setPermissionsTeamId($company->id);
-    $manager = Role::findByName('manager');
-    $guest = Role::findByName('guest');
+    $manager = Role::query()->where('name', Role::MANAGER)->where('company_id', $company->id)->first();
+    $guest = Role::query()->where('name', Role::GUEST)->where('company_id', $company->id)->first();
 
-    expect((int) $manager->getAttribute('company_id'))->toBe($company->id)
-        ->and((int) $guest->getAttribute('company_id'))->toBe($company->id)
-        ->and($this->actor->hasRole('manager'))->toBeTrue();
+    expect($manager)->not->toBeNull()
+        ->and($guest)->not->toBeNull();
+
+    setPermissionsTeamId($company->id);
+    expect($this->actor->hasRole(Role::MANAGER))->toBeTrue();
 
     $guestPermissionCount = DB::table('role_has_permissions')
         ->where('role_id', $guest->id)

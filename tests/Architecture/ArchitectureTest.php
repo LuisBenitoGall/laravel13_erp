@@ -55,6 +55,8 @@ it('todo modelo de negocio en Domains usa BelongsToCompany', function () {
         $ignored = [
             'App\\Domains\\Admin\\Models\\Module',
             'App\\Domains\\Admin\\Models\\Functionality',
+            // Spatie Teams: plantillas `company_id` NULL + copias locales; no BelongsToCompany.
+            'App\\Domains\\Admin\\Models\\Role',
             // Company ES el tenant (no un registro scoped a otro tenant).
             'App\\Domains\\Partners\\Models\\Company',
         ];

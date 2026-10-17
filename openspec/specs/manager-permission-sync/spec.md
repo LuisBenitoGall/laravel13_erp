@@ -1,6 +1,6 @@
 ## Purpose
 
-Sincronización idempotente del rol `manager` con permisos de Functionalities de módulos Basic/Optional autorizados (excluye AdminOnly); no al encender/apagar.
+Sincronización idempotente del rol `manager` local con permisos de Functionalities de módulos Basic/Optional autorizados (excluye AdminOnly); techo modular pleno sin recorte por plantilla universal.
 
 ## Requirements
 
@@ -8,7 +8,9 @@ Sincronización idempotente del rol `manager` con permisos de Functionalities de
 El sistema SHALL mantener el rol `manager` de cada company con los permisos de las
 Functionalities de módulos Basic y Optional autorizados para esa company, excluyendo
 AdminOnly; la sincronización ocurre al autorizar/desautorizar (incluida la auto-autorización
-Basic), no al encender/apagar.
+Basic), no al encender/apagar. SHALL NOT reducir ese conjunto según checkboxes de la
+plantilla universal `manager`: el techo de acceso de la empresa a un módulo autorizado
+y activado es el de todas las funcionalidades de ese módulo.
 
 #### Scenario: Autorizar módulo Optional añade permisos al manager
 - **WHEN** Super Admin autoriza un Module Optional (Active) para una company
@@ -32,3 +34,9 @@ Basic), no al encender/apagar.
 - **WHEN** se auto-autorizan los módulos Basic al crear una company activa
 - **THEN** el rol `manager` de esa company queda sincronizado con los permisos de esos
   módulos Basic
+
+#### Scenario: Plantilla universal no recorta el sync
+- **WHEN** existe plantilla universal `manager` y un módulo Basic/Optional está
+  autorizado para la company
+- **THEN** el sync asigna al `manager` local todos los permisos de las Functionalities
+  de ese módulo con independencia de la matriz de la plantilla

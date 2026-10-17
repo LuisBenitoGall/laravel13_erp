@@ -78,8 +78,11 @@
 | VERI*FACTU | `Verifactu*` | — | Nuevo en v2 |
 | Módulo (activable) | `Module` | Module | Planes SaaS = módulos. Catálogo global (sin `company_id`); gate de plan vía `CompanyModules` |
 | Funcionalidad | `Functionality` | Functionality | **No confundir con `Module`**: es la unidad de permiso y de entrada de submenú dentro de un módulo (R-AUT-07). Catálogo global también |
-| Rol manager (empresa) | `manager` (Spatie Role + `company_id`) | `{id}/manager` | Máximo dentro de la empresa; UI «Manager» |
-| Rol guest / invitado (empresa) | `guest` (Spatie Role + `company_id`) | `{id}/basico` | Nace sin permisos; UI «Invitado» |
+| Rol manager (empresa) | `manager` (Spatie Role + `company_id`) | `{id}/manager` | Máximo dentro de la empresa; UI «Manager»; plantilla universal `company_id` NULL |
+| Rol guest / invitado (empresa) | `guest` (Spatie Role + `company_id`) | `{id}/basico` | Nace sin permisos; UI «Invitado»; plantilla universal `company_id` NULL |
+| Rol universal | Spatie Role `universal=true`, `company_id` NULL | `universal` | Plantilla para tenants; se materializa por company al alta |
+| Rol de plataforma (genérico) | Spatie Role `universal=false`, `company_id` NULL | — | Solo plataforma; no usable por tenants |
+| Super Admin | `Super Admin` (`company_id` NULL) | Super Admin | Rol plataforma inmutable; bypass Gate::before |
 | Plan (suscripción) | `Plan` | — | Platform |
 | Tenant / suscriptor | `Tenant` | — | Empresa que contrata el SaaS |
 | Empleado / Fichaje | `Employee` / `TimeEntry` | Employee/fichaje | |

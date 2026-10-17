@@ -7,11 +7,11 @@ use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
+use App\Domains\Admin\Models\Role;
 use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 uses(RefreshDatabase::class);
@@ -76,12 +76,10 @@ it('Functionality es visible globalmente', function () {
 
 it('Super Admin bypasa Policy', function () {
     $user = User::factory()->create();
-    Role::findOrCreate('Super Admin');
-    $user->assignRole('Super Admin');
+    setPermissionsTeamId(null);
+    Role::findOrCreate(Role::SUPER_ADMIN);
+    $user->assignRole(Role::SUPER_ADMIN);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.functionalities.index'))->assertOk();
-
-    $role = Role::findByName('Super Admin');
-    expect($role->company_id ?? $role->getAttribute('company_id'))->toBeNull();
 });

@@ -92,8 +92,8 @@ class ModuleAuditCommand extends Command
             $domain = $parts[0];
             $entity = Str::before($parts[2], '.php');
 
-            // Tablas pivote de capas (no entidades CRUD con checklist Siempre).
-            if (in_array($entity, ['CompanyModule', 'CompanyModuleAuthorization'], true)) {
+            // Infra no-CRUD Siempre: pivotes de capas; Spatie Role (CRUD = PlatformRole*).
+            if (in_array($entity, ['CompanyModule', 'CompanyModuleAuthorization', 'Role'], true)) {
                 continue;
             }
 

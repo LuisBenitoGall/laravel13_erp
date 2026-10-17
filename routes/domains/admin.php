@@ -4,6 +4,7 @@ use App\Domains\Admin\Http\Controllers\CompanyModuleAuthorizationController;
 use App\Domains\Admin\Http\Controllers\CompanyModuleController;
 use App\Domains\Admin\Http\Controllers\FunctionalityController;
 use App\Domains\Admin\Http\Controllers\ModuleController;
+use App\Domains\Admin\Http\Controllers\PlatformRoleController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'company', 'module:admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -12,6 +13,9 @@ Route::middleware(['auth', 'company', 'module:admin'])->prefix('admin')->name('a
 
     Route::get('functionalities/table', [FunctionalityController::class, 'table'])->name('functionalities.table');
     Route::resource('functionalities', FunctionalityController::class)->except(['show']);
+
+    Route::get('roles/table', [PlatformRoleController::class, 'table'])->name('roles.table');
+    Route::resource('roles', PlatformRoleController::class)->except(['show']);
 
     Route::get('company-modules', [CompanyModuleController::class, 'index'])->name('company-modules.index');
     Route::post('company-modules/{module}/enable', [CompanyModuleController::class, 'enable'])->name('company-modules.enable');
