@@ -103,6 +103,7 @@ los cuatro roles.
 
 ## Jerarquía normativa (recordatorio)
 
-`docs/standards/` obliga a los cuatro roles ([README](../standards/README.md)). Las
+`docs/standards/kernel.md` + el resto de `docs/standards/` obligan a los cuatro roles
+([README](../standards/README.md)). Las
 excepciones solo existen si el design del change las declara por escrito. Si un estándar
 está mal: se corrige el estándar primero, después se sigue.

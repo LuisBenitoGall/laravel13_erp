@@ -98,6 +98,14 @@ empresa preferente.
   una empresa concreta.
 - **R-TEN-07** Los `exists`/`unique` de validación siempre acotados al tenant:
   `Rule::exists('obras','id')->where('company_id', $currentCompanyId)`.
+- **R-TEN-08** Un `User` puede existir sin empresa; **no entra al ERP** sin ≥1
+  `Company` activa vinculada (`user_companies`). Post-login: 1 empresa → sesión
+  automática; N empresas → selección bloqueante. Soft delete en `companies`; no
+  en `user_companies`. Company (Partners) **es** el tenant: no usa
+  `BelongsToCompany`.
+- **R-TEN-09** Super Admin (`Gate::before`, R-AUT-03) no amplía el perímetro de
+  datos: solo companies a las que el usuario está vinculado. Prohibido un atajo
+  “ver todas”.
 
 ## 4. Autorización
 
@@ -110,34 +118,43 @@ empresa preferente.
   de Admin, el de su `Functionality` (R-AUT-07). Cada entidad declara sus permisos en el
   seeder de permisos de su dominio, o los auto-provisiona el generador
   ([tooling.md](tooling.md) §1); nunca se crean permisos "sueltos".
-- **R-AUT-03** Roles por empresa (patrón v1 `company_id/rol`); Super Admin de plataforma con
-  bypass vía `Gate::before`.
+- **R-AUT-03** Roles por empresa (patrón v1 `company_id/rol`); Super Admin de plataforma
+  con bypass de permisos/módulos/funcionalidades vía `Gate::before`. El bypass **no**
+  incluye el perímetro de datos (R-TEN-09).
 - **R-AUT-04** **Prohibidos los middleware ad-hoc de autorización** por módulo (los ~100
   pares `*Get/*Post` de v1). Autorización = Policy (+ `authorize()` del FormRequest).
-- **R-AUT-05** El middleware `EnsureModuleIsActive:<módulo>` protege las rutas de cada módulo
-  activable (planes SaaS = módulos por empresa).
+- **R-AUT-05** El middleware `EnsureModuleIsActive:<módulo>` protege las rutas de cada
+  módulo activable. Exige la triple condición de R-AUT-08 (catálogo Active +
+  autorizado + encendido para la empresa de sesión), no solo un permiso Spatie.
 - **R-AUT-06** El permiso que protege una ruta/acción coincide con el módulo real de la
   entidad (en v1 había facturas protegidas con `orders.edit`: prohibido).
 - **R-AUT-07** Catálogo `Module` / `Functionality` (Admin; excepción global de R-TEN-01, sin
-  `company_id`): `Module` es la unidad SaaS-activable (gate de plan vía `CompanyModules` +
+  `company_id`): `Module` es la unidad SaaS-activable (tres capas, R-AUT-08:
+  catálogo + `company_module_authorizations` + `company_modules`, gate
   `EnsureModuleIsActive`); `Functionality` es la unidad de permiso/menú dentro de un módulo
   (slug **inmutable** tras crearse — lo usan los nombres de permiso y las asignaciones de
   rol —, `label` editable, `status` activo/inactivo, reasignable de `module_id`). Al crear
   una `Functionality` se auto-provisionan sus 5 permisos `viewAny/view/create/update/delete`
   (nunca los 7 de v1 `index/create/show/search/edit/update/destroy`: `search` se absorbe en
   `viewAny`, `edit`+`update` se funden en `update`).
-- **R-AUT-08** Visibilidad de menú (un único mecanismo para los 3 niveles de `Module` —
-  admin-only/básico/opcional —, no los dos sistemas paralelos de v1
-  `basic-menu.json`/`secondary-menu.json`):
-  - Un `Module` se muestra si `CompanyModules` lo tiene activo para la empresa **y**
-    (el usuario tiene el permiso comodín `<module-slug>.access` **o** tiene al menos un
-    permiso de alguna `Functionality` del módulo).
-  - Una `Functionality` se muestra si el usuario tiene el comodín `<module-slug>.access`
-    de su módulo (que **implica** el `viewAny` de todas sus Functionalities) **o** su
-    propio permiso `viewAny`.
-  - v1 hacía un AND estricto (exigía el comodín de módulo aunque el usuario tuviera permiso
-    de una Functionality concreta, dejando módulos enteros invisibles): prohibido replicar
-    ese comportamiento.
+- **R-AUT-08** Tres capas + un único mecanismo de menú (prohibido replicar
+  `basic-menu.json` / `secondary-menu.json` de v1). Un Module es usable en sesión
+  solo si se cumplen **las tres**:
+  1. **Catálogo global** (`modules.status` Active/Inactive). Inactive ⇒ invisible y
+     bloqueo total de sus Functionalities en todas las empresas.
+  2. **Activación** (`company_modules`): la empresa enciende/apaga módulos a los que
+     tiene derecho (permiso `company-modules.*` o Super Admin). Encender/apagar **no**
+     altera los permisos del rol.
+  3. **Elegibilidad** (`company_module_authorizations`): Module Active ≠ la empresa
+     puede activarlo. Solo Super Admin marca autorizado sí/no. Encender un módulo no
+     autorizado debe fallar. `ModuleLevel`: `Basic` se autoriza por defecto al crear
+     company activa y al activar un Module Basic; `Optional` y `AdminOnly` requieren
+     Capa 3 (no auto-autorizar). No inventar restricciones extra de AdminOnly.
+  - Menú / `EnsureModuleIsActive`: tras las 3 capas, el usuario ve el Module si tiene
+    el comodín `<module-slug>.access` **o** al menos un `viewAny` de Functionality del
+    módulo. El comodín **implica** el `viewAny` de todas sus Functionalities.
+  - v1 hacía un AND estricto (exigía el comodín aunque hubiera permiso de una
+    Functionality): prohibido replicar ese comportamiento.
 
 ## 5. Capas y responsabilidades
 
@@ -214,7 +231,7 @@ español (y demás idiomas) vía i18n; el usuario nunca ve identificadores.
 | FormRequest | `Store<Modelo>Request` / `Update<Modelo>Request` | `StoreProductRequest` |
 | Ruta (nombre) | `<módulo>.<entidad>.<acción>` | `sales.budgets.store` |
 | Ruta (URI) | kebab-case plural | `/sales/delivery-notes` |
-| Permiso | `<módulo>.<acción>` kebab | `invoices.create`, `orders.change-date` |
+| Permiso | `<functionality>.<acción>` kebab | `invoices.create`, `orders.change-date` |
 | Columna estado | `status` (enum cast) | `OrderStatus::Confirmed` |
 | Página React | `Pages/<Dominio>/<Entidad>/{Index,Create,Edit,Show}.tsx` | `Pages/Sales/Budgets/Index.tsx` |
 
@@ -231,7 +248,8 @@ español (y demás idiomas) vía i18n; el usuario nunca ve identificadores.
 - **R-TRV-04 Scheduler**: tareas programadas con `company_id` explícito iterando tenants;
   prohibidos endpoints-cron por token salvo integración externa justificada.
 - **R-TRV-05 i18n**: claves JSON de Laravel (`lang/es.json`, `en`, `ca`) + i18n en React.
-  Ningún literal de UI hardcodeado ni en PHP ni en TSX.
+  Índices en castellano snake_case reutilizables (R-FE-05); ningún literal de UI
+  hardcodeado ni en PHP ni en TSX.
 - **R-TRV-06 Fechas** en BD siempre UTC/`datetime`; formateo local (es-ES) solo en
   presentación (helpers de `Support`/`lib`).
 - **R-TRV-07** Calidad en CI obligatoria: Pest (tests), PHPStan (nivel acordado en
@@ -239,7 +257,8 @@ español (y demás idiomas) vía i18n; el usuario nunca ve identificadores.
 
 ## 10. Anti-patrones v1 expresamente prohibidos (resumen)
 
-1. `session('currentCompany')` disperso → `CurrentCompany` (R-TEN-03).
+1. `session('currentCompany')` disperso → `CurrentCompany` (R-TEN-03). La clave
+   `current_company_id` solo en el middleware `SetCurrentCompany`.
 2. Middleware `*Get/*Post` de autorización → Policies (R-AUT-04).
 3. Controllers/modelos de miles de líneas → Actions/Services (R-CAP-01/03).
 4. `serialize()` PHP en BD → JSON (R-BD-04).

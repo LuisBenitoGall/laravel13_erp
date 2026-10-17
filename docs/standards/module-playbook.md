@@ -8,6 +8,9 @@
 
 ## 0. Principio general
 
+Antes de cualquier módulo: cumplir [kernel.md](kernel.md) (User/Company, Module ≠
+Functionality, tres capas, Super Admin, sin Livewire). Skill `tenancy-rbac`.
+
 Un módulo NUNCA se empieza "escribiendo código". El orden es siempre:
 
 ```

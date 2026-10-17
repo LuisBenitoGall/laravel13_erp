@@ -33,7 +33,12 @@ class UpdateCompanyRequest extends FormRequest
                 Rule::unique('companies', 'slug')->ignore($company->id),
             ],
             'tradename' => ['nullable', 'string', 'max:255'],
-            'nif' => ['nullable', 'string', 'max:32'],
+            'nif' => [
+                'nullable',
+                'string',
+                'max:32',
+                Rule::unique('companies', 'nif')->whereNull('deleted_at')->ignore($company->id),
+            ],
             'status' => ['required', Rule::enum(CompanyStatus::class)],
             'logo' => ['nullable', 'string', 'max:255'],
         ];

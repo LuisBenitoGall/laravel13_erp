@@ -1,0 +1,65 @@
+---
+description: Contexto global del ERP v2 (SaaS multi-tenant) — reglas capitales y normativa
+alwaysApply: true
+globs:
+---
+
+# 00-project — ERP v2 (SaaS) · Laravel 13 + Inertia + React
+
+v2 multi-tenant del ERP Viuda Vila. Referencia funcional (v1, SOLO lectura):
+`C:\laragon\www\laravel8_erp_viudavila_github`. Visión y decisiones: `docs/vision-v2.md`.
+
+## Stack
+
+- Backend: **Laravel 13 / PHP 8.3+** (features modernas de PHP OBLIGATORIAS donde el
+  estándar las pide: enums, match, promoted properties, readonly...).
+- Frontend: **Inertia v3 + React 19 + TypeScript estricto + Tailwind 4** (shadcn/ui);
+  listados con `<ServerTable>` (Tabulator). **No Livewire.** Node 20+.
+- MySQL **strict mode ON**. Tests: Pest (+ arch + browser). Calidad: PHPStan + Pint.
+
+## Normativa obligatoria
+
+**`docs/standards/` es normativo para TODO desarrollo** (índice: `docs/standards/README.md`):
+
+- invariantes always-on → `kernel.md` (también `.cursor/rules/01-kernel.mdc`)
+- crear módulo/entidad → `module-playbook.md` (pauta + checklists + vinculaciones V-01..V-20)
+- código backend → `architecture.md` (reglas R-*)
+- UI → `frontend.md` (catálogo de componentes: NO crear lo que ya existe)
+- copiar un patrón → `templates-backend.md` / `templates-frontend.md`, no inventar estructura
+- dependencia nueva → debe estar en `libraries.md` (si no: justificar y añadir al canon en el mismo PR)
+- nombrar algo del dominio → `glossary.md` (código en inglés; UI en español vía i18n)
+- E2E → `e2e.md` (Pest browser)
+
+Excepciones: solo declaradas por escrito en el design OpenSpec del change.
+Si un estándar está mal: corregir el estándar primero, después seguir.
+
+## Reglas capitales (resumen — el detalle manda en standards)
+
+1. Multi-tenant BD única: modelos de negocio con `BelongsToCompany` (Company es el tenant; Module/Functionality globales); jamás `session('currentCompany')`; test de aislamiento cruzado obligatorio (R-TEN-05). User puede existir sin empresa; no entra al ERP sin ≥1 company activa.
+2. Sin empresa preferente hardcodeada (SaaS de N empresas iguales).
+3. Autorización = Policy + permisos Spatie `<functionality>.<acción>`. Module ≠ Functionality. Tres capas (catálogo / elegibilidad / activación). Super Admin bypassa permisos, no el perímetro de datos. Nada de middleware ad-hoc.
+4. Controllers delgados → Actions transaccionales → eventos de dominio. Cross-domain: leer libre, escribir SOLO vía Action del dominio propietario o evento (matriz en `module-map.md`).
+5. Estados = enums PHP con transiciones sobre columna `string` (jamás `ENUM` de MySQL); numeración solo vía `NumberingService`; decimales 3 venta / 4 coste / 2 contable; nada de `serialize()`.
+6. Contabilidad solo por eventos → LedgerGenerator → SeatBuilder → Seat (idempotente, cuadrado).
+7. Listados = `<ServerTable>` contra el contrato `*/table`; formularios = RHF + zod espejo del FormRequest; cero literales sin i18n.
+8. Validación en FormRequests con `exists/unique` acotados al tenant (R-TEN-07); eager loading en listados (nada de N+1).
+
+## Regla de oro: no inventar requisitos
+
+Si una decisión de negocio no está en spec/design/tasks ni en `docs/vision-v2.md`: NO
+inventar. Proponer opciones (A/B con consecuencias), anotarlo en el artefacto OpenSpec y
+que decida el rol 10-architecture (o Luis, si es de negocio).
+
+## Metodología de agentes y flujo
+
+Roles 10-architecture / 20-implementation / 40-e2e / 30-testing: fichas canónicas en
+`docs/agents/` (cargadas por las rules 10/20/30/40 de esta carpeta). Flujo OpenSpec:
+`/opsx-propose` → revisar → `/opsx-apply` → E2E (rol 40, si aplica) → `/opsx-archive`.
+El estado del change vive en `openspec/changes/<change>/` (si conversación y artefactos
+chocan, mandan los artefactos).
+
+## Comandos
+
+- `composer dev` — serve + queue + pail + vite
+- `composer test` — suite completa · `vendor/bin/pint` · `vendor/bin/phpstan analyse`
+  (verdes antes de dar nada por terminado)

@@ -1,0 +1,21 @@
+---
+description: Rol 30-testing — usar al verificar un change implementado, endurecer tests, comprobar el DoD y archivar (/opsx-archive)
+alwaysApply: false
+globs:
+---
+
+# Rol: 30-testing (adaptador Cursor)
+
+**La ficha canónica del rol es `docs/agents/30-testing.md` — LEERLA ENTERA y actuar según
+ella.** Este fichero no la duplica; resumen mínimo:
+
+- Misión: verificar el diff contra specs/design, endurecer con tests los casos límite,
+  comprobar el DoD del playbook (§9) punto por punto y SOLO entonces sync + archive.
+- Mínimos innegociables (playbook §7): aislamiento de tenant, 403 sin permiso,
+  transiciones de estado, un test de integración por vinculación.
+- No amplía alcance, no cambia reglas de negocio (escala a 10-architecture), no archiva
+  con excepciones sin documentar.
+- E2E: verifica que los tests del rol 40 (`tests/Browser/`) existen y pasan; no los
+  escribe. Si faltan o fallan, hand-off a 40 antes de archivar.
+- Modelo: tier medio; potente para revisar diffs de dominios críticos (Treasury,
+  Accounting, Invoicing).

@@ -54,7 +54,7 @@ class FunctionalityController extends Controller
         $functionality = $action->handle($request->validated());
 
         return to_route('admin.functionalities.edit', $functionality)
-            ->with('success', __('admin.functionalities.created'));
+            ->with('success', __('funcionalidad_creada'));
     }
 
     public function edit(Functionality $functionality): Response
@@ -74,7 +74,7 @@ class FunctionalityController extends Controller
     ): RedirectResponse {
         $action->handle($functionality, $request->validated());
 
-        return back()->with('success', __('admin.functionalities.updated'));
+        return back()->with('success', __('funcionalidad_actualizada'));
     }
 
     public function destroy(Functionality $functionality, DeleteFunctionality $action): RedirectResponse
@@ -83,6 +83,6 @@ class FunctionalityController extends Controller
         $action->handle($functionality);
 
         return to_route('admin.functionalities.index')
-            ->with('success', __('admin.functionalities.deleted'));
+            ->with('success', __('funcionalidad_eliminada'));
     }
 }

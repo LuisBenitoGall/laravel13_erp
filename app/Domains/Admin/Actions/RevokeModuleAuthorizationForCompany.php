@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 class RevokeModuleAuthorizationForCompany
 {
+    public function __construct(
+        private readonly SyncManagerPermissionsForCompany $syncManagerPermissionsForCompany,
+    ) {}
+
     public function handle(Company $company, Module $module): void
     {
         DB::transaction(function () use ($company, $module): void {
@@ -22,6 +26,8 @@ class RevokeModuleAuthorizationForCompany
                 ->where('company_id', $company->id)
                 ->where('module_id', $module->id)
                 ->delete();
+
+            $this->syncManagerPermissionsForCompany->handle($company);
         });
     }
 }

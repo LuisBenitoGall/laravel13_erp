@@ -1,7 +1,12 @@
 import { FormEvent, useState } from 'react';
-import { useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
+
+import { Input } from '@/Components/ui/input';
+import AuthLayout from '@/Layouts/AuthLayout';
 
 export default function Login() {
+    const { t } = useTranslation();
     const { data, setData, post, processing, errors } = useForm({
         email: '',
         password: '',
@@ -16,22 +21,23 @@ export default function Login() {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
+        <AuthLayout>
             <form
                 onSubmit={submit}
                 className="w-full max-w-md space-y-4 rounded-xl border border-slate-200 bg-white p-8 shadow-sm"
             >
-                <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Entrar</h1>
-                <p className="text-sm text-slate-600">Sesión Laravel — sin registro público.</p>
+                <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+                    {t('entrar')}
+                </h1>
+                <p className="text-sm text-slate-600">{t('login_subtitulo')}</p>
 
                 <div className="space-y-1">
                     <label className="block text-sm font-medium" htmlFor="email">
-                        Email
+                        {t('email')}
                     </label>
-                    <input
+                    <Input
                         id="email"
                         type="email"
-                        className="w-full rounded-md border border-slate-300 px-3 py-2"
                         value={data.email}
                         onChange={(e) => setData('email', e.target.value)}
                         autoComplete="username"
@@ -41,12 +47,11 @@ export default function Login() {
 
                 <div className="space-y-1">
                     <label className="block text-sm font-medium" htmlFor="password">
-                        Contraseña
+                        {t('contrasena')}
                     </label>
-                    <input
+                    <Input
                         id="password"
                         type={showPassword ? 'text' : 'password'}
-                        className="w-full rounded-md border border-slate-300 px-3 py-2"
                         value={data.password}
                         onChange={(e) => setData('password', e.target.value)}
                         autoComplete="current-password"
@@ -60,7 +65,7 @@ export default function Login() {
                         checked={data.remember}
                         onChange={(e) => setData('remember', e.target.checked)}
                     />
-                    Recordarme
+                    {t('recordarme')}
                 </label>
 
                 <button
@@ -68,7 +73,7 @@ export default function Login() {
                     className="text-xs text-slate-500 underline"
                     onClick={() => setShowPassword((v) => !v)}
                 >
-                    {showPassword ? 'Ocultar' : 'Mostrar'} contraseña
+                    {showPassword ? t('ocultar_contrasena') : t('mostrar_contrasena')}
                 </button>
 
                 <button
@@ -76,9 +81,23 @@ export default function Login() {
                     disabled={processing}
                     className="w-full rounded-md bg-teal-700 px-3 py-2 text-sm font-medium text-white hover:bg-teal-800 disabled:opacity-50"
                 >
-                    Acceder
+                    {t('acceder')}
                 </button>
+
+                <div className="space-y-1 text-center text-sm text-slate-600">
+                    <p>
+                        <Link href="/forgot-password" className="text-teal-700 underline">
+                            {t('olvidaste_contrasena')}
+                        </Link>
+                    </p>
+                    <p>
+                        {t('no_tienes_cuenta')}{' '}
+                        <Link href="/register" className="text-teal-700 underline">
+                            {t('registrate')}
+                        </Link>
+                    </p>
+                </div>
             </form>
-        </div>
+        </AuthLayout>
     );
 }

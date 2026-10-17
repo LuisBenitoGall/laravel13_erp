@@ -4,8 +4,12 @@ namespace App\Http\Middleware;
 
 use App\Domains\Admin\Services\MenuBuilder;
 use App\Domains\Partners\Models\Company;
+use App\Support\I18n\LocaleResolver;
+use App\Support\I18n\TranslationDictionary;
 use App\Support\Tenancy\CurrentCompany;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -45,7 +49,9 @@ class HandleInertiaRequests extends Middleware
             'tenant' => [
                 'id' => $company?->id,
                 'name' => $company?->name,
-                'logo_url' => $company?->logo,
+                'logo_url' => $company?->logo
+                    ? Storage::disk('public')->url($company->logo)
+                    : null,
             ],
             'available_companies' => fn () => $user
                 ? $user->activeCompanies()->map(fn (Company $c) => [
@@ -53,6 +59,9 @@ class HandleInertiaRequests extends Middleware
                     'name' => $c->name,
                 ])->values()->all()
                 : [],
+            'locale' => App::getLocale(),
+            'supportedLocales' => app(LocaleResolver::class)->supported(),
+            'translations' => app(TranslationDictionary::class)->forLocale(App::getLocale()),
         ];
     }
 }

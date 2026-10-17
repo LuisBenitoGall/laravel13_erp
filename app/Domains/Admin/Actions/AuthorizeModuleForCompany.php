@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\DB;
 
 class AuthorizeModuleForCompany
 {
+    public function __construct(
+        private readonly SyncManagerPermissionsForCompany $syncManagerPermissionsForCompany,
+    ) {}
+
     public function handle(Company $company, Module $module): CompanyModuleAuthorization
     {
         return DB::transaction(function () use ($company, $module) {
@@ -25,13 +29,19 @@ class AuthorizeModuleForCompany
                     $existing->restore();
                 }
 
+                $this->syncManagerPermissionsForCompany->handle($company);
+
                 return $existing;
             }
 
-            return CompanyModuleAuthorization::query()->withoutGlobalScope('company')->create([
+            $authorization = CompanyModuleAuthorization::query()->withoutGlobalScope('company')->create([
                 'company_id' => $company->id,
                 'module_id' => $module->id,
             ]);
+
+            $this->syncManagerPermissionsForCompany->handle($company);
+
+            return $authorization;
         });
     }
 }

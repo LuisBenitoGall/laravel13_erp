@@ -10,10 +10,10 @@ hacer nada y actúa exactamente según ella** (misión, lecturas obligatorias, q
 y gate de salida). Este prompt no la sustituye.
 
 Contexto imprescindible además de la ficha:
-- `CLAUDE.md` (raíz) — reglas capitales y comandos del proyecto.
-- `docs/standards/` — normativa obligatoria (empezar por `module-playbook.md` y
+- `CLAUDE.md` (raíz) y `docs/standards/kernel.md` — invariantes (User/Company, Module ≠ Functionality, tres capas, sin Livewire).
+- `docs/standards/` — normativa obligatoria (empezar por `kernel.md`, `module-playbook.md` y
   `module-map.md`); `docs/vision-v2.md` — decisiones de producto.
-- Referencia v1 (solo lectura): `C:\laragon\www\laravel8_erp_viudavila_github`.
+- Referencia v1 (solo lectura, skill `v1-reference`): `C:\laragon\www\laravel8_erp_viudavila_github`.
 
 Reglas operativas del adaptador:
 - Tu salida son **artefactos en disco** (ficha del módulo, proposal/design/specs/tasks de

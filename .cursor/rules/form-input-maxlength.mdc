@@ -1,0 +1,31 @@
+---
+description: Campos de texto → Input del kit con maxLength (default 255 u override + FormRequest espejo)
+globs:
+  - resources/js/Pages/**/*.tsx
+  - resources/js/Components/**/*.tsx
+  - app/Http/Requests/**/*.php
+alwaysApply: false
+---
+
+# form-input-maxlength — Input del kit (R-FE-08)
+
+Canon: `docs/standards/frontend.md` (R-FE-08) y `Components/ui/input.tsx`.
+
+## Obligatorio
+
+- Campos de texto (`text`, `email`, `password`, `search`, `tel`, `url`): usar
+  `import { Input } from '@/Components/ui/input'`. **Prohibido** `<input>` HTML suelto
+  para esos tipos.
+- Default del kit: `maxLength={255}` (`DEFAULT_INPUT_MAX_LENGTH`). No repetir `255` en
+  cada pantalla salvo claridad.
+- Si el máximo es otro (p. ej. NIF 32): `maxLength={N}` en el `Input` **y** `max:N` en el
+  FormRequest del mismo campo.
+- Controles no texto (`checkbox`, `radio`, `hidden`, `file`, `submit`, `button`): no forzar
+  el `Input` de texto.
+- **Textarea / Wysiwyg**: fuera de esta rule (no aplicar el default 255 del Input).
+
+## Al crear o tocar un formulario
+
+1. Usar `Input` del kit para cada campo de texto.
+2. Alinear validación backend (`max:*`) con el `maxLength` efectivo del Input.
+3. No inventar otro componente de input de texto paralelo.

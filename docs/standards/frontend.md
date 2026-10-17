@@ -27,8 +27,21 @@ Reglas:
 - **R-FE-02** Un componente se promociona de `Pages/**/components/` a `Components/` cuando lo usan ≥2 dominios; al promocionarlo se documenta en el catálogo (§4).
 - **R-FE-03** Nada de axios/fetch manual contra endpoints propios: la navegación y mutación van por Inertia (`router`, `useForm`). Excepciones: el ajax interno de Tabulator (§3) y descargas de ficheros.
 - **R-FE-04** Importes y fechas SIEMPRE con `lib/format` (es-ES; decimales 3 venta / 4 coste compra / 2 totales-contabilidad). Prohibido `toFixed`/`toLocaleString` sueltos.
-- **R-FE-05** Toda cadena visible con i18n (`t('sales.budgets.title')`); cero literales.
+- **R-FE-05** Toda cadena visible con i18n (`t('nombre')` / `__('guardar')`); cero
+  literales. Claves en **castellano snake_case** (`^[a-z0-9_]+$`), sin puntos ni inglés
+  jerárquico: genéricos reutilizables (`nombre`, `email`, `crear`); específicas solo si
+  el texto no es el genérico (`nombre_comercial`, `empresa_nueva`); familias por prefijo
+  (`usuario_nuevo`, `modulo_crear`). Locales: `config/i18n.php` (`es` default, `en`,
+  `ca`). Fuente única: `lang/{locale}.json` (mismas claves; **orden A–Z**). Preferencia
+  en `users.locale` + `LanguageSwitcher`. Texto nuevo = clave en **todos** los locales.
+  Rule Cursor `i18n.mdc`; CI en `tests/Architecture/I18nJsonTest.php`.
 - **R-FE-06** Las acciones se ocultan según `usePermissions()`, pero la barrera real es la Policy del backend (la UI nunca es la única defensa).
+- **R-FE-08** Campos de texto (`text`, `email`, `password`, `search`, `tel`, `url`) usan
+  `Components/ui/input` (`Input`), nunca un `<input>` HTML suelto. El kit aplica
+  `maxLength={255}` por defecto (`DEFAULT_INPUT_MAX_LENGTH`); si el campo es más corto,
+  se pasa `maxLength` explícito **y** el FormRequest declara el mismo `max:*`. Controles
+  no texto (`checkbox`, `radio`, `hidden`, `file`, `submit`, `button`) no usan este
+  Input. **Textarea / Wysiwyg quedan fuera** de R-FE-08 (límites propios cuando existan).
 
 ## 2. Design system
 
@@ -131,7 +144,8 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 | `Lines/LineItemsEditor` | **El componente clave** (vision §4.3): grid editable de líneas de documento — buscador de artículo, 4 descuentos en cascada, stock por almacén, precios/tarifas, totales/margen/IVA en vivo, drag&drop. Único lugar con edición en grid. Cálculo SIEMPRE con `lib/line-calc` (espejo unit-testeado del cálculo backend) |
 | `Feedback/ConfirmDialog` | Confirmaciones destructivas/irreversibles (borrar, remesar) |
 | `Feedback/EmptyState` · `ErrorBoundary` | Vacíos con CTA · captura de errores de página |
-| `ui/*` | Primitivas shadcn (Button, Dialog, DropdownMenu, Badge, Tooltip…) |
+| `ui/input` (`Input`) | Primativa shadcn de texto con `maxLength` default 255 (R-FE-08); override + FormRequest `max` espejo |
+| `ui/*` | Resto de primitivas shadcn (Button, Dialog, DropdownMenu, Badge, Tooltip…) |
 | `SearchCommand` | Buscador global (⌘K) multi-entidad — adaptar el patrón ya resuelto en la plantilla de referencia (§2) |
 | `NotificationsPanel` | Campana + panel realtime (Echo/Reverb) |
 | `CompanySwitcher` / `WorksiteSwitcher` | Selector de empresa activa / obra en topbar |

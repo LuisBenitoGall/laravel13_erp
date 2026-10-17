@@ -1,5 +1,8 @@
 import { FormEvent } from 'react';
 import { useForm } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
+
+import { Input } from '@/Components/ui/input';
 import AppLayout from '@/Layouts/AppLayout';
 
 type ModuleOption = { id: number; slug: string; label: string | Record<string, string> };
@@ -17,6 +20,7 @@ type Props = {
 };
 
 export default function FunctionalityFormPage({ modules, functionality }: Props) {
+    const { t } = useTranslation();
     const editing = Boolean(functionality);
     const { data, setData, post, put, processing, errors } = useForm({
         module_id: functionality?.module_id ?? modules[0]?.id ?? 0,
@@ -36,10 +40,18 @@ export default function FunctionalityFormPage({ modules, functionality }: Props)
     }
 
     return (
-        <AppLayout title={editing ? 'Editar funcionalidad' : 'Crear funcionalidad'}>
+        <AppLayout
+            title={
+                editing
+                    ? t('funcionalidad_editar')
+                    : t('funcionalidad_crear')
+            }
+        >
             <form onSubmit={submit} className="mx-auto max-w-2xl space-y-4 rounded-xl border bg-white p-6">
                 <div className="space-y-1">
-                    <label className="block text-sm font-medium">Módulo</label>
+                    <label className="block text-sm font-medium">
+                        {t('modulo')}
+                    </label>
                     <select
                         className="w-full rounded-md border px-3 py-2"
                         value={data.module_id}
@@ -54,47 +66,51 @@ export default function FunctionalityFormPage({ modules, functionality }: Props)
                     {errors.module_id && <p className="text-sm text-red-600">{errors.module_id}</p>}
                 </div>
                 <div className="space-y-1">
-                    <label className="block text-sm font-medium">Nombre</label>
-                    <input
-                        className="w-full rounded-md border px-3 py-2"
-                        value={data.name}
-                        onChange={(e) => setData('name', e.target.value)}
-                    />
+                    <label className="block text-sm font-medium">
+                        {t('nombre')}
+                    </label>
+                    <Input value={data.name} onChange={(e) => setData('name', e.target.value)} />
                     {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
                 </div>
                 {!editing && (
                     <div className="space-y-1">
-                        <label className="block text-sm font-medium">Slug</label>
-                        <input
-                            className="w-full rounded-md border px-3 py-2"
-                            value={data.slug}
-                            onChange={(e) => setData('slug', e.target.value)}
-                        />
+                        <label className="block text-sm font-medium">
+                            {t('slug')}
+                        </label>
+                        <Input value={data.slug} onChange={(e) => setData('slug', e.target.value)} />
                         {errors.slug && <p className="text-sm text-red-600">{errors.slug}</p>}
                     </div>
                 )}
                 {editing && (
                     <p className="text-sm text-slate-500">
-                        Slug inmutable: <code>{functionality?.slug}</code>
+                        {t('slug_inmutable')}{' '}
+                        <code>{functionality?.slug}</code>
                     </p>
                 )}
                 <div className="space-y-1">
-                    <label className="block text-sm font-medium">Etiqueta (ES)</label>
-                    <input
-                        className="w-full rounded-md border px-3 py-2"
+                    <label className="block text-sm font-medium">
+                        {t('etiqueta_es')}
+                    </label>
+                    <Input
                         value={data.label.es}
                         onChange={(e) => setData('label', { ...data.label, es: e.target.value })}
                     />
                 </div>
                 <div className="space-y-1">
-                    <label className="block text-sm font-medium">Estado</label>
+                    <label className="block text-sm font-medium">
+                        {t('estado')}
+                    </label>
                     <select
                         className="w-full rounded-md border px-3 py-2"
                         value={data.status}
                         onChange={(e) => setData('status', e.target.value)}
                     >
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                        <option value="active">
+                            {t('estado_active')}
+                        </option>
+                        <option value="inactive">
+                            {t('estado_inactive')}
+                        </option>
                     </select>
                 </div>
                 <button
@@ -102,7 +118,7 @@ export default function FunctionalityFormPage({ modules, functionality }: Props)
                     disabled={processing}
                     className="rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
                 >
-                    Guardar
+                    {t('guardar')}
                 </button>
             </form>
         </AppLayout>

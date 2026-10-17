@@ -18,10 +18,10 @@ class CompanySwitchController extends Controller
             $setCompanySession->handle($request, $request->user(), (int) $data['company_id']);
         } catch (\RuntimeException) {
             return back()->withErrors([
-                'company_id' => __('auth.company_forbidden'),
+                'company_id' => __('empresa_acceso_prohibido'),
             ]);
         }
 
-        return back()->with('success', __('auth.company_switched'));
+        return back()->with('success', __('empresa_cambiada'));
     }
 }

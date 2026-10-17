@@ -46,25 +46,25 @@ export default function Index() {
   const { t } = useTranslation()
   const { can } = usePermissions()
 
-  // Columnas tipadas; títulos SIEMPRE i18n (R-FE-05); formatters del catálogo (R-FE-04).
+  // Claves i18n castellanas snake_case (R-FE-05): genéricos + familias, sin puntos.
   const columns: ColumnDef<WorksiteRow>[] = [
-    { field: 'code', title: t('partners.worksites.code'), width: 120 },
-    { field: 'name', title: t('partners.worksites.name'), widthGrow: 2 },
-    { field: 'customer.name', title: t('partners.worksites.customer'), widthGrow: 1 },
-    { field: 'status', title: t('common.status'), formatter: fmt.statusBadge('worksite') },
-    { field: 'starts_at', title: t('common.start_date'), formatter: fmt.date },
-    { field: 'credit_limit', title: t('partners.worksites.credit_limit'), formatter: fmt.money(2), hozAlign: 'right' },
+    { field: 'code', title: t('obra_codigo'), width: 120 },
+    { field: 'name', title: t('nombre'), widthGrow: 2 },
+    { field: 'customer.name', title: t('cliente'), widthGrow: 1 },
+    { field: 'status', title: t('estado'), formatter: fmt.statusBadge('worksite') },
+    { field: 'starts_at', title: t('fecha_inicio'), formatter: fmt.date },
+    { field: 'credit_limit', title: t('obra_limite_credito'), formatter: fmt.money(2), hozAlign: 'right' },
   ]
 
   return (
-    <AppLayout title={t('partners.worksites.title')}>
-      <Head title={t('partners.worksites.title')} />
+    <AppLayout title={t('obras')}>
+      <Head title={t('obras')} />
 
       <div className="flex items-center justify-between">
-        <h1 className="page-title">{t('partners.worksites.title')}</h1>
+        <h1 className="page-title">{t('obras')}</h1>
         {can('worksites.create') && (
           <Button onClick={() => router.visit(route('partners.worksites.create'))}>
-            {t('common.create')}
+            {t('crear')}
           </Button>
         )}
       </div>
@@ -76,9 +76,9 @@ export default function Index() {
         exportable
         // Acciones por fila según permisos del Resource (`row.can`), no del cliente.
         rowActions={(row) => [
-          row.can.update && { label: t('common.edit'), href: route('partners.worksites.edit', row.id) },
+          row.can.update && { label: t('editar'), href: route('partners.worksites.edit', row.id) },
           row.can.delete && {
-            label: t('common.delete'),
+            label: t('eliminar'),
             destructive: true, // abre ConfirmDialog antes de router.delete
             onClick: () => router.delete(route('partners.worksites.destroy', row.id)),
           },
@@ -97,6 +97,7 @@ export default function Index() {
 import { useForm } from '@inertiajs/react'
 import { useTranslation } from 'react-i18next'
 import { Field, NumberInput, SearchSelect, DatePicker, FormActions } from '@/Components/Form'
+import { Input } from '@/Components/ui/input'
 import type { WorksiteFormOptions, WorksiteRow } from '@/types/partners'
 
 interface Props {
@@ -126,11 +127,16 @@ export default function WorksiteForm({ worksite, options }: Props) {
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); submit() }} className="form-grid">
-      <Field label={t('partners.worksites.code')} error={form.errors.code} required>
-        <input value={form.data.code} onChange={(e) => form.setData('code', e.target.value)} maxLength={32} />
+      <Field label={t('obra_codigo')} error={form.errors.code} required>
+        {/* Input del kit (R-FE-08): default maxLength 255; override cuando el FormRequest usa otro max */}
+        <Input
+          value={form.data.code}
+          onChange={(e) => form.setData('code', e.target.value)}
+          maxLength={32}
+        />
       </Field>
 
-      <Field label={t('partners.worksites.customer')} error={form.errors.customer_company_id} required>
+      <Field label={t('cliente')} error={form.errors.customer_company_id} required>
         {/* SearchSelect: combobox con búsqueda remota — pieza del kit, no un select ad-hoc */}
         <SearchSelect
           options={options.customers}
@@ -139,11 +145,11 @@ export default function WorksiteForm({ worksite, options }: Props) {
         />
       </Field>
 
-      <Field label={t('common.start_date')} error={form.errors.starts_at}>
+      <Field label={t('fecha_inicio')} error={form.errors.starts_at}>
         <DatePicker value={form.data.starts_at} onChange={(v) => form.setData('starts_at', v)} />
       </Field>
 
-      <Field label={t('partners.worksites.credit_limit')} error={form.errors.credit_limit}>
+      <Field label={t('obra_limite_credito')} error={form.errors.credit_limit}>
         {/* NumberInput con contexto de decimales — nunca un <input type=number> pelado (R-FE-04) */}
         <NumberInput decimals={2} value={form.data.credit_limit}
           onChange={(v) => form.setData('credit_limit', v)} />
@@ -174,9 +180,9 @@ export default function Edit({ worksite, options }: { worksite: WorksiteRow; opt
         status={{ value: worksite.status, label: worksite.status_label, map: 'worksite' }}
         backHref={route('partners.worksites.index')}
         tabs={[
-          { key: 'general', label: t('common.general'), content: <WorksiteForm worksite={worksite} options={options} /> },
+          { key: 'general', label: t('general'), content: <WorksiteForm worksite={worksite} options={options} /> },
           // Tabs pesadas con lazy load vía partial reload (frontend.md §4 Records/Tabs)
-          { key: 'activity', label: t('common.activity'), lazy: 'activity' },
+          { key: 'activity', label: t('actividad'), lazy: 'activity' },
         ]}
       />
     </AppLayout>

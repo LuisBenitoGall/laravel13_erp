@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Requests\Auth\LoginRequest;
+use App\Support\Auth\PostLoginRedirect;
 use App\Support\Tenancy\SetCompanySession;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,16 +19,13 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('Auth/Login');
     }
 
-    public function store(Request $request, SetCompanySession $setCompanySession): RedirectResponse
+    public function store(LoginRequest $request, SetCompanySession $setCompanySession): RedirectResponse
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-        ]);
+        $credentials = $request->safe()->only(['email', 'password']);
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()->withErrors([
-                'email' => __('auth.failed'),
+                'email' => __('credenciales_incorrectas'),
             ])->onlyInput('email');
         }
 
@@ -36,19 +35,15 @@ class AuthenticatedSessionController extends Controller
         $companies = $user->activeCompanies();
 
         if ($companies->isEmpty()) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+            $setCompanySession->clear($request);
 
-            return back()->withErrors([
-                'email' => __('auth.no_company'),
-            ])->onlyInput('email');
+            return redirect()->route('onboarding.company');
         }
 
         if ($companies->count() === 1) {
             $setCompanySession->handle($request, $user, (int) $companies->first()->id);
 
-            return redirect()->intended(route('admin.modules.index'));
+            return redirect()->intended(app(PostLoginRedirect::class)->route($user));
         }
 
         $setCompanySession->clear($request);

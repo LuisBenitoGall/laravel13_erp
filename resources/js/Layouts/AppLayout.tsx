@@ -1,6 +1,9 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { Toaster, toast } from 'sonner';
 import { type ReactNode, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import LanguageSwitcher from '@/Components/LanguageSwitcher';
 
 type MenuItem = {
     slug: string;
@@ -25,6 +28,7 @@ export default function AppLayout({
     title?: string;
     children: ReactNode;
 }) {
+    const { t } = useTranslation();
     const { auth, menu, flash, tenant, available_companies } = usePage<SharedProps>().props;
 
     useEffect(() => {
@@ -41,10 +45,10 @@ export default function AppLayout({
             <aside className="flex w-64 flex-col border-r border-slate-200 bg-white">
                 <div className="flex h-14 items-center gap-2 border-b border-slate-200 px-4">
                     {tenant.logo_url ? (
-                        <img src={tenant.logo_url} alt="Logo" className="h-8 w-auto" />
+                        <img src={tenant.logo_url} alt="" className="h-8 w-auto" />
                     ) : (
                         <span className="text-sm font-semibold tracking-tight">
-                            {tenant.name ?? 'ERP v2'}
+                            {tenant.name ?? t('bienvenida_titulo')}
                         </span>
                     )}
                 </div>
@@ -79,6 +83,7 @@ export default function AppLayout({
                 <header className="flex h-14 items-center justify-between border-b border-slate-200 bg-white px-6">
                     <h1 className="text-base font-semibold">{title ?? ''}</h1>
                     <div className="flex items-center gap-3 text-sm">
+                        <LanguageSwitcher />
                         {available_companies.length > 1 && (
                             <select
                                 className="rounded-md border border-slate-300 px-2 py-1"
@@ -102,7 +107,7 @@ export default function AppLayout({
                             className="rounded-md border border-slate-300 px-2 py-1 hover:bg-slate-50"
                             onClick={() => router.post('/logout')}
                         >
-                            Salir
+                            {t('salir')}
                         </button>
                     </div>
                 </header>

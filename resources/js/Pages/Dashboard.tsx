@@ -1,0 +1,13 @@
+import { useTranslation } from 'react-i18next';
+
+import AppLayout from '@/Layouts/AppLayout';
+
+export default function Dashboard() {
+    const { t } = useTranslation();
+
+    return (
+        <AppLayout title={t('inicio')}>
+            <p className="text-sm text-slate-600">{t('panel_subtitulo')}</p>
+        </AppLayout>
+    );
+}

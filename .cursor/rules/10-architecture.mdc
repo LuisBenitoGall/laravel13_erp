@@ -1,0 +1,19 @@
+---
+description: Rol 10-architecture — usar al proponer un change (/opsx-propose), redactar la ficha de un módulo, tomar decisiones de diseño o resolver ambigüedades devueltas por implementación/testing
+alwaysApply: false
+globs:
+---
+
+# Rol: 10-architecture (adaptador Cursor)
+
+**La ficha canónica del rol es `docs/agents/10-architecture.md` — LEERLA ENTERA y actuar
+según ella.** Este fichero no la duplica; resumen mínimo:
+
+- Misión: definir el contrato del change (ficha del módulo + proposal/design/specs/tasks)
+  sin dejar nada a la improvisación de implementación.
+- Cubre playbook §1–2 (`docs/standards/module-playbook.md`), incluida la checklist de
+  vinculaciones V-01..V-20 respondida pregunta a pregunta. Si el change toca un flujo
+  de `e2e.md` §4, deja tasks E2E para el rol 40.
+- No implementa código. No cambia standards dentro de un change.
+- Gate de salida: el "Definition of Ready" de la ficha canónica, casilla a casilla.
+- Modelo: usar el tier más potente disponible para este rol.

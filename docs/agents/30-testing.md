@@ -17,6 +17,7 @@ Playbook §7–§9: tests mínimos innegociables → registro del módulo → Do
 
 - Contrastar el diff completo contra specs/design: buscar discrepancias silenciosas,
   tareas marcadas sin evidencia, cambios no documentados y alcance colado.
+- Verificar `tests/Architecture/KernelInvariantsTest.php` (y el resto de arch) en verde.
 - Verificar los **mínimos innegociables** (playbook §7) por entidad:
   - aislamiento de tenant (R-TEN-05) presente y significativo (no un assert vacío);
   - autorización: 403 sin permiso en cada ruta;

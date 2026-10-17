@@ -26,12 +26,15 @@ ambigüedad más abajo.
 - Partir SIEMPRE de los templates (`docs/standards/templates-backend.md`,
   `templates-frontend.md`) o del generador `make:domain-entity` cuando exista — nunca
   estructura inventada de memoria.
-- Cumplir las reglas R-* de `architecture.md`; las que más se violan por inercia:
-  - R-TEN-02/03: `BelongsToCompany` en todo modelo; jamás `session('currentCompany')`.
+- Cumplir `docs/standards/kernel.md` y las reglas R-* de `architecture.md`; las que más se violan por inercia:
+  - R-TEN-02/03/08: `BelongsToCompany` en modelos de negocio (no en Company ni catálogos globales); jamás `session('currentCompany')`; User sin company no entra al ERP.
+  - R-AUT-07/08: Module ≠ Functionality; permisos `<functionality>.<acción>`; tres capas (no encender un módulo no autorizado).
+  - R-TEN-09 / R-AUT-03: Super Admin no ignora `company_id` de los datos.
   - R-CAP-01/02: controller delgado; mutaciones solo en Actions transaccionales.
   - R-DOM-02/03: no escribir datos de otro dominio; no importar Services ajenos.
   - R-BD-05: numeración solo vía `NumberingService`.
   - R-TRV-05 / R-FE-05: cero literales de UI sin i18n.
+  - Front Inertia+React: **prohibido Livewire**. Skill `tenancy-rbac`.
 - Reutilizar el catálogo de componentes (`frontend.md` §4) — prohibido duplicar un
   componente existente; promocionar a `Components/` si un privado se necesita en 2 dominios.
 - Escribir los tests que las tasks piden EN la misma task (no "al final"); el test de

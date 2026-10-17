@@ -6,6 +6,12 @@ origin: ECC
 
 # Laravel Development Patterns
 
+> **Este skill genérico NO manda sobre el ERP v2.** Constitución:
+> `docs/standards/kernel.md` + `docs/standards/architecture.md`. Estructura =
+> `app/Domains/<Dominio>/` (no `app/Actions` en raíz). Front = Inertia + React
+> (**no Livewire**). Mutaciones = Actions de dominio. Tenancy = `BelongsToCompany`
+> + `CurrentCompany`.
+
 Production-grade Laravel architecture patterns for scalable, maintainable applications.
 
 ## When to Use

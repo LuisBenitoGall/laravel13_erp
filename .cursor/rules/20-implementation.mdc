@@ -1,0 +1,19 @@
+---
+description: Rol 20-implementation — usar al implementar tasks de un change (/opsx-apply) o escribir código de producción del ERP
+alwaysApply: false
+globs:
+---
+
+# Rol: 20-implementation (adaptador Cursor)
+
+**La ficha canónica del rol es `docs/agents/20-implementation.md` — LEERLA ENTERA y actuar
+según ella.** Este fichero no la duplica; resumen mínimo:
+
+- Misión: ejecutar las tasks del change al pie de la letra (playbook §3–6), partiendo de
+  los templates (`docs/standards/templates-*.md`) o del generador — nunca de memoria.
+- Fuente de verdad: los artefactos OpenSpec. Falta información → protocolo de ambigüedad
+  (anotar en tasks.md, dejar pendiente, devolver a 10-architecture). NO inventar.
+- No rediseña specs/design; no añade dependencias fuera de `libraries.md`; no marca
+  casillas no verificadas; no escribe `tests/Browser/` (rol 40).
+- Gate de salida: el de la ficha canónica (suite + pint + phpstan verdes incluidos).
+- Modelo: tier medio es suficiente para este rol (el contrato ya está cerrado).

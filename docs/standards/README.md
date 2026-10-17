@@ -7,6 +7,7 @@ cumplirla. Actúa como guardrail para cualquier desarrollo, humano o asistido po
 
 | Documento | Qué norma |
 |---|---|
+| [kernel.md](kernel.md) | Invariantes always-on (User/Company, Module≠Functionality, tres capas, Super Admin, stack, v1). Los agentes las cumplen sin que se las recuerden |
 | [architecture.md](architecture.md) | La constitución backend: estructura de dominios, tenancy, autorización, capas, BD, ledger, naming, anti-patrones prohibidos. Reglas `R-*` citables |
 | [module-playbook.md](module-playbook.md) | **La pauta de trabajo**: proceso y checklists para construir cada módulo/entidad sin olvidar ninguna pieza ni vinculación. Definition of Done |
 | [module-map.md](module-map.md) | Mapa de los 14 dominios, matriz de dependencias permitidas y cadenas de eventos canónicas. Documento vivo |
@@ -23,7 +24,8 @@ transversal a Claude/Cursor/Codex) vive en [../agents/](../agents/README.md).
 
 ## Jerarquía normativa
 
-1. **architecture.md** manda sobre todo lo demás.
+1. **kernel.md** (invariantes) + **architecture.md** (reglas `R-*`) mandan sobre
+   todo lo demás. El kernel no relaja architecture; si chocan, se corrige el estándar.
 2. Un design de OpenSpec puede declarar una excepción justificada ("Excepciones a
    standards"); sin esa sección explícita, los estándares prevalecen.
 3. Si un estándar resulta erróneo o incompleto: se corrige el estándar primero (PR propio)

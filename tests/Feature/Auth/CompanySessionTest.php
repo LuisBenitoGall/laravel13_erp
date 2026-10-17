@@ -23,7 +23,7 @@ beforeEach(function () {
     ]);
 });
 
-it('deniega login sin empresa vinculada', function () {
+it('login sin empresa vinculada redirige a onboarding con sesión', function () {
     $user = User::factory()->create([
         'email' => 'lonely@example.com',
         'password' => 'password',
@@ -32,9 +32,9 @@ it('deniega login sin empresa vinculada', function () {
     $this->post(route('login'), [
         'email' => $user->email,
         'password' => 'password',
-    ])->assertSessionHasErrors('email');
+    ])->assertRedirect(route('onboarding.company'));
 
-    $this->assertGuest();
+    $this->assertAuthenticatedAs($user);
 });
 
 it('login con una empresa fija sesión automáticamente', function () {
@@ -50,7 +50,7 @@ it('login con una empresa fija sesión automáticamente', function () {
     $this->post(route('login'), [
         'email' => $user->email,
         'password' => 'password',
-    ])->assertRedirect(route('admin.modules.index'));
+    ])->assertRedirect(route('dashboard'));
 
     expect(session('current_company_id'))->toBe($company->id);
 });

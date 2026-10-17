@@ -1,4 +1,7 @@
 import { useForm, usePage } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
+
+import AuthLayout from '@/Layouts/AuthLayout';
 
 type CompanyOption = {
     id: number;
@@ -8,16 +11,17 @@ type CompanyOption = {
 };
 
 export default function SelectCompany({ companies }: { companies: CompanyOption[] }) {
+    const { t } = useTranslation();
     const { errors } = usePage().props as { errors: Record<string, string> };
     const form = useForm({ company_id: companies[0]?.id ?? 0 });
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
+        <AuthLayout>
             <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-                <h1 className="text-lg font-semibold text-slate-900">Seleccionar empresa</h1>
-                <p className="mt-1 text-sm text-slate-600">
-                    Elige la empresa con la que quieres trabajar.
-                </p>
+                <h1 className="text-lg font-semibold text-slate-900">
+                    {t('seleccionar_empresa')}
+                </h1>
+                <p className="mt-1 text-sm text-slate-600">{t('seleccionar_empresa_subtitulo')}</p>
                 <form
                     className="mt-4 space-y-3"
                     onSubmit={(e) => {
@@ -26,7 +30,7 @@ export default function SelectCompany({ companies }: { companies: CompanyOption[
                     }}
                 >
                     <label className="block text-sm font-medium text-slate-700" htmlFor="company_id">
-                        Empresa
+                        {t('empresa')}
                     </label>
                     <select
                         id="company_id"
@@ -48,10 +52,10 @@ export default function SelectCompany({ companies }: { companies: CompanyOption[
                         className="w-full rounded-md bg-teal-700 px-3 py-2 text-sm font-medium text-white hover:bg-teal-800"
                         disabled={form.processing}
                     >
-                        Continuar
+                        {t('continuar')}
                     </button>
                 </form>
             </div>
-        </div>
+        </AuthLayout>
     );
 }

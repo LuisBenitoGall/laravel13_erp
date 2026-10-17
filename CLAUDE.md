@@ -8,6 +8,7 @@ v2 multi-tenant del ERP Viuda Vila. Referencia funcional (v1, solo lectura):
 
 **`docs/standards/` es normativo para TODO desarrollo.** Antes de:
 
+- cualquier change → cumplir `docs/standards/kernel.md` (User/Company, Module ≠ Functionality, tres capas, Super Admin, sin Livewire)
 - crear un módulo o entidad → leer `docs/standards/module-playbook.md` y usar el skill `/new-module`
 - escribir código backend → cumplir `docs/standards/architecture.md` (reglas `R-*`)
 - escribir UI → `docs/standards/frontend.md` (patrones y catálogo de componentes; no crear componentes que ya existan)
@@ -21,14 +22,15 @@ Si un estándar está mal: corregir el estándar primero, después seguir.
 
 ## Reglas capitales (resumen — el detalle manda en standards)
 
-1. Multi-tenant BD única: todo modelo con `BelongsToCompany`; jamás `session('currentCompany')`; test de aislamiento cruzado obligatorio por entidad.
-2. Sin empresa preferente hardcodeada (esto es un SaaS de N empresas iguales).
-3. Autorización = Policy por modelo + permisos Spatie `<módulo>.<acción>`. Nada de middleware ad-hoc.
-4. Controllers delgados → Actions transaccionales → eventos de dominio. Cross-domain: leer libre, escribir SOLO vía Action del dominio propietario o evento (matriz en `module-map.md`).
-5. Estados = enums PHP con transiciones sobre columna `string` (jamás `ENUM` de MySQL); numeración solo vía `NumberingService`; decimales 3 venta / 4 coste / 2 contable; MySQL strict ON; nada de `serialize()`.
-6. Contabilidad solo por eventos → LedgerGenerator → SeatBuilder → Seat (idempotente, cuadrado).
-7. Listados = `<ServerTable>` (Tabulator) contra el contrato `*/table`; formularios = RHF + zod espejo del FormRequest; cero literales sin i18n.
-8. Todo texto UI en español (+en/ca) vía i18n; identificadores en inglés según glosario.
+1. Multi-tenant BD única: todo modelo de negocio con `BelongsToCompany` (Company es el tenant; Module/Functionality son catálogo global); jamás `session('currentCompany')`; test de aislamiento cruzado obligatorio por entidad.
+2. Sin empresa preferente hardcodeada (esto es un SaaS de N empresas iguales). User puede existir sin empresa; no entra al ERP sin ≥1 company activa.
+3. Autorización = Policy por modelo + permisos Spatie `<functionality>.<acción>`. Nada de middleware ad-hoc. Super Admin bypassa permisos/módulos, no el perímetro de companies vinculadas.
+4. Module ≠ Functionality. Tres capas: catálogo Active/Inactive + elegibilidad + activación por empresa. Menú = las tres **y** (comodín OR `viewAny`).
+5. Controllers delgados → Actions transaccionales → eventos de dominio. Cross-domain: leer libre, escribir SOLO vía Action del dominio propietario o evento (matriz en `module-map.md`).
+6. Estados = enums PHP con transiciones sobre columna `string` (jamás `ENUM` de MySQL); numeración solo vía `NumberingService`; decimales 3 venta / 4 coste / 2 contable; MySQL strict ON; nada de `serialize()`.
+7. Contabilidad solo por eventos → LedgerGenerator → SeatBuilder → Seat (idempotente, cuadrado).
+8. Listados = `<ServerTable>` (Tabulator) contra el contrato `*/table`; formularios = RHF + zod espejo del FormRequest; cero literales sin i18n.
+9. Todo texto UI en español (+en/ca) vía i18n; identificadores en inglés según glosario. Front = Inertia + React (**no Livewire**).
 
 ## Flujo de trabajo
 
@@ -60,6 +62,8 @@ nunca inferir) y no ejecutar nada del change mientras se redacta.
 
 ## Estado actual
 
-Esqueleto recién instalado (Fase 0 sin arrancar): no hay dominios, ni git, ni canon de
-librerías instalado aún. Primer trabajo real = change de Fase 0 (tooling de
-`docs/standards/tooling.md` + piezas de soporte de `templates-backend.md` §12).
+Fase 0 en curso: kernel de tenancy (Company en Partners, User↔Company, tres capas
+de módulos, menú endurecido), catálogo Admin, tooling, Pest browser, Laravel Boost
+MCP. Harness de agentes: `docs/standards/kernel.md` + `.cursor/rules/01-kernel.mdc`.
+UI = Inertia v3 + React 19 (no Livewire). Tabularis: MCP de usuario, pendiente
+conexión a la BD de este ERP.

@@ -1,0 +1,25 @@
+---
+description: E2E / tests de navegador — usar al escribir, ejecutar o depurar tests end-to-end de flujos de usuario (Pest browser)
+alwaysApply: false
+globs: tests/Browser/**
+---
+
+# E2E con Pest browser (adaptador Cursor)
+
+**El estándar canónico es `docs/standards/e2e.md` y la ficha del rol es
+`docs/agents/40-e2e.md` — LEERLOS y actuar según ellos.** Este fichero no los duplica;
+resumen mínimo:
+
+- E2E = **Pest 4 browser testing** (Playwright por debajo), integrado en la suite PHP:
+  `tests/Browser/<Dominio>/<Flujo>Test.php`. NO existe sandbox Playwright/TS aparte
+  (aquello era un workaround del Node 16 de v1).
+- Lo escribe el **rol 40**; 10 lo decide en `tasks.md`; 20 no lo escribe; 30 lo verifica.
+- Datos por factory + tenancy del propio test; autenticación por helper, no por UI.
+- Selectores accesibles (rol/label/texto) primero; `data-testid` puntual si hace falta
+  (los componentes del catálogo lo exponen de serie).
+- E2E cubre flujos críticos completos (login+cambio de empresa, presupuesto→factura,
+  LineItemsEditor, permisos en UI, portal) — los CRUD ya los cubren los feature tests.
+- Deterministas, independientes, nunca contra producción.
+- Entorno Windows/Laragon: Node ≥ 18 activo (Laragon → Menú → Node.js), `ext-sockets`
+  en php.ini, y jamás `npm install -g` con cwd dentro del repo.
+- Plugin: `pestphp/pest-plugin-browser` ^4 (no v5: exige PHP 8.4).

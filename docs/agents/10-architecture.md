@@ -16,13 +16,16 @@ Playbook §1–2: ficha del módulo (`docs/modules/<módulo>.md`) + propuesta Op
 
 ## Lecturas obligatorias antes de proponer
 
-1. `docs/standards/module-playbook.md` (§1, §2 y §6 — checklist de vinculaciones V-01..V-20).
-2. `docs/standards/module-map.md` — capa del dominio, dependencias permitidas, cadenas de eventos.
-3. `docs/standards/architecture.md` — reglas R-* que el design debe respetar.
-4. `docs/vision-v2.md` — decisiones de producto (§6) y alcance de fase (§4.6).
-5. Referencia v1 (`C:\laragon\www\laravel8_erp_viudavila_github`): modelos/controladores
-   equivalentes, `info_modulos.txt`, `openspec/inventory/` — las reglas de negocio reales.
-6. `docs/standards/glossary.md` — naming de toda entidad nueva (término ausente → añadirlo
+1. `docs/standards/kernel.md` — invariantes (User/Company, Module ≠ Functionality, tres
+   capas, Super Admin). Skill `tenancy-rbac`.
+2. `docs/standards/module-playbook.md` (§1, §2 y §6 — checklist de vinculaciones V-01..V-20).
+3. `docs/standards/module-map.md` — capa del dominio, dependencias permitidas, cadenas de eventos.
+4. `docs/standards/architecture.md` — reglas R-* que el design debe respetar.
+5. `docs/vision-v2.md` — decisiones de producto (§6) y alcance de fase (§4.6).
+6. Referencia v1 (`C:\laragon\www\laravel8_erp_viudavila_github`): skill `v1-reference`
+   (solo lectura funcional; no clonar Livewire/Blade/yajra). `info_modulos.txt`,
+   `openspec/inventory/` — las reglas de negocio reales.
+7. `docs/standards/glossary.md` — naming de toda entidad nueva (término ausente → añadirlo
    al glosario en la misma propuesta).
 
 ## Qué SÍ hace

@@ -1,0 +1,59 @@
+---
+description: Kernel ERP v2 — invariantes User/Company/Module/Functionality/tenancy (always-on)
+alwaysApply: true
+globs:
+---
+
+# 01-kernel — invariantes (always-on)
+
+**Fuente canónica: `docs/standards/kernel.md` (LEERLA).** Este adaptador no se
+ignora: si un change, un skill genérico o v1 contradicen el kernel, manda el kernel.
+
+## Stack
+
+Inertia **v3** + React 19 + TS strict + Tailwind 4. **Prohibido Livewire**, Blade
+CRUD, yajra/DataTables. Listados = `<ServerTable>`. Pest 4 browser, no suite
+Playwright TS. Dependencias solo en `docs/standards/libraries.md`.
+
+## User / Company
+
+- Company (Partners) = único tenant organizativo; todas iguales; **sin**
+  `BelongsToCompany`.
+- User puede existir sin empresa; **no entra al ERP** sin ≥1 company activa
+  (`user_companies`).
+- 1 empresa → sesión auto; N → modal bloqueante.
+- Empresa activa = `CurrentCompany` (middleware `SetCurrentCompany`, sesión
+  `current_company_id` **solo ahí**). Jamás `session('currentCompany')`.
+- Jobs: `company_id` explícito. Test de aislamiento (R-TEN-05) por entidad.
+
+## Super Admin
+
+Bypass de permisos/módulos/funcionalidades (`Gate::before`). **No** bypass del
+perímetro: datos solo de companies vinculadas.
+
+## Module ≠ Functionality
+
+- **Module** = unidad SaaS-activable (catálogo global).
+- **Functionality** = unidad de permiso y menú. Slug inmutable.
+- Permisos: `<functionality>.<acción>` (`viewAny/view/create/update/delete`).
+  Comodín de módulo: `<module-slug>.access`.
+
+## Tres capas (todas obligatorias)
+
+1. Catálogo `modules.status` Active/Inactive (Inactive = bloqueo global).
+2. Activación `company_modules` (enciende/apaga; no cambia permisos del rol).
+3. Elegibilidad `company_module_authorizations` (Super Admin; Basic auto;
+   Optional y AdminOnly **no** auto). Encender un no autorizado = error.
+
+Menú / `EnsureModuleIsActive`: Active **y** autorizado **y** encendido, **luego**
+comodín OR `viewAny`. Prohibido el AND estricto de v1.
+
+## v1
+
+`C:\laragon\www\laravel8_erp_viudavila_github` = referencia funcional de **solo
+lectura**. No clonar su stack. Skill `v1-reference`.
+
+## No inventar
+
+Si no está en kernel / architecture / spec del change → A/B y 10-architecture.
+Skill `tenancy-rbac` al tocar User, Company, Module, Functionality, menú, policies.

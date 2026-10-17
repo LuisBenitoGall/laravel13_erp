@@ -1,30 +1,28 @@
-# Módulo Partners — empresas (shell / tenancy)
+# Módulo Partners — empresas (shell / tenancy / roles)
 
-> Ficha playbook §1. **Como quedó** tras `c2026-10-09-company-tenancy-modules`.
+> Ficha playbook §1. **Como quedó** tras tenancy + `c2026-10-09-company-roles`.
 
 ## Propósito y alcance
 
-**Entra:** `Company` shell (name, slug, tradename, nif, status, logo); soft delete;
-pertenencia `user_companies` (sin soft delete); sesión/modal post-login; CRUD bajo
-`partners/companies` con `module:admin`.
+**Entra:** `Company` shell; `user_companies`; sesión/modal; CRUD; al crear company:
+roles `manager`/`guest`, creador vinculado y con `manager`; UI miembros
+(`partners/companies/{id}/members`) para asignar manager|guest.
 
-**No entra:** `CustomerProvider`, obras, contactos, NIF histórico, engorde fiscal.
+**No entra:** CustomerProvider, obras, contactos, roles custom.
 
 ## Entidades
 
-| Entidad | Dominio | Notas |
-|---|---|---|
-| `Company` | `App\Domains\Partners` | **Sin** `BelongsToCompany` (es el tenant); arch ignoring |
+| Entidad | Notas |
+|---|---|
+| `Company` | Sin `BelongsToCompany` (es el tenant) |
 
-## Sesión
+## Roles (como quedó)
 
-- 0 empresas activas → denegar ERP.
-- 1 → `current_company_id` automático.
-- N → página bloqueante `companies/select`.
-- Switcher valida pertenencia; Super Admin **no** bypasa pertenencia.
+- `CreateCompany::handle(array $data, User $creator)` crea roles vía Admin Action,
+  adjunta al creador y le asigna `manager`, luego Basic authorize + sync.
+- Asignación posterior: Super Admin o `manager` de esa company (`CompanyRoleGate`).
 
-## Dependencias
+## Seed
 
-- Admin lee Company (module-map D⁵). CreateCompany llama Action Admin
-  `AuthorizeBasicModulesForCompany`.
-- Seed: company `demo` + vínculo superadmin + authz/enable Module `admin`.
+Company `demo` + superadmin como manager + sync según autorizaciones (backfill de
+companies existentes en `AdminCatalogSeeder`).

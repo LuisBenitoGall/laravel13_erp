@@ -52,6 +52,7 @@
 | Obra | `Worksite` | Obra | Decisión de naming 2026-07-14 |
 | UTE | `JointVenture` | UTE | UI muestra "UTE" |
 | Contacto | `Contact` | Contact | |
+| Apellidos | `surname` | surname | Campo de `User`; UI «Apellidos»; obligatorio en registro (columna nullable en BD) |
 | NIF (histórico) | `CompanyIdentifier` + `NifResolver` | ídem | Se porta tal cual |
 | Producto / Artículo | `Product` | Product | UI: "artículo" |
 | Tarifa | `Rate` | Rate | 5 tarifas venta + tipológicas A/B/C |
@@ -77,6 +78,8 @@
 | VERI*FACTU | `Verifactu*` | — | Nuevo en v2 |
 | Módulo (activable) | `Module` | Module | Planes SaaS = módulos. Catálogo global (sin `company_id`); gate de plan vía `CompanyModules` |
 | Funcionalidad | `Functionality` | Functionality | **No confundir con `Module`**: es la unidad de permiso y de entrada de submenú dentro de un módulo (R-AUT-07). Catálogo global también |
+| Rol manager (empresa) | `manager` (Spatie Role + `company_id`) | `{id}/manager` | Máximo dentro de la empresa; UI «Manager» |
+| Rol guest / invitado (empresa) | `guest` (Spatie Role + `company_id`) | `{id}/basico` | Nace sin permisos; UI «Invitado» |
 | Plan (suscripción) | `Plan` | — | Platform |
 | Tenant / suscriptor | `Tenant` | — | Empresa que contrata el SaaS |
 | Empleado / Fichaje | `Employee` / `TimeEntry` | Employee/fichaje | |
@@ -88,9 +91,11 @@
 ## Reglas del glosario
 
 1. **El código nunca mezcla**: si el glosario dice `Worksite`, no existe ningún `Obra` en
-   código v2 (ni variables, ni rutas, ni claves i18n: `partners.worksites.*`).
+   código v2 (ni variables, ni rutas). Las **claves i18n** son índices UI en **castellano
+   snake_case** (`obra`, `efecto`, `nombre`), no el schema jerárquico inglés
+   (`partners.worksites.*`); genéricos reutilizables; familias con prefijo `_`.
 2. La **UI siempre en español** (y ca/en) vía i18n: el usuario ve "Obra", "Efecto",
-   "Remesa" — nunca los identificadores ingleses.
+   "Remesa" — nunca los identificadores ingleses del dominio.
 3. Términos legales españoles sin traducción útil se conservan como identificador
    (`Irpf`, `Sii`, `Verifactu`, `Nif`): traducirlos crearía más confusión que valor.
 4. Continuidad v1 deliberada en términos ya asentados (`Effect`, `Seat`, `Store`, `Item`):

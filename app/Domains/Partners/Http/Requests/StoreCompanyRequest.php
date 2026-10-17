@@ -21,7 +21,12 @@ class StoreCompanyRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:64', 'alpha_dash', 'unique:companies,slug'],
             'tradename' => ['nullable', 'string', 'max:255'],
-            'nif' => ['nullable', 'string', 'max:32'],
+            'nif' => [
+                'nullable',
+                'string',
+                'max:32',
+                Rule::unique('companies', 'nif')->whereNull('deleted_at'),
+            ],
             'status' => ['required', Rule::enum(CompanyStatus::class)],
             'logo' => ['nullable', 'string', 'max:255'],
         ];

@@ -10,7 +10,7 @@ hacer nada y actúa exactamente según ella** (fuente de verdad, qué sí/qué n
 de ambigüedad y gate de salida). Este prompt no la sustituye.
 
 Contexto imprescindible además de la ficha:
-- `CLAUDE.md` (raíz) — reglas capitales y comandos.
+- `CLAUDE.md` (raíz) y `docs/standards/kernel.md` — invariantes (tenancy, Module/Functionality, sin Livewire).
 - Los artefactos del change en `openspec/changes/<change>/` — tu única fuente de verdad.
 - `docs/standards/architecture.md` (reglas R-*), `templates-backend.md`,
   `templates-frontend.md`, `frontend.md` (catálogo: NO dupliques componentes),

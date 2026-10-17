@@ -8,8 +8,9 @@
 
 1. **`CLAUDE.md`** (raíz) — contexto del proyecto, reglas capitales y comandos. Léelo
    entero: obliga igual aunque estés en otra herramienta.
-2. **`docs/standards/README.md`** — índice de la normativa obligatoria (playbook de
-   módulo, reglas R-*, templates, glosario, canon de librerías, E2E).
+2. **`docs/standards/kernel.md`** — invariantes always-on (User/Company, Module ≠
+   Functionality, tres capas, Super Admin, stack, v1). Luego
+   **`docs/standards/README.md`**.
 3. **`docs/agents/README.md`** — metodología de roles.
 
 ## Metodología de roles
@@ -39,9 +40,13 @@ veces haga falta, nunca infieras) y no ejecutes nada del change mientras redacta
 
 ## Mínimos innegociables (detalle en las fuentes de arriba)
 
-- Multi-tenant BD única: `BelongsToCompany` en todo modelo; test de aislamiento de tenant
-  obligatorio por entidad; jamás `session('currentCompany')`.
+- Multi-tenant BD única: `BelongsToCompany` en modelos de negocio (no en Company ni
+  catálogos globales); test de aislamiento de tenant obligatorio por entidad; jamás
+  `session('currentCompany')`. User sin company no entra al ERP.
+- Module ≠ Functionality; tres capas de módulos; permisos `<functionality>.<acción>`.
+  Super Admin no ve companies ajenas.
 - Policies + permisos Spatie; Actions transaccionales; eventos entre dominios.
+- Front: Inertia + React. Prohibido Livewire.
 - Código en inglés según `docs/standards/glossary.md`; UI en español vía i18n.
 - Dependencias solo del canon `docs/standards/libraries.md`.
 - Antes de dar nada por terminado: `composer test`, `vendor/bin/pint`,

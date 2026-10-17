@@ -1,0 +1,37 @@
+---
+description: i18n obligatorio — claves castellanas snake_case; cero literales; paridad es/en/ca A–Z
+globs:
+  - resources/js/**/*.{tsx,ts}
+  - lang/*.json
+  - app/**/*.php
+alwaysApply: false
+---
+
+# i18n — R-FE-05 / R-TRV-05
+
+Canon: `docs/standards/frontend.md` (R-FE-05), `docs/standards/glossary.md`,
+`docs/standards/architecture.md` (R-TRV-05), `config/i18n.php`, `lang/{es,en,ca}.json`.
+
+## Forma de la clave
+
+- Castellano, `snake_case`, alfabeto `^[a-z0-9_]+$` (sin tildes ni `ñ` en el índice).
+- **Sin puntos.** Prohibido `admin.modules.title` / `sales.budgets.title`.
+- **Genéricos** si el texto visible es el concepto (`nombre`, `guardar`, `crear`,
+  `email`, `contrasena`, `nif`, `estado`, `slug`, …).
+- **Específicas** solo si el texto no es el genérico (`nombre_comercial`,
+  `empresa_nueva`, `funcionalidad_crear`).
+- **Familias** con prefijo: `usuario_nuevo`, `usuario_editar`, `modulo_encendido`.
+
+## Obligatorio
+
+- **Cero literales** de producto en UI. Usar `t('clave')` / `__('clave')`.
+- Toda clave nueva MUST existir en **`lang/es.json`**, **`lang/en.json`** y
+  **`lang/ca.json`** (o locales de `config('i18n.supported')`).
+- Tras tocar un JSON: **ordenar claves A–Z** (CI lo comprueba).
+- Preferencia de usuario: `users.locale`; guest: sesión. Selector: `LanguageSwitcher`.
+
+## Al crear o tocar UI
+
+1. Reutilizar genérico existente si el copy coincide.
+2. Si no, añadir clave específica (familia `_`) en los tres JSON, ordenados.
+3. Sustituir el literal por `t('…')` / `__()`.

@@ -10,7 +10,7 @@ actúa exactamente según ella** (mínimos innegociables, flujo recomendado, qu�
 gate de salida). Este prompt no la sustituye.
 
 Contexto imprescindible además de la ficha:
-- `CLAUDE.md` (raíz) — reglas capitales y comandos.
+- `CLAUDE.md` (raíz) y `docs/standards/kernel.md` — invariantes.
 - Los artefactos del change en `openspec/changes/<change>/` — lo que prometió el change.
 - `docs/standards/module-playbook.md` §7–§9 (tests mínimos y DoD),
   `docs/standards/e2e.md` (Pest browser, si el change toca un flujo crítico).

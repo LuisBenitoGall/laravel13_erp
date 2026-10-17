@@ -1,0 +1,15 @@
+{
+    "recommendations": [
+        "laravel.vscode-laravel",
+        "bmewburn.vscode-intelephense-client",
+        "open-southeners.laravel-pint",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "yoavbls.pretty-ts-errors"
+    ],
+    "unwantedRecommendations": [
+        "felixfbecker.php-intellisense",
+        "bmewburn.vscode-intelephense-client-next"
+    ]
+}

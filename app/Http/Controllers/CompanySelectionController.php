@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\Auth\PostLoginRedirect;
 use App\Support\Tenancy\SetCompanySession;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,16 +17,13 @@ class CompanySelectionController extends Controller
         $companies = $user->activeCompanies();
 
         if ($companies->isEmpty()) {
-            auth()->logout();
-
-            return redirect()->route('login')
-                ->withErrors(['email' => __('auth.no_company')]);
+            return redirect()->route('onboarding.company');
         }
 
         if ($companies->count() === 1) {
             app(SetCompanySession::class)->handle($request, $user, (int) $companies->first()->id);
 
-            return redirect()->intended(route('admin.modules.index'));
+            return redirect()->intended(app(PostLoginRedirect::class)->route($user));
         }
 
         return Inertia::render('Auth/SelectCompany', [
@@ -48,10 +46,10 @@ class CompanySelectionController extends Controller
             $setCompanySession->handle($request, $request->user(), (int) $data['company_id']);
         } catch (\RuntimeException) {
             return back()->withErrors([
-                'company_id' => __('auth.company_forbidden'),
+                'company_id' => __('empresa_acceso_prohibido'),
             ]);
         }
 
-        return redirect()->intended(route('admin.modules.index'));
+        return redirect()->intended(app(PostLoginRedirect::class)->route($request->user()));
     }
 }

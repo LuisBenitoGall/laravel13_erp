@@ -37,11 +37,13 @@
 | `pestphp/pest-plugin-browser` (+ `playwright` en npm dev) | E2E integrado en la suite ([e2e.md](e2e.md)) |
 | `larastan/larastan` | PHPStan para Laravel |
 | `laravel/pint` (ya instalado) | Formato de código |
+| `laravel/boost` | MCP + contexto Laravel para agentes (`php artisan boost:mcp`). No regenerar `CLAUDE.md`/`AGENTS.md` con `boost:install` |
 | `barryvdh/laravel-ide-helper` (opcional) | Autocompletado de modelos |
 
 ### Reglas de lo que NO se usa
 
 - **Nada de yajra/datatables** (v1): los listados usan el contrato de tabla propio (frontend.md §3).
+- **Nada de Livewire**: el front es Inertia v3 + React 19 ([kernel.md](kernel.md)).
 - **Nada de paquetes de tenancy** (stancl/tenancy...): la tenancy es propia (BD única + scope), decidido en vision §4.5.
 - **SEPA**: sin librería externa; se portan los builders propios de v1 (pain.008/pain.001 + XSD) con sus tests.
 - **Carrito**: sin `darryldecode/cart` (v1); el carrito del portal es dominio propio (Portal).

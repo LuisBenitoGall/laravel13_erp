@@ -1,0 +1,27 @@
+---
+description: Redacción del brief de handoff explore → 10-architecture — usar cuando, dentro de una sesión /opsx-explore, se pida preparar/redactar el prompt para el agente 10-architecture a partir de lo debatido
+alwaysApply: false
+globs:
+---
+
+# Explore → brief de handoff (adaptador Cursor)
+
+`/opsx-explore` no es un rol con ficha propia (ver `docs/agents/README.md` — sección
+"`/opsx:explore` no es un cuarto rol"). **Norma fija**: el flujo de cualquier change es
+siempre debate en explore → brief con `template_prompt.md`, guardado como fichero en
+`docs/prompts/<Change>.md` → ejecución con `10-architecture` como sesión/agente nuevo,
+lanzada por el usuario (nunca la invoca explore, nunca se continúa en el mismo hilo bajo
+ese rol). Este adaptador cubre el momento en que, durante una exploración, se pide
+**"redacta/prepara el prompt"** para pasarlo al rol 10-architecture.
+
+**El protocolo completo está en `docs/agents/README.md` (sección "Redactar el brief de
+handoff") — LEERLO y seguirlo exactamente.** Resumen mínimo:
+
+- Formato: SIEMPRE `docs/prompts/template_prompt.md`, sin inventar estructura propia.
+- Fidelidad estricta: solo lo debatido en la conversación — nada añadido, nada inferido.
+  Si lo debatido contradice `docs/standards/kernel.md`, **señalarlo** en el brief; no
+  “arreglarlo” inventando.
+- Duda → preguntar (cuantas veces haga falta), nunca suponer ni generalizar.
+- No ejecutar nada del change: ni `openspec new change`, ni `/opsx-propose`, ni código.
+- Entrega: guardar SIEMPRE el brief en `docs/prompts/<Change>.md` — no basta con
+  mostrarlo en el chat. El usuario decide cuándo y cómo lanzar el subagente.

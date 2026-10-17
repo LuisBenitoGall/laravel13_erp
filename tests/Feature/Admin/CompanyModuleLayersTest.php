@@ -64,7 +64,7 @@ it('módulo Basic autorizado por defecto al crear company', function () {
         'nif' => null,
         'status' => 'active',
         'logo' => null,
-    ]);
+    ], User::factory()->create());
 
     $module = Module::query()->where('slug', 'core')->firstOrFail();
     app(EnableModuleForCompany::class)->handle($company, $module);

@@ -38,10 +38,11 @@ Capa 1 — Maestros        Partners · Catalog · Admin (+ Support sin dominio)
 documentos viven en **Admin** (configuración por empresa).
 
 `Module` y `Functionality` (Admin) son la primera excepción real a R-TEN-01: catálogo
-**global**, sin `company_id` — `Module` es la unidad SaaS-activable por empresa
-(`CompanyModules`); `Functionality` es la unidad de permiso y de entrada de menú dentro de
-un módulo. Detalle de la política de permisos/menú: [architecture.md](architecture.md)
-R-AUT-07/R-AUT-08.
+**global**, sin `company_id`. `Module` es la unidad SaaS-activable (tres capas:
+catálogo Active/Inactive + elegibilidad `company_module_authorizations` +
+activación `company_modules`). `Functionality` es la unidad de permiso y de
+entrada de menú. Company (Partners) es el tenant. Detalle: [kernel.md](kernel.md)
+y [architecture.md](architecture.md) R-AUT-07/R-AUT-08.
 
 ## 2. Matriz de dependencias (quién usa a quién)
 

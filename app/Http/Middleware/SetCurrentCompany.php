@@ -22,6 +22,8 @@ class SetCurrentCompany
         $user = $request->user();
 
         if ($rawCompanyId === null || $rawCompanyId === '') {
+            setPermissionsTeamId(null);
+
             return $next($request);
         }
 
@@ -30,13 +32,21 @@ class SetCurrentCompany
         if ($user !== null) {
             if ($user->belongsToCompany($id)) {
                 $this->currentCompany->set($id);
+                setPermissionsTeamId($id);
+                // Spatie cachea roles/permisos del User; hay que invalidar al cambiar team.
+                $user->unsetRelation('roles');
+                $user->unsetRelation('permissions');
             } else {
                 $request->session()->forget('current_company_id');
                 $this->currentCompany->set(null);
+                setPermissionsTeamId(null);
+                $user->unsetRelation('roles');
+                $user->unsetRelation('permissions');
             }
         } else {
             // Tests sin user autenticado: solo int de sesión.
             $this->currentCompany->set($id);
+            setPermissionsTeamId($id);
         }
 
         return $next($request);

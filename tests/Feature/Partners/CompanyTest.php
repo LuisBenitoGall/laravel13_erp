@@ -78,6 +78,7 @@ it('al crear company activa autoriza Modules Basic', function () {
         'status' => ModuleStatus::Active,
     ]);
 
+    $creator = User::factory()->create();
     $company = app(CreateCompany::class)->handle([
         'name' => 'Basic Co',
         'slug' => 'basic-co',
@@ -85,7 +86,7 @@ it('al crear company activa autoriza Modules Basic', function () {
         'nif' => null,
         'status' => CompanyStatus::Active->value,
         'logo' => null,
-    ]);
+    ], $creator);
 
     $authorizedSlugs = CompanyModuleAuthorization::query()->withoutGlobalScope('company')
         ->where('company_id', $company->id)

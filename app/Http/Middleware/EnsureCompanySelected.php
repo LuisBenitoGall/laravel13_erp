@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Exige empresa de sesión para rutas ERP (post-login 0/1/N).
+ * Sin companies → onboarding (sesión preservada).
  */
 class EnsureCompanySelected
 {
@@ -25,12 +26,7 @@ class EnsureCompanySelected
         }
 
         if ($user->activeCompanies()->isEmpty()) {
-            auth()->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            return redirect()->route('login')
-                ->withErrors(['email' => __('auth.no_company')]);
+            return redirect()->route('onboarding.company');
         }
 
         if ($this->currentCompany->id() === null) {

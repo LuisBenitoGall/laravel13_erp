@@ -12,6 +12,7 @@ class AuthorizeBasicModulesForCompany
 {
     public function __construct(
         private readonly AuthorizeModuleForCompany $authorizeModuleForCompany,
+        private readonly SyncManagerPermissionsForCompany $syncManagerPermissionsForCompany,
     ) {}
 
     public function handle(Company $company): void
@@ -27,6 +28,8 @@ class AuthorizeBasicModulesForCompany
                 ->each(function (Module $module) use ($company): void {
                     $this->authorizeModuleForCompany->handle($company, $module);
                 });
+
+            $this->syncManagerPermissionsForCompany->handle($company);
         });
     }
 }

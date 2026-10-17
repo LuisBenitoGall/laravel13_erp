@@ -72,7 +72,7 @@ class CompanyModuleAuthorizationController extends Controller
         abort_unless($this->isSuperAdmin(), 403);
         $action->handle($company, $module);
 
-        return back()->with('success', __('admin.company_module_authorizations.authorized'));
+        return back()->with('success', __('modulo_autorizado'));
     }
 
     public function revoke(
@@ -83,7 +83,7 @@ class CompanyModuleAuthorizationController extends Controller
         abort_unless($this->isSuperAdmin(), 403);
         $action->handle($company, $module);
 
-        return back()->with('success', __('admin.company_module_authorizations.revoked'));
+        return back()->with('success', __('autorizacion_revocada'));
     }
 
     private function isSuperAdmin(): bool

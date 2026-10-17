@@ -85,7 +85,7 @@ class CompanyModuleController extends Controller
             return back()->with('error', $e->getMessage());
         }
 
-        return back()->with('success', __('admin.company_modules.enabled'));
+        return back()->with('success', __('modulo_encendido'));
     }
 
     public function disable(
@@ -98,7 +98,7 @@ class CompanyModuleController extends Controller
         $company = Company::query()->findOrFail($currentCompany->id());
         $action->handle($company, $module);
 
-        return back()->with('success', __('admin.company_modules.disabled'));
+        return back()->with('success', __('modulo_apagado'));
     }
 
     private function userCanManageCompanyModules(): bool

@@ -46,10 +46,10 @@ class CompanyController extends Controller
 
     public function store(StoreCompanyRequest $request, CreateCompany $action): RedirectResponse
     {
-        $company = $action->handle($request->validated());
+        $company = $action->handle($request->validated(), $request->user());
 
         return to_route('partners.companies.edit', $company)
-            ->with('success', __('partners.companies.created'));
+            ->with('success', __('empresa_creada'));
     }
 
     public function edit(Company $company): Response
@@ -58,6 +58,7 @@ class CompanyController extends Controller
 
         return Inertia::render('Partners/Companies/Edit', [
             'company' => CompanyResource::make($company)->resolve(),
+            'members_url' => route('partners.companies.members.index', $company, absolute: false),
         ]);
     }
 
@@ -65,7 +66,7 @@ class CompanyController extends Controller
     {
         $action->handle($company, $request->validated());
 
-        return back()->with('success', __('partners.companies.updated'));
+        return back()->with('success', __('empresa_actualizada'));
     }
 
     public function destroy(Company $company, DeleteCompany $action): RedirectResponse
@@ -74,6 +75,6 @@ class CompanyController extends Controller
         $action->handle($company);
 
         return to_route('partners.companies.index')
-            ->with('success', __('partners.companies.deleted'));
+            ->with('success', __('empresa_eliminada'));
     }
 }

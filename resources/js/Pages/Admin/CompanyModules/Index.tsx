@@ -1,4 +1,6 @@
 import { router } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
+
 import AppLayout from '@/Layouts/AppLayout';
 
 type ModuleCard = {
@@ -20,10 +22,12 @@ export default function Index({
     company: { id: number; name: string };
     modules: ModuleCard[];
 }) {
+    const { t } = useTranslation();
+
     return (
-        <AppLayout title="Módulos de empresa">
+        <AppLayout title={t('modulos_empresa')}>
             <p className="mb-4 text-sm text-slate-600">
-                Activa o desactiva módulos autorizados para {company.name}.
+                {t('modulos_empresa_para', { name: company.name })}
             </p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {modules.map((module) => {
@@ -49,7 +53,9 @@ export default function Index({
                                     <div className="font-medium text-slate-900">{module.label}</div>
                                     <div className="text-xs text-slate-500">
                                         {module.level}
-                                        {!module.authorized ? ' · no autorizado' : ''}
+                                        {!module.authorized
+                                            ? ` · ${t('no_autorizado')}`
+                                            : ''}
                                     </div>
                                 </div>
                             </div>
@@ -69,10 +75,14 @@ export default function Index({
                                         )
                                     }
                                 >
-                                    {module.enabled ? 'Apagar' : 'Encender'}
+                                    {module.enabled
+                                        ? t('apagar')
+                                        : t('encender')}
                                 </button>
                             ) : (
-                                <span className="text-xs text-slate-500">Requiere autorización</span>
+                                <span className="text-xs text-slate-500">
+                                    {t('requiere_autorizacion')}
+                                </span>
                             )}
                         </div>
                     );

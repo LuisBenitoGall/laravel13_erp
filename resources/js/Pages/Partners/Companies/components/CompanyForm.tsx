@@ -1,5 +1,8 @@
 import { useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { Input } from '@/Components/ui/input';
 
 type CompanyFormData = {
     name: string;
@@ -17,6 +20,7 @@ type Props = {
 };
 
 export default function CompanyForm({ initial, submitUrl, method = 'post' }: Props) {
+    const { t } = useTranslation();
     const form = useForm<CompanyFormData>({
         name: initial?.name ?? '',
         slug: initial?.slug ?? '',
@@ -35,24 +39,26 @@ export default function CompanyForm({ initial, submitUrl, method = 'post' }: Pro
         }
     };
 
+    const fields = [
+        ['name', t('nombre')],
+        ['slug', t('slug')],
+        ['tradename', t('nombre_comercial')],
+        ['nif', t('nif')],
+        ['logo', t('logo_url')],
+    ] as const;
+
     return (
-        <form onSubmit={onSubmit} className="mx-auto max-w-xl space-y-4 rounded-lg border border-slate-200 bg-white p-6">
-            {(
-                [
-                    ['name', 'Nombre'],
-                    ['slug', 'Slug'],
-                    ['tradename', 'Nombre comercial'],
-                    ['nif', 'NIF'],
-                    ['logo', 'Logo (URL)'],
-                ] as const
-            ).map(([field, label]) => (
+        <form
+            onSubmit={onSubmit}
+            className="mx-auto max-w-xl space-y-4 rounded-lg border border-slate-200 bg-white p-6"
+        >
+            {fields.map(([field, label]) => (
                 <div key={field}>
                     <label className="mb-1 block text-sm font-medium" htmlFor={field}>
                         {label}
                     </label>
-                    <input
+                    <Input
                         id={field}
-                        className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
                         value={form.data[field]}
                         onChange={(e) => form.setData(field, e.target.value)}
                     />
@@ -63,7 +69,7 @@ export default function CompanyForm({ initial, submitUrl, method = 'post' }: Pro
             ))}
             <div>
                 <label className="mb-1 block text-sm font-medium" htmlFor="status">
-                    Estado
+                    {t('estado')}
                 </label>
                 <select
                     id="status"
@@ -71,9 +77,9 @@ export default function CompanyForm({ initial, submitUrl, method = 'post' }: Pro
                     value={form.data.status}
                     onChange={(e) => form.setData('status', e.target.value)}
                 >
-                    <option value="draft">Borrador</option>
-                    <option value="active">Activa</option>
-                    <option value="closed">Cerrada</option>
+                    <option value="draft">{t('estado_borrador')}</option>
+                    <option value="active">{t('estado_activa')}</option>
+                    <option value="closed">{t('estado_cerrada')}</option>
                 </select>
             </div>
             <button
@@ -81,7 +87,7 @@ export default function CompanyForm({ initial, submitUrl, method = 'post' }: Pro
                 disabled={form.processing}
                 className="rounded-md bg-teal-700 px-3 py-2 text-sm font-medium text-white hover:bg-teal-800"
             >
-                Guardar
+                {t('guardar')}
             </button>
         </form>
     );

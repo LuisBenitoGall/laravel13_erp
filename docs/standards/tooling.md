@@ -136,6 +136,9 @@ arch('sin dd/dump/env fuera de config')
 ```
 
 Complemento no-arch (feature tests globales):
+- **Kernel** (`tests/Architecture/KernelInvariantsTest.php`): sin Livewire, sin
+  `session('currentCompany')`, Company/Module/Functionality sin `BelongsToCompany`,
+  tres capas presentes, User↔Company, Super Admin en `Gate::before`.
 - **Smoke de policies**: toda ruta registrada bajo `auth` responde 403 a un usuario sin
   permisos (recorre la tabla de rutas — caza rutas sin authorize).
 - **Smoke de i18n**: las claves usadas en `lang/es.json` existen también en `en.json`.
@@ -199,8 +202,25 @@ Regla: **rojo = no merge**. Sin excepciones "temporales".
   canónicas en `docs/agents/`, cargadas por adaptadores finos por herramienta:
   `.cursor/rules/` (Cursor), `.claude/agents/` (Claude Code, con modelo por rol: fable
   en 10, sonnet en 20/30/40) y `AGENTS.md` (Codex y compatibles).
+- Invariantes always-on: `docs/standards/kernel.md` → `.cursor/rules/01-kernel.mdc`
+  (`alwaysApply`) y `CLAUDE.md`. El harness Cursor versionado es
+  `.cursor/{rules,skills,agents,commands}` (el resto de `.cursor/` sigue gitignorado).
 - `CLAUDE.md` (raíz) carga los estándares como reglas de sesión; en Cursor lo hace
-  `.cursor/rules/00-project.mdc` (alwaysApply).
+  `.cursor/rules/00-project.mdc` + `01-kernel.mdc` (alwaysApply).
+
+### MCP (workspace)
+
+`.mcp.json` en la raíz:
+
+| Servidor | Uso |
+|---|---|
+| `codegraph` | Grafo de símbolos (preferir a grep estructural) |
+| `laravel-boost` | `php artisan boost:mcp`. En Windows/Cursor el `command` es el `php.exe` de Laragon (el PATH del IDE no incluye `php`) |
+
+**Tabularis** (inspector MySQL) es MCP de **usuario**, no de este repo. No añadir
+aquí una conexión hasta que exista una a la BD de `laravel13_erp`. La conexión
+guardada Hetzner / database `back` es **otro sistema**: no usarla como atajo.
+
 - Skill **`/new-module`**: ejecuta el playbook de forma guiada (ficha → propuesta → checklists).
 - Flujo OpenSpec: `/opsx:propose` → revisar → `/opsx:apply` → `/opsx:archive`; el contexto
   de `openspec/config.yaml` apunta a `docs/standards/` para que toda propuesta nazca

@@ -1,43 +1,32 @@
 # Módulo Admin — catálogo, RBAC y shell
 
-> Ficha playbook §1. **Como quedó** tras `c2026-07-17-admin-catalog-permissions` y
-> `c2026-10-09-company-tenancy-modules`.
+> Ficha playbook §1. **Como quedó** tras tenancy (`c2026-10-09-company-tenancy-modules`)
+> y roles por empresa (`c2026-10-09-company-roles`).
 
 ## Propósito y alcance
 
 **Entra:** catálogo global `Module` / `Functionality`; Spatie Teams; Super Admin;
-elegibilidad (`company_module_authorizations`) + activación (`company_modules`);
-`MenuBuilder` y `EnsureModuleIsActive` con triple condición R-AUT-08; UI de módulos de
-empresa y autorización Super Admin.
+elegibilidad + activación; menú R-AUT-08; roles de empresa `manager`/`guest`; sync de
+permisos del manager con autorizaciones Basic/Optional.
 
-**No entra:** roles Spatie por empresa; Platform/pago real de módulos; engorde Company.
+**No entra:** roles custom creados por el manager; Platform/pago; engorde Company.
 
-## Entidades
+## Entidades / infra RBAC
 
-| Entidad | Dominio | Notas |
-|---|---|---|
-| `Module` / `Functionality` | Admin | Catálogo global (`--global`) |
-| `CompanyModuleAuthorization` | Admin | Capa 3 elegibilidad (soft delete); pivote, sin CRUD generador |
-| `CompanyModule` | Admin | Capa 2 activación (soft delete); pivote, sin CRUD generador |
+| Pieza | Notas |
+|---|---|
+| `Module` / `Functionality` | Catálogo global |
+| `CompanyModuleAuthorization` / `CompanyModule` | Capas 3 y 2 |
+| Roles Spatie `manager` / `guest` | Mismo `name`, distintos `company_id` (Teams) |
+| `EnsureCompanyDefaultRoles` | Alta roles por company |
+| `SyncManagerPermissionsForCompany` | Resync idempotente (excluye AdminOnly) |
+| `AssignCompanyRole` | Solo `manager`\|`guest` a users vinculados |
+
+## Sync manager
+
+Disparadores: autorizar / desautorizar / auto-Basic. **No** al encender/apagar.
+AdminOnly nunca entra en `role_has_permissions` del manager.
 
 ## Dependencias
 
-- **Admin → Partners** (lectura `Company`): menú, middleware, autorizaciones, pertenencia.
-- `ModuleActivationChecker` implementado por `CompanyModuleActivationChecker` (Admin).
-
-## Capas de módulos (como quedó)
-
-1. Global Active/Inactive.
-2. Encendido en `company_modules` (permiso `company-modules.*` + Super Admin).
-3. Autorizado en `company_module_authorizations` (solo Super Admin; Basic auto al crear
-   company activa / al activar Module Basic).
-
-## Functionalities seed
-
-`modules`, `functionalities`, `companies`, `company-modules`,
-`company-module-authorizations` bajo Module `admin`.
-
-## Menú / middleware
-
-`MenuBuilder` y `EnsureModuleIsActive` exigen Active + autorizado + encendido para la
-empresa de sesión; luego comodín OR `viewAny`. Excepción R-AUT-08 parcial **retirada**.
+Admin → Partners (lectura `Company`).

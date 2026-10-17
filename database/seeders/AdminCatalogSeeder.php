@@ -2,10 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Domains\Admin\Actions\AssignCompanyRole;
 use App\Domains\Admin\Actions\AuthorizeModuleForCompany;
 use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\CreateModule;
 use App\Domains\Admin\Actions\EnableModuleForCompany;
+use App\Domains\Admin\Actions\EnsureCompanyDefaultRoles;
+use App\Domains\Admin\Actions\SyncManagerPermissionsForCompany;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
@@ -99,15 +102,34 @@ class AdminCatalogSeeder extends Seeder
                     'nif' => 'B00000000',
                     'status' => CompanyStatus::Active->value,
                     'logo' => null,
-                ]);
-            }
+                ], $user);
+            } else {
+                app(EnsureCompanyDefaultRoles::class)->handle($company);
 
-            if (! $user->companies()->where('companies.id', $company->id)->exists()) {
-                $user->companies()->attach($company->id);
+                if (! $user->companies()->where('companies.id', $company->id)->exists()) {
+                    $user->companies()->attach($company->id);
+                }
+
+                app(AssignCompanyRole::class)->handle($user, $company, 'manager');
+                app(SyncManagerPermissionsForCompany::class)->handle($company);
             }
 
             app(AuthorizeModuleForCompany::class)->handle($company, $module);
             app(EnableModuleForCompany::class)->handle($company, $module);
+
+            // Backfill: asegurar roles + manager + sync en todas las companies.
+            Company::query()->each(function (Company $existing) use ($user): void {
+                app(EnsureCompanyDefaultRoles::class)->handle($existing);
+
+                $managerCandidate = $existing->users()->first() ?? $user;
+
+                if (! $managerCandidate->companies()->where('companies.id', $existing->id)->exists()) {
+                    $managerCandidate->companies()->attach($existing->id);
+                }
+
+                app(AssignCompanyRole::class)->handle($managerCandidate, $existing, 'manager');
+                app(SyncManagerPermissionsForCompany::class)->handle($existing);
+            });
         } finally {
             setPermissionsTeamId($previousTeamId);
         }

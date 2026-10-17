@@ -8,6 +8,7 @@ description: Ejecuta el playbook normativo (docs/standards/module-playbook.md) p
 Guía la creación de un módulo (o de una entidad suelta) aplicando el playbook. Eres el
 garante de que **ninguna casilla se salta**. Documentos normativos:
 
+- Invariantes: `docs/standards/kernel.md` (skills `tenancy-rbac` y `v1-reference`)
 - Pauta y checklists: `docs/standards/module-playbook.md` (LEER ENTERO antes de empezar)
 - Reglas: `docs/standards/architecture.md` · Mapa: `docs/standards/module-map.md`
 - Templates: `docs/standards/templates-backend.md`, `docs/standards/templates-frontend.md`
@@ -18,9 +19,10 @@ garante de que **ninguna casilla se salta**. Documentos normativos:
 ### Paso 1 — Contexto
 1. Lee el playbook y el module-map. Determina si el encargo es un MÓDULO nuevo o una
    ENTIDAD dentro de un módulo existente (pregunta si es ambiguo).
-2. Localiza la referencia v1 en `C:\laragon\www\laravel8_erp_viudavila_github` (modelos,
-   controladores, reglas de negocio; consulta `info_modulos.txt` y `openspec/inventory/`
-   del proyecto viejo). Resume qué hace v1 y qué se decide portar.
+2. Localiza la referencia v1 en `C:\laragon\www\laravel8_erp_viudavila_github` con el
+   skill `v1-reference` (solo lectura funcional; no clonar Livewire/Blade/yajra).
+   Consulta `info_modulos.txt` y `openspec/inventory/`. Resume qué hace v1 y qué se
+   decide portar.
 3. Verifica el naming de todas las entidades contra el glosario. Término nuevo → proponer
    traducción y AÑADIRLA a `glossary.md` antes de escribir código.
 

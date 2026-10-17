@@ -49,7 +49,7 @@ class ModuleController extends Controller
         $module = $action->handle($request->validated());
 
         return to_route('admin.modules.edit', $module)
-            ->with('success', __('admin.modules.created'));
+            ->with('success', __('modulo_creado'));
     }
 
     public function edit(Module $module): Response
@@ -65,7 +65,7 @@ class ModuleController extends Controller
     {
         $action->handle($module, $request->validated());
 
-        return back()->with('success', __('admin.modules.updated'));
+        return back()->with('success', __('modulo_actualizado'));
     }
 
     public function destroy(Module $module, DeleteModule $action): RedirectResponse
@@ -74,6 +74,6 @@ class ModuleController extends Controller
         $action->handle($module);
 
         return to_route('admin.modules.index')
-            ->with('success', __('admin.modules.deleted'));
+            ->with('success', __('modulo_eliminado'));
     }
 }

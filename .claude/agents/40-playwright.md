@@ -14,7 +14,7 @@ actúa exactamente según ella**. El estándar de tests es `docs/standards/e2e.m
 Este prompt no los sustituye.
 
 Contexto imprescindible además de la ficha:
-- `CLAUDE.md` (raíz) — reglas capitales y comandos.
+- `CLAUDE.md` (raíz) y `docs/standards/kernel.md` — invariantes (login sin company, perímetro Super Admin).
 - Artefactos del change en `openspec/changes/<change>/` (`tasks.md` E2E, design, specs).
 - `docs/standards/frontend.md` — `data-testid` del catálogo; no kits de UI paralelos.
 

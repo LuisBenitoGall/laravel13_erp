@@ -2,6 +2,9 @@ import '../css/app.css';
 
 import { createInertiaApp, type ResolvedComponent } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
+import { I18nextProvider } from 'react-i18next';
+
+import i18n, { bootstrapI18n } from './i18n';
 
 createInertiaApp({
     resolve: (name) => {
@@ -10,6 +13,17 @@ createInertiaApp({
         return pages[`./Pages/${name}.tsx`];
     },
     setup({ el, App, props }) {
-        createRoot(el).render(<App {...props} />);
+        bootstrapI18n(
+            props.initialPage.props as {
+                locale?: string;
+                translations?: Record<string, string>;
+            },
+        );
+
+        createRoot(el).render(
+            <I18nextProvider i18n={i18n}>
+                <App {...props} />
+            </I18nextProvider>,
+        );
     },
 });

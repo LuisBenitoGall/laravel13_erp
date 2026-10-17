@@ -1,4 +1,6 @@
 import { router } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
+
 import AppLayout from '@/Layouts/AppLayout';
 
 type CompanyOption = { id: number; name: string; slug: string };
@@ -21,11 +23,13 @@ export default function Index({
     selected_company_id: number | null;
     modules: ModuleRow[];
 }) {
+    const { t } = useTranslation();
+
     return (
-        <AppLayout title="Autorización de módulos">
+        <AppLayout title={t('autorizacion_de_modulos')}>
             <div className="mb-4 flex items-center gap-3">
                 <label className="text-sm font-medium text-slate-700" htmlFor="company">
-                    Empresa
+                    {t('empresa')}
                 </label>
                 <select
                     id="company"
@@ -70,7 +74,9 @@ export default function Index({
                                 );
                             }}
                         >
-                            {module.authorized ? 'Revocar' : 'Autorizar'}
+                            {module.authorized
+                                ? t('revocar')
+                                : t('autorizar')}
                         </button>
                     </div>
                 ))}
