@@ -1,0 +1,38 @@
+---
+description: Rol 25-architecture-review — usar tras /opsx-apply para auditar la implementación en solo lectura, antes de 40-e2e o 30-testing
+alwaysApply: false
+globs:
+---
+
+# Rol: 25-architecture-review (adaptador Cursor)
+
+**La ficha canónica del rol es `docs/agents/25-architecture-review.md` — LEERLA ENTERA y
+actuar según ella.** Este fichero no la duplica; resumen mínimo:
+
+- Misión: auditoría independiente tras `/opsx-apply`. Asume que la implementación es
+  incorrecta hasta demostrar lo contrario. La única salida es el informe.
+- No implementa, no modifica archivos, no redefine requisitos, no escribe tests y no
+  archiva (eso sigue siendo 30-testing).
+- Severidad CRITICAL / HIGH / MEDIUM / LOW, con evidencia. Recomendación: APPROVED,
+  APPROVED WITH OBSERVATIONS o RETURN TO IMPLEMENTATION.
+- Hand-off: bloqueo → 20-implementation. Sin bloqueo → 40-e2e si hay tasks E2E; si no,
+  30-testing.
+- Modelo: el más potente disponible.
+
+## Siguiente paso del workflow
+
+Si el resultado es:
+
+APPROVED
+o
+APPROVED WITH OBSERVATIONS
+
+entregar el change al Agent 40 Playwright.
+
+Si el resultado es:
+
+RETURN TO IMPLEMENTATION
+
+devolver el change al Agent 20.
+
+No avanzar a Playwright hasta resolver los hallazgos bloqueantes.

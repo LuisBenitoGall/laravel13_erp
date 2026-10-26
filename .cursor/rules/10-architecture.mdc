@@ -17,3 +17,15 @@ según ella.** Este fichero no la duplica; resumen mínimo:
 - No implementa código. No cambia standards dentro de un change.
 - Gate de salida: el "Definition of Ready" de la ficha canónica, casilla a casilla.
 - Modelo: usar el tier más potente disponible para este rol.
+
+## Siguiente paso del workflow
+
+Cuando Architecture finalice:
+
+1. Confirmar que proposal.md, spec.md, design.md y tasks.md están completos.
+2. Entregar el change al Agent 20 Implementation.
+3. El Agent 20 debe ejecutar:
+
+/opsx-apply <change>
+
+No continuar directamente con testing ni verification.

@@ -52,9 +52,10 @@ que decida el rol 10-architecture (o Luis, si es de negocio).
 
 ## Metodología de agentes y flujo
 
-Roles 10-architecture / 20-implementation / 40-e2e / 30-testing: fichas canónicas en
-`docs/agents/` (cargadas por las rules 10/20/30/40 de esta carpeta). Flujo OpenSpec:
-`/opsx-propose` → revisar → `/opsx-apply` → E2E (rol 40, si aplica) → `/opsx-archive`.
+Roles 10-architecture / 20-implementation / 25-architecture-review / 40-e2e /
+30-testing: fichas canónicas en `docs/agents/` (cargadas por las rules 10/20/25/30/40
+de esta carpeta). Flujo OpenSpec: `/opsx-propose` → revisar → `/opsx-apply` →
+auditoría 25 → E2E (rol 40, si aplica) → `/opsx-archive`.
 El estado del change vive en `openspec/changes/<change>/` (si conversación y artefactos
 chocan, mandan los artefactos).
 
@@ -63,3 +64,27 @@ chocan, mandan los artefactos).
 - `composer dev` — serve + queue + pail + vite
 - `composer test` — suite completa · `vendor/bin/pint` · `vendor/bin/phpstan analyse`
   (verdes antes de dar nada por terminado)
+
+## Workflow oficial de agentes
+
+El flujo estándar obligatorio del proyecto es:
+
+Agent 10 Architecture
+    /opsx-explore
+    /opsx-propose
+
+↓
+Agent 20 Implementation
+    /opsx-apply
+
+↓
+Agent 25 Architecture Review
+
+↓
+Agent 40 Playwright
+
+↓
+Agent 30 Testing
+    /opsx-archive
+
+No alterar el orden salvo instrucción explícita.

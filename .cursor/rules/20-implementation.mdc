@@ -17,3 +17,15 @@ según ella.** Este fichero no la duplica; resumen mínimo:
   casillas no verificadas; no escribe `tests/Browser/` (rol 40).
 - Gate de salida: el de la ficha canónica (suite + pint + phpstan verdes incluidos).
 - Modelo: tier medio es suficiente para este rol (el contrato ya está cerrado).
+
+## Siguiente paso del workflow
+
+Cuando Implementation finalice:
+
+1. Confirmar que todas las tareas acordadas están implementadas.
+2. Actualizar tasks.md marcando únicamente tareas realmente completadas.
+3. Entregar el change al Agent 25 Architecture Review.
+
+NO ejecutar verify ni archive.
+
+La siguiente revisión corresponde exclusivamente al Agent 25.

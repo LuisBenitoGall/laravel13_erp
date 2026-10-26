@@ -150,10 +150,11 @@ de ambigüedad.
 3. Estado del change: los artefactos OpenSpec. Si conversación y artefactos chocan,
    **mandan los artefactos**.
 4. Flujo OpenSpec: `/opsx-propose` (10) → revisión → `/opsx-apply` (tú) →
-   Agent 40 si hay tasks E2E → `/opsx-archive` (30-testing). Tú cierras en apply
-   listo para E2E/testing, o bloqueado por ambigüedad anotada.
+   Agent 25 (auditoría de solo lectura) → Agent 40 si hay tasks E2E →
+   `/opsx-archive` (30-testing). Tú cierras en apply listo para la revisión 25, o
+   bloqueado por ambigüedad anotada.
 
-## Gate de salida (hacia 40-e2e si hay tasks E2E; si no, hacia 30-testing)
+## Gate de salida (hacia Agent 25 Architecture Review)
 
 Antes de terminar, verifica casilla a casilla y repórtalo en la respuesta final:
 
@@ -170,4 +171,5 @@ Antes de terminar, verifica casilla a casilla y repórtalo en la respuesta final
 - Archivos afectados (resumen).
 - Gate de salida casilla a casilla.
 - Ambigüedades anotadas / dudas escaladas a 10-architecture.
-- Hand-off explícito: listo para `/opsx-archive` (30-testing) o bloqueado por X.
+- Hand-off explícito: listo para Agent 25 Architecture Review, o bloqueado por X.
+

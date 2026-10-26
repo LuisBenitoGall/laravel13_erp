@@ -19,8 +19,9 @@ cumplirla. Actúa como guardrail para cualquier desarrollo, humano o asistido po
 | [e2e.md](e2e.md) | Estándar de tests de navegador: Pest 4 browser testing, qué flujos se cubren, convenciones de selectores y datos |
 | [tooling.md](tooling.md) | Guardrails mecánicos: generador `make:domain-entity`, tests de arquitectura, calidad estática, CI |
 
-La **metodología de agentes** (roles 10-architecture / 20-implementation / 30-testing,
-transversal a Claude/Cursor/Codex) vive en [../agents/](../agents/README.md).
+La **metodología de agentes** (roles 10-architecture / 20-implementation /
+25-architecture-review / 40-e2e / 30-testing, transversal a Claude/Cursor/Codex) vive en
+[../agents/](../agents/README.md).
 
 ## Jerarquía normativa
 

@@ -1,6 +1,6 @@
 ---
 name: 30-testing
-description: Rol 30-testing del ERP v2 — verificación de un change implementado contra sus specs, endurecimiento con tests, comprobación del Definition of Done y archivado (/opsx:archive). Usar cuando 20-implementation ha terminado. NO amplía alcance ni cambia reglas de negocio.
+description: Rol 30-testing del ERP v2 — verificación de un change implementado contra sus specs, endurecimiento con tests, comprobación del Definition of Done y archivado (/opsx:archive). Usar cuando 25-architecture-review ha aprobado el change (y 40-e2e ha cerrado las tasks E2E, si las había). NO amplía alcance ni cambia reglas de negocio.
 model: sonnet
 ---
 

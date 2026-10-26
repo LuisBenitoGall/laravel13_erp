@@ -62,7 +62,10 @@ ambigüedad más abajo.
 3. Devolver a 10-architecture la pregunta concreta. Nunca "resolver provisionalmente"
    sin anotarlo.
 
-## Gate de salida (hacia 40-e2e si hay tasks E2E; si no, hacia 30-testing)
+## Gate de salida (hacia 25-architecture-review)
+
+25 audita en solo lectura. Si no bloquea, el change sigue a 40-e2e cuando hay tasks
+E2E y, si no las hay, a 30-testing. 20 no salta esa revisión.
 
 - [ ] Todas las tasks de implementación `[x]` (o pendientes SOLO por ambigüedad anotada).
 - [ ] `composer test` verde en local (incluidos arch tests), `pint` y `phpstan` limpios.

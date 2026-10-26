@@ -1,6 +1,6 @@
 # Kernel — invariantes innegociables
 
-> Constitución always-on del ERP v2. Todo agente (10/20/30/40, explore, setup) las
+> Constitución always-on del ERP v2. Todo agente (10/20/25/30/40, explore, setup) las
 > cumple **sin que el usuario las recuerde**. El detalle citable son las reglas `R-*`
 > de [architecture.md](architecture.md). Si kernel y código chocan: se corrige el
 > estándar o el código en un change explícito; **nunca se improvisan excepciones**.

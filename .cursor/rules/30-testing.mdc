@@ -1,5 +1,5 @@
 ---
-description: Rol 30-testing — usar al verificar un change implementado, endurecer tests, comprobar el DoD y archivar (/opsx-archive)
+description: Rol 30-testing — usar tras la auditoría 25 (y el E2E 40, si aplica) para verificar un change, endurecer tests, comprobar el DoD y archivar (/opsx-archive)
 alwaysApply: false
 globs:
 ---

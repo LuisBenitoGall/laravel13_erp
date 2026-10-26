@@ -21,6 +21,7 @@ Trabaja siempre COMO UNO de los roles (fichas canónicas en `docs/agents/`):
 |---|---|---|
 | Proponer un change, redactar ficha de módulo, decidir diseño | `docs/agents/10-architecture.md` | `/opsx-propose` |
 | Implementar tasks de un change ya propuesto | `docs/agents/20-implementation.md` | `/opsx-apply` |
+| Auditar la implementación tras apply (solo lectura, sin modificar) | `docs/agents/25-architecture-review.md` | — |
 | Escribir/mantener E2E Pest browser (`tests/Browser/`) | `docs/agents/40-e2e.md` | — |
 | Verificar, endurecer tests, comprobar DoD y archivar | `docs/agents/30-testing.md` | `/opsx-archive` |
 

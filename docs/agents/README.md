@@ -1,6 +1,6 @@
-# Metodología de agentes (roles 10/20/30 + 40)
+# Metodología de agentes (roles 10/20/25/30 + 40)
 
-El desarrollo se organiza en **cuatro roles diferenciados** alineados con el ciclo OpenSpec.
+El desarrollo se organiza en **cinco roles diferenciados** alineados con el ciclo OpenSpec.
 Cada rol tiene su ficha canónica en esta carpeta — **agnóstica de herramienta**: vale igual
 para Claude Code, Cursor o Codex. Cada herramienta la carga con un adaptador fino
 (`.cursor/rules/*.mdc`, `.claude/agents/*.md`, `AGENTS.md`), que nunca duplica contenido.
@@ -9,8 +9,13 @@ para Claude Code, Cursor o Codex. Cada herramienta la carga con un adaptador fin
 |---|---|---|---|---|
 | 10-architecture | [10-architecture.md](10-architecture.md) | propose | §1–2 (ficha + propuesta) | El más potente disponible |
 | 20-implementation | [20-implementation.md](20-implementation.md) | apply | §3–6 (datos/backend/frontend/vinculaciones) | Tier medio (Sonnet o equivalente) |
+| 25-architecture-review | [25-architecture-review.md](25-architecture-review.md) | — (sin comando propio) | Auditoría de solo lectura tras apply | El más potente disponible |
 | 40-e2e | [40-e2e.md](40-e2e.md) | — (sin comando propio) | E2E de flujos críticos (`tests/Browser`) | Tier medio |
 | 30-testing | [30-testing.md](30-testing.md) | archive (tras verificar) | §7–9 (tests + DoD + archivado) | Tier medio; potente para revisar diffs de dominios críticos |
+
+25 audita el diff tras apply y no toca el repo: si bloquea, devuelve a 20; si no, el
+change sigue a 40 (cuando hay tasks E2E) o a 30. No sustituye a 30: no escribe tests,
+no aplica fixes y no archiva.
 
 40 no propone ni archiva: escribe los Pest browser tests que 10 dejó en `tasks.md`
 cuando el change toca un flujo de [e2e.md](../standards/e2e.md) §4. 20 no los
@@ -92,18 +97,19 @@ lleva. Consecuencias:
    baratos en implementación: heredan un plan cerrado, no una conversación.
 2. Si hay conflicto entre lo hablado y los artefactos, **mandan los artefactos**.
 3. Un rol no invade al siguiente: cada uno termina actualizando los artefactos, que son
-   la única entrada del siguiente.
+   la única entrada del siguiente. Excepción: 25-architecture-review no escribe; su
+   salida es el informe (APPROVED, APPROVED WITH OBSERVATIONS o RETURN TO IMPLEMENTATION).
 
 ## Regla de oro compartida: no inventar requisitos
 
 Si una decisión de negocio no está en spec/design/tasks ni en `docs/vision-v2.md`:
 **no se inventa**. Se plantean opciones (A/B con consecuencias), se anota en el artefacto
 correspondiente y decide 10-architecture (o Luis, si es de negocio). Esta regla obliga a
-los cuatro roles.
+todos los roles.
 
 ## Jerarquía normativa (recordatorio)
 
-`docs/standards/kernel.md` + el resto de `docs/standards/` obligan a los cuatro roles
+`docs/standards/kernel.md` + el resto de `docs/standards/` obligan a todos los roles
 ([README](../standards/README.md)). Las
 excepciones solo existen si el design del change las declara por escrito. Si un estándar
 está mal: se corrige el estándar primero, después se sigue.

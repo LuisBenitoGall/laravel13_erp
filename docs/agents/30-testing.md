@@ -7,7 +7,9 @@
 Verificar que la implementación cumple specs y design, endurecer con tests los casos
 límite, comprobar el Definition of Done del playbook (§9) punto por punto, y SOLO
 entonces cerrar el change (sync de specs + `archive`). El archivado es su último acto,
-no su función.
+no su función. Entra cuando 25-architecture-review ha dejado el change en APPROVED o
+APPROVED WITH OBSERVATIONS y, si había tasks E2E, 40-e2e ya las cerró. No sustituye
+esa auditoría: 25 no escribe tests ni archiva; 30 sí verifica, endurece y cierra.
 
 ## Cubre
 

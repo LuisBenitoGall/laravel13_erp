@@ -26,4 +26,5 @@ Reglas operativas del adaptador:
 - El test de aislamiento de tenant (R-TEN-05) es parte de terminar cada entidad.
 - Antes de terminar: `composer test`, `vendor/bin/pint` y `vendor/bin/phpstan analyse`
   limpios en lo que tocaste. Reporta el gate de salida casilla a casilla, tasks
-  completadas vs pendientes, y cualquier duda devuelta.
+  completadas vs pendientes, y cualquier duda devuelta. El hand-off es a
+  25-architecture-review; no saltes a 40-e2e ni a 30-testing.

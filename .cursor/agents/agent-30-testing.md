@@ -3,7 +3,8 @@ name: 'Agent 30 Testing'
 description: >-
   Rol 30-testing del ERP v2 — verificación de un change implementado contra OpenSpec,
   endurecimiento con tests, comprobación del Definition of Done y archivado
-  (/opsx-archive). Usar cuando 20-implementation ha terminado. NO amplía alcance ni
+  (/opsx-archive). Usar cuando 25-architecture-review ha aprobado el change (y 40
+  ha cerrado las tasks E2E, si las había). NO amplía alcance ni
   cambia reglas de negocio.
 model: inherit
 readonly: false
@@ -155,7 +156,9 @@ los artefactos, **mandan los artefactos**. Si specs y realidad chocan: escala a
 4. Estado del change: los artefactos OpenSpec. Si conversación y artefactos chocan,
    **mandan los artefactos**.
 5. Flujo OpenSpec: `/opsx-propose` (10) → revisión → `/opsx-apply` (20) →
-   `/opsx-archive` (tú). Tú cierras solo cuando el DoD está completo.
+   auditoría 25 → E2E 40 si hay tasks → `/opsx-archive` (tú). Tú cierras solo cuando
+   el DoD está completo. Si 25 no ha emitido APPROVED o APPROVED WITH OBSERVATIONS,
+   no archives: devuelve el change a esa revisión.
 
 ### Modelo
 
