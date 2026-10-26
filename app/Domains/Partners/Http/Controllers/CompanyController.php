@@ -11,6 +11,7 @@ use App\Domains\Partners\Http\Requests\UpdateCompanyRequest;
 use App\Domains\Partners\Http\Resources\CompanyResource;
 use App\Domains\Partners\Models\Company;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Support\Table\TableBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -23,14 +24,19 @@ class CompanyController extends Controller
     {
         $this->authorize('viewAny', Company::class);
 
-        return Inertia::render('Partners/Companies/Index');
+        return Inertia::render('Partners/Companies/Index', [
+            'operator' => $this->isSuperAdmin(),
+        ]);
     }
 
     public function table(CompanyTableRequest $request, TableBuilder $table): JsonResponse
     {
         $this->authorize('viewAny', Company::class);
 
-        return $table->for(Company::query())
+        /** @var User $user */
+        $user = $request->user();
+
+        return $table->for(Company::query()->forUser($user))
             ->searchable(['name', 'slug', 'nif', 'tradename'])
             ->request($request)
             ->through(CompanyResource::class)
@@ -54,6 +60,7 @@ class CompanyController extends Controller
 
     public function edit(Company $company): Response
     {
+        $this->assertLinked($company);
         $this->authorize('update', $company);
 
         return Inertia::render('Partners/Companies/Edit', [
@@ -64,6 +71,8 @@ class CompanyController extends Controller
 
     public function update(UpdateCompanyRequest $request, Company $company, UpdateCompany $action): RedirectResponse
     {
+        $this->assertLinked($company);
+        $this->authorize('update', $company);
         $action->handle($company, $request->validated());
 
         return back()->with('success', __('empresa_actualizada'));
@@ -71,10 +80,35 @@ class CompanyController extends Controller
 
     public function destroy(Company $company, DeleteCompany $action): RedirectResponse
     {
+        $this->assertLinked($company);
         $this->authorize('delete', $company);
         $action->handle($company);
 
         return to_route('partners.companies.index')
             ->with('success', __('empresa_eliminada'));
+    }
+
+    private function assertLinked(Company $company): void
+    {
+        $user = request()->user();
+        abort_unless($user instanceof User && $company->isLinkedTo($user), 403);
+    }
+
+    private function isSuperAdmin(): bool
+    {
+        $user = request()->user();
+
+        if ($user === null) {
+            return false;
+        }
+
+        $previous = getPermissionsTeamId();
+        setPermissionsTeamId(null);
+
+        try {
+            return $user->hasRole('Super Admin');
+        } finally {
+            setPermissionsTeamId($previous);
+        }
     }
 }

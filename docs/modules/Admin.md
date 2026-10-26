@@ -1,22 +1,19 @@
 # Módulo Admin — catálogo, RBAC y shell
 
-> Ficha playbook §1. Incluye platform-roles, company-custom-roles y
-> `c2026-10-26-company-role-assignment` (asignación User↔rol local). Base: tenancy,
-> sync manager, auth-onboarding, i18n.
+> Ficha playbook §1. Incluye platform-roles, company-custom-roles, company-role-assignment,
+> form-kit y `c2026-10-26-platform-console-mvp` (consola operador perímetro).
 
 ## Propósito y alcance
 
 **Entra:** catálogo global `Module` / `Functionality`; Spatie Teams; Super Admin;
 elegibilidad + activación; menú R-AUT-08; roles de empresa `manager`/`guest`; sync de
-permisos del manager con autorizaciones Basic/Optional; **CRUD Super Admin de roles de
-plataforma** (universales vs genéricos); **CRUD manager de roles custom de la company**
-(matriz filtrada por módulos autorizados ∩ activos ∩ ¬AdminOnly; Module Basic
-`workspace` + Functionality `company-roles`); **asignación UI de cualquier rol local**
-(manager|guest|custom) a usuarios ya vinculados (`AssignCompanyRole` + Members).
+permisos del manager; CRUD roles de plataforma y custom tenant; asignación User↔rol
+local; kit Form MVP; **consola plataforma MVP**: listado tenants del perímetro
+(`user_companies`), elegibilidad de módulos solo sobre companies vinculadas, menú
+grupo «Plataforma» para Super Admin.
 
-**No entra:** invitar / alta de miembros no vinculados; asignación de roles de
-plataforma; Form kit; Platform/pago; engorde Company; edición de permisos del manager
-local por el tenant.
+**No entra:** facturación SaaS (Cashier/Stripe/cuotas); ver todas las companies sin
+vínculo; invitar miembros no vinculados; engorde Company; Wysiwyg/Dropzone/LangTabs.
 
 ## Entidades / infra RBAC
 
@@ -24,33 +21,28 @@ local por el tenant.
 |---|---|
 | `Module` / `Functionality` | Catálogo global |
 | `CompanyModuleAuthorization` / `CompanyModule` | Capas 3 y 2 |
-| Module Basic `workspace` | Cáscara tenant; menú «Espacio de trabajo» |
-| Roles Spatie `manager` / `guest` | Plantilla universal (`company_id` NULL) + copia local por company |
-| Roles plataforma | `company_id` NULL; `universal` true\|false; `description` |
-| Roles custom (empresa) | `company_id` = company; `universal = false`; CRUD manager |
-| `EnsureCompanyDefaultRoles` | Materializa universales al alta de company |
-| `SyncManagerPermissionsForCompany` | Resync idempotente (excluye AdminOnly); no techo por plantilla |
-| `AssignCompanyRole` | Cualquier rol local a users vinculados; un rol por company |
-| Functionality `roles` | Menú Admin; CRUD solo Super Admin |
-| Functionality `company-roles` | Menú workspace; CRUD manager (+ SA) |
+| `Company::forUser` | Scope perímetro `user_companies` (SA inclusive) |
+| Module Basic `workspace` | Cáscara tenant |
+| Roles Spatie `manager` / `guest` | Plantilla universal + copia local |
+| Roles plataforma / custom | Admin CRUD / company CRUD |
+| `AssignCompanyRole` | Cualquier rol local; un rol por company |
+| Functionality `roles` / `company-roles` | Plataforma / workspace |
+| Consola plataforma | Partners Companies Index (CTA) + authorizations scoped |
 
 ## Sync manager
 
 Disparadores: autorizar / desautorizar / auto-Basic. **No** al encender/apagar.
-AdminOnly nunca entra en `role_has_permissions` del manager. Techo tenant = módulo
-autorizado+activado (todas las funcionalidades); la matriz de la plantilla universal
-`manager` no recorta. El CRUD company-roles **no** altera permisos del rol local
-`manager`.
+AdminOnly nunca entra en el manager. CRUD company-roles no altera permisos del manager
+local.
 
-## Vinculaciones — company-role-assignment
+## Vinculaciones — platform-console-mvp
 
 | Id | ¿Aplica? | Nota |
 |---|---|---|
-| V-07 | No | Sin permisos nuevos; reutiliza `CompanyRoleGate` |
-| V-08 | No | Misma pantalla Members |
-| V-09 | No | Sin módulo nuevo |
-| V-21 | No | Sin rutas de módulo activable nuevas |
-| Resto | No | Stock, ledger, PDF, portal, etc. no aplican |
+| V-07 | No | Sin permisos nuevos |
+| V-08 | Sí | Menú grupo Plataforma (labels) |
+| V-09 | No | Reutiliza módulo `admin` |
+| Resto | No | Billing, stock, etc. fuera |
 | E2E | N/A | `e2e.md` §4 |
 
 ## Dependencias

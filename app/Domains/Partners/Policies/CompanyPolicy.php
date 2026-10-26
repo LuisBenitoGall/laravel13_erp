@@ -5,7 +5,9 @@ namespace App\Domains\Partners\Policies;
 use App\Domains\Partners\Models\Company;
 use App\Models\User;
 
-/** Catálogo global: solo permiso Spatie, sin belongsToCurrentCompany(). */
+/**
+ * Permiso Spatie + vínculo user_companies (defensa; SA bypasa Gate::before → abort en controller).
+ */
 class CompanyPolicy
 {
     public function viewAny(User $user): bool
@@ -15,7 +17,7 @@ class CompanyPolicy
 
     public function view(User $user, Company $company): bool
     {
-        return $user->can('companies.view');
+        return $company->isLinkedTo($user) && $user->can('companies.view');
     }
 
     public function create(User $user): bool
@@ -25,11 +27,11 @@ class CompanyPolicy
 
     public function update(User $user, Company $company): bool
     {
-        return $user->can('companies.update');
+        return $company->isLinkedTo($user) && $user->can('companies.update');
     }
 
     public function delete(User $user, Company $company): bool
     {
-        return $user->can('companies.delete');
+        return $company->isLinkedTo($user) && $user->can('companies.delete');
     }
 }

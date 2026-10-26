@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
 import AppLayout from '@/Layouts/AppLayout';
@@ -18,35 +18,44 @@ export default function Index({
     companies,
     selected_company_id,
     modules,
+    tenants_url,
 }: {
     companies: CompanyOption[];
     selected_company_id: number | null;
     modules: ModuleRow[];
+    tenants_url?: string;
 }) {
     const { t } = useTranslation();
 
     return (
         <AppLayout title={t('autorizacion_de_modulos')}>
-            <div className="mb-4 flex items-center gap-3">
-                <label className="text-sm font-medium text-slate-700" htmlFor="company">
-                    {t('empresa')}
-                </label>
-                <select
-                    id="company"
-                    className="rounded-md border border-slate-300 px-3 py-2 text-sm"
-                    value={selected_company_id ?? ''}
-                    onChange={(e) =>
-                        router.get('/admin/company-module-authorizations', {
-                            company_id: e.target.value,
-                        })
-                    }
-                >
-                    {companies.map((company) => (
-                        <option key={company.id} value={company.id}>
-                            {company.name}
-                        </option>
-                    ))}
-                </select>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                    <label className="text-sm font-medium text-slate-700" htmlFor="company">
+                        {t('empresa')}
+                    </label>
+                    <select
+                        id="company"
+                        className="rounded-md border border-slate-300 px-3 py-2 text-sm"
+                        value={selected_company_id ?? ''}
+                        onChange={(e) =>
+                            router.get('/admin/company-module-authorizations', {
+                                company_id: e.target.value,
+                            })
+                        }
+                    >
+                        {companies.map((company) => (
+                            <option key={company.id} value={company.id}>
+                                {company.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                {tenants_url ? (
+                    <Link href={tenants_url} className="text-sm text-teal-700 hover:underline">
+                        {t('volver_a_tenants')}
+                    </Link>
+                ) : null}
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

@@ -10,6 +10,7 @@ use App\Domains\Admin\Models\Module;
 use App\Domains\Partners\Enums\CompanyStatus;
 use App\Domains\Partners\Models\Company;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -21,8 +22,12 @@ class CompanyModuleAuthorizationController extends Controller
     {
         abort_unless($this->isSuperAdmin(), 403);
 
+        /** @var User $user */
+        $user = $request->user();
+
         $companyId = (int) $request->query('company_id', 0);
         $companies = Company::query()
+            ->forUser($user)
             ->where('status', CompanyStatus::Active)
             ->orderBy('name')
             ->get(['id', 'name', 'slug']);
@@ -30,6 +35,10 @@ class CompanyModuleAuthorizationController extends Controller
         $selected = $companyId > 0
             ? $companies->firstWhere('id', $companyId)
             : $companies->first();
+
+        if ($companyId > 0 && $selected === null) {
+            abort(403);
+        }
 
         $authorizedIds = [];
         $modules = [];
@@ -61,6 +70,7 @@ class CompanyModuleAuthorizationController extends Controller
             'companies' => $companies,
             'selected_company_id' => $selected?->id,
             'modules' => $modules,
+            'tenants_url' => route('partners.companies.index', absolute: false),
         ]);
     }
 
@@ -70,6 +80,7 @@ class CompanyModuleAuthorizationController extends Controller
         AuthorizeModuleForCompany $action,
     ): RedirectResponse {
         abort_unless($this->isSuperAdmin(), 403);
+        $this->assertLinked($company);
         $action->handle($company, $module);
 
         return back()->with('success', __('modulo_autorizado'));
@@ -81,9 +92,16 @@ class CompanyModuleAuthorizationController extends Controller
         RevokeModuleAuthorizationForCompany $action,
     ): RedirectResponse {
         abort_unless($this->isSuperAdmin(), 403);
+        $this->assertLinked($company);
         $action->handle($company, $module);
 
         return back()->with('success', __('autorizacion_revocada'));
+    }
+
+    private function assertLinked(Company $company): void
+    {
+        $user = request()->user();
+        abort_unless($user instanceof User && $company->isLinkedTo($user), 403);
     }
 
     private function isSuperAdmin(): bool

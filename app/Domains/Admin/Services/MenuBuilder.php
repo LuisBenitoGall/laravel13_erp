@@ -93,7 +93,71 @@ class MenuBuilder
             }
         }
 
-        return $menu;
+        return $this->isSuperAdmin($user)
+            ? $this->splitPlatformGroup($menu)
+            : $menu;
+    }
+
+    /**
+     * Super Admin: companies / authorizations / roles bajo grupo «Plataforma».
+     *
+     * @param  list<array{slug: string, label: string, color: string, icon: string, functionalities: list<array{slug: string, label: string, href: string}>}>  $menu
+     * @return list<array{slug: string, label: string, color: string, icon: string, functionalities: list<array{slug: string, label: string, href: string}>}>
+     */
+    private function splitPlatformGroup(array $menu): array
+    {
+        $platformSlugs = ['companies', 'company-module-authorizations', 'roles'];
+        $result = [];
+
+        foreach ($menu as $module) {
+            if ($module['slug'] !== 'admin') {
+                $result[] = $module;
+
+                continue;
+            }
+
+            $catalog = [];
+            $platform = [];
+
+            foreach ($module['functionalities'] as $item) {
+                if (in_array($item['slug'], $platformSlugs, true)) {
+                    $platform[] = $item;
+                } else {
+                    $catalog[] = $item;
+                }
+            }
+
+            if ($catalog !== []) {
+                $result[] = [
+                    ...$module,
+                    'functionalities' => $catalog,
+                ];
+            }
+
+            if ($platform !== []) {
+                $result[] = [
+                    'slug' => 'platform',
+                    'label' => __('plataforma'),
+                    'color' => $module['color'],
+                    'icon' => $module['icon'],
+                    'functionalities' => $platform,
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    private function isSuperAdmin(User $user): bool
+    {
+        $previous = getPermissionsTeamId();
+        setPermissionsTeamId(null);
+
+        try {
+            return $user->hasRole('Super Admin');
+        } finally {
+            setPermissionsTeamId($previous);
+        }
     }
 
     private function hrefFor(Functionality $functionality): string

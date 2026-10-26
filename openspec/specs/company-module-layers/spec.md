@@ -1,6 +1,6 @@
 ## Purpose
 
-Tres capas de módulos por empresa: estado global del catálogo, elegibilidad (autorizado sí/no) y activación (`company_modules`), con UI de tarjetas.
+Tres capas de módulos por empresa: estado global del catálogo, elegibilidad (autorizado sí/no) y activación (`company_modules`), con UI de tarjetas. Autorización/revocación acotada al perímetro vinculado del Super Admin.
 
 ## Requirements
 
@@ -10,7 +10,9 @@ El sistema SHALL aplicar (1) estado global del Module, (2) elegibilidad por empr
 autorización explícita de Super Admin), y (3) activación por empresa, de modo que el
 menú y los accesos solo permitan Functionalities de módulos globales Active, autorizados
 y encendidos para la empresa de la sesión. La elegibilidad en este change la asigna solo
-Super Admin (flag sí/no; sin pago/invitación reales).
+Super Admin (flag sí/no; sin pago/invitación reales). SHALL limitar la UI y las
+operaciones de autorización/revocación a companies a las que el Super Admin esté
+vinculado (`user_companies`).
 
 #### Scenario: Module global Inactive
 - **WHEN** un Module está Inactive en el catálogo
@@ -42,3 +44,12 @@ Super Admin (flag sí/no; sin pago/invitación reales).
 - **WHEN** un usuario autorizado gestiona los módulos de su empresa
 - **THEN** ve una rejilla de tarjetas (color/icono/selección) similar a v1, con los no
   autorizados en gris u estado equivalente
+
+#### Scenario: Elegibilidad solo sobre companies vinculadas
+- **WHEN** Super Admin abre la UI de autorización de módulos por empresa
+- **THEN** el selector de companies solo incluye empresas a las que está vinculado
+
+#### Scenario: Authorize/revoke fuera de perímetro rechazado
+- **WHEN** Super Admin intenta autorizar o revocar un módulo para una company a la que
+  no está vinculado
+- **THEN** la operación se rechaza

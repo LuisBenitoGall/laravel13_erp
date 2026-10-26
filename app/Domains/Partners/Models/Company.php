@@ -6,6 +6,7 @@ use App\Domains\Partners\Enums\CompanyStatus;
 use App\Models\User;
 use App\Support\Models\Concerns\Auditable;
 use Database\Factories\CompanyFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -47,6 +48,24 @@ class Company extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_companies')->withTimestamps();
+    }
+
+    /**
+     * Companies vinculadas al usuario vía `user_companies` (perímetro Super Admin inclusive).
+     *
+     * @param  Builder<Company>  $query
+     */
+    public function scopeForUser(Builder $query, User $user): void
+    {
+        $query->whereHas(
+            'users',
+            fn (Builder $users) => $users->where('users.id', $user->id),
+        );
+    }
+
+    public function isLinkedTo(User $user): bool
+    {
+        return $this->users()->where('users.id', $user->id)->exists();
     }
 
     public function isActive(): bool
