@@ -72,7 +72,7 @@
     "manager": "Manager",
     "matriz_permisos": "Matriz de permisos",
     "miembros": "Miembros",
-    "miembros_subtitulo": "Asigna rol Manager o Invitado a usuarios vinculados.",
+    "miembros_subtitulo": "Asigna un rol de empresa (manager, invitado o custom) a usuarios vinculados.",
     "modulo": "Módulo",
     "modulo_actualizado": "Módulo actualizado",
     "modulo_apagado": "Módulo apagado",

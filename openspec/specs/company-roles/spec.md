@@ -1,6 +1,6 @@
 ## Purpose
 
-Roles Spatie `manager` y `guest` por empresa al crear Company (desde plantillas universales no borrables); vínculo del creador como manager; asignación mínima manager|guest; roles custom adicionales gestionados por el manager. El sync del manager local no lo limita la matriz de la plantilla ni el CRUD tenant.
+Roles Spatie `manager` y `guest` por empresa al crear Company (desde plantillas universales no borrables); vínculo del creador como manager; asignación de cualquier rol local (manager, guest o custom) a vinculados; roles custom gestionados por el manager. El sync del manager local no lo limita la matriz de la plantilla ni el CRUD tenant.
 
 ## Requirements
 
@@ -13,9 +13,10 @@ como roles universales de serie no borrables a nivel de plantilla **y** no borra
 como roles locales de la company. SHALL impedir que el manager del tenant altere los
 permisos del rol local `manager` (el sync de autorizaciones sigue gobernándolos). SHALL
 permitir roles Spatie adicionales (`company_id` de la company) gestionados por el
-manager. SHALL permitir asignar `manager` o `guest` a un usuario ya vinculado a la
-company sin crear roles adicionales. SHALL NOT limitar el sync de permisos del
-`manager` local mediante la matriz de la plantilla universal.
+manager. SHALL permitir asignar a un usuario ya vinculado a la company **cualquier rol
+local** de esa company (manager, guest o custom), sin crear roles adicionales. SHALL
+NOT limitar el sync de permisos del `manager` local mediante la matriz de la plantilla
+universal.
 
 #### Scenario: Alta de company genera roles obligatorios
 - **WHEN** un usuario crea una Company nueva
@@ -31,6 +32,10 @@ company sin crear roles adicionales. SHALL NOT limitar el sync de permisos del
   company
 - **THEN** ese usuario tiene el rol `guest` de esa company (con `company_id` correcto) y
   no se crea ningún rol nuevo
+
+#### Scenario: Asignar rol local distinto de manager/guest
+- **WHEN** un actor autorizado asigna un rol custom local a un usuario vinculado
+- **THEN** el usuario queda con ese rol en la company y no se crea un rol nuevo
 
 #### Scenario: Plantillas universales no borrables
 - **WHEN** Super Admin intenta borrar la plantilla universal `manager` o `guest`

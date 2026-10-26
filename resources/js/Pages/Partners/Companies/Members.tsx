@@ -7,17 +7,50 @@ type Member = {
     id: number;
     name: string;
     email: string;
-    role: 'manager' | 'guest' | null;
+    role: string | null;
+};
+
+type RoleOption = {
+    name: string;
+    label: string | null;
 };
 
 export default function Members({
     company,
     members,
+    roles,
 }: {
     company: { id: number; name: string; slug: string };
     members: Member[];
+    roles: RoleOption[];
 }) {
     const { t } = useTranslation();
+
+    function displayRole(name: string | null): string {
+        if (!name) {
+            return '—';
+        }
+        if (name === 'manager') {
+            return t('manager');
+        }
+        if (name === 'guest') {
+            return t('invitado');
+        }
+        const option = roles.find((r) => r.name === name);
+
+        return option?.label?.trim() ? option.label : name;
+    }
+
+    function optionLabel(option: RoleOption): string {
+        if (option.name === 'manager') {
+            return t('manager');
+        }
+        if (option.name === 'guest') {
+            return t('invitado');
+        }
+
+        return option.label?.trim() ? option.label : option.name;
+    }
 
     return (
         <AppLayout title={`${t('miembros')} · ${company.name}`}>
@@ -35,18 +68,10 @@ export default function Members({
                 <table className="min-w-full text-sm">
                     <thead className="bg-slate-50 text-left text-slate-600">
                         <tr>
-                            <th className="px-4 py-2 font-medium">
-                                {t('nombre')}
-                            </th>
-                            <th className="px-4 py-2 font-medium">
-                                {t('email')}
-                            </th>
-                            <th className="px-4 py-2 font-medium">
-                                {t('rol')}
-                            </th>
-                            <th className="px-4 py-2 font-medium">
-                                {t('accion')}
-                            </th>
+                            <th className="px-4 py-2 font-medium">{t('nombre')}</th>
+                            <th className="px-4 py-2 font-medium">{t('email')}</th>
+                            <th className="px-4 py-2 font-medium">{t('rol')}</th>
+                            <th className="px-4 py-2 font-medium">{t('accion')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,13 +79,7 @@ export default function Members({
                             <tr key={member.id} className="border-t border-slate-100">
                                 <td className="px-4 py-2">{member.name}</td>
                                 <td className="px-4 py-2 text-slate-600">{member.email}</td>
-                                <td className="px-4 py-2">
-                                    {member.role === 'manager'
-                                        ? t('manager')
-                                        : member.role === 'guest'
-                                          ? t('invitado')
-                                          : '—'}
-                                </td>
+                                <td className="px-4 py-2">{displayRole(member.role)}</td>
                                 <td className="px-4 py-2">
                                     <select
                                         className="rounded-md border border-slate-300 px-2 py-1"
@@ -79,12 +98,11 @@ export default function Members({
                                         <option value="" disabled>
                                             {t('elegir')}
                                         </option>
-                                        <option value="manager">
-                                            {t('manager')}
-                                        </option>
-                                        <option value="guest">
-                                            {t('invitado')}
-                                        </option>
+                                        {roles.map((option) => (
+                                            <option key={option.name} value={option.name}>
+                                                {optionLabel(option)}
+                                            </option>
+                                        ))}
                                     </select>
                                 </td>
                             </tr>

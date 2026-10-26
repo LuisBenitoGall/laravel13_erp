@@ -6,7 +6,7 @@ use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Spatie\Permission\PermissionRegistrar;
 
-/** Quién puede asignar manager|guest en una company. */
+/** Quién puede asignar roles locales de una company (manager|guest|custom). */
 final class CompanyRoleGate
 {
     public static function canAssign(User $user, Company $company): bool

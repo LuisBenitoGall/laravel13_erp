@@ -2,6 +2,8 @@
 
 namespace App\Domains\Partners\Http\Requests;
 
+use App\Domains\Admin\Actions\EnsureCompanyDefaultRoles;
+use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Support\CompanyRoleGate;
 use App\Domains\Partners\Models\Company;
 use Illuminate\Foundation\Http\FormRequest;
@@ -21,8 +23,18 @@ class AssignCompanyRoleRequest extends FormRequest
     /** @return array<string, mixed> */
     public function rules(): array
     {
+        /** @var Company $company */
+        $company = $this->route('company');
+
+        app(EnsureCompanyDefaultRoles::class)->handle($company);
+
+        $names = Role::query()
+            ->forCompany($company->id)
+            ->pluck('name')
+            ->all();
+
         return [
-            'role' => ['required', 'string', Rule::in(['manager', 'guest'])],
+            'role' => ['required', 'string', Rule::in($names)],
         ];
     }
 }

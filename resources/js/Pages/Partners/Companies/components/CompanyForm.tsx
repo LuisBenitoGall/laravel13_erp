@@ -2,7 +2,7 @@ import { useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Input } from '@/Components/ui/input';
+import { Field, Input, Select } from '@/Components/Form';
 
 type CompanyFormData = {
     name: string;
@@ -39,49 +39,50 @@ export default function CompanyForm({ initial, submitUrl, method = 'post' }: Pro
         }
     };
 
-    const fields = [
-        ['name', t('nombre')],
-        ['slug', t('slug')],
-        ['tradename', t('nombre_comercial')],
-        ['nif', t('nif')],
-        ['logo', t('logo_url')],
-    ] as const;
+    const statusOptions = [
+        { value: 'draft', label: t('estado_borrador') },
+        { value: 'active', label: t('estado_activa') },
+        { value: 'closed', label: t('estado_cerrada') },
+    ];
+
+    const fields: Array<{
+        field: keyof CompanyFormData;
+        label: string;
+        maxLength?: number;
+    }> = [
+        { field: 'name', label: t('nombre') },
+        { field: 'slug', label: t('slug'), maxLength: 64 },
+        { field: 'tradename', label: t('nombre_comercial') },
+        { field: 'nif', label: t('nif'), maxLength: 32 },
+        { field: 'logo', label: t('logo_url') },
+    ];
 
     return (
         <form
             onSubmit={onSubmit}
             className="mx-auto max-w-xl space-y-4 rounded-lg border border-slate-200 bg-white p-6"
         >
-            {fields.map(([field, label]) => (
-                <div key={field}>
-                    <label className="mb-1 block text-sm font-medium" htmlFor={field}>
-                        {label}
-                    </label>
+            {fields.map(({ field, label, maxLength }) => (
+                <Field key={field} label={label} htmlFor={field} error={form.errors[field]}>
                     <Input
                         id={field}
                         value={form.data[field]}
+                        maxLength={maxLength}
                         onChange={(e) => form.setData(field, e.target.value)}
                     />
-                    {form.errors[field] && (
-                        <p className="mt-1 text-sm text-red-600">{form.errors[field]}</p>
-                    )}
-                </div>
+                </Field>
             ))}
-            <div>
-                <label className="mb-1 block text-sm font-medium" htmlFor="status">
-                    {t('estado')}
-                </label>
-                <select
+
+            <Field label={t('estado')} htmlFor="status" error={form.errors.status}>
+                <Select
                     id="status"
-                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+                    options={statusOptions}
                     value={form.data.status}
-                    onChange={(e) => form.setData('status', e.target.value)}
-                >
-                    <option value="draft">{t('estado_borrador')}</option>
-                    <option value="active">{t('estado_activa')}</option>
-                    <option value="closed">{t('estado_cerrada')}</option>
-                </select>
-            </div>
+                    onChange={(value) => form.setData('status', value)}
+                    placeholder={t('elegir')}
+                />
+            </Field>
+
             <button
                 type="submit"
                 disabled={form.processing}

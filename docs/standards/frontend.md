@@ -136,8 +136,8 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 |---|---|
 | `Table/ServerTable` | Listados server-side (§3) |
 | `Table/formatters` | Formatters tipados: `money(dec)`, `date`, `statusBadge(enum)`, `boolean`, `link` |
-| `Form/Field` + kit | Input, Textarea, `NumberInput` (decimales por contexto), `Select` con búsqueda remota (combobox), `DatePicker`, `Checkbox`, `Switch`, `Wysiwyg`, `Dropzone`, `LangTabs` (campos translatable) — todos integrados con react-hook-form + zod y con error/label/help homogéneos |
-| `Form/FormActions` | Barra guardar/cancelar/guardar-y-seguir, estado dirty, atajos teclado |
+| `Form/Field` + kit MVP | **Implementado** (`c2026-10-26-form-kit-mvp`): `Field`/`FormField`, `Input` (→ `ui/input` R-FE-08), `Textarea`, `NumberInput`, `Select` (filtro local; `onSearch` opcional), `DatePicker` (`date-fns` + input date), `Checkbox`, `Switch`. Pendientes de kit: `Wysiwyg`, `Dropzone`, `LangTabs` |
+| `Form/FormActions` | Barra guardar/cancelar/guardar-y-seguir, estado dirty, atajos teclado — **pendiente** |
 | `Records/RecordEditLayout` | Esqueleto de Create/Edit: cabecera (título, estado, acciones), tabs, sidebar meta (auditoría), zona de contenido |
 | `Records/ActionBar` | Acciones de ciclo de vida del documento (confirmar, facturar…) con confirmación y permisos |
 | `Records/Tabs` | Tabs con lazy load (deferred props / partial reload) |

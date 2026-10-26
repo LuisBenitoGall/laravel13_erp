@@ -1,7 +1,8 @@
 # Módulo Admin — catálogo, RBAC y shell
 
-> Ficha playbook §1. Incluye platform-roles y `c2026-10-26-company-custom-roles`
-> (CRUD roles custom del tenant). Base: tenancy, sync manager, auth-onboarding, i18n.
+> Ficha playbook §1. Incluye platform-roles, company-custom-roles y
+> `c2026-10-26-company-role-assignment` (asignación User↔rol local). Base: tenancy,
+> sync manager, auth-onboarding, i18n.
 
 ## Propósito y alcance
 
@@ -10,10 +11,12 @@ elegibilidad + activación; menú R-AUT-08; roles de empresa `manager`/`guest`; 
 permisos del manager con autorizaciones Basic/Optional; **CRUD Super Admin de roles de
 plataforma** (universales vs genéricos); **CRUD manager de roles custom de la company**
 (matriz filtrada por módulos autorizados ∩ activos ∩ ¬AdminOnly; Module Basic
-`workspace` + Functionality `company-roles`).
+`workspace` + Functionality `company-roles`); **asignación UI de cualquier rol local**
+(manager|guest|custom) a usuarios ya vinculados (`AssignCompanyRole` + Members).
 
-**No entra:** asignación User↔rol en UI (salvo onboarding → manager / AssignCompanyRole);
-Platform/pago; engorde Company; edición de permisos del manager local por el tenant.
+**No entra:** invitar / alta de miembros no vinculados; asignación de roles de
+plataforma; Form kit; Platform/pago; engorde Company; edición de permisos del manager
+local por el tenant.
 
 ## Entidades / infra RBAC
 
@@ -27,7 +30,7 @@ Platform/pago; engorde Company; edición de permisos del manager local por el te
 | Roles custom (empresa) | `company_id` = company; `universal = false`; CRUD manager |
 | `EnsureCompanyDefaultRoles` | Materializa universales al alta de company |
 | `SyncManagerPermissionsForCompany` | Resync idempotente (excluye AdminOnly); no techo por plantilla |
-| `AssignCompanyRole` | Solo `manager`\|`guest` a users vinculados |
+| `AssignCompanyRole` | Cualquier rol local a users vinculados; un rol por company |
 | Functionality `roles` | Menú Admin; CRUD solo Super Admin |
 | Functionality `company-roles` | Menú workspace; CRUD manager (+ SA) |
 
@@ -39,15 +42,16 @@ autorizado+activado (todas las funcionalidades); la matriz de la plantilla unive
 `manager` no recorta. El CRUD company-roles **no** altera permisos del rol local
 `manager`.
 
-## Vinculaciones — company-custom-roles
+## Vinculaciones — company-role-assignment
 
 | Id | ¿Aplica? | Nota |
 |---|---|---|
-| V-07 | Sí | Permisos `company-roles.*` (+ `roles.*` plataforma) |
-| V-08 | Sí | Menú workspace → Roles de empresa |
-| V-09 | Sí | Module Basic `workspace` |
-| V-21 | Sí | Contrato acceso tenant publicado (playbook + plantilla Pest) |
+| V-07 | No | Sin permisos nuevos; reutiliza `CompanyRoleGate` |
+| V-08 | No | Misma pantalla Members |
+| V-09 | No | Sin módulo nuevo |
+| V-21 | No | Sin rutas de módulo activable nuevas |
 | Resto | No | Stock, ledger, PDF, portal, etc. no aplican |
+| E2E | N/A | `e2e.md` §4 |
 
 ## Dependencias
 

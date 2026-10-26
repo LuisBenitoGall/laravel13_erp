@@ -72,7 +72,7 @@
     "manager": "Manager",
     "matriz_permisos": "Permission matrix",
     "miembros": "Members",
-    "miembros_subtitulo": "Assign Manager or Guest role to linked users.",
+    "miembros_subtitulo": "Assign a company role (manager, guest, or custom) to linked users.",
     "modulo": "Module",
     "modulo_actualizado": "Module updated",
     "modulo_apagado": "Module disabled",
