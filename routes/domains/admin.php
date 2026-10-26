@@ -2,6 +2,7 @@
 
 use App\Domains\Admin\Http\Controllers\CompanyModuleAuthorizationController;
 use App\Domains\Admin\Http\Controllers\CompanyModuleController;
+use App\Domains\Admin\Http\Controllers\CompanyRoleController;
 use App\Domains\Admin\Http\Controllers\FunctionalityController;
 use App\Domains\Admin\Http\Controllers\ModuleController;
 use App\Domains\Admin\Http\Controllers\PlatformRoleController;
@@ -27,4 +28,11 @@ Route::middleware(['auth', 'company', 'module:admin'])->prefix('admin')->name('a
         ->name('company-module-authorizations.authorize');
     Route::post('company-module-authorizations/{company}/{module}/revoke', [CompanyModuleAuthorizationController::class, 'revoke'])
         ->name('company-module-authorizations.revoke');
+});
+
+Route::middleware(['auth', 'company', 'module:workspace'])->prefix('company')->name('company.')->group(function () {
+    Route::get('roles/table', [CompanyRoleController::class, 'table'])->name('roles.table');
+    Route::resource('roles', CompanyRoleController::class)
+        ->except(['show'])
+        ->parameters(['roles' => 'companyRole']);
 });

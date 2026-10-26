@@ -88,6 +88,13 @@ class Role extends SpatieRole
         $query->whereNull($teamKey)->where('name', '!=', self::SUPER_ADMIN);
     }
 
+    /** @param  Builder<Role>  $query */
+    public function scopeForCompany(Builder $query, int $companyId): void
+    {
+        $teamKey = config('permission.column_names.team_foreign_key');
+        $query->where($teamKey, $companyId);
+    }
+
     public function isSuperAdmin(): bool
     {
         return $this->name === self::SUPER_ADMIN && $this->getAttribute($this->teamForeignKey()) === null;
@@ -104,6 +111,27 @@ class Role extends SpatieRole
         return $this->name === self::MANAGER
             && $this->getAttribute($this->teamForeignKey()) === null
             && $this->universal;
+    }
+
+    public function isLocalRole(): bool
+    {
+        return $this->getAttribute($this->teamForeignKey()) !== null;
+    }
+
+    public function isLocalProtected(): bool
+    {
+        return $this->isLocalRole()
+            && in_array($this->name, self::PROTECTED_TEMPLATE_NAMES, true);
+    }
+
+    public function isLocalManager(): bool
+    {
+        return $this->isLocalRole() && $this->name === self::MANAGER;
+    }
+
+    public function isLocalGuest(): bool
+    {
+        return $this->isLocalRole() && $this->name === self::GUEST;
     }
 
     private function teamForeignKey(): string

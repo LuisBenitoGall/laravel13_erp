@@ -104,6 +104,43 @@ class AdminCatalogSeeder extends Seeder
                 ]);
             }
 
+            $workspace = Module::query()->where('slug', 'workspace')->first();
+
+            if ($workspace === null) {
+                $workspace = app(CreateModule::class)->handle([
+                    'name' => 'Workspace',
+                    'slug' => 'workspace',
+                    'label' => [
+                        'es' => 'Espacio de trabajo',
+                        'en' => 'Workspace',
+                        'ca' => 'Espai de treball',
+                    ],
+                    'color' => '#0369a1',
+                    'icon' => 'briefcase',
+                    'level' => ModuleLevel::Basic->value,
+                    'status' => ModuleStatus::Active->value,
+                    'explanation' => [
+                        'es' => 'Ajustes y roles de la empresa',
+                        'en' => 'Company settings and roles',
+                        'ca' => 'Ajustos i rols de l\'empresa',
+                    ],
+                ]);
+            }
+
+            if (! Functionality::query()->where('slug', 'company-roles')->exists()) {
+                app(CreateFunctionality::class)->handle([
+                    'module_id' => $workspace->id,
+                    'name' => 'Company roles',
+                    'slug' => 'company-roles',
+                    'label' => [
+                        'es' => 'Roles de empresa',
+                        'en' => 'Company roles',
+                        'ca' => 'Rols d\'empresa',
+                    ],
+                    'status' => FunctionalityStatus::Active->value,
+                ]);
+            }
+
             $company = Company::query()->where('slug', 'demo')->first();
 
             if ($company === null) {
@@ -129,8 +166,11 @@ class AdminCatalogSeeder extends Seeder
             app(AuthorizeModuleForCompany::class)->handle($company, $module);
             app(EnableModuleForCompany::class)->handle($company, $module);
 
+            app(AuthorizeModuleForCompany::class)->handle($company, $workspace);
+            app(EnableModuleForCompany::class)->handle($company, $workspace);
+
             // Backfill: asegurar roles + manager + sync en todas las companies.
-            Company::query()->each(function (Company $existing) use ($user): void {
+            Company::query()->each(function (Company $existing) use ($user, $workspace): void {
                 app(EnsureCompanyDefaultRoles::class)->handle($existing);
 
                 $managerCandidate = $existing->users()->first() ?? $user;
@@ -140,6 +180,8 @@ class AdminCatalogSeeder extends Seeder
                 }
 
                 app(AssignCompanyRole::class)->handle($managerCandidate, $existing, 'manager');
+                app(AuthorizeModuleForCompany::class)->handle($existing, $workspace);
+                app(EnableModuleForCompany::class)->handle($existing, $workspace);
                 app(SyncManagerPermissionsForCompany::class)->handle($existing);
             });
         } finally {

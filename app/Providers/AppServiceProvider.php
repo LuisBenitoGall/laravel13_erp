@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
+use App\Domains\Admin\Policies\CompanyRolePolicy;
 use App\Domains\Admin\Policies\FunctionalityPolicy;
 use App\Domains\Admin\Policies\ModulePolicy;
 use App\Domains\Admin\Policies\PlatformRolePolicy;
@@ -34,8 +35,24 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Role::class, PlatformRolePolicy::class);
         Gate::policy(Company::class, CompanyPolicy::class);
 
+        Gate::define('viewAnyCompanyRole', [CompanyRolePolicy::class, 'viewAny']);
+        Gate::define('viewCompanyRole', [CompanyRolePolicy::class, 'view']);
+        Gate::define('createCompanyRole', [CompanyRolePolicy::class, 'create']);
+        Gate::define('updateCompanyRole', [CompanyRolePolicy::class, 'update']);
+        Gate::define('deleteCompanyRole', [CompanyRolePolicy::class, 'delete']);
+
         Route::bind('role', function (string $value): Role {
             return Role::query()->platformManaged()->whereKey($value)->firstOrFail();
+        });
+
+        Route::bind('companyRole', function (string $value): Role {
+            $companyId = app(CurrentCompany::class)->id();
+            abort_if($companyId === null, 404);
+
+            return Role::query()
+                ->forCompany($companyId)
+                ->whereKey($value)
+                ->firstOrFail();
         });
 
         // Super Admin bypass (R-AUT-03). Con Teams, el rol tiene company_id NULL;

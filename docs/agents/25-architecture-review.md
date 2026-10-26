@@ -106,6 +106,14 @@ Esta revisión no sustituye una auditoría de seguridad profunda.
 - No sustituye a 30-testing. 30 verifica, endurece tests, aplica fixes mínimos y archiva.
   25 solo audita e informa.
 
+### Gate DoD — V-21 (acceso tenant)
+
+Si la ficha/playbook del change marca **V-21 = sí** (rutas HTTP de módulo activable),
+verificar que existe el Feature de acceso tenant (módulo off / sin permiso / con acceso)
+según `docs/standards/module-playbook.md` §6–§7 y la plantilla en
+`templates-backend.md` §13. Ausencia → hallazgo (CRITICAL/HIGH según si hay rutas
+expuestas). No exige arch-test global dinámico sobre todos los Module.
+
 ## Severidad
 
 Cada hallazgo lleva exactamente una severidad y evidencia localizable (artefacto y ruta

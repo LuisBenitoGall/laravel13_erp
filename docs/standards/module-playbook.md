@@ -190,6 +190,7 @@ Responder **todas** las preguntas en la ficha del módulo. Cada "sí" genera tar
 | V-18 | ¿Toca el **onboarding** de un tenant nuevo? | Actualizar asistente/seeds de onboarding |
 | V-19 | ¿Expone **API externa** (Sanctum)? | Versionado, tokens, rate limit, docs |
 | V-20 | ¿Auditoría **activity log**? | Configurar logAttributes + pantalla de historial si procede |
+| V-21 | ¿Expone **rutas HTTP de módulo activable**? | Feature de acceso tenant: módulo off (capas) bloquea; sin permiso → 403; capas+permiso → OK. Plantilla en [templates-backend.md](templates-backend.md) §13 |
 
 ## 7. Tests (por entidad — mínimos innegociables)
 
@@ -197,6 +198,9 @@ Responder **todas** las preguntas en la ficha del módulo. Cada "sí" genera tar
 - [ ] **Feature autorización**: sin permiso → 403 en cada ruta.
 - [ ] **Feature aislamiento de tenant** (R-TEN-05): usuario de empresa A no ve/edita/borra
       datos de empresa B. **Obligatorio siempre**.
+- [ ] **Feature acceso tenant (V-21)**: si el módulo/entidad expone rutas HTTP activables,
+      verificar módulo no disponible → bloqueo; sin permiso → 403; capas satisfechas +
+      permiso → acceso OK. Copiar plantilla §13 de `templates-backend.md`.
 - [ ] **Unit de Actions** con lógica (cálculos de línea, transiciones de estado, numeración).
 - [ ] **Unit de enums**: transiciones válidas e inválidas.
 - [ ] **Integración de vinculaciones**: un test por cada "sí" de §6 (ej.: confirmar pedido

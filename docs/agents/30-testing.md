@@ -56,7 +56,9 @@ Playbook §7–§9: tests mínimos innegociables → registro del módulo → Do
 3. Escribir tests que reproduzcan cada hallazgo antes de arreglar nada.
 4. Fixes mínimos (o devolución a 20 si es grande). Re-ejecutar suite.
 5. Si hay tasks E2E pendientes o Browser en rojo → devolver a 40; no archivar.
-6. DoD §9 casilla a casilla, explícito en el reporte.
+6. DoD §9 casilla a casilla, explícito en el reporte. Incluye **V-21**: si el change
+   expone rutas de módulo activable, el Feature de acceso tenant (plantilla
+   `templates-backend.md` §13) debe estar verde; no archivar sin él.
 7. Sync de specs si hay deltas + archivado del change.
 
 ## Gate de salida (change cerrado)

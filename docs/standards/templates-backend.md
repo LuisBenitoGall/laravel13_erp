@@ -507,3 +507,56 @@ it('never exposes worksites from another company', function () {
 | `NumberingService` | `app/Domains/Admin` | `next(string $docType): DocumentNumber` con FOR UPDATE (R-BD-05) |
 | `EnsureModuleIsActive` (`module:`) | `app/Http/Middleware` | 403/redirect si el módulo no está activo para la empresa |
 | Helper Pest `withCurrentCompany()` | `tests/Pest.php` | Fija el tenant activo del test |
+
+## 13. Plantilla Pest — acceso tenant (V-21)
+
+Obligatoria cuando el playbook responde **sí** a V-21 (rutas HTTP de módulo activable).
+Sustituir `{module}`, `{route}`, `{permission}` y el setup de usuario/permiso por los del
+módulo. No sustituye R-TEN-05 ni el Feature de autorización por permiso suelto.
+
+```php
+<?php
+
+use App\Domains\Admin\Actions\DisableModuleForCompany;
+use App\Domains\Admin\Actions\EnableModuleForCompany;
+use App\Domains\Admin\Models\Module;
+use App\Domains\Partners\Models\Company;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\PermissionRegistrar;
+
+uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    app()[PermissionRegistrar::class]->forgetCachedPermissions();
+    setPermissionsTeamId(null);
+
+    // Setup: Module Active + Functionality + company autorizada; usuario con permiso.
+    // $this->company, $this->user, actingWithCompany(...), enableModuleForCompany(...)
+});
+
+it('bloquea acceso si el módulo no está activo para la company', function () {
+    $module = Module::query()->where('slug', '{module}')->firstOrFail();
+    app(DisableModuleForCompany::class)->handle($this->company, $module);
+
+    $this->get(route('{route}'))->assertForbidden(); // o redirect según EnsureModuleIsActive
+});
+
+it('niega acceso sin permiso de Functionality', function () {
+    enableModuleForCompany($this->company, '{module}');
+    setPermissionsTeamId($this->company->id);
+    $this->user->revokePermissionTo('{permission}'); // p. ej. company-roles.viewAny
+
+    $this->get(route('{route}'))->assertForbidden();
+});
+
+it('permite acceso con capas satisfechas y permiso', function () {
+    enableModuleForCompany($this->company, '{module}');
+    // usuario manager (o rol con permiso) + actingWithCompany
+
+    $this->get(route('{route}'))->assertOk();
+});
+```
+
+Ejemplo de uso real: `tests/Feature/Admin/CompanyCustomRolesTest.php` (CRUD company-roles
+bajo `module:workspace`).

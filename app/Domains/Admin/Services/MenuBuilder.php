@@ -105,6 +105,7 @@ class MenuBuilder
             'company-modules' => route('admin.company-modules.index', absolute: false),
             'company-module-authorizations' => route('admin.company-module-authorizations.index', absolute: false),
             'roles' => route('admin.roles.index', absolute: false),
+            'company-roles' => route('company.roles.index', absolute: false),
             default => '#',
         };
     }
