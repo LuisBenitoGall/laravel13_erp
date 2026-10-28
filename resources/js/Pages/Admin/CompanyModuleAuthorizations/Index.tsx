@@ -28,7 +28,13 @@ export default function Index({
     const { t } = useTranslation();
 
     return (
-        <AppLayout title={t('autorizacion_de_modulos')}>
+        <AppLayout
+            breadcrumb={{
+                optionKey: 'autorizacion_de_modulos',
+                suboptionKey: 'dashboard',
+                optionHref: '/admin/company-module-authorizations',
+            }}
+        >
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                     <label className="text-sm font-medium text-slate-700" htmlFor="company">

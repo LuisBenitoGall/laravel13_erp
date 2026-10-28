@@ -17,7 +17,7 @@ beforeEach(function () {
 
 it('Index Module responde JSON de ServerTable', function () {
     $user = User::query()->where('email', config('superadmin.email'))->first();
-    $company = Company::query()->where('slug', 'demo')->firstOrFail();
+    $company = Company::query()->where('slug', 'acme')->firstOrFail();
     actingWithCompany($user, $company);
 
     $this->getJson(route('admin.modules.table'))

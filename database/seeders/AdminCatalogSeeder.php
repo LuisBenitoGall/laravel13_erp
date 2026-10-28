@@ -141,18 +141,27 @@ class AdminCatalogSeeder extends Seeder
                 ]);
             }
 
-            $company = Company::query()->where('slug', 'demo')->first();
+            $company = Company::query()->where('slug', 'acme')->first()
+                ?? Company::query()->where('slug', 'demo')->first();
 
             if ($company === null) {
                 $company = app(CreateCompany::class)->handle([
-                    'name' => 'Demo Company',
-                    'slug' => 'demo',
-                    'tradename' => 'Demo',
-                    'nif' => 'B00000000',
+                    'name' => 'ACME',
+                    'slug' => 'acme',
+                    'tradename' => 'ACME',
+                    'nif' => '00000000A',
                     'status' => CompanyStatus::Active->value,
                     'logo' => null,
                 ], $user);
             } else {
+                $company->forceFill([
+                    'name' => 'ACME',
+                    'slug' => 'acme',
+                    'tradename' => 'ACME',
+                    'nif' => '00000000A',
+                    'status' => CompanyStatus::Active,
+                ])->save();
+
                 app(EnsureCompanyDefaultRoles::class)->handle($company);
 
                 if (! $user->companies()->where('companies.id', $company->id)->exists()) {
@@ -163,9 +172,7 @@ class AdminCatalogSeeder extends Seeder
                 app(SyncManagerPermissionsForCompany::class)->handle($company);
             }
 
-            app(AuthorizeModuleForCompany::class)->handle($company, $module);
-            app(EnableModuleForCompany::class)->handle($company, $module);
-
+            // AdminOnly: no obligatorio encender `admin` (bypass SA + menú Configuración).
             app(AuthorizeModuleForCompany::class)->handle($company, $workspace);
             app(EnableModuleForCompany::class)->handle($company, $workspace);
 

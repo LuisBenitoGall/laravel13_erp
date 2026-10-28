@@ -46,6 +46,9 @@ class HandleInertiaRequests extends Middleware
             'menu' => fn () => $user && $companyId
                 ? app(MenuBuilder::class)->forUser($user)
                 : [],
+            'branding' => [
+                'logo_url' => (string) config('branding.logo_url'),
+            ],
             'tenant' => [
                 'id' => $company?->id,
                 'name' => $company?->name,

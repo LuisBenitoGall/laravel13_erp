@@ -41,11 +41,11 @@ export default function FunctionalityFormPage({ modules, functionality }: Props)
 
     return (
         <AppLayout
-            title={
-                editing
-                    ? t('funcionalidad_editar')
-                    : t('funcionalidad_crear')
-            }
+            breadcrumb={{
+                optionKey: 'funcionalidades',
+                suboptionKey: editing ? 'funcionalidad_editar' : 'funcionalidad_crear',
+                optionHref: '/admin/functionalities',
+            }}
         >
             <form onSubmit={submit} className="mx-auto max-w-2xl space-y-4 rounded-xl border bg-white p-6">
                 <div className="space-y-1">

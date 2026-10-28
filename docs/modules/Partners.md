@@ -24,5 +24,5 @@ roles `manager`/`guest`, creador vinculado y con `manager`; UI miembros
 
 ## Seed
 
-Company `demo` + superadmin como manager + sync según autorizaciones (backfill de
-companies existentes en `AdminCatalogSeeder`).
+Company `ACME` (slug `acme`, NIF `00000000A`) + superadmin como manager + workspace
+Basic; backfill de companies existentes en `AdminCatalogSeeder`.

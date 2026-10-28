@@ -25,7 +25,13 @@ export default function Index({
     const { t } = useTranslation();
 
     return (
-        <AppLayout title={t('modulos_empresa')}>
+        <AppLayout
+            breadcrumb={{
+                optionKey: 'modulos_empresa',
+                suboptionKey: 'dashboard',
+                optionHref: '/admin/company-modules',
+            }}
+        >
             <p className="mb-4 text-sm text-slate-600">
                 {t('modulos_empresa_para', { name: company.name })}
             </p>

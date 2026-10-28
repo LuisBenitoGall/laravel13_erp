@@ -20,9 +20,14 @@ export default function Index() {
     );
 
     return (
-        <AppLayout title={t('funcionalidades')}>
-            <div className="mb-4 flex items-center justify-between">
-                <p className="text-sm text-slate-600">{t('funcionalidades_subtitulo')}</p>
+        <AppLayout
+            breadcrumb={{
+                optionKey: 'funcionalidades',
+                suboptionKey: 'dashboard',
+                optionHref: '/admin/functionalities',
+            }}
+        >
+            <div className="mb-4 flex items-center justify-end">
                 <Link
                     href="/admin/functionalities/create"
                     className="rounded-md bg-teal-700 px-3 py-2 text-sm font-medium text-white hover:bg-teal-800"

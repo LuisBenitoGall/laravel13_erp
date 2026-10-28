@@ -92,7 +92,13 @@ export default function CompanyRoleForm({ role, matrix }: Props) {
     }
 
     return (
-        <AppLayout title={editing ? t('rol_empresa_editar') : t('rol_empresa_crear')}>
+        <AppLayout
+            breadcrumb={{
+                optionKey: 'roles_de_empresa',
+                suboptionKey: editing ? 'rol_empresa_editar' : 'rol_empresa_crear',
+                optionHref: '/company/roles',
+            }}
+        >
             <form onSubmit={submit} className="mx-auto max-w-4xl space-y-6 rounded-xl border bg-white p-6">
                 <Field label={t('nombre')} error={errors.name}>
                     <Input

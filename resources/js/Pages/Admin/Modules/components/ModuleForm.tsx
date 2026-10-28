@@ -43,7 +43,13 @@ export default function ModuleFormPage({ module }: Props) {
     }
 
     return (
-        <AppLayout title={editing ? t('modulo_editar') : t('modulo_crear')}>
+        <AppLayout
+            breadcrumb={{
+                optionKey: 'modulos',
+                suboptionKey: editing ? 'modulo_editar' : 'modulo_crear',
+                optionHref: '/admin/modules',
+            }}
+        >
             <form onSubmit={submit} className="mx-auto max-w-2xl space-y-4 rounded-xl border bg-white p-6">
                 <Field label={t('nombre')} error={errors.name}>
                     <Input value={data.name} onChange={(e) => setData('name', e.target.value)} />

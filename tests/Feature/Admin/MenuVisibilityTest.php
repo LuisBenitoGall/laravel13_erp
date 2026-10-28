@@ -22,66 +22,69 @@ beforeEach(function () {
     $this->company = Company::factory()->create();
 
     $this->module = app(CreateModule::class)->handle([
-        'name' => 'Admin',
-        'slug' => 'admin',
-        'label' => ['es' => 'Admin', 'en' => 'Admin'],
+        'name' => 'Catalog',
+        'slug' => 'catalog',
+        'label' => ['es' => 'Catálogo', 'en' => 'Catalog'],
         'color' => '#0f766e',
-        'icon' => 'settings',
-        'level' => ModuleLevel::AdminOnly->value,
+        'icon' => 'box',
+        'level' => ModuleLevel::Basic->value,
         'status' => ModuleStatus::Active->value,
     ]);
 
     app(CreateFunctionality::class)->handle([
         'module_id' => $this->module->id,
-        'name' => 'Modules',
-        'slug' => 'modules',
-        'label' => ['es' => 'Módulos', 'en' => 'Modules'],
+        'name' => 'Items',
+        'slug' => 'catalog-items',
+        'label' => ['es' => 'Ítems', 'en' => 'Items'],
         'status' => FunctionalityStatus::Active->value,
     ]);
 
     app(CreateFunctionality::class)->handle([
         'module_id' => $this->module->id,
-        'name' => 'Functionalities',
-        'slug' => 'functionalities',
-        'label' => ['es' => 'Funcionalidades', 'en' => 'Functionalities'],
+        'name' => 'Categories',
+        'slug' => 'catalog-categories',
+        'label' => ['es' => 'Categorías', 'en' => 'Categories'],
         'status' => FunctionalityStatus::Active->value,
     ]);
 
-    enableModuleForCompany($this->company, 'admin');
+    enableModuleForCompany($this->company, 'catalog');
     withCurrentCompany($this->company);
 });
 
 it('muestra módulo con solo viewAny de Functionality sin comodín', function () {
     $user = User::factory()->create();
-    Permission::findOrCreate('modules.viewAny');
-    $user->givePermissionTo('modules.viewAny');
+    Permission::findOrCreate('catalog-items.viewAny');
+    $user->givePermissionTo('catalog-items.viewAny');
 
     $menu = app(MenuBuilder::class)->forUser($user);
+    $tenant = collect($menu)->firstWhere('slug', 'catalog');
 
-    expect($menu)->toHaveCount(1)
-        ->and($menu[0]['slug'])->toBe('admin')
-        ->and(collect($menu[0]['functionalities'])->pluck('slug')->all())->toBe(['modules']);
+    expect(collect($menu)->pluck('slug')->all())->toContain('dashboard')
+        ->and($tenant)->not->toBeNull()
+        ->and(collect($tenant['functionalities'])->pluck('slug')->all())->toBe(['catalog-items']);
 });
 
 it('comodín implica todas las Functionalities del módulo', function () {
     $user = User::factory()->create();
-    Permission::findOrCreate('admin.access');
-    $user->givePermissionTo('admin.access');
+    Permission::findOrCreate('catalog.access');
+    $user->givePermissionTo('catalog.access');
 
     $menu = app(MenuBuilder::class)->forUser($user);
+    $tenant = collect($menu)->firstWhere('slug', 'catalog');
 
-    expect($menu)->toHaveCount(1)
-        ->and(collect($menu[0]['functionalities'])->pluck('slug')->sort()->values()->all())
-        ->toBe(['functionalities', 'modules']);
+    expect(collect($tenant['functionalities'])->pluck('slug')->sort()->values()->all())
+        ->toBe(['catalog-categories', 'catalog-items']);
 });
 
 it('módulo solo visible si elegible y encendido', function () {
     $user = User::factory()->create();
-    Permission::findOrCreate('admin.access');
-    $user->givePermissionTo('admin.access');
+    Permission::findOrCreate('catalog.access');
+    $user->givePermissionTo('catalog.access');
 
     app(DisableModuleForCompany::class)
         ->handle($this->company, $this->module);
 
-    expect(app(MenuBuilder::class)->forUser($user))->toBeEmpty();
+    $slugs = collect(app(MenuBuilder::class)->forUser($user))->pluck('slug')->all();
+
+    expect($slugs)->toBe(['dashboard']);
 });

@@ -3,6 +3,7 @@
 namespace App\Domains\Admin\Services;
 
 use App\Domains\Admin\Enums\FunctionalityStatus;
+use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\CompanyModule;
 use App\Domains\Admin\Models\CompanyModuleAuthorization;
@@ -13,10 +14,20 @@ use App\Support\Tenancy\CurrentCompany;
 use Illuminate\Support\Collection;
 
 /**
- * Menú data-driven (R-AUT-08): Active + autorizado + encendido + permisos.
+ * Menú data-driven (R-AUT-08) + excepciones shell: Dashboard fijo; Configuración SA.
  */
 class MenuBuilder
 {
+    /**
+     * Mapa estático functionality slug → grupo de menú tenant (cuenta|empresa).
+     * Sin entrada = permanece bajo el Module de origen.
+     *
+     * @var array<string, string>
+     */
+    private const FUNCTIONALITY_GROUPS = [
+        'company-roles' => 'empresa',
+    ];
+
     public function __construct(
         private readonly CurrentCompany $currentCompany,
     ) {}
@@ -38,6 +49,8 @@ class MenuBuilder
             return [];
         }
 
+        $menu = [$this->dashboardItem()];
+
         $authorizedIds = CompanyModuleAuthorization::query()->withoutGlobalScope('company')
             ->where('company_id', $companyId)
             ->pluck('module_id');
@@ -48,104 +61,160 @@ class MenuBuilder
 
         $eligibleIds = $authorizedIds->intersect($enabledIds)->values();
 
-        if ($eligibleIds->isEmpty()) {
+        if ($eligibleIds->isNotEmpty()) {
+            /** @var Collection<int, Module> $modules */
+            $modules = Module::query()
+                ->where('status', ModuleStatus::Active)
+                ->whereIn('level', [ModuleLevel::Basic, ModuleLevel::Optional])
+                ->whereIn('id', $eligibleIds)
+                ->with(['functionalities' => fn ($q) => $q->where('status', FunctionalityStatus::Active)->orderBy('slug')])
+                ->orderBy('slug')
+                ->get();
+
+            foreach ($modules as $module) {
+                foreach ($this->tenantModuleEntries($user, $module) as $entry) {
+                    $menu[] = $entry;
+                }
+            }
+        }
+
+        if ($this->isSuperAdmin($user)) {
+            $menu[] = $this->configurationBlock();
+        }
+
+        return $menu;
+    }
+
+    /**
+     * @return array{slug: string, label: string, color: string, icon: string, functionalities: list<array{slug: string, label: string, href: string}>}
+     */
+    private function dashboardItem(): array
+    {
+        return [
+            'slug' => 'dashboard',
+            'label' => __('dashboard'),
+            'color' => '#0f172a',
+            'icon' => 'home',
+            'functionalities' => [
+                [
+                    'slug' => 'dashboard',
+                    'label' => __('dashboard'),
+                    'href' => route('dashboard', absolute: false),
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return list<array{slug: string, label: string, color: string, icon: string, functionalities: list<array{slug: string, label: string, href: string}>}>
+     */
+    private function tenantModuleEntries(User $user, Module $module): array
+    {
+        $hasWildcard = $user->can($module->slug.'.access');
+        $items = [];
+
+        foreach ($module->functionalities as $functionality) {
+            if ($hasWildcard || $user->can($functionality->slug.'.viewAny')) {
+                $items[] = [
+                    'slug' => $functionality->slug,
+                    'label' => (string) $functionality->label,
+                    'href' => $this->hrefFor($functionality),
+                ];
+            }
+        }
+
+        if (! $hasWildcard && $items === []) {
             return [];
         }
 
-        /** @var Collection<int, Module> $modules */
-        $modules = Module::query()
-            ->where('status', ModuleStatus::Active)
-            ->whereIn('id', $eligibleIds)
-            ->with(['functionalities' => fn ($q) => $q->where('status', FunctionalityStatus::Active)->orderBy('slug')])
-            ->orderBy('slug')
-            ->get();
+        if ($hasWildcard) {
+            $items = $module->functionalities->map(fn (Functionality $f) => [
+                'slug' => $f->slug,
+                'label' => (string) $f->label,
+                'href' => $this->hrefFor($f),
+            ])->values()->all();
+        }
 
-        $menu = [];
+        return $this->groupTenantItems($items, $module);
+    }
 
-        foreach ($modules as $module) {
-            $hasWildcard = $user->can($module->slug.'.access');
-            $items = [];
+    /**
+     * @param  list<array{slug: string, label: string, href: string}>  $items
+     * @return list<array{slug: string, label: string, color: string, icon: string, functionalities: list<array{slug: string, label: string, href: string}>}>
+     */
+    private function groupTenantItems(array $items, Module $module): array
+    {
+        $buckets = [];
 
-            foreach ($module->functionalities as $functionality) {
-                if ($hasWildcard || $user->can($functionality->slug.'.viewAny')) {
-                    $items[] = [
-                        'slug' => $functionality->slug,
-                        'label' => (string) $functionality->label,
-                        'href' => $this->hrefFor($functionality),
-                    ];
-                }
-            }
+        foreach ($items as $item) {
+            $group = self::FUNCTIONALITY_GROUPS[$item['slug']] ?? 'default';
+            $buckets[$group][] = $item;
+        }
 
-            if ($hasWildcard || $items !== []) {
-                $menu[] = [
+        $entries = [];
+
+        foreach ($buckets as $group => $groupItems) {
+            if ($group === 'default') {
+                $entries[] = [
                     'slug' => $module->slug,
                     'label' => (string) $module->label,
                     'color' => $module->color,
                     'icon' => $module->icon,
-                    'functionalities' => $hasWildcard
-                        ? $module->functionalities->map(fn (Functionality $f) => [
-                            'slug' => $f->slug,
-                            'label' => (string) $f->label,
-                            'href' => $this->hrefFor($f),
-                        ])->values()->all()
-                        : $items,
+                    'functionalities' => $groupItems,
                 ];
-            }
-        }
-
-        return $this->isSuperAdmin($user)
-            ? $this->splitPlatformGroup($menu)
-            : $menu;
-    }
-
-    /**
-     * Super Admin: companies / authorizations / roles bajo grupo «Plataforma».
-     *
-     * @param  list<array{slug: string, label: string, color: string, icon: string, functionalities: list<array{slug: string, label: string, href: string}>}>  $menu
-     * @return list<array{slug: string, label: string, color: string, icon: string, functionalities: list<array{slug: string, label: string, href: string}>}>
-     */
-    private function splitPlatformGroup(array $menu): array
-    {
-        $platformSlugs = ['companies', 'company-module-authorizations', 'roles'];
-        $result = [];
-
-        foreach ($menu as $module) {
-            if ($module['slug'] !== 'admin') {
-                $result[] = $module;
 
                 continue;
             }
 
-            $catalog = [];
-            $platform = [];
+            $entries[] = [
+                'slug' => $group,
+                'label' => __($group),
+                'color' => $module->color,
+                'icon' => $module->icon,
+                'functionalities' => $groupItems,
+            ];
+        }
 
-            foreach ($module['functionalities'] as $item) {
-                if (in_array($item['slug'], $platformSlugs, true)) {
-                    $platform[] = $item;
-                } else {
-                    $catalog[] = $item;
-                }
-            }
+        return $entries;
+    }
 
-            if ($catalog !== []) {
-                $result[] = [
-                    ...$module,
-                    'functionalities' => $catalog,
-                ];
-            }
+    /**
+     * @return array{slug: string, label: string, color: string, icon: string, functionalities: list<array{slug: string, label: string, href: string}>}
+     */
+    private function configurationBlock(): array
+    {
+        /** @var Collection<int, Module> $modules */
+        $modules = Module::query()
+            ->where('status', ModuleStatus::Active)
+            ->where('level', ModuleLevel::AdminOnly)
+            ->with(['functionalities' => fn ($q) => $q->where('status', FunctionalityStatus::Active)->orderBy('slug')])
+            ->orderBy('slug')
+            ->get();
 
-            if ($platform !== []) {
-                $result[] = [
-                    'slug' => 'platform',
-                    'label' => __('plataforma'),
-                    'color' => $module['color'],
-                    'icon' => $module['icon'],
-                    'functionalities' => $platform,
+        $items = [];
+        $color = '#0f766e';
+        $icon = 'settings';
+
+        foreach ($modules as $module) {
+            $color = $module->color;
+            $icon = $module->icon;
+
+            foreach ($module->functionalities as $functionality) {
+                $items[] = [
+                    'slug' => $functionality->slug,
+                    'label' => (string) $functionality->label,
+                    'href' => $this->hrefFor($functionality),
                 ];
             }
         }
 
-        return $result;
+        return [
+            'slug' => 'configuracion',
+            'label' => __('configuracion'),
+            'color' => $color,
+            'icon' => $icon,
+            'functionalities' => $items,
+        ];
     }
 
     private function isSuperAdmin(User $user): bool

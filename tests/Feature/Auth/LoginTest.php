@@ -14,7 +14,7 @@ beforeEach(function () {
     setPermissionsTeamId(null);
 });
 
-it('siembra Super Admin con company_id NULL y usuario de trabajo', function () {
+it('siembra Super Admin con company_id NULL y ACME vinculada', function () {
     $this->seed(AdminCatalogSeeder::class);
 
     $role = Role::findByName('Super Admin');
@@ -23,17 +23,17 @@ it('siembra Super Admin con company_id NULL y usuario de trabajo', function () {
     $user = User::query()->where('email', config('superadmin.email'))->first();
     expect($user)->not->toBeNull()
         ->and($user->hasRole('Super Admin'))->toBeTrue()
-        ->and($user->companies()->count())->toBeGreaterThan(0)
-        ->and(Company::query()->where('slug', 'demo')->exists())->toBeTrue();
+        ->and(Company::query()->where('slug', 'acme')->where('nif', '00000000A')->exists())->toBeTrue()
+        ->and($user->companies()->where('companies.slug', 'acme')->exists())->toBeTrue();
 });
 
-it('login del superadmin redirige al catálogo', function () {
+it('login del superadmin redirige al dashboard', function () {
     $this->seed(AdminCatalogSeeder::class);
 
     $this->post(route('login'), [
         'email' => config('superadmin.email'),
         'password' => config('superadmin.password'),
-    ])->assertRedirect(route('admin.modules.index'));
+    ])->assertRedirect(route('dashboard'));
 
     $user = User::query()->where('email', config('superadmin.email'))->first();
     $company = $user->companies()->first();

@@ -147,8 +147,11 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 | `ui/input` (`Input`) | Primativa shadcn de texto con `maxLength` default 255 (R-FE-08); override + FormRequest `max` espejo |
 | `ui/*` | Resto de primitivas shadcn (Button, Dialog, DropdownMenu, Badge, Tooltip…) |
 | `SearchCommand` | Buscador global (⌘K) multi-entidad — adaptar el patrón ya resuelto en la plantilla de referencia (§2) |
-| `NotificationsPanel` | Campana + panel realtime (Echo/Reverb) |
-| `CompanySwitcher` / `WorksiteSwitcher` | Selector de empresa activa / obra en topbar |
+| `NotificationsPanel` | Campana + panel (`Components/Topbar`); stub empty UI hasta Reverb |
+| `CompanySwitcher` / `WorksiteSwitcher` | Selector empresa (`Topbar/CompanySwitcher`); obra pendiente |
+| `AppTopbar` | Chrome bloque 1: collapse izq.; locale→avatar der.; bloque 2 ActionBar pendiente |
+| Aside rail | Colapso md+ = mini-aside iconos + flyout Popover; persistencia `erp.aside.collapsed`; móvil off-canvas |
+| `PageBreadcrumb` | Bloque 2 bajo topbar: `option` (Link i18n) + `suboption` (texto); Index → `dashboard` |
 
 ## 5. Patrones de página
 

@@ -31,8 +31,10 @@ it('registro y onboarding de empresa entran al AppLayout usable', function () {
         ->click('Crear empresa y entrar')
         ->assertPathIs('/dashboard')
         ->assertSee('Inicio')
-        ->assertSee('Salir')
         ->assertSee('Empresa Onboard E2E')
-        ->assertSee('Ada')
-        ->assertSee('Panel principal de la empresa activa.');
+        ->assertSee('AD')
+        ->assertSee('Panel principal de la empresa activa.')
+        ->click('AD')
+        ->assertSee('Perfil')
+        ->assertSee('Salir');
 });

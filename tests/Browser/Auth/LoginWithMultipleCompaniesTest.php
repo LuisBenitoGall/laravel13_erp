@@ -1,8 +1,5 @@
 <?php
 
-use App\Domains\Admin\Enums\ModuleLevel;
-use App\Domains\Admin\Enums\ModuleStatus;
-use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Partners\Models\Company;
 use App\Models\User;
@@ -16,12 +13,6 @@ beforeEach(function () {
 
     app()[PermissionRegistrar::class]->forgetCachedPermissions();
     setPermissionsTeamId(null);
-
-    Module::factory()->create([
-        'slug' => 'admin',
-        'level' => ModuleLevel::AdminOnly,
-        'status' => ModuleStatus::Active,
-    ]);
 });
 
 it('login con N empresas exige selección bloqueante antes del ERP', function () {
@@ -35,8 +26,6 @@ it('login con N empresas exige selección bloqueante antes del ERP', function ()
         'tradename' => 'Beta Corp',
         'slug' => 'beta-corp',
     ]);
-    enableModuleForCompany($alpha, 'admin');
-    enableModuleForCompany($beta, 'admin');
 
     $user = User::factory()->create([
         'name' => 'Usuario Multi',
@@ -60,9 +49,11 @@ it('login con N empresas exige selección bloqueante antes del ERP', function ()
 
     $page->select('company_id', (string) $beta->id)
         ->click('Continuar')
-        ->assertPathIs('/admin/modules')
-        ->assertSee('Módulos')
-        ->assertSee('Salir')
+        ->assertPathIs('/dashboard')
+        ->assertSee('Inicio')
         ->assertSee('Beta Corp')
-        ->assertSee('Usuario Multi');
+        ->assertSee('UM')
+        ->click('UM')
+        ->assertSee('Perfil')
+        ->assertSee('Salir');
 });

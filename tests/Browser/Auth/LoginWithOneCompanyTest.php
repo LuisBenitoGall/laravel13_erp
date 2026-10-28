@@ -1,8 +1,5 @@
 <?php
 
-use App\Domains\Admin\Enums\ModuleLevel;
-use App\Domains\Admin\Enums\ModuleStatus;
-use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Partners\Models\Company;
 use App\Models\User;
@@ -16,12 +13,6 @@ beforeEach(function () {
 
     app()[PermissionRegistrar::class]->forgetCachedPermissions();
     setPermissionsTeamId(null);
-
-    Module::factory()->create([
-        'slug' => 'admin',
-        'level' => ModuleLevel::AdminOnly,
-        'status' => ModuleStatus::Active,
-    ]);
 });
 
 it('login con una empresa entra al AppLayout', function () {
@@ -30,7 +21,6 @@ it('login con una empresa entra al AppLayout', function () {
         'tradename' => 'Empresa Una',
         'slug' => 'empresa-una',
     ]);
-    enableModuleForCompany($company, 'admin');
 
     $user = User::factory()->create([
         'name' => 'Usuario Una',
@@ -47,9 +37,12 @@ it('login con una empresa entra al AppLayout', function () {
     $page->fill('email', 'one-company@example.com')
         ->fill('password', 'password')
         ->click('Acceder')
-        ->assertPathIs('/admin/modules')
-        ->assertSee('Módulos')
-        ->assertSee('Salir')
+        ->assertPathIs('/dashboard')
+        ->assertSee('Inicio')
+        ->assertSee('Dashboard')
         ->assertSee('Empresa Una')
-        ->assertSee('Usuario Una');
+        ->assertSee('UU')
+        ->click('UU')
+        ->assertSee('Perfil')
+        ->assertSee('Salir');
 });

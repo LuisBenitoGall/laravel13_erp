@@ -53,9 +53,17 @@ export default function Members({
     }
 
     return (
-        <AppLayout title={`${t('miembros')} · ${company.name}`}>
+        <AppLayout
+            breadcrumb={{
+                optionKey: 'empresas',
+                suboptionKey: 'miembros',
+                optionHref: '/partners/companies',
+            }}
+        >
             <div className="mb-4 flex items-center justify-between">
-                <p className="text-sm text-slate-600">{t('miembros_subtitulo')}</p>
+                <p className="text-sm text-slate-600">
+                    {t('miembros_subtitulo')} · {company.name}
+                </p>
                 <Link
                     href={`/partners/companies/${company.id}/edit`}
                     className="text-sm text-teal-700 hover:underline"

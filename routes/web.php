@@ -9,6 +9,7 @@ use App\Http\Controllers\CompanySelectionController;
 use App\Http\Controllers\CompanySwitchController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -46,6 +47,10 @@ Route::middleware('auth')->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('Dashboard');
     })->middleware('company')->name('dashboard');
+
+    Route::get('profile', [ProfileController::class, 'show'])
+        ->middleware('company')
+        ->name('profile.show');
 });
 
 Route::get('/', function () {

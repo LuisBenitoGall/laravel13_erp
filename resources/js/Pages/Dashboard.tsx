@@ -6,7 +6,13 @@ export default function Dashboard() {
     const { t } = useTranslation();
 
     return (
-        <AppLayout title={t('inicio')}>
+        <AppLayout
+            breadcrumb={{
+                optionKey: 'dashboard',
+                suboptionKey: 'dashboard',
+                optionHref: '/dashboard',
+            }}
+        >
             <p className="text-sm text-slate-600">{t('panel_subtitulo')}</p>
         </AppLayout>
     );

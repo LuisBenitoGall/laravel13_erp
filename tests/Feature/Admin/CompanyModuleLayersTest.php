@@ -76,50 +76,49 @@ it('módulo Basic autorizado por defecto al crear company', function () {
 it('menú respeta módulo apagado aunque haya permiso', function () {
     $company = Company::factory()->create();
     $module = Module::factory()->create([
-        'slug' => 'admin',
-        'level' => ModuleLevel::AdminOnly,
+        'slug' => 'tools',
+        'level' => ModuleLevel::Basic,
         'status' => ModuleStatus::Active,
     ]);
     app(AuthorizeModuleForCompany::class)->handle($company, $module);
     // no enable
 
     $user = User::factory()->create();
-    Permission::findOrCreate('admin.access');
-    $user->givePermissionTo('admin.access');
+    Permission::findOrCreate('tools.access');
+    $user->givePermissionTo('tools.access');
     withCurrentCompany($company);
 
-    expect(app(MenuBuilder::class)->forUser($user))->toBeEmpty()
-        ->and(app(CompanyModuleActivationChecker::class)->isActive('admin'))->toBeFalse();
+    expect(collect(app(MenuBuilder::class)->forUser($user))->pluck('slug')->all())->toBe(['dashboard'])
+        ->and(app(CompanyModuleActivationChecker::class)->isActive('tools'))->toBeFalse();
 });
 
 it('menú muestra módulo autorizado y encendido con permiso', function () {
     $company = Company::factory()->create();
     $module = Module::factory()->create([
-        'slug' => 'admin',
-        'level' => ModuleLevel::AdminOnly,
+        'slug' => 'tools',
+        'level' => ModuleLevel::Basic,
         'status' => ModuleStatus::Active,
     ]);
     app(CreateFunctionality::class)->handle([
         'module_id' => $module->id,
-        'name' => 'Modules',
-        'slug' => 'modules',
-        'label' => ['es' => 'Módulos', 'en' => 'Modules'],
+        'name' => 'Tools list',
+        'slug' => 'tools-list',
+        'label' => ['es' => 'Herramientas', 'en' => 'Tools'],
         'status' => 'active',
     ]);
-    enableModuleForCompany($company, 'admin');
+    enableModuleForCompany($company, 'tools');
 
     $user = User::factory()->create();
-    Permission::findOrCreate('modules.viewAny');
-    $user->givePermissionTo('modules.viewAny');
+    Permission::findOrCreate('tools-list.viewAny');
+    $user->givePermissionTo('tools-list.viewAny');
     withCurrentCompany($company);
 
     $menu = app(MenuBuilder::class)->forUser($user);
 
-    expect($menu)->toHaveCount(1)
-        ->and($menu[0]['slug'])->toBe('admin');
+    expect(collect($menu)->pluck('slug')->all())->toContain('dashboard', 'tools');
 });
 
-it('ruta module:admin responde 403 si el módulo está apagado', function () {
+it('SA accede a module:admin aunque el módulo esté apagado', function () {
     $company = Company::factory()->create();
     Module::factory()->create([
         'slug' => 'admin',
@@ -133,7 +132,7 @@ it('ruta module:admin responde 403 si el módulo está apagado', function () {
     $user->assignRole('Super Admin');
     actingWithCompany($user, $company);
 
-    $this->get(route('admin.modules.index'))->assertForbidden();
+    $this->get(route('admin.modules.index'))->assertOk();
 });
 
 it('encender y apagar persiste en company_modules', function () {

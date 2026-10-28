@@ -65,10 +65,13 @@ it('login como manager entra al AppLayout con menú Basic usable', function () {
         ->click('Acceder')
         ->assertPathIs('/dashboard')
         ->assertSee('Inicio')
-        ->assertSee('Salir')
+        ->assertSee('Dashboard')
         ->assertSee('Empresa Manager')
-        ->assertSee('Usuario Manager')
-        ->assertSee('Partners Core')
+        ->assertSee('UM')
+        ->click('UM')
+        ->assertSee('Perfil')
+        ->assertSee('Salir')
         ->assertSee('Catálogo demo')
+        ->assertDontSee('Configuración')
         ->assertDontSee('Módulos');
 });

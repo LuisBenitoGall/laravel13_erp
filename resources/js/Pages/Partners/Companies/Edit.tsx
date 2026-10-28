@@ -16,7 +16,14 @@ export default function Edit({
     const { t } = useTranslation();
 
     return (
-        <AppLayout title={t('empresa_editar', { name: company.name })}>
+        <AppLayout
+            breadcrumb={{
+                optionKey: 'empresas',
+                suboptionKey: 'empresa_editar',
+                optionHref: '/partners/companies',
+                suboptionParams: { name: company.name },
+            }}
+        >
             {members_url && (
                 <div className="mb-4">
                     <Link href={members_url} className="text-sm font-medium text-teal-700 hover:underline">

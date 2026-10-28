@@ -34,11 +34,14 @@ export default function Index({ operator = false }: { operator?: boolean }) {
     }, [t, operator]);
 
     return (
-        <AppLayout title={operator ? t('tenants') : t('empresas')}>
-            <div className="mb-4 flex items-center justify-between">
-                <p className="text-sm text-slate-600">
-                    {operator ? t('tenants_subtitulo') : t('empresas_subtitulo')}
-                </p>
+        <AppLayout
+            breadcrumb={{
+                optionKey: operator ? 'tenants' : 'empresas',
+                suboptionKey: 'dashboard',
+                optionHref: '/partners/companies',
+            }}
+        >
+            <div className="mb-4 flex items-center justify-end">
                 <Link
                     href="/partners/companies/create"
                     className="rounded-md bg-teal-700 px-3 py-2 text-sm font-medium text-white hover:bg-teal-800"

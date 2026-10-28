@@ -1,16 +1,17 @@
 # Módulo Admin — catálogo, RBAC y shell
 
 > Ficha playbook §1. Incluye platform-roles, company-custom-roles, company-role-assignment,
-> form-kit y `c2026-10-26-platform-console-mvp` (consola operador perímetro).
+> form-kit, platform-console-mvp, shell-navigation y `c2026-10-28-shell-topbar`.
 
 ## Propósito y alcance
 
 **Entra:** catálogo global `Module` / `Functionality`; Spatie Teams; Super Admin;
 elegibilidad + activación; menú R-AUT-08; roles de empresa `manager`/`guest`; sync de
 permisos del manager; CRUD roles de plataforma y custom tenant; asignación User↔rol
-local; kit Form MVP; **consola plataforma MVP**: listado tenants del perímetro
-(`user_companies`), elegibilidad de módulos solo sobre companies vinculadas, menú
-grupo «Plataforma» para Super Admin.
+local; kit Form MVP; consola plataforma MVP (tenants perímetro); **shell**: Dashboard
+fijo, logos ERP+company, bloque Configuración SA (AdminOnly sin exigir
+authorized∩enabled), bypass `EnsureModuleIsActive` solo AdminOnly+SA (perímetro de
+datos intacto).
 
 **No entra:** facturación SaaS (Cashier/Stripe/cuotas); ver todas las companies sin
 vínculo; invitar miembros no vinculados; engorde Company; Wysiwyg/Dropzone/LangTabs.
@@ -28,6 +29,10 @@ vínculo; invitar miembros no vinculados; engorde Company; Wysiwyg/Dropzone/Lang
 | `AssignCompanyRole` | Cualquier rol local; un rol por company |
 | Functionality `roles` / `company-roles` | Plataforma / workspace |
 | Consola plataforma | Partners Companies Index (CTA) + authorizations scoped |
+| Shell navegación | Dashboard + Configuración SA; seed ACME; post-login → dashboard |
+| Shell topbar | Bloque 1: collapse izq. / acciones der.; stubs popover; perfil+logout |
+| Shell topbar polish | Mini-rail md+ (`erp.aside.collapsed`); móvil off-canvas; flyout B1; logos reducidos; notas=Popover |
+| Shell breadcrumb | Bloque 2: `PageBreadcrumb` option (Link) + suboption; Index → `dashboard`; sin ActionBar |
 
 ## Sync manager
 
