@@ -85,11 +85,19 @@ export default function CompanyRoleForm({ role, matrix }: Props) {
         if (!role || role.protected_local) {
             return;
         }
-        if (!window.confirm(t('rol_empresa_confirmar_eliminar'))) {
-            return;
-        }
         destroy(`/company/roles/${role.id}`);
     }
+
+    const viewActions =
+        editing && role && !role.protected_local
+            ? [
+                  {
+                      type: 'delete' as const,
+                      onConfirm: onDelete,
+                      confirmKey: 'rol_empresa_confirmar_eliminar',
+                  },
+              ]
+            : [];
 
     return (
         <AppLayout
@@ -98,6 +106,7 @@ export default function CompanyRoleForm({ role, matrix }: Props) {
                 suboptionKey: editing ? 'rol_empresa_editar' : 'rol_empresa_crear',
                 optionHref: '/company/roles',
             }}
+            actions={viewActions}
         >
             <form onSubmit={submit} className="mx-auto max-w-4xl space-y-6 rounded-xl border bg-white p-6">
                 <Field label={t('nombre')} error={errors.name}>
@@ -158,18 +167,7 @@ export default function CompanyRoleForm({ role, matrix }: Props) {
                     ))}
                 </div>
 
-                <div className="flex items-center justify-between gap-3">
-                    {editing && role && !role.protected_local ? (
-                        <button
-                            type="button"
-                            onClick={onDelete}
-                            className="rounded-md border border-red-300 px-3 py-2 text-sm text-red-700 hover:bg-red-50"
-                        >
-                            {t('eliminar')}
-                        </button>
-                    ) : (
-                        <span />
-                    )}
+                <div className="flex items-center justify-end gap-3">
                     <div className="flex gap-2">
                         <button
                             type="button"

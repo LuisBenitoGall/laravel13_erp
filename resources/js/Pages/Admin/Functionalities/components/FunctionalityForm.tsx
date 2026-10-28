@@ -46,6 +46,7 @@ export default function FunctionalityFormPage({ modules, functionality }: Props)
                 suboptionKey: editing ? 'funcionalidad_editar' : 'funcionalidad_crear',
                 optionHref: '/admin/functionalities',
             }}
+            actions={[]}
         >
             <form onSubmit={submit} className="mx-auto max-w-2xl space-y-4 rounded-xl border bg-white p-6">
                 <div className="space-y-1">

@@ -23,6 +23,7 @@ export default function Edit({
                 optionHref: '/partners/companies',
                 suboptionParams: { name: company.name },
             }}
+            actions={[]}
         >
             {members_url && (
                 <div className="mb-4">

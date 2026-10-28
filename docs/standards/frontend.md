@@ -137,19 +137,20 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 | `Table/ServerTable` | Listados server-side (§3) |
 | `Table/formatters` | Formatters tipados: `money(dec)`, `date`, `statusBadge(enum)`, `boolean`, `link` |
 | `Form/Field` + kit MVP | **Implementado** (`c2026-10-26-form-kit-mvp`): `Field`/`FormField`, `Input` (→ `ui/input` R-FE-08), `Textarea`, `NumberInput`, `Select` (filtro local; `onSearch` opcional), `DatePicker` (`date-fns` + input date), `Checkbox`, `Switch`. Pendientes de kit: `Wysiwyg`, `Dropzone`, `LangTabs` |
-| `Form/FormActions` | Barra guardar/cancelar/guardar-y-seguir, estado dirty, atajos teclado — **pendiente** |
+| `Form/FormActions` | Guardar/cancelar **dentro del form** — **pendiente** (≠ `ViewActionBar`) |
 | `Records/RecordEditLayout` | Esqueleto de Create/Edit: cabecera (título, estado, acciones), tabs, sidebar meta (auditoría), zona de contenido |
-| `Records/ActionBar` | Acciones de ciclo de vida del documento (confirmar, facturar…) con confirmación y permisos |
+| `Records/ActionBar` | Ciclo de vida de **documento** (confirmar, facturar…) — ≠ chrome de vista |
+| `ViewActionBar` | Chrome bloque 3: CTAs + delete; Volver solo si `showBack` (Index → `false` salvo excepción) |
 | `Records/Tabs` | Tabs con lazy load (deferred props / partial reload) |
 | `Lines/LineItemsEditor` | **El componente clave** (vision §4.3): grid editable de líneas de documento — buscador de artículo, 4 descuentos en cascada, stock por almacén, precios/tarifas, totales/margen/IVA en vivo, drag&drop. Único lugar con edición en grid. Cálculo SIEMPRE con `lib/line-calc` (espejo unit-testeado del cálculo backend) |
-| `Feedback/ConfirmDialog` | Confirmaciones destructivas/irreversibles (borrar, remesar) |
+| `Feedback/ConfirmDialog` | Confirmaciones destructivas (`Components/Feedback/ConfirmDialog`) |
 | `Feedback/EmptyState` · `ErrorBoundary` | Vacíos con CTA · captura de errores de página |
 | `ui/input` (`Input`) | Primativa shadcn de texto con `maxLength` default 255 (R-FE-08); override + FormRequest `max` espejo |
 | `ui/*` | Resto de primitivas shadcn (Button, Dialog, DropdownMenu, Badge, Tooltip…) |
 | `SearchCommand` | Buscador global (⌘K) multi-entidad — adaptar el patrón ya resuelto en la plantilla de referencia (§2) |
 | `NotificationsPanel` | Campana + panel (`Components/Topbar`); stub empty UI hasta Reverb |
 | `CompanySwitcher` / `WorksiteSwitcher` | Selector empresa (`Topbar/CompanySwitcher`); obra pendiente |
-| `AppTopbar` | Chrome bloque 1: collapse izq.; locale→avatar der.; bloque 2 ActionBar pendiente |
+| `AppTopbar` | Chrome bloque 1: collapse izq.; locale→avatar der. |
 | Aside rail | Colapso md+ = mini-aside iconos + flyout Popover; persistencia `erp.aside.collapsed`; móvil off-canvas |
 | `PageBreadcrumb` | Bloque 2 bajo topbar: `option` (Link i18n) + `suboption` (texto); Index → `dashboard` |
 

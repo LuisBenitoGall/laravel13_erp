@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Plus } from 'lucide-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ColumnDefinition } from 'tabulator-tables';
@@ -40,15 +40,16 @@ export default function Index({ operator = false }: { operator?: boolean }) {
                 suboptionKey: 'dashboard',
                 optionHref: '/partners/companies',
             }}
+            showBack={false}
+            actions={[
+                {
+                    type: 'link',
+                    labelKey: 'crear',
+                    href: '/partners/companies/create',
+                    icon: Plus,
+                },
+            ]}
         >
-            <div className="mb-4 flex items-center justify-end">
-                <Link
-                    href="/partners/companies/create"
-                    className="rounded-md bg-teal-700 px-3 py-2 text-sm font-medium text-white hover:bg-teal-800"
-                >
-                    {t('crear')}
-                </Link>
-            </div>
             <ServerTable endpoint="/partners/companies/table" columns={columns} />
         </AppLayout>
     );

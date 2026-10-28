@@ -10,6 +10,7 @@ export default function Create() {
                 suboptionKey: 'empresa_nueva',
                 optionHref: '/partners/companies',
             }}
+            actions={[]}
         >
             <CompanyForm submitUrl="/partners/companies" />
         </AppLayout>

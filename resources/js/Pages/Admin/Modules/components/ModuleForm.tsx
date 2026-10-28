@@ -49,6 +49,7 @@ export default function ModuleFormPage({ module }: Props) {
                 suboptionKey: editing ? 'modulo_editar' : 'modulo_crear',
                 optionHref: '/admin/modules',
             }}
+            actions={[]}
         >
             <form onSubmit={submit} className="mx-auto max-w-2xl space-y-4 rounded-xl border bg-white p-6">
                 <Field label={t('nombre')} error={errors.name}>

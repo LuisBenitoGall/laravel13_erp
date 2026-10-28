@@ -92,11 +92,19 @@ export default function RoleFormPage({ role, matrix, matrix_universal }: Props) 
         if (!role || role.protected_template) {
             return;
         }
-        if (!window.confirm(t('rol_confirmar_eliminar'))) {
-            return;
-        }
         destroy(`/admin/roles/${role.id}`);
     }
+
+    const viewActions =
+        editing && role && !role.protected_template
+            ? [
+                  {
+                      type: 'delete' as const,
+                      onConfirm: onDelete,
+                      confirmKey: 'rol_confirmar_eliminar',
+                  },
+              ]
+            : [];
 
     return (
         <AppLayout
@@ -105,6 +113,7 @@ export default function RoleFormPage({ role, matrix, matrix_universal }: Props) 
                 suboptionKey: editing ? 'rol_editar' : 'rol_crear',
                 optionHref: '/admin/roles',
             }}
+            actions={viewActions}
         >
             <form onSubmit={submit} className="mx-auto max-w-4xl space-y-6 rounded-xl border bg-white p-6">
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -178,18 +187,7 @@ export default function RoleFormPage({ role, matrix, matrix_universal }: Props) 
                     ))}
                 </div>
 
-                <div className="flex items-center justify-between gap-3">
-                    {editing && role && !role.protected_template ? (
-                        <button
-                            type="button"
-                            onClick={onDelete}
-                            className="rounded-md border border-red-300 px-3 py-2 text-sm text-red-700 hover:bg-red-50"
-                        >
-                            {t('eliminar')}
-                        </button>
-                    ) : (
-                        <span />
-                    )}
+                <div className="flex items-center justify-end gap-3">
                     <div className="flex gap-2">
                         <button
                             type="button"

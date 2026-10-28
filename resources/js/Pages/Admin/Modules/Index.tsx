@@ -1,6 +1,6 @@
-import { Link } from '@inertiajs/react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Plus } from 'lucide-react';
 import type { ColumnDefinition } from 'tabulator-tables';
 
 import ServerTable from '@/Components/Table/ServerTable';
@@ -26,15 +26,16 @@ export default function Index() {
                 suboptionKey: 'dashboard',
                 optionHref: '/admin/modules',
             }}
+            showBack={false}
+            actions={[
+                {
+                    type: 'link',
+                    labelKey: 'crear',
+                    href: '/admin/modules/create',
+                    icon: Plus,
+                },
+            ]}
         >
-            <div className="mb-4 flex items-center justify-end">
-                <Link
-                    href="/admin/modules/create"
-                    className="rounded-md bg-teal-700 px-3 py-2 text-sm font-medium text-white hover:bg-teal-800"
-                >
-                    {t('crear')}
-                </Link>
-            </div>
             <ServerTable endpoint="/admin/modules/table" columns={columns} />
         </AppLayout>
     );

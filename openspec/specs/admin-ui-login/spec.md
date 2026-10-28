@@ -1,17 +1,17 @@
 ## Purpose
 
-`AppLayout` (sidebar data-driven + topbar bloque 1 + breadcrumb bloque 2), login/logout vía avatar, `ServerTable` y formularios mínimos del catálogo Admin.
+`AppLayout` (sidebar + topbar bloque 1 + breadcrumb bloque 2 + ActionBar de vista bloque 3), login/logout vía avatar, `ServerTable` y formularios mínimos del catálogo Admin.
 
 ## Requirements
 
 ### Requirement: Catálogo UI mínimo y login
 El sistema SHALL ofrecer un `AppLayout` con sidebar data-driven (`Module`/`Functionality`,
-coloreado por módulo), **topbar bloque 1** (chrome global) y **breadcrumb bloque 2**
-(option + suboption i18n bajo el topbar; véase `shell-breadcrumb`), páginas Index de
-Module y Functionality con `ServerTable`, kit de formularios mínimo Create/Edit, y un
-login mínimo con el guard de sesión estándar de Laravel. El `AppLayout` SHALL NOT
-renderizar el título de la vista dentro del topbar (bloque 1). Logout SHALL estar
-disponible desde el menú del avatar.
+coloreado por módulo), **topbar bloque 1**, **breadcrumb bloque 2** y **ActionBar de
+vista bloque 3** (`ViewActionBar` cuando la página declare acciones; véase
+`shell-action-bar`), páginas Index de Module y Functionality con `ServerTable`, kit de
+formularios mínimo Create/Edit, y un login mínimo con el guard de sesión estándar de
+Laravel. El `AppLayout` SHALL NOT renderizar el título de la vista dentro del topbar
+(bloque 1). Logout SHALL estar disponible desde el menú del avatar.
 
 #### Scenario: Login del superadmin
 - **WHEN** el superadmin sembrado introduce sus credenciales en el login
@@ -20,8 +20,8 @@ disponible desde el menú del avatar.
 
 #### Scenario: Listado de Module con ServerTable
 - **WHEN** el superadmin visita el índice de Module
-- **THEN** ve un `ServerTable` (Tabulator) paginado server-side, conforme al contrato de
-  `frontend.md` §3, y el breadcrumb de la página
+- **THEN** ve un `ServerTable` conforme a `frontend.md` §3, el breadcrumb, y la ActionBar
+  de vista con al menos Crear cuando corresponda
 
 #### Scenario: Logout
 - **WHEN** el usuario autenticado cierra sesión desde el menú del avatar (o flujo

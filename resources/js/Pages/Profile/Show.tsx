@@ -16,6 +16,8 @@ export default function Show({
                 suboptionKey: 'dashboard',
                 optionHref: '/profile',
             }}
+            showBack={false}
+            actions={[]}
         >
             <dl className="max-w-lg space-y-4 rounded-lg border border-slate-200 bg-white p-6">
                 <div>

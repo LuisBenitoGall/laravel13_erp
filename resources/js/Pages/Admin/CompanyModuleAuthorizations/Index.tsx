@@ -34,6 +34,8 @@ export default function Index({
                 suboptionKey: 'dashboard',
                 optionHref: '/admin/company-module-authorizations',
             }}
+            showBack={false}
+            actions={[]}
         >
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">

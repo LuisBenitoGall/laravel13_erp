@@ -4,8 +4,10 @@ import { type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import AsideNav, { type AsideNavItem } from '@/Components/AsideNav';
+import NavOriginTracker from '@/Components/NavOriginTracker';
 import PageBreadcrumb, { type PageBreadcrumbData } from '@/Components/PageBreadcrumb';
 import AppTopbar from '@/Components/Topbar/AppTopbar';
+import ViewActionBar, { type ViewAction } from '@/Components/ViewActionBar';
 import { readAsideCollapsed, writeAsideCollapsed } from '@/lib/asideStorage';
 
 type SharedProps = {
@@ -28,10 +30,15 @@ function readIsMobile(): boolean {
 export default function AppLayout({
     title,
     breadcrumb,
+    actions,
+    /** Index / raíces: `false`. Create/Edit mantienen default `true` (Volver si hay origen). */
+    showBack = true,
     children,
 }: {
     title?: string;
     breadcrumb?: PageBreadcrumbData;
+    actions?: ViewAction[];
+    showBack?: boolean;
     children: ReactNode;
 }) {
     const { t } = useTranslation();
@@ -101,6 +108,7 @@ export default function AppLayout({
 
     return (
         <div className="relative flex min-h-screen bg-slate-100 text-slate-900">
+            <NavOriginTracker />
             {documentTitle ? <Head title={documentTitle} /> : null}
 
             {isMobile && mobileOpen ? (
@@ -184,8 +192,9 @@ export default function AppLayout({
                         user={{ name: user.name, email: user.email }}
                     />
                 ) : null}
-                <main className="flex-1 p-6">
+                <main className="flex-1 px-6 pb-6 pt-3">
                     {breadcrumb ? <PageBreadcrumb {...breadcrumb} /> : null}
+                    <ViewActionBar actions={actions ?? []} showBack={showBack} />
                     {children}
                 </main>
             </div>

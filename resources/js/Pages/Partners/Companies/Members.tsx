@@ -59,6 +59,7 @@ export default function Members({
                 suboptionKey: 'miembros',
                 optionHref: '/partners/companies',
             }}
+            actions={[]}
         >
             <div className="mb-4 flex items-center justify-between">
                 <p className="text-sm text-slate-600">

@@ -12,6 +12,8 @@ export default function Dashboard() {
                 suboptionKey: 'dashboard',
                 optionHref: '/dashboard',
             }}
+            showBack={false}
+            actions={[]}
         >
             <p className="text-sm text-slate-600">{t('panel_subtitulo')}</p>
         </AppLayout>

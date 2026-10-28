@@ -31,6 +31,8 @@ export default function Index({
                 suboptionKey: 'dashboard',
                 optionHref: '/admin/company-modules',
             }}
+            showBack={false}
+            actions={[]}
         >
             <p className="mb-4 text-sm text-slate-600">
                 {t('modulos_empresa_para', { name: company.name })}

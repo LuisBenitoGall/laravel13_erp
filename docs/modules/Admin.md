@@ -32,7 +32,8 @@ vínculo; invitar miembros no vinculados; engorde Company; Wysiwyg/Dropzone/Lang
 | Shell navegación | Dashboard + Configuración SA; seed ACME; post-login → dashboard |
 | Shell topbar | Bloque 1: collapse izq. / acciones der.; stubs popover; perfil+logout |
 | Shell topbar polish | Mini-rail md+ (`erp.aside.collapsed`); móvil off-canvas; flyout B1; logos reducidos; notas=Popover |
-| Shell breadcrumb | Bloque 2: `PageBreadcrumb` option (Link) + suboption; Index → `dashboard`; sin ActionBar |
+| Shell breadcrumb | Bloque 2: `PageBreadcrumb` option (Link) + suboption; Index → `dashboard` |
+| Shell action bar | Bloque 3: `ViewActionBar` (Volver si origen, CTAs, delete+confirm); ≠ FormActions / Records/ActionBar |
 
 ## Sync manager
 
