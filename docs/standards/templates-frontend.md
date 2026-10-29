@@ -32,58 +32,61 @@ export interface WorksiteFormOptions {
 ## 2. Página Index (patrón 1)
 
 ```tsx
-// resources/js/Pages/Partners/Worksites/Index.tsx
-import { Head, router } from '@inertiajs/react'
+// resources/js/Pages/Admin/Modules/Index.tsx — referencia ServerTable (§3.2)
+import { router } from '@inertiajs/react'
+import { Pencil, Plus } from 'lucide-react'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import AppLayout from '@/Layouts/AppLayout'
-import { ServerTable, type ColumnDef } from '@/Components/Table/ServerTable'
 import { fmt } from '@/Components/Table/formatters'
-import { Button } from '@/Components/ui/button'
-import { usePermissions } from '@/hooks/usePermissions'
-import type { WorksiteRow } from '@/types/partners'
+import AppLayout from '@/Layouts/AppLayout'
+import ServerTable, { type ColumnDef, type RowAction } from '@/Components/Table/ServerTable'
+import type { ModuleRow } from '@/types/admin'
 
 export default function Index() {
-  const { t } = useTranslation()
-  const { can } = usePermissions()
+  const { t, i18n } = useTranslation()
 
-  // Claves i18n castellanas snake_case (R-FE-05): genéricos + familias, sin puntos.
-  const columns: ColumnDef<WorksiteRow>[] = [
-    { field: 'code', title: t('obra_codigo'), width: 120 },
-    { field: 'name', title: t('nombre'), widthGrow: 2 },
-    { field: 'customer.name', title: t('cliente'), widthGrow: 1 },
-    { field: 'status', title: t('estado'), formatter: fmt.statusBadge('worksite') },
-    { field: 'starts_at', title: t('fecha_inicio'), formatter: fmt.date },
-    { field: 'credit_limit', title: t('obra_limite_credito'), formatter: fmt.money(2), hozAlign: 'right' },
+  // Sin columna slug en tablas. Modules: name, color, icon, level, created_at, status + Acciones.
+  const columns = useMemo<ColumnDef[]>(
+    () => [
+      { title: t('nombre'), field: 'name', headerFilterKind: 'string' },
+      { title: t('color'), field: 'color', headerFilterKind: 'string' },
+      { title: t('icono'), field: 'icon', headerFilterKind: 'string' },
+      { title: t('nivel'), field: 'level', headerFilterKind: 'select', headerFilterValues: { /* … */ } },
+      // date|number → ServerTable alinea a la derecha (R-FE-04)
+      { title: t('creado'), field: 'created_at', headerFilterKind: 'date', formatter: fmt.date(i18n.language) },
+      {
+        title: t('estado'),
+        field: 'status',
+        headerFilterKind: 'select',
+        headerFilterValues: { active: t('estado_active'), inactive: t('estado_inactive') },
+      },
+    ],
+    [t],
+  )
+
+  // Preguntar a Luis el set de Acciones en cada Index nuevo.
+  const rowActions = (row: ModuleRow): Array<RowAction<ModuleRow>> => [
+    {
+      id: 'edit',
+      icon: Pencil,
+      labelKey: 'editar',
+      onClick: () => router.visit(`/admin/modules/${row.id}/edit`),
+    },
   ]
 
   return (
-    <AppLayout title={t('obras')}>
-      <Head title={t('obras')} />
-
-      <div className="flex items-center justify-between">
-        <h1 className="page-title">{t('obras')}</h1>
-        {can('worksites.create') && (
-          <Button onClick={() => router.visit(route('partners.worksites.create'))}>
-            {t('crear')}
-          </Button>
-        )}
-      </div>
-
-      <ServerTable<WorksiteRow>
-        endpoint={route('partners.worksites.table')}
+    <AppLayout
+      showBack={false}
+      actions={[{ type: 'link', labelKey: 'crear', href: '/admin/modules/create', icon: Plus }]}
+      // Advanced search: primer CTA tras Volver solo si la página lo activa.
+      // Modules: omitido.
+    >
+      <ServerTable<ModuleRow>
+        endpoint="/admin/modules/table"
         columns={columns}
-        persistKey="partners.worksites"
+        persistKey="admin.modules"
         exportable
-        // Acciones por fila según permisos del Resource (`row.can`), no del cliente.
-        rowActions={(row) => [
-          row.can.update && { label: t('editar'), href: route('partners.worksites.edit', row.id) },
-          row.can.delete && {
-            label: t('eliminar'),
-            destructive: true, // abre ConfirmDialog antes de router.delete
-            onClick: () => router.delete(route('partners.worksites.destroy', row.id)),
-          },
-        ]}
-        onRowDblClick={(row) => row.can.update && router.visit(route('partners.worksites.edit', row.id))}
+        rowActions={rowActions}
       />
     </AppLayout>
   )

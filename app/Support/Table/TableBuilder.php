@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\LengthAwarePaginator as ConcretePaginator;
+use Illuminate\Support\Collection;
 
 /**
  * Aplica sort/filter/paginación whitelistados sobre un query tenant-scoped.
@@ -83,6 +84,31 @@ class TableBuilder
     }
 
     /**
+     * Filtra/ordena sin paginación UI. Aborta 422 si supera el cap de export.
+     *
+     * @return Collection<int, Model>
+     */
+    public function forExport(?int $maxRows = null): Collection
+    {
+        if ($this->request === null || $this->query === null) {
+            throw new \RuntimeException('TableBuilder requires for() and request().');
+        }
+
+        $max = $maxRows ?? TableRequest::EXPORT_MAX_ROWS;
+
+        $this->applyFilters();
+        $this->applySorts();
+
+        $count = (clone $this->query)->count();
+
+        if ($count > $max) {
+            abort(422, __('exportacion_limite_filas', ['max' => $max]));
+        }
+
+        return $this->query->limit($max)->get();
+    }
+
+    /**
      * @return LengthAwarePaginator<int, Model>
      */
     public function paginate(): LengthAwarePaginator
@@ -129,8 +155,38 @@ class TableBuilder
                 '!=', 'neq' => $this->query->where($field, '!=', $value),
                 'like' => $this->query->where($field, 'like', '%'.(string) $value.'%'),
                 'in' => $this->query->whereIn($field, (array) $value),
+                'date_between' => $this->applyDateBetween($field, $value),
                 default => null,
             };
+        }
+    }
+
+    /**
+     * Rango por día de calendario (date/datetime). Extremos abiertos permitidos.
+     * Value: array{from?: ?string, to?: ?string} ISO yyyy-MM-dd.
+     */
+    private function applyDateBetween(string $field, mixed $value): void
+    {
+        if ($this->query === null || ! is_array($value)) {
+            return;
+        }
+
+        $from = $value['from'] ?? null;
+        $to = $value['to'] ?? null;
+
+        $from = is_string($from) && $from !== '' ? $from : null;
+        $to = is_string($to) && $to !== '' ? $to : null;
+
+        if ($from !== null && $to !== null && $from > $to) {
+            [$from, $to] = [$to, $from];
+        }
+
+        if ($from !== null) {
+            $this->query->whereDate($field, '>=', $from);
+        }
+
+        if ($to !== null) {
+            $this->query->whereDate($field, '<=', $to);
         }
     }
 

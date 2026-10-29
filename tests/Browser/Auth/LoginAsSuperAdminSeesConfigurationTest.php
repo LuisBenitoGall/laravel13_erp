@@ -75,5 +75,7 @@ it('login como super admin ve Configuración aunque admin no esté encendido', f
         ->assertSee('Funcionalidades')
         ->click('Módulos')
         ->assertPathIs('/admin/modules')
-        ->assertSee('Catálogo global de módulos SaaS.');
+        ->assertSee('Módulos')
+        ->assertSee('Mostrar/ocultar columnas')
+        ->assertSee('Acciones');
 });

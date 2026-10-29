@@ -6,7 +6,7 @@ use App\Support\Table\TableRequest;
 
 class ModuleTableRequest extends TableRequest
 {
-    protected array $sortable = ['name', 'slug', 'level', 'status', 'created_at'];
+    protected array $sortable = ['name', 'color', 'icon', 'level', 'created_at', 'status'];
 
-    protected array $filterable = ['status', 'level', 'search'];
+    protected array $filterable = ['name', 'color', 'icon', 'level', 'created_at', 'status', 'search'];
 }

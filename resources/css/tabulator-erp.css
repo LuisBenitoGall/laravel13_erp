@@ -12,3 +12,233 @@
     border-bottom: 1px solid #e2e8f0;
     font-weight: 600;
 }
+
+.tabulator.tabulator-erp .tabulator-row .tabulator-cell {
+    vertical-align: middle;
+}
+
+.tabulator.tabulator-erp .tabulator-cell .cell-vcenter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 1.5rem;
+}
+
+/*
+ * Controles de header filter: misma altura en TODAS las ServerTable.
+ * input / select / trigger date comparten tokens (no estilos sueltos por tipo).
+ */
+.tabulator.tabulator-erp {
+    --st-hf-height: 1.75rem; /* 28px */
+    --st-hf-font-size: 0.8125rem;
+    --st-hf-line-height: 1.25;
+    --st-hf-padding-x: 0.4rem;
+    --st-hf-radius: 0.375rem;
+    --st-hf-border: 1px solid #cbd5e1;
+    --st-hf-border-focus: #94a3b8;
+}
+
+.tabulator.tabulator-erp .tabulator-header-filter input,
+.tabulator.tabulator-erp .tabulator-header-filter select,
+.tabulator.tabulator-erp .tabulator-header-filter .tabulator-date-range-trigger {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    height: var(--st-hf-height);
+    min-height: var(--st-hf-height);
+    max-height: var(--st-hf-height);
+    margin: 0;
+    padding: 0 var(--st-hf-padding-x);
+    border: var(--st-hf-border);
+    border-radius: var(--st-hf-radius);
+    background: #fff;
+    color: #0f172a;
+    font-family: inherit;
+    font-size: var(--st-hf-font-size);
+    font-weight: 400;
+    line-height: var(--st-hf-line-height);
+    outline: none;
+    box-shadow: none;
+    vertical-align: middle;
+}
+
+.tabulator.tabulator-erp .tabulator-header-filter input:focus,
+.tabulator.tabulator-erp .tabulator-header-filter select:focus,
+.tabulator.tabulator-erp .tabulator-header-filter .tabulator-date-range-trigger:focus {
+    border-color: var(--st-hf-border-focus);
+}
+
+/* Rango fecha: un trigger en cabecera; panel Desde/Hasta fuera de la fila. */
+.tabulator.tabulator-erp .tabulator-header-filter .tabulator-date-range-filter {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: var(--st-hf-height);
+    box-sizing: border-box;
+}
+
+.tabulator.tabulator-erp .tabulator-header-filter .tabulator-date-range-trigger {
+    display: block;
+    appearance: none;
+    -webkit-appearance: none;
+    text-align: left;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tabulator.tabulator-erp .tabulator-header-filter .tabulator-date-range-trigger[data-empty='1'] {
+    color: #94a3b8;
+}
+
+.tabulator-date-range-panel {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.tabulator-date-range-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+.tabulator-date-range-field input[type='date'] {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.375rem;
+    background: #fff;
+    color: #0f172a;
+    padding: 0.25rem 0.4rem;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    outline: none;
+}
+
+.tabulator-date-range-field input[type='date']:focus {
+    border-color: #94a3b8;
+}
+
+.tabulator-date-range-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.35rem;
+}
+
+.tabulator-date-range-btn {
+    border-radius: 0.375rem;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: #0f172a;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.55rem;
+    cursor: pointer;
+}
+
+.tabulator-date-range-btn-muted {
+    color: #475569;
+}
+
+.tabulator-date-range-btn-primary {
+    border-color: #0f766e;
+    background: #0f766e;
+    color: #fff;
+}
+
+/* Acciones: primario teal; eliminar = rojo pastel; toggle a la izquierda. */
+.tabulator.tabulator-erp .tabulator-actions-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+}
+
+.tabulator.tabulator-erp .tabulator-actions-btn {
+    display: inline-flex;
+    height: 1.75rem;
+    width: 1.75rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    border: 1px solid #0f766e;
+    background: #0f766e;
+    color: #fff;
+    cursor: pointer;
+    padding: 0;
+}
+
+.tabulator.tabulator-erp .tabulator-actions-btn:hover {
+    background: #0d9488;
+    border-color: #0d9488;
+}
+
+.tabulator.tabulator-erp .tabulator-actions-btn-danger {
+    border-color: #fecaca;
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.tabulator.tabulator-erp .tabulator-actions-btn-danger:hover {
+    background: #fecaca;
+    border-color: #fca5a5;
+    color: #991b1b;
+}
+
+.tabulator.tabulator-erp .tabulator-actions-toggle {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    margin: 0;
+}
+
+.tabulator.tabulator-erp .tabulator-actions-toggle input[type='checkbox'] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 2rem;
+    height: 1.125rem;
+    margin: 0;
+    border-radius: 999px;
+    border: 1px solid #cbd5e1;
+    background: #e2e8f0;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.tabulator.tabulator-erp .tabulator-actions-toggle input[type='checkbox']::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.15);
+    transition: transform 0.15s ease;
+}
+
+.tabulator.tabulator-erp .tabulator-actions-toggle input[type='checkbox']:checked {
+    background: #0f766e;
+    border-color: #0f766e;
+}
+
+.tabulator.tabulator-erp .tabulator-actions-toggle input[type='checkbox']:checked::after {
+    transform: translateX(0.85rem);
+}
+
+.tabulator.tabulator-erp .tabulator-actions-toggle input[type='checkbox']:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}

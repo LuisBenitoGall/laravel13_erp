@@ -337,15 +337,21 @@ class WorksiteController
     }
 
     /** Endpoint del contrato Tabulator (frontend.md §3.1). */
-    public function table(WorksiteTableRequest $request, TableBuilder $table): JsonResponse
+    public function table(WorksiteTableRequest $request, TableBuilder $table): JsonResponse|BinaryFileResponse|Response
     {
         $this->authorize('viewAny', Worksite::class);
 
-        return $table->for(Worksite::query()->with(['customer', 'commercial']))
+        $builder = $table->for(Worksite::query()->with(['customer', 'commercial']))
             ->searchable(['code', 'name'])       // filtro 'search' → LIKE sobre estas columnas
             ->request($request)
-            ->through(WorksiteResource::class)
-            ->json();
+            ->through(WorksiteResource::class);
+
+        // ?export=xlsx|csv|pdf → forExport() (cap TableRequest::EXPORT_MAX_ROWS); ver ModuleController.
+        if ($request->wantsExport()) {
+            // Excel::download / Pdf::loadView — misma Policy viewAny + filtros whitelist
+        }
+
+        return $builder->json();
     }
 
     public function create(): Response

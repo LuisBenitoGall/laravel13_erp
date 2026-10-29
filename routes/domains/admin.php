@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'company', 'module:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('modules/table', [ModuleController::class, 'table'])->name('modules.table');
+    Route::patch('modules/{module}/status', [ModuleController::class, 'updateStatus'])->name('modules.status');
     Route::resource('modules', ModuleController::class)->except(['show']);
 
     Route::get('functionalities/table', [FunctionalityController::class, 'table'])->name('functionalities.table');

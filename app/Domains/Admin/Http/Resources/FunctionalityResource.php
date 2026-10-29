@@ -20,6 +20,11 @@ class FunctionalityResource extends JsonResource
                 'slug' => $this->module->slug,
                 'label_text' => $this->module->label,
             ]),
+            'module_name' => $this->whenLoaded(
+                'module',
+                fn () => (string) $this->module->label,
+                '',
+            ),
             'name' => $this->name,
             'slug' => $this->slug,
             'label' => $this->getTranslations('label'),

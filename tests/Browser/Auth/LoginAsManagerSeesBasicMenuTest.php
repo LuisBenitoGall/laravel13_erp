@@ -58,13 +58,17 @@ it('login como manager entra al AppLayout con menú Basic usable', function () {
 
     app(EnableModuleForCompany::class)->handle($company, $module);
 
+    setPermissionsTeamId($company->id);
+    $manager->givePermissionTo('partners-core.access');
+    app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
     $page = visit('/login');
 
     $page->fill('email', 'manager-menu@example.com')
         ->fill('password', 'password')
         ->click('Acceder')
         ->assertPathIs('/dashboard')
-        ->assertSee('Inicio')
+        ->assertSee('Panel principal de la empresa activa.')
         ->assertSee('Dashboard')
         ->assertSee('Empresa Manager')
         ->assertSee('UM')

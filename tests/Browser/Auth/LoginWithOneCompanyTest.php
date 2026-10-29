@@ -38,7 +38,7 @@ it('login con una empresa entra al AppLayout', function () {
         ->fill('password', 'password')
         ->click('Acceder')
         ->assertPathIs('/dashboard')
-        ->assertSee('Inicio')
+        ->assertSee('Panel principal de la empresa activa.')
         ->assertSee('Dashboard')
         ->assertSee('Empresa Una')
         ->assertSee('UU')

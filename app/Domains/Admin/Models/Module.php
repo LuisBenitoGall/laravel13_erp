@@ -31,6 +31,14 @@ class Module extends Model
     /** @use HasFactory<ModuleFactory> */
     use Auditable, HasFactory, HasTranslations, SoftDeletes;
 
+    /**
+     * Slugs de shell usados en middleware `module:` — Inactive en catálogo
+     * deja la app inaccesible (403). No se pueden desactivar.
+     *
+     * @var list<string>
+     */
+    public const SHELL_SLUGS = ['admin', 'workspace'];
+
     /** @var list<string> */
     public array $translatable = ['label', 'explanation'];
 
@@ -51,6 +59,11 @@ class Module extends Model
             'level' => ModuleLevel::class,
             'status' => ModuleStatus::class,
         ];
+    }
+
+    public function isShellCritical(): bool
+    {
+        return in_array($this->slug, self::SHELL_SLUGS, true);
     }
 
     /** @return HasMany<Functionality, $this> */

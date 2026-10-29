@@ -10,10 +10,9 @@ export default function Index() {
     const { t } = useTranslation();
     const columns = useMemo<ColumnDefinition[]>(
         () => [
-            { title: t('slug'), field: 'slug', width: 160 },
             { title: t('nombre'), field: 'name', widthGrow: 1 },
             { title: t('etiqueta'), field: 'label_text', widthGrow: 1 },
-            { title: t('modulo'), field: 'module.slug', width: 120 },
+            { title: t('modulo'), field: 'module_name', width: 160 },
             { title: t('estado'), field: 'status', width: 120 },
         ],
         [t],

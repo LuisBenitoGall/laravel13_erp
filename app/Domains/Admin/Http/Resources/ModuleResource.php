@@ -22,6 +22,7 @@ class ModuleResource extends JsonResource
             'icon' => $this->icon,
             'level' => $this->level->value,
             'status' => $this->status->value,
+            'created_at' => $this->created_at?->toIso8601String(),
             'explanation' => $this->getTranslations('explanation'),
         ];
     }

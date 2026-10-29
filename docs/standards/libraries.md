@@ -25,7 +25,7 @@
 | `laravel/reverb` + `laravel/echo` (front) | Realtime: notificaciones, chat | — |
 | `laravel/sanctum` | API tokens (integraciones) | V-19 |
 | `barryvdh/laravel-dompdf` | PDF (compatibilidad plantillas v1); evaluar `spatie/laravel-pdf` más adelante | V-05 |
-| `maatwebsite/excel` ^3 | Import/export Excel | V-05 |
+| `maatwebsite/excel` ^4 | Import/export Excel (Laravel 13) | V-05 |
 | `laravel/horizon` (opcional, si Redis) | Panel de colas | R-TRV-01 |
 
 ### Calidad (require-dev, Fase 0)

@@ -25,8 +25,16 @@ resources/js/
 Reglas:
 - **R-FE-01** TypeScript estricto (`strict: true`); prohibido `any` salvo justificación puntual comentada.
 - **R-FE-02** Un componente se promociona de `Pages/**/components/` a `Components/` cuando lo usan ≥2 dominios; al promocionarlo se documenta en el catálogo (§4).
-- **R-FE-03** Nada de axios/fetch manual contra endpoints propios: la navegación y mutación van por Inertia (`router`, `useForm`). Excepciones: el ajax interno de Tabulator (§3) y descargas de ficheros.
-- **R-FE-04** Importes y fechas SIEMPRE con `lib/format` (es-ES; decimales 3 venta / 4 coste compra / 2 totales-contabilidad). Prohibido `toFixed`/`toLocaleString` sueltos.
+- **R-FE-03** Nada de axios/fetch manual contra endpoints propios: la navegación y mutación van por Inertia (`router`, `useForm`). Excepciones: el ajax interno de Tabulator (§3), toggle/acciones async de fila vía `lib/http` (`patchJson`), y descargas de ficheros.
+- **R-FE-04** Importes y fechas SIEMPRE con `lib/format` (decimales 3 venta / 4 coste
+  compra / 2 totales-contabilidad). Fechas UI: mapa `DATE_FORMATS` en `lib/format.ts`
+  (`es`/`ca` → `dd/mm/yyyy`, `en` → `yyyy/mm/dd`; ampliar al añadir locale). Prohibido
+  `toFixed`/`toLocaleString` sueltos. En ServerTable, fechas y valores numéricos
+  alineados a la derecha: `headerFilterKind: 'date'|'number'` o
+  `valueKind: 'date'|'number'` (ServerTable aplica `hozAlign: 'right'` si no hay
+  override). Header filter `date` = **un control** en cabecera que abre panel
+  Desde/Hasta etiquetado (no dos datepickers apilados en la fila);
+  `date_between` + ISO `yyyy-MM-dd` en `filter[]`; resumen UI según locale.
 - **R-FE-05** Toda cadena visible con i18n (`t('nombre')` / `__('guardar')`); cero
   literales. Claves en **castellano snake_case** (`^[a-z0-9_]+$`), sin puntos ni inglés
   jerárquico: genéricos reutilizables (`nombre`, `email`, `crear`); específicas solo si
@@ -92,40 +100,58 @@ GET /sales/budgets/table?page=2&size=25&sort=[{"field":"date","dir":"desc"}]
 ```
 
 - Params y respuesta siguen el protocolo remoto de Tabulator (`page/size/sort/filter`,
-  respuesta `data + last_page`); `total` se añade para el contador.
+  respuesta `data + last_page`); `total` se añade para el contador. `filter`/`sort`
+  pueden llegar como JSON string (ServerTable) o array; `TableRequest` los normaliza.
 - El endpoint lo sirve el método `table()` del controller usando **`TableRequest`**
   (valida/whitelista campos de sort y filtro) + **`TableBuilder`** (service de `Support`
   que aplica filtros declarados, sort, paginación sobre un builder ya tenant-scoped).
 - Filtros y columnas ordenables son **whitelist explícita** en el TableRequest de la
   entidad: nunca se aplica al query un campo no declarado (inyección de columnas).
-- Export (xlsx/csv) = mismo endpoint con `?export=xlsx`, servido por cola si supera el
-  umbral (maatwebsite/excel), respetando los filtros activos.
+- Export = mismo endpoint con `?export=xlsx|csv|pdf`, mismos filtros/sort, **sin
+  paginación UI**. Cap sync: `TableRequest::EXPORT_MAX_ROWS` (5000); si se supera → 422.
+  Excel/CSV vía `maatwebsite/excel`; PDF vía `barryvdh/laravel-dompdf`. Cola si un change
+  futuro supera el umbral de catálogo grande.
 - Ruta con nombre `<módulo>.<entidad>.table`, protegida por la misma Policy que `index`.
 
-### 3.2 Contrato frontend
+### 3.2 Contrato frontend (referencia: Admin Modules Index)
 
 ```tsx
-<ServerTable<BudgetRow>
-  endpoint={route('sales.budgets.table')}
-  columns={columns}            // ColumnDef[]: field, title (i18n), formatter tipado,
-                               // width, sortable, visible por defecto
-  filters={<BudgetFilters/>}   // banda de filtros controlada; ServerTable la serializa
-  rowActions={(row) => [...]}  // acciones según permisos (edit, delete, confirm...)
-  onRowDblClick={(row) => router.visit(route('sales.budgets.edit', row.id))}
-  selectable                   // checkboxes → acciones masivas
-  exportable                   // botón export (xlsx/csv) con filtros activos
-  persistKey="sales.budgets"   // persistencia de estado (columnas visibles, tamaño página)
+<ServerTable<ModuleRow>
+  endpoint="/admin/modules/table"
+  columns={columns}            // ColumnDef: title i18n, headerFilterKind string|select|date|number
+  persistKey="admin.modules"   // localStorage erp.table.<persistKey>.<userId>
+  exportable                   // toolbar Excel + PDF
+  rowActions={(row) => [       // columna Acciones derecha; Delete último + ConfirmDialog
+    { id: 'edit', icon: Pencil, labelKey: 'editar', onClick: () => router.visit(...) },
+  ]}
 />
 ```
 
-- `ServerTable` encapsula: instancia/destrucción de Tabulator, paginación remota, spinner,
-  vacío, errores, i18n de la tabla, densidad, persistencia de layout (localStorage por
-  `persistKey` y usuario), y estilo Tabulator alineado con los tokens (tema propio
-  `tabulator-erp.css`, único CSS de Tabulator permitido).
-- Los `formatter` de columna son funciones TS del proyecto (dinero, fecha, badge de estado,
-  empresa, obra…) registradas en `Components/Table/formatters.tsx` — no HTML strings ad-hoc.
-- Edición inline de Tabulator: PROHIBIDA en listados (los listados navegan a Edit). La
-  edición en grid solo existe dentro de `LineItemsEditor` (§4).
+Obligatorio en todo Index/CRUD salvo excepción escrita en el design del change:
+
+1. **Header filters** tipados por columna (`headerFilterKind`); serializan al canal
+   `filter[]` (mismo que advanced search). Controles de filtro con borde suave
+   y **misma altura** (`--st-hf-height` en `tabulator-erp.css`: input, select y
+   trigger date); solo columnas con filtro. `date` → un trigger → panel
+   Desde/Hasta; payload `type: date_between`, `value: { from, to }` ISO día.
+2. **Columna Acciones** vía `rowActions`: título centrado (i18n `acciones` → «Acciones»
+   / mayúscula inicial en todos los labels de columna), iconos + tooltip i18n; botones
+   con fondo primario (`#0f766e`); Delete último si existe (rojo pastel `#fee2e2` /
+   `#b91c1c`). Si el Index declara toggle activo/inactivo: **primero a la izquierda**
+   (`kind: 'toggle'`), persistencia async sin recarga (JSON + `row.update`). **El set
+   de botones lo decide Luis** en cada Index futuro. **Prohibido** mostrar columna
+   `slug` en listados ServerTable (sí en formularios). Referencia Modules: `name`,
+   `color`, `icon`, `level`, `created_at`, `status` + Acciones (toggle + Edit).
+3. **Toolbar**: mostrar/ocultar columnas (checkboxes), page size, Excel/PDF si
+   `exportable`. Persistencia solo localStorage (no BD).
+4. **i18n Tabulator** (paginador/textos) al locale de sesión; reactiva al cambio de idioma
+   sin F5 (`ca` usa override de strings del proyecto).
+5. **AdvancedSearchModal** opt-in: primer CTA en `ViewActionBar` tras Volver cuando la
+   página lo active. Módulos: **sin** botón. Escribe al mismo `filter[]`.
+
+- `ServerTable` es el único wrapper Tabulator (R-FE-07). Estilos: solo `tabulator-erp.css`.
+- Formatters tipados en `Components/Table/formatters.tsx` — no HTML strings ad-hoc.
+- Edición inline de Tabulator: PROHIBIDA en listados.
 
 ## 4. Catálogo de componentes genéricos
 
@@ -134,8 +160,9 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 
 | Componente | Propósito / contrato resumido |
 |---|---|
-| `Table/ServerTable` | Listados server-side (§3) |
-| `Table/formatters` | Formatters tipados: `money(dec)`, `date`, `statusBadge(enum)`, `boolean`, `link` |
+| `Table/ServerTable` | Listados server-side (§3): header filters, `rowActions`, toolbar, export, i18n Tabulator; referencia = Admin Modules |
+| `Table/AdvancedSearchModal` | Modal búsqueda avanzada opt-in (`fields`/children + `onApply`); ActionBar tras Volver; mismo canal `filter[]` |
+| `Table/formatters` | Formatters tipados: `money(dec)`, `date`, `number(dec)`, `boolean` (+ ampliar por dominio); con `valueKind`/`headerFilterKind` date|number → align right |
 | `Form/Field` + kit MVP | **Implementado** (`c2026-10-26-form-kit-mvp`): `Field`/`FormField`, `Input` (→ `ui/input` R-FE-08), `Textarea`, `NumberInput`, `Select` (filtro local; `onSearch` opcional), `DatePicker` (`date-fns` + input date), `Checkbox`, `Switch`. Pendientes de kit: `Wysiwyg`, `Dropzone`, `LangTabs` |
 | `Form/FormActions` | Guardar/cancelar **dentro del form** — **pendiente** (≠ `ViewActionBar`) |
 | `Records/RecordEditLayout` | Esqueleto de Create/Edit: tabs, sidebar meta, zona de contenido — **pendiente** (cabecera de ficha → `RecordSummary`) |
@@ -160,7 +187,8 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 Toda pantalla del ERP es uno de estos 4 patrones (si no encaja, se discute en la propuesta
 OpenSpec antes de inventar un quinto):
 
-1. **Index** = `AppLayout` + cabecera (título + crear) + `ServerTable`.
+1. **Index** = `AppLayout` + `ViewActionBar` (Crear; advanced search opt-in) + `ServerTable`
+   de referencia (§3.2). Primera referencia implementada: Admin Modules.
 2. **Create/Edit** = `RecordEditLayout` + form RHF+zod espejo del FormRequest + tabs.
 3. **Documento** = Create/Edit + `LineItemsEditor` + `ActionBar` de ciclo de vida + panel
    de totales. (Presupuesto, pedido, albarán, factura, recepción comparten este esqueleto.)

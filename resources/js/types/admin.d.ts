@@ -7,6 +7,7 @@ export interface ModuleRow {
     status: string;
     color: string;
     icon: string;
+    created_at: string | null;
 }
 
 export interface FunctionalityRow {
