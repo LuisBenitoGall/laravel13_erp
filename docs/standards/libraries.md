@@ -37,7 +37,7 @@
 | `pestphp/pest-plugin-browser` (+ `playwright` en npm dev) | E2E integrado en la suite ([e2e.md](e2e.md)) |
 | `larastan/larastan` | PHPStan para Laravel |
 | `laravel/pint` (ya instalado) | Formato de código |
-| `laravel/boost` | MCP + contexto Laravel para agentes (`php artisan boost:mcp`). No regenerar `CLAUDE.md`/`AGENTS.md` con `boost:install` |
+| `laravel/boost` | MCP (`php artisan boost:mcp`) + guidelines/skills **selectivos** (Laravel 13, Inertia React 3, Pest 4, Pint, Tailwind 4). `boost:install` no puede pisar el harness fuera del bloque `<laravel-boost-guidelines>`; prohibido publicar Livewire/Flux/Folio/Herd/Sail/Volt |
 | `barryvdh/laravel-ide-helper` (opcional) | Autocompletado de modelos |
 
 ### Reglas de lo que NO se usa

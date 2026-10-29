@@ -34,7 +34,7 @@ estándar, no este resumen.
 | `pestphp/pest-plugin-arch` | arch tests |
 | `pestphp/pest-plugin-browser` + `playwright` (npm) | E2E |
 | `larastan/larastan` | PHPStan nivel 6 |
-| `laravel/boost` | MCP `boost:mcp`; no `boost:install` que pise CLAUDE.md |
+| `laravel/boost` | MCP `boost:mcp`; `boost:install --guidelines --skills` **selectivo** (allowlist en tooling.md); no Livewire; no pisar kernel fuera del bloque Boost |
 | `barryvdh/laravel-ide-helper` | opcional, DX |
 
 ## Frontend — núcleo

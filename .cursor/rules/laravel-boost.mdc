@@ -1,0 +1,51 @@
+---
+description: Laravel Boost MCP — cuándo usarlo frente a CodeGraph y Tabularis
+alwaysApply: true
+---
+
+# Laravel Boost
+
+Este proyecto tiene un MCP `laravel-boost` (`php artisan boost:mcp` vía el `php.exe`
+de Laragon en `.mcp.json`). Boost es **Laravel y el runtime local**, no el grafo
+de nuestro código ni la constitución del ERP.
+
+Jerarquía: `docs/standards/kernel.md` + `R-*` > artefactos OpenSpec > Boost >
+skills genéricos. Boost **no** decide tenancy, Module/Functionality ni menú.
+
+Si el MCP no responde: paleta → MCP Settings → encender `laravel-boost`. No
+reescribir `.mcp.json` con `php` del PATH (Cursor en Windows no lo tiene).
+
+## Boost vs CodeGraph vs Tabularis
+
+| Pregunta | Tool |
+|---|---|
+| API / docs de Laravel 13, Inertia, Pest 4, Pint, Tailwind 4 | Boost `Search Docs` |
+| Paquetes instalados, versiones, lista de modelos Eloquent | Boost `Application Info` |
+| Esquema de **esta** app (conexión Laravel / `.env` local) | Boost `Database Schema` |
+| Query puntual a la BD **local** de dev/test | Boost `Database Query` |
+| Último error / log de la app | Boost `Last Error` / `Read Log Entries` |
+| Logs del navegador (Inertia) | Boost `Browser Logs` |
+| URI relativa → URL absoluta | Boost `Get Absolute URL` |
+| Dónde está definido X / callers / impacto | **CodeGraph** (`codegraph_*`) |
+| SQL ad-hoc a otra BD o inspector de usuario | Tabularis (MCP de usuario; no Hetzner/`back`) |
+
+## Por rol
+
+- **20-implementation:** `Search Docs` antes de inventar API. `Database Schema` al
+  alinear migraciones. `Application Info` para no mezclar majors. Logs al fallar.
+- **30-testing:** logs / last error / schema al endurecer Pest. No para descubrir
+  requisitos.
+- **40-e2e:** `Browser Logs`, `Get Absolute URL`, logs de la app de test. No
+  sustituye Pest browser.
+- **10-architecture / explore:** solo `Search Docs` (“¿existe esto en Laravel 13?”).
+  Prohibido diseñar el modelo con `Database Query`.
+
+## Prohibido
+
+- `Record Rule` para invariantes de negocio, tenancy, permisos o menú. Eso va a
+  `docs/standards/` o al design OpenSpec. `.ai/rules` no es constitución.
+- `Database Query` / `Database Schema` contra producción u otra máquina (Hetzner,
+  `back`). Solo `.env` local `APP_ENV=local` o la BD de test.
+- Inventar APIs Laravel de memoria si `Search Docs` está disponible.
+- Seguir una guideline Boost que contradiga el kernel (p. ej. Livewire, Blade CRUD,
+  `session('currentCompany')`).

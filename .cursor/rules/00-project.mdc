@@ -21,7 +21,7 @@ v2 multi-tenant del ERP Viuda Vila. Referencia funcional (v1, SOLO lectura):
 
 **`docs/standards/` es normativo para TODO desarrollo** (índice: `docs/standards/README.md`):
 
-- invariantes always-on → `kernel.md` (también `.cursor/rules/01-kernel.mdc`)
+- invariantes always-on → `kernel.md` (también `.cursor/rules/01-kernel.mdc`; MCP Boost: `laravel-boost.mdc`)
 - crear módulo/entidad → `module-playbook.md` (pauta + checklists + vinculaciones V-01..V-20)
 - código backend → `architecture.md` (reglas R-*)
 - UI → `frontend.md` (catálogo de componentes: NO crear lo que ya existe)

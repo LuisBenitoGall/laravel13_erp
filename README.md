@@ -31,15 +31,14 @@ You can also watch bite-sized lessons with real-world projects on [Laravel Learn
 
 ## Agentic Development
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Laravel Boost is already in require-dev. MCP lives in `.mcp.json` (Laragon `php.exe` + `artisan boost:mcp`). Guidelines/skills are **selective** (no Livewire). Constitution: `docs/standards/kernel.md`. See `docs/standards/tooling.md` § MCP and `.cursor/rules/laravel-boost.mdc`.
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+php artisan boost:install --guidelines --skills
+php artisan boost:update --no-discover
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Do not run `boost:install --mcp` here: it would rewrite `.mcp.json` and drop the Laragon PHP path. Enable the server in Cursor MCP Settings.
 
 ## Contributing
 

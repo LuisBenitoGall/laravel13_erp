@@ -138,7 +138,8 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 | `Table/formatters` | Formatters tipados: `money(dec)`, `date`, `statusBadge(enum)`, `boolean`, `link` |
 | `Form/Field` + kit MVP | **Implementado** (`c2026-10-26-form-kit-mvp`): `Field`/`FormField`, `Input` (→ `ui/input` R-FE-08), `Textarea`, `NumberInput`, `Select` (filtro local; `onSearch` opcional), `DatePicker` (`date-fns` + input date), `Checkbox`, `Switch`. Pendientes de kit: `Wysiwyg`, `Dropzone`, `LangTabs` |
 | `Form/FormActions` | Guardar/cancelar **dentro del form** — **pendiente** (≠ `ViewActionBar`) |
-| `Records/RecordEditLayout` | Esqueleto de Create/Edit: cabecera (título, estado, acciones), tabs, sidebar meta (auditoría), zona de contenido |
+| `Records/RecordEditLayout` | Esqueleto de Create/Edit: tabs, sidebar meta, zona de contenido — **pendiente** (cabecera de ficha → `RecordSummary`) |
+| `Records/RecordSummary` | Ficha edit/show (card blanca): `titleKey` + badge `identifier` + `fields[]` (`labelKey`/`value`/`tone`); helper `auditRecordSummaryFields` en `lib/recordSummary`. Opt-in por page (no AppLayout). Sin totales ni lápiz inline |
 | `Records/ActionBar` | Ciclo de vida de **documento** (confirmar, facturar…) — ≠ chrome de vista |
 | `ViewActionBar` | Chrome bloque 3: CTAs + delete; Volver solo si `showBack` (Index → `false` salvo excepción) |
 | `Records/Tabs` | Tabs con lazy load (deferred props / partial reload) |

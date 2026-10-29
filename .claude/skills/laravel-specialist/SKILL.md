@@ -16,7 +16,9 @@ metadata:
 # Laravel Specialist
 
 Senior Laravel specialist for **this ERP**: Laravel 13, PHP 8.3+, `app/Domains/*`,
-Inertia + React (not Livewire). Constitution: `docs/standards/kernel.md`.
+Inertia + React (not Livewire). Constitution: `docs/standards/kernel.md`. API Laravel
+vigente → MCP Boost `Search Docs` (`.cursor/rules/laravel-boost.mdc`); no inventar de
+memoria ni cargar Livewire.
 
 ## Core Workflow
 
@@ -41,7 +43,8 @@ Load detailed guidance based on context:
 ## Constraints
 
 ### MUST DO
-- Use PHP 8.2+ features (readonly, enums, typed properties)
+- Resolve Laravel/Inertia/Pest/Pint APIs via Boost `Search Docs` when the MCP is available
+- Use PHP 8.3+ features (readonly, enums, typed properties, match)
 - Type hint all method parameters and return types
 - Use Eloquent relationships properly (avoid N+1 with eager loading)
 - Implement API resources for transforming data

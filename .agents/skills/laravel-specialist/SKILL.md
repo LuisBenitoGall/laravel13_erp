@@ -1,12 +1,12 @@
 ---
 name: laravel-specialist
-description: Build and configure Laravel 10+ applications, including creating Eloquent models and relationships, implementing Sanctum authentication, configuring Horizon queues, designing RESTful APIs with API resources, and building reactive interfaces with Livewire. Use when creating Laravel models, setting up queue workers, implementing Sanctum auth flows, building Livewire components, optimising Eloquent queries, or writing Pest/PHPUnit tests for Laravel features.
+description: Build Laravel 13 domain code for this ERP (Eloquent, Actions, Policies, FormRequests, queues). UI is Inertia v3 + React 19 — never Livewire. Use when creating Laravel models, migrations, Actions, policies, or Pest tests. Do not use for React pages (frontend-design / templates-frontend).
 license: MIT
 metadata:
   author: https://github.com/Jeffallan
   version: "1.1.0"
   domain: backend
-  triggers: Laravel, Eloquent, PHP framework, Laravel API, Artisan, Blade templates, Laravel queues, Livewire, Laravel testing, Sanctum, Horizon
+  triggers: Laravel, Eloquent, PHP framework, Laravel API, Artisan, Laravel queues, Laravel testing, Sanctum, Horizon
   role: specialist
   scope: implementation
   output-format: code
@@ -15,7 +15,10 @@ metadata:
 
 # Laravel Specialist
 
-Senior Laravel specialist with deep expertise in Laravel 10+, Eloquent ORM, and modern PHP 8.2+ development.
+Senior Laravel specialist for **this ERP**: Laravel 13, PHP 8.3+, `app/Domains/*`,
+Inertia + React (not Livewire). Constitution: `docs/standards/kernel.md`. API Laravel
+vigente → MCP Boost `Search Docs` (`.cursor/rules/laravel-boost.mdc`); no inventar de
+memoria ni cargar Livewire.
 
 ## Core Workflow
 
@@ -34,13 +37,14 @@ Load detailed guidance based on context:
 | Eloquent ORM | `references/eloquent.md` | Models, relationships, scopes, query optimization |
 | Routing & APIs | `references/routing.md` | Routes, controllers, middleware, API resources |
 | Queue System | `references/queues.md` | Jobs, workers, Horizon, failed jobs, batching |
-| Livewire | `references/livewire.md` | Components, wire:model, actions, real-time |
+| ~~Livewire~~ | `references/livewire.md` | **NO CARGAR.** Este proyecto usa Inertia + React. Prohibido generar componentes Livewire. |
 | Testing | `references/testing.md` | Feature tests, factories, mocking, Pest PHP |
 
 ## Constraints
 
 ### MUST DO
-- Use PHP 8.2+ features (readonly, enums, typed properties)
+- Resolve Laravel/Inertia/Pest/Pint APIs via Boost `Search Docs` when the MCP is available
+- Use PHP 8.3+ features (readonly, enums, typed properties, match)
 - Type hint all method parameters and return types
 - Use Eloquent relationships properly (avoid N+1 with eager loading)
 - Implement API resources for transforming data
@@ -50,6 +54,9 @@ Load detailed guidance based on context:
 - Follow PSR-12 coding standards
 
 ### MUST NOT DO
+- Use Livewire, Blade CRUD, or yajra DataTables (front = Inertia + React + ServerTable)
+- Use `session('currentCompany')` (use `CurrentCompany`)
+- Put models/controllers outside `app/Domains/*` or `app/Support`
 - Use raw queries without protection (SQL injection)
 - Skip eager loading (causes N+1 problems)
 - Store sensitive data unencrypted
@@ -259,6 +266,6 @@ Run these at each workflow stage to confirm correctness before proceeding:
 
 ## Knowledge Reference
 
-Laravel 10+, Eloquent ORM, PHP 8.2+, API resources, Sanctum/Passport, queues, Horizon, Livewire, Inertia, Octane, Pest/PHPUnit, Redis, broadcasting, events/listeners, notifications, task scheduling
+Laravel 13, Eloquent ORM, PHP 8.3+, Inertia v3 + React 19, queues, Pest, Spatie Permission Teams, events/listeners, notifications, task scheduling. Not Livewire.
 
 [Documentation](https://jeffallan.github.io/claude-skills/skills/backend/laravel-specialist/)

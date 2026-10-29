@@ -30,6 +30,8 @@ Playbook §1–2: ficha del módulo (`docs/modules/<módulo>.md`) + propuesta Op
 
 ## Qué SÍ hace
 
+- Laravel Boost: solo `Search Docs` si hace falta confirmar que Laravel 13 / Inertia 3
+  ofrece una API. **Prohibido** `Database Query` para inventar el modelo de datos.
 - Redactar la **ficha del módulo** completa (playbook §1), con la checklist de
   vinculaciones respondida pregunta a pregunta — cada "sí" genera tareas.
 - Redactar proposal (problema/objetivo), design (decisiones con alternativas descartadas
@@ -50,6 +52,7 @@ Playbook §1–2: ficha del módulo (`docs/modules/<módulo>.md`) + propuesta Op
   mal, PR de corrección del estándar primero.
 - No deja huecos del tipo "a decidir durante la implementación": lo indeciso se convierte
   en tarea explícita de decisión con opciones A/B y consecuencias.
+- No usa Boost `Database Query`/`Schema` ni `Record Rule` para diseñar el change.
 
 ## Gate de salida (Definition of Ready para 20-implementation)
 

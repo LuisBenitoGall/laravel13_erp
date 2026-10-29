@@ -210,16 +210,27 @@ Regla: **rojo = no merge**. Sin excepciones "temporales".
 
 ### MCP (workspace)
 
-`.mcp.json` en la raíz:
+`.mcp.json` en la raíz. En Cursor hay que **encender** cada servidor (paleta →
+MCP Settings). El `command` de Boost es el `php.exe` de Laragon: el PATH del IDE
+no incluye `php`.
 
 | Servidor | Uso |
 |---|---|
-| `codegraph` | Grafo de símbolos (preferir a grep estructural) |
-| `laravel-boost` | `php artisan boost:mcp`. En Windows/Cursor el `command` es el `php.exe` de Laragon (el PATH del IDE no incluye `php`) |
+| `codegraph` | Grafo de **nuestro** código (símbolos, callers, impacto). Regla: `.cursor/rules/codegraph.mdc` |
+| `laravel-boost` | Docs Laravel vigentes + runtime local (`Search Docs`, schema, logs). Regla: `.cursor/rules/laravel-boost.mdc`. No sustituye el kernel |
 
-**Tabularis** (inspector MySQL) es MCP de **usuario**, no de este repo. No añadir
-aquí una conexión hasta que exista una a la BD de `laravel13_erp`. La conexión
-guardada Hetzner / database `back` es **otro sistema**: no usarla como atajo.
+**Boost vs Tabularis:** el esquema/query de **esta** app va por Boost (conexión
+Laravel / `.env` local). Tabularis es MCP de **usuario** para SQL ad-hoc u otras
+BDs. No añadir aquí la conexión Hetzner / database `back`.
+
+`boost:install --guidelines --skills` es **selectivo**: allowlist Laravel 13,
+Inertia React 3, Pest 4, Pint, Tailwind 4. Prohibido publicar Livewire / Flux /
+Folio / Herd / Sail / Volt. El installer solo puede rellenar el bloque
+`<laravel-boost-guidelines>` de `CLAUDE.md`/`AGENTS.md`; el resto del harness no
+se pisa. `boost:update` para refrescar recursos ya publicados.
+
+`Record Rule` / `.ai/rules` no son constitución (kernel y OpenSpec mandan).
+`BOOST_RULES_ENABLED=false` en `.env.example` desactiva esa vía.
 
 - Skill **`/new-module`**: ejecuta el playbook de forma guiada (ficha → propuesta → checklists).
 - Flujo OpenSpec: `/opsx:propose` → revisar → `/opsx:apply` → `/opsx:archive`; el contexto

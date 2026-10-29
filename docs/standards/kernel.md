@@ -95,11 +95,19 @@ dejarla en spec/design; si no está escrita, no se “recuerda” del código vi
 
 ## 7. MCP y toolchain de agentes
 
+Jerarquía de contexto: este kernel + `R-*` > artefactos OpenSpec > Boost
+(guidelines/skills/MCP) > skills genéricos. Boost **no** decide tenancy,
+Module/Functionality ni menú.
+
 | Servidor | Para qué | Dónde |
 |---|---|---|
-| **CodeGraph** | Símbolos, callers, impacto, traza. Preferir a grep estructural. | `.mcp.json` |
-| **Laravel Boost** (`php artisan boost:mcp`) | API/docs Laravel vigentes. PHP de Laragon en Windows (PATH de Cursor no incluye `php`). | `.mcp.json` |
-| **Tabularis** | Inspección MySQL. MCP de **usuario**, no de proyecto, hasta que exista conexión a la BD de **este** ERP. | No añadir la conexión Hetzner/`back` (otro sistema). |
+| **CodeGraph** | Símbolos, callers, impacto, traza de **nuestro** código. Preferir a grep estructural. | `.mcp.json` |
+| **Laravel Boost** (`php artisan boost:mcp`) | Docs versionadas (Laravel 13, Inertia, Pest 4, Tailwind 4) y runtime **local**: `Search Docs`, `Application Info`, `Database Schema`/`Query`, logs. PHP de Laragon en Windows. Detalle: `.cursor/rules/laravel-boost.mdc`. | `.mcp.json` |
+| **Tabularis** | Inspección MySQL de usuario (SQL ad-hoc / otras BDs). No sustituye Boost para el esquema de **esta** app. | No añadir la conexión Hetzner/`back` (otro sistema). |
+
+`Database Query` solo contra `.env` local / test. `Record Rule` no crea invariantes
+de negocio (eso es este documento o un change OpenSpec). `.ai/rules` no es
+constitución.
 
 Harness versionado en git: `.cursor/rules`, `skills`, `agents`, `commands` y
 `.vscode/extensions.json` + `settings.json`. El resto de `.cursor/` / `.vscode/`

@@ -35,6 +35,8 @@ Playbook §7–§9: tests mínimos innegociables → registro del módulo → Do
   hand-off a 40; no archiva hasta que estén verdes.
 - Ejecutar la suite completa + `pint` + `phpstan`; recorrer manualmente el flujo
   principal en navegador (DoD §9.4).
+- Laravel Boost: `Last Error` / logs / `Database Schema` al diagnosticar un test
+  rojo. No usar Boost para “descubrir” requisitos ausentes del spec.
 - Cierre: ficha del módulo actualizada a "como quedó", `module-map.md` al día,
   `openspec validate` limpio, sync de delta specs si procede, y `archive`.
 
@@ -48,6 +50,7 @@ Playbook §7–§9: tests mínimos innegociables → registro del módulo → Do
   20-implementation con el hallazgo documentado.
 - No archiva con excepciones sin documentar, tests en rojo o casillas del DoD abiertas.
 - No escribe tests en `tests/Browser/` (eso es el rol 40).
+- No usa Boost `Record Rule` ni `Database Query` para inventar requisitos.
 
 ## Flujo recomendado
 

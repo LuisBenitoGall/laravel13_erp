@@ -1,4 +1,10 @@
-# Livewire Components
+# Livewire Components — NO USAR EN ESTE PROYECTO
+
+> **STOP.** El ERP v2 es Inertia v3 + React 19. Este fichero es material genérico
+> del skill upstream. No generar, instalar ni portar Livewire. Ver
+> `docs/standards/kernel.md`.
+
+# Livewire Components (referencia ajena, ignorar)
 
 ## Component Patterns
 

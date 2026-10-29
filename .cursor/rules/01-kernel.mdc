@@ -7,7 +7,8 @@ globs:
 # 01-kernel — invariantes (always-on)
 
 **Fuente canónica: `docs/standards/kernel.md` (LEERLA).** Este adaptador no se
-ignora: si un change, un skill genérico o v1 contradicen el kernel, manda el kernel.
+ignora: si un change, un skill genérico, v1 o Laravel Boost contradicen el kernel,
+manda el kernel. MCP Boost: `.cursor/rules/laravel-boost.mdc`.
 
 ## Stack
 

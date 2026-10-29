@@ -77,6 +77,23 @@ npx playwright install chromium
 En Laragon/Windows: Node ≥ 18 (preferir v22 en el menú de Laragon), `ext-sockets` en
 php.ini, y reabrir la terminal. El job `e2e` de CI corre `php artisan test --testsuite=Browser`.
 
+### Laravel Boost
+
+Paquete `laravel/boost` (require-dev) + MCP en `.mcp.json` con el `php.exe` de Laragon.
+Regla always-on: `.cursor/rules/laravel-boost.mdc`. El usuario debe encender el
+servidor en MCP Settings.
+
+`boost:install --guidelines --skills` es **selectivo**:
+
+- Allowlist: Laravel 13, Inertia Laravel/React 3, Pest 4, Pint, Tailwind 4.
+- Prohibido publicar Livewire, Flux, Folio, Herd, Sail, Volt.
+- Solo puede rellenar el bloque `<laravel-boost-guidelines>` de `CLAUDE.md` /
+  `AGENTS.md`. El resto del harness (kernel, roles) no se pisa.
+- `php artisan boost:update --no-discover` para refrescar lo ya publicado.
+- `infer-conventions` solo si Luis lo pide (documenta el código, no el kernel).
+
+`BOOST_RULES_ENABLED=false` en `.env.example`: `.ai/rules` no es constitución.
+
 ### shadcn/ui
 
 Base del design system (`frontend.md` §2). Se **copia** código a
@@ -91,7 +108,8 @@ Workspace, no settings de usuario globales, salvo que Luis pida lo contrario:
 - `.vscode/settings.json` — Pint al guardar PHP, Prettier al guardar JS/TS,
   `intelephense.environment.phpVersion: "8.3"`, Tailwind 4, alias `@/` →
   `resources/js`.
-- MCP de workspace (`.cursor/mcp.json`) solo con servidores que el usuario confirme.
+- MCP de workspace (`.mcp.json`: CodeGraph + Laravel Boost) solo con servidores
+  que el usuario confirme; Tabularis es de usuario.
 
 No instales extensiones de editor por CLI a ciegas: recomiéndalas en
 `extensions.json` para que Cursor las sugiera.

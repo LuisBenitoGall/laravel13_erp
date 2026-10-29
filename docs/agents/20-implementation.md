@@ -43,6 +43,9 @@ ambigüedad más abajo.
 - Marcar `[x]` solo lo realmente hecho y verificado; añadir subtareas descubiertas SIN
   reescribir el contrato.
 - Dejar `pint` y `phpstan` limpios en el código que toca antes de dar una task por hecha.
+- Laravel Boost (MCP): `Search Docs` antes de inventar API (FormRequest, enums, queues,
+  Inertia v3). `Database Schema` al alinear migraciones. `Application Info` para no
+  mezclar majors. `Last Error` / `Read Log Entries` si un test o un 500 fallan.
 
 ## Qué NO hace
 
@@ -53,6 +56,8 @@ ambigüedad más abajo.
 - No hace refactors oportunistas fuera del alcance del change.
 - No marca casillas de tareas a medias ni tests en rojo.
 - No escribe tests en `tests/Browser/` (eso es el rol 40).
+- No usa Boost `Record Rule` para invariantes de negocio (kernel / OpenSpec).
+  `Database Query` solo contra BD local de dev/test.
 
 ## Protocolo de ambigüedad
 
