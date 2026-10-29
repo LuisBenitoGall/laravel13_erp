@@ -4,7 +4,6 @@ namespace App\Domains\Partners\Http\Requests;
 
 use App\Domains\Admin\Actions\EnsureCompanyDefaultRoles;
 use App\Domains\Admin\Models\Role;
-use App\Domains\Admin\Support\CompanyRoleGate;
 use App\Domains\Partners\Models\Company;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -17,7 +16,9 @@ class AssignCompanyRoleRequest extends FormRequest
         $company = $this->route('company');
         $user = $this->user();
 
-        return $user !== null && CompanyRoleGate::canAssign($user, $company);
+        return $user !== null
+            && $company->isLinkedTo($user)
+            && $user->can('company-users.update');
     }
 
     /** @return array<string, mixed> */

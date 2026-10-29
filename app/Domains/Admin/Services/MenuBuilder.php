@@ -14,18 +14,31 @@ use App\Support\Tenancy\CurrentCompany;
 use Illuminate\Support\Collection;
 
 /**
- * Menú data-driven (R-AUT-08) + excepciones shell: Dashboard fijo; Configuración SA.
+ * Menú data-driven (R-AUT-08) + excepciones shell: Dashboard fijo; pilares; Configuración SA.
  */
 class MenuBuilder
 {
     /**
-     * Mapa estático functionality slug → grupo de menú tenant (cuenta|empresa).
+     * Mapa estático functionality slug → grupo de menú tenant (empresa|usuarios|…).
      * Sin entrada = permanece bajo el Module de origen.
      *
      * @var array<string, string>
      */
     private const FUNCTIONALITY_GROUPS = [
         'company-roles' => 'empresa',
+        'company-users' => 'usuarios',
+    ];
+
+    /**
+     * Ítems visibles en Configuración SA (orden de menú). Resto AdminOnly queda por URL.
+     *
+     * @var list<string>
+     */
+    private const CONFIGURATION_SLUGS = [
+        'modules',
+        'functionalities',
+        'roles',
+        'permissions',
     ];
 
     public function __construct(
@@ -79,6 +92,12 @@ class MenuBuilder
         }
 
         if ($this->isSuperAdmin($user)) {
+            $empresas = $this->empresasBlock();
+
+            if ($empresas !== null) {
+                $menu[] = $empresas;
+            }
+
             $menu[] = $this->configurationBlock();
         }
 
@@ -115,11 +134,7 @@ class MenuBuilder
 
         foreach ($module->functionalities as $functionality) {
             if ($hasWildcard || $user->can($functionality->slug.'.viewAny')) {
-                $items[] = [
-                    'slug' => $functionality->slug,
-                    'label' => (string) $functionality->label,
-                    'href' => $this->hrefFor($functionality),
-                ];
+                $items[] = $this->functionalityItem($functionality);
             }
         }
 
@@ -128,11 +143,10 @@ class MenuBuilder
         }
 
         if ($hasWildcard) {
-            $items = $module->functionalities->map(fn (Functionality $f) => [
-                'slug' => $f->slug,
-                'label' => (string) $f->label,
-                'href' => $this->hrefFor($f),
-            ])->values()->all();
+            $items = $module->functionalities
+                ->map(fn (Functionality $f) => $this->functionalityItem($f))
+                ->values()
+                ->all();
         }
 
         return $this->groupTenantItems($items, $module);
@@ -179,6 +193,33 @@ class MenuBuilder
     }
 
     /**
+     * Pilar Empresas (SA): Mis empresas fuera de Configuración.
+     *
+     * @return array{slug: string, label: string, color: string, icon: string, functionalities: list<array{slug: string, label: string, href: string}>}|null
+     */
+    private function empresasBlock(): ?array
+    {
+        $functionality = Functionality::query()
+            ->where('slug', 'companies')
+            ->where('status', FunctionalityStatus::Active)
+            ->first();
+
+        if ($functionality === null) {
+            return null;
+        }
+
+        return [
+            'slug' => 'empresas',
+            'label' => __('empresas'),
+            'color' => '#0369a1',
+            'icon' => 'briefcase',
+            'functionalities' => [
+                $this->functionalityItem($functionality),
+            ],
+        ];
+    }
+
+    /**
      * @return array{slug: string, label: string, color: string, icon: string, functionalities: list<array{slug: string, label: string, href: string}>}
      */
     private function configurationBlock(): array
@@ -191,7 +232,7 @@ class MenuBuilder
             ->orderBy('slug')
             ->get();
 
-        $items = [];
+        $bySlug = [];
         $color = '#0f766e';
         $icon = 'settings';
 
@@ -200,11 +241,19 @@ class MenuBuilder
             $icon = $module->icon;
 
             foreach ($module->functionalities as $functionality) {
-                $items[] = [
-                    'slug' => $functionality->slug,
-                    'label' => (string) $functionality->label,
-                    'href' => $this->hrefFor($functionality),
-                ];
+                if (! in_array($functionality->slug, self::CONFIGURATION_SLUGS, true)) {
+                    continue;
+                }
+
+                $bySlug[$functionality->slug] = $this->functionalityItem($functionality);
+            }
+        }
+
+        $items = [];
+
+        foreach (self::CONFIGURATION_SLUGS as $slug) {
+            if (isset($bySlug[$slug])) {
+                $items[] = $bySlug[$slug];
             }
         }
 
@@ -215,6 +264,28 @@ class MenuBuilder
             'icon' => $icon,
             'functionalities' => $items,
         ];
+    }
+
+    /**
+     * @return array{slug: string, label: string, href: string}
+     */
+    private function functionalityItem(Functionality $functionality): array
+    {
+        return [
+            'slug' => $functionality->slug,
+            'label' => $this->labelFor($functionality),
+            'href' => $this->hrefFor($functionality),
+        ];
+    }
+
+    private function labelFor(Functionality $functionality): string
+    {
+        return match ($functionality->slug) {
+            'companies' => __('mis_empresas'),
+            'company-users' => __('usuarios_empresa'),
+            'permissions' => __('permisos'),
+            default => (string) $functionality->label,
+        };
     }
 
     private function isSuperAdmin(User $user): bool
@@ -237,9 +308,21 @@ class MenuBuilder
             'companies' => route('partners.companies.index', absolute: false),
             'company-modules' => route('admin.company-modules.index', absolute: false),
             'company-module-authorizations' => route('admin.company-module-authorizations.index', absolute: false),
-            'roles' => route('admin.roles.index', absolute: false),
+            'roles', 'permissions' => route('admin.roles.index', absolute: false),
             'company-roles' => route('company.roles.index', absolute: false),
+            'company-users' => $this->companyUsersHref(),
             default => '#',
         };
+    }
+
+    private function companyUsersHref(): string
+    {
+        $companyId = $this->currentCompany->id();
+
+        if ($companyId === null) {
+            return '#';
+        }
+
+        return route('partners.companies.members.index', $companyId, absolute: false);
     }
 }

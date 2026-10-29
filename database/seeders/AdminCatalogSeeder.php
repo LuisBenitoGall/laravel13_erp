@@ -84,14 +84,22 @@ class AdminCatalogSeeder extends Seeder
             }
 
             foreach ([
-                ['name' => 'Modules', 'slug' => 'modules', 'label' => ['es' => 'Módulos', 'en' => 'Modules']],
-                ['name' => 'Functionalities', 'slug' => 'functionalities', 'label' => ['es' => 'Funcionalidades', 'en' => 'Functionalities']],
-                ['name' => 'Companies', 'slug' => 'companies', 'label' => ['es' => 'Empresas', 'en' => 'Companies']],
-                ['name' => 'Company modules', 'slug' => 'company-modules', 'label' => ['es' => 'Módulos de empresa', 'en' => 'Company modules']],
-                ['name' => 'Module authorizations', 'slug' => 'company-module-authorizations', 'label' => ['es' => 'Autorización de módulos', 'en' => 'Module authorizations']],
-                ['name' => 'Roles', 'slug' => 'roles', 'label' => ['es' => 'Roles', 'en' => 'Roles']],
+                ['name' => 'Modules', 'slug' => 'modules', 'label' => ['es' => 'Módulos', 'en' => 'Modules', 'ca' => 'Mòduls']],
+                ['name' => 'Functionalities', 'slug' => 'functionalities', 'label' => ['es' => 'Funcionalidades', 'en' => 'Functionalities', 'ca' => 'Funcionalitats']],
+                ['name' => 'Companies', 'slug' => 'companies', 'label' => ['es' => 'Mis empresas', 'en' => 'My companies', 'ca' => 'Les meves empreses']],
+                ['name' => 'Company modules', 'slug' => 'company-modules', 'label' => ['es' => 'Módulos de empresa', 'en' => 'Company modules', 'ca' => 'Mòduls d\'empresa']],
+                ['name' => 'Module authorizations', 'slug' => 'company-module-authorizations', 'label' => ['es' => 'Autorización de módulos', 'en' => 'Module authorizations', 'ca' => 'Autorització de mòduls']],
+                ['name' => 'Roles', 'slug' => 'roles', 'label' => ['es' => 'Roles', 'en' => 'Roles', 'ca' => 'Rols']],
+                ['name' => 'Permissions', 'slug' => 'permissions', 'label' => ['es' => 'Permisos', 'en' => 'Permissions', 'ca' => 'Permisos']],
             ] as $item) {
-                if (Functionality::query()->where('slug', $item['slug'])->exists()) {
+                $existing = Functionality::query()->where('slug', $item['slug'])->first();
+
+                if ($existing !== null) {
+                    $existing->forceFill([
+                        'label' => $item['label'],
+                        'status' => FunctionalityStatus::Active,
+                    ])->save();
+
                     continue;
                 }
 
@@ -127,9 +135,8 @@ class AdminCatalogSeeder extends Seeder
                 ]);
             }
 
-            if (! Functionality::query()->where('slug', 'company-roles')->exists()) {
-                app(CreateFunctionality::class)->handle([
-                    'module_id' => $workspace->id,
+            foreach ([
+                [
                     'name' => 'Company roles',
                     'slug' => 'company-roles',
                     'label' => [
@@ -137,6 +144,33 @@ class AdminCatalogSeeder extends Seeder
                         'en' => 'Company roles',
                         'ca' => 'Rols d\'empresa',
                     ],
+                ],
+                [
+                    'name' => 'Company users',
+                    'slug' => 'company-users',
+                    'label' => [
+                        'es' => 'Usuarios empresa',
+                        'en' => 'Company users',
+                        'ca' => 'Usuaris empresa',
+                    ],
+                ],
+            ] as $item) {
+                $existing = Functionality::query()->where('slug', $item['slug'])->first();
+
+                if ($existing !== null) {
+                    $existing->forceFill([
+                        'label' => $item['label'],
+                        'status' => FunctionalityStatus::Active,
+                    ])->save();
+
+                    continue;
+                }
+
+                app(CreateFunctionality::class)->handle([
+                    'module_id' => $workspace->id,
+                    'name' => $item['name'],
+                    'slug' => $item['slug'],
+                    'label' => $item['label'],
                     'status' => FunctionalityStatus::Active->value,
                 ]);
             }

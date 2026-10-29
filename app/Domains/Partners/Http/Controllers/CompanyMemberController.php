@@ -5,7 +5,6 @@ namespace App\Domains\Partners\Http\Controllers;
 use App\Domains\Admin\Actions\AssignCompanyRole;
 use App\Domains\Admin\Actions\EnsureCompanyDefaultRoles;
 use App\Domains\Admin\Models\Role;
-use App\Domains\Admin\Support\CompanyRoleGate;
 use App\Domains\Partners\Http\Requests\AssignCompanyRoleRequest;
 use App\Domains\Partners\Models\Company;
 use App\Http\Controllers\Controller;
@@ -18,10 +17,9 @@ class CompanyMemberController extends Controller
 {
     public function index(Company $company): Response
     {
-        abort_unless(
-            request()->user() !== null && CompanyRoleGate::canAssign(request()->user(), $company),
-            403,
-        );
+        $user = request()->user();
+        abort_unless($user !== null && $company->isLinkedTo($user), 403);
+        abort_unless($user->can('company-users.viewAny'), 403);
 
         app(EnsureCompanyDefaultRoles::class)->handle($company);
 
@@ -51,14 +49,14 @@ class CompanyMemberController extends Controller
             /** @var list<array{id: int, name: string, email: string, role: string|null}> $members */
             $members = [];
 
-            foreach ($users as $user) {
-                /** @var User $user */
-                $roleName = $user->roles->pluck('name')->first();
+            foreach ($users as $row) {
+                /** @var User $row */
+                $roleName = $row->roles->pluck('name')->first();
 
                 $members[] = [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
+                    'id' => $row->id,
+                    'name' => $row->name,
+                    'email' => $row->email,
                     'role' => is_string($roleName) ? $roleName : null,
                 ];
             }

@@ -30,6 +30,7 @@ vínculo; invitar miembros no vinculados; engorde Company; Wysiwyg/Dropzone/Lang
 | Functionality `roles` / `company-roles` | Plataforma / workspace |
 | Consola plataforma | Partners Companies Index (CTA) + authorizations scoped |
 | Shell navegación | Dashboard + Configuración SA; seed ACME; post-login → dashboard |
+| Menú pilares | Empresas (Mis empresas), Usuarios (Usuarios empresa→Members sesión vía `module:workspace` + `company-users.*`), Configuración SA (Módulos/Roles/Permisos→Roles). CRUD permisos Spatie custom = change futuro |
 | Shell topbar | Bloque 1: collapse izq. / acciones der.; stubs popover; perfil+logout |
 | Shell topbar polish | Mini-rail md+ (`erp.aside.collapsed`); móvil off-canvas; flyout B1; logos reducidos; notas=Popover |
 | Shell breadcrumb | Bloque 2: `PageBreadcrumb` option (Link) + suboption; Index → `dashboard` |

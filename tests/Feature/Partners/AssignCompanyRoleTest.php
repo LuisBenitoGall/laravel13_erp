@@ -1,7 +1,9 @@
 <?php
 
 use App\Domains\Admin\Actions\AssignCompanyRole;
+use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\EnsureCompanyDefaultRoles;
+use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\Module;
@@ -9,6 +11,7 @@ use App\Domains\Admin\Models\Role;
 use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 
 uses(RefreshDatabase::class);
@@ -26,16 +29,30 @@ beforeEach(function () {
     $this->company = Company::factory()->create();
     app(EnsureCompanyDefaultRoles::class)->handle($this->company);
 
-    Module::factory()->create([
-        'slug' => 'admin',
-        'level' => ModuleLevel::AdminOnly,
+    $workspace = Module::factory()->create([
+        'slug' => 'workspace',
+        'level' => ModuleLevel::Basic,
         'status' => ModuleStatus::Active,
     ]);
-    enableModuleForCompany($this->company, 'admin');
+    app(CreateFunctionality::class)->handle([
+        'module_id' => $workspace->id,
+        'name' => 'Company users',
+        'slug' => 'company-users',
+        'label' => ['es' => 'Usuarios empresa'],
+        'status' => FunctionalityStatus::Active->value,
+    ]);
+    enableModuleForCompany($this->company, 'workspace');
 
     $this->manager = User::factory()->create();
     $this->manager->companies()->attach($this->company->id);
     app(AssignCompanyRole::class)->handle($this->manager, $this->company, 'manager');
+
+    setPermissionsTeamId($this->company->id);
+    $this->manager->givePermissionTo([
+        Permission::findOrCreate('company-users.viewAny'),
+        Permission::findOrCreate('company-users.update'),
+    ]);
+    setPermissionsTeamId(null);
 
     $this->member = User::factory()->create();
     $this->member->companies()->attach($this->company->id);
@@ -141,7 +158,7 @@ it('rechaza asignar a usuario no vinculado', function () {
         ->toThrow(InvalidArgumentException::class);
 });
 
-it('usuario sin rol manager no puede asignar', function () {
+it('usuario sin company-users.update no puede asignar', function () {
     $outsider = User::factory()->create();
     actingWithCompany($outsider, $this->company);
 

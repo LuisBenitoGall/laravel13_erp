@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // Super Admin bypass (R-AUT-03). Con Teams, el rol tiene company_id NULL;
-        // setPermissionsTeamId(null) asegura hasRole sin team activo.
+        // setPermissionsTeamId(null) + unset relations evita cache de roles del team tenant.
         Gate::before(function ($user, string $ability) {
             if (! method_exists($user, 'hasRole')) {
                 return null;
@@ -66,6 +66,11 @@ class AppServiceProvider extends ServiceProvider
             setPermissionsTeamId(null);
 
             try {
+                if (method_exists($user, 'unsetRelation')) {
+                    $user->unsetRelation('roles');
+                    $user->unsetRelation('permissions');
+                }
+
                 if ($user->hasRole('Super Admin')) {
                     return true;
                 }
