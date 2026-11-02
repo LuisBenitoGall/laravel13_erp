@@ -2,14 +2,19 @@
 
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Http\Requests\ModuleTableRequest;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Partners\Models\Company;
 use App\Models\User;
+use App\Support\Table\TableBuilder;
 use App\Support\Table\TableRequest;
 use Database\Seeders\AdminCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Spatie\Permission\PermissionRegistrar;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 uses(RefreshDatabase::class);
 
@@ -64,8 +69,14 @@ it('export xlsx respeta filtro y Policy viewAny', function () {
         'level' => ModuleLevel::Basic,
         'status' => ModuleStatus::Active,
     ]);
+    Module::factory()->create([
+        'name' => 'No Exportar',
+        'slug' => 'no-exportar-mod',
+        'level' => ModuleLevel::Basic,
+        'status' => ModuleStatus::Active,
+    ]);
 
-    $this->get(route('admin.modules.table', [
+    $response = $this->get(route('admin.modules.table', [
         'export' => 'xlsx',
         'filter' => json_encode([
             ['field' => 'name', 'type' => 'like', 'value' => 'Exportable'],
@@ -73,6 +84,8 @@ it('export xlsx respeta filtro y Policy viewAny', function () {
     ]))
         ->assertOk()
         ->assertHeader('content-disposition');
+
+    expect(xlsxNames($response->baseResponse))->toBe(['Exportable']);
 
     $guest = User::factory()->create();
     actingWithCompany($guest, $this->company);
@@ -114,7 +127,15 @@ it('Index Modules declara ServerTable de referencia sin advanced search', functi
         ->and($source)->toContain("field: 'icon'")
         ->and($source)->toContain("field: 'level'")
         ->and($source)->toContain("field: 'created_at'")
-        ->and($source)->toContain("field: 'status'")
+        ->and($source)->not->toContain("field: 'status'")
+        ->and($source)->toContain('resolveMenuIcon')
+        ->and($source)->toContain("setAttribute('title'")
+        ->and($source)->toContain('levelValues[value]')
+        ->and($source)->toContain('nivel_admin_only')
+        ->and($source)->toContain('nivel_basic')
+        ->and($source)->toContain('nivel_optional')
+        ->and($source)->not->toContain('shellCritical')
+        ->and($source)->toContain("row.level === 'optional'")
         ->and($source)->not->toContain("field: 'slug'")
         ->and($source)->not->toContain('busqueda_avanzada')
         ->and($source)->not->toContain('AdvancedSearchModal')
@@ -141,6 +162,20 @@ it('toggle status de módulo persiste por PATCH JSON sin redirect', function () 
     expect($module->fresh()->status)->toBe(ModuleStatus::Active);
 });
 
+it('rechaza un status fuera del enum y no cambia el módulo', function () {
+    $module = Module::factory()->create([
+        'name' => 'Status Invalido',
+        'slug' => 'status-invalido',
+        'status' => ModuleStatus::Active,
+    ]);
+
+    $this->patchJson(route('admin.modules.status', $module), ['status' => 'archived'])
+        ->assertRedirect()
+        ->assertSessionHasErrors('status');
+
+    expect($module->fresh()->status)->toBe(ModuleStatus::Active);
+});
+
 it('toggle status exige permiso modules.update', function () {
     Role::findOrCreate(Role::GUEST);
     $user = User::factory()->create();
@@ -156,22 +191,34 @@ it('toggle status exige permiso modules.update', function () {
         ->assertForbidden();
 });
 
-it('no permite desactivar módulos shell admin/workspace', function () {
+it('permite desactivar y reactivar módulos shell admin y workspace', function () {
+    $workspace = Module::query()->where('slug', 'workspace')->firstOrFail();
+
+    $this->patchJson(route('admin.modules.status', $workspace), ['status' => 'inactive'])
+        ->assertOk()
+        ->assertJsonPath('status', 'inactive');
+
+    expect($workspace->fresh()->status)->toBe(ModuleStatus::Inactive);
+
+    $this->patchJson(route('admin.modules.status', $workspace), ['status' => 'active'])
+        ->assertOk()
+        ->assertJsonPath('status', 'active');
+
+    expect($workspace->fresh()->status)->toBe(ModuleStatus::Active);
+
     $admin = Module::query()->where('slug', 'admin')->firstOrFail();
 
     $this->patchJson(route('admin.modules.status', $admin), ['status' => 'inactive'])
-        ->assertRedirect();
+        ->assertOk()
+        ->assertJsonPath('status', 'inactive');
+
+    expect($admin->fresh()->status)->toBe(ModuleStatus::Inactive);
+
+    $this->patchJson(route('admin.modules.status', $admin), ['status' => 'active'])
+        ->assertOk()
+        ->assertJsonPath('status', 'active');
 
     expect($admin->fresh()->status)->toBe(ModuleStatus::Active);
-
-    $workspace = Module::query()->where('slug', 'workspace')->first();
-
-    if ($workspace !== null) {
-        $this->patchJson(route('admin.modules.status', $workspace), ['status' => 'inactive'])
-            ->assertRedirect();
-
-        expect($workspace->fresh()->status)->toBe(ModuleStatus::Active);
-    }
 });
 
 it('ningún Index ServerTable muestra columna slug', function () {
@@ -205,6 +252,17 @@ it('Acciones i18n capitalizada y CSS de borde en header filters', function () {
         ->and($css)->toContain('.tabulator-actions-toggle')
         ->and($css)->toContain('vertical-align: middle')
         ->and($css)->toContain('.cell-vcenter');
+});
+
+it('el toggle de Acciones usa la misma altura que el botón icono', function () {
+    $css = (string) file_get_contents(resource_path('css/tabulator-erp.css'));
+
+    expect($css)->toContain('--st-action-size: 1.75rem')
+        ->and($css)->toContain('height: var(--st-action-size)')
+        ->and($css)->toContain('width: var(--st-action-size)')
+        ->and($css)->toContain('width: calc(var(--st-action-size) * 1.6)')
+        ->and($css)->not->toContain('height: 1.125rem')
+        ->and($css)->not->toContain('width: 2rem');
 });
 
 it('lib/format define DATE_FORMATS por locale', function () {
@@ -367,9 +425,78 @@ it('ServerTable declara dateRangeHeaderFilter para columnas date', function () {
         ->and($css)->toContain('.tabulator-date-range-panel');
 });
 
+it('ordena el export xlsx con el sort whitelistado', function () {
+    Module::factory()->create([
+        'name' => 'Zzsorttoken A',
+        'slug' => 'zzsorttoken-a',
+        'level' => ModuleLevel::Basic,
+        'status' => ModuleStatus::Active,
+    ]);
+    Module::factory()->create([
+        'name' => 'Zzsorttoken Z',
+        'slug' => 'zzsorttoken-z',
+        'level' => ModuleLevel::Basic,
+        'status' => ModuleStatus::Active,
+    ]);
+
+    $response = $this->get(route('admin.modules.table', [
+        'export' => 'xlsx',
+        'filter' => json_encode([
+            ['field' => 'name', 'type' => 'like', 'value' => 'Zzsorttoken'],
+        ]),
+        'sort' => json_encode([
+            ['field' => 'name', 'dir' => 'desc'],
+        ]),
+    ]))
+        ->assertOk();
+
+    expect(xlsxNames($response->baseResponse))->toBe(['Zzsorttoken Z', 'Zzsorttoken A']);
+});
+
+it('aborta el export cuando las filas superan el cap', function () {
+    $request = ModuleTableRequest::create(route('admin.modules.table'), 'GET', [
+        'export' => 'xlsx',
+    ]);
+    $request->setContainer(app())->setRedirector(app('redirect'));
+    $request->validateResolved();
+
+    expect(fn () => app(TableBuilder::class)
+        ->for(Module::query())
+        ->searchable(['name', 'slug'])
+        ->request($request)
+        ->forExport(1))
+        ->toThrow(function (HttpException $exception): void {
+            expect($exception->getStatusCode())->toBe(422);
+        });
+});
+
 it('documenta cap de export', function () {
     expect(TableRequest::EXPORT_MAX_ROWS)->toBe(5000);
 });
+
+/**
+ * @return list<string>
+ */
+function xlsxNames(mixed $response): array
+{
+    expect($response)->toBeInstanceOf(BinaryFileResponse::class);
+
+    /** @var BinaryFileResponse $response */
+    $sheet = IOFactory::load($response->getFile()->getPathname())->getActiveSheet();
+    $names = [];
+
+    foreach ($sheet->getRowIterator() as $row) {
+        $value = $sheet->getCell('A'.$row->getRowIndex())->getValue();
+
+        if ($row->getRowIndex() === 1 || $value === null || $value === '') {
+            continue;
+        }
+
+        $names[] = (string) $value;
+    }
+
+    return $names;
+}
 
 it('rechaza export a no Super Admin sin permiso modules.viewAny', function () {
     Role::findOrCreate(Role::GUEST);

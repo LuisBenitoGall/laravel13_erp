@@ -1,13 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import type { LucideIcon } from 'lucide-react';
-import {
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-    type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     TabulatorFull as Tabulator,
@@ -20,6 +13,13 @@ import {
     createDateRangeHeaderFilter,
     isActiveDateRangeValue,
 } from '@/Components/Table/dateRangeHeaderFilter';
+import {
+    buildTableEndpointUrl,
+    tableFiltersForRequest,
+    type AdvancedFilterMode,
+    type TableFilter,
+    type TableQuery,
+} from '@/Components/Table/tableFilters';
 import { Button } from '@/Components/ui/button';
 import { readTableState, writeTableState } from '@/lib/tablePersistence';
 import { cn } from '@/lib/utils';
@@ -57,11 +57,7 @@ export type RowAction<T = Record<string, unknown>> = {
     variant?: 'default' | 'danger';
 };
 
-export type TableFilter = {
-    field: string;
-    type: string;
-    value: unknown;
-};
+export type { AdvancedFilterMode, TableFilter };
 
 type AuthPage = {
     auth: { user: { id: number; name: string; email: string } | null };
@@ -144,6 +140,31 @@ function buildTabulatorLang(t: (key: string) => string): Record<string, unknown>
     };
 }
 
+type ServerTableProps<T extends object> = {
+    endpoint: string;
+    columns: ColumnDef[];
+    persistKey?: string;
+    exportable?: boolean;
+    rowActions?: (row: T) => Array<RowAction<T> | false | null | undefined>;
+    pageSize?: number;
+    className?: string;
+    toolbarExtra?: ReactNode;
+} & (
+    | {
+          advancedFilters?: undefined;
+          advancedFilterMode?: undefined;
+      }
+    | {
+          /**
+           * Lista del modal. `undefined` = aún no ha aplicado (solo cabecera).
+           * Un array, vacío incluido, ya escribió en el canal `filter`.
+           */
+          advancedFilters?: TableFilter[];
+          /** `merge` concatena; `replace` deja solo el modal. */
+          advancedFilterMode: AdvancedFilterMode;
+      }
+);
+
 export default function ServerTable<T extends object = Record<string, unknown>>({
     endpoint,
     columns,
@@ -153,22 +174,20 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
     pageSize: initialPageSize = 25,
     className,
     toolbarExtra,
-}: {
-    endpoint: string;
-    columns: ColumnDef[];
-    persistKey?: string;
-    exportable?: boolean;
-    rowActions?: (row: T) => Array<RowAction<T> | false | null | undefined>;
-    pageSize?: number;
-    className?: string;
-    toolbarExtra?: ReactNode;
-}) {
+    advancedFilters,
+    advancedFilterMode,
+}: ServerTableProps<T>) {
     const { t, i18n } = useTranslation();
     const { auth } = usePage<AuthPage>().props;
     const userId = auth.user?.id ?? null;
     const ref = useRef<HTMLDivElement>(null);
     const tableRef = useRef<Tabulator | null>(null);
+    const headerFiltersRef = useRef<TableFilter[]>([]);
     const filtersRef = useRef<TableFilter[]>([]);
+    const advancedFiltersRef = useRef(advancedFilters);
+    const advancedFilterModeRef = useRef(advancedFilterMode);
+    const skipAdvancedReload = useRef(true);
+    const sortRef = useRef<Array<{ field: string; dir: string }>>([]);
 
     const persisted = useMemo(
         () => (persistKey ? readTableState(persistKey, userId) : null),
@@ -202,44 +221,31 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
         [persistKey, userId],
     );
 
-    const buildAjaxUrl = useCallback(
-        (params: Record<string, unknown>) => {
-            const url = new URL(endpoint, window.location.origin);
-            url.searchParams.set('page', String(params.page ?? 1));
-            url.searchParams.set('size', String(params.size ?? pageSize));
+    const syncRequestFilters = useCallback(() => {
+        filtersRef.current = tableFiltersForRequest(
+            headerFiltersRef.current,
+            advancedFiltersRef.current,
+            advancedFilterModeRef.current,
+        );
 
-            if (Array.isArray(params.sort) && params.sort.length > 0) {
-                url.searchParams.set('sort', JSON.stringify(params.sort));
-            }
+        return filtersRef.current;
+    }, []);
 
-            const filters = filtersRef.current.filter(
-                (f) => f.value !== '' && f.value !== null && f.value !== undefined,
-            );
-
-            if (filters.length > 0) {
-                url.searchParams.set('filter', JSON.stringify(filters));
-            }
-
-            return `${url.pathname}${url.search}`;
-        },
-        [endpoint, pageSize],
+    const requestUrl = useCallback(
+        (query: TableQuery, filters: TableFilter[]) =>
+            buildTableEndpointUrl(endpoint, query, filters, window.location.origin),
+        [endpoint],
     );
 
     const exportDownload = useCallback(
         (format: 'xlsx' | 'pdf') => {
-            const url = new URL(endpoint, window.location.origin);
-            url.searchParams.set('export', format);
-            const filters = filtersRef.current.filter(
-                (f) => f.value !== '' && f.value !== null && f.value !== undefined,
+            const filters = syncRequestFilters();
+
+            window.location.assign(
+                requestUrl({ exportFormat: format, sort: sortRef.current }, filters),
             );
-
-            if (filters.length > 0) {
-                url.searchParams.set('filter', JSON.stringify(filters));
-            }
-
-            window.location.assign(`${url.pathname}${url.search}`);
         },
-        [endpoint],
+        [requestUrl, syncRequestFilters],
     );
 
     const tabulatorColumns = useMemo((): ColumnDefinition[] => {
@@ -296,8 +302,8 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                 cssClass: 'tabulator-actions-col',
                 formatter: (cell: CellComponent) => {
                     const rowData = cell.getRow().getData() as T;
-                    const actions = (rowActions?.(rowData) ?? []).filter(
-                        (a): a is RowAction<T> => Boolean(a),
+                    const actions = (rowActions?.(rowData) ?? []).filter((a): a is RowAction<T> =>
+                        Boolean(a),
                     );
                     const toggles = actions.filter((a) => a.kind === 'toggle');
                     const buttons = actions.filter((a) => a.kind !== 'toggle');
@@ -388,6 +394,11 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
     }, [dataColumns, hiddenColumns, rowActions, t, i18n.language]);
 
     useEffect(() => {
+        advancedFiltersRef.current = advancedFilters;
+        advancedFilterModeRef.current = advancedFilterMode;
+    }, [advancedFilters, advancedFilterMode]);
+
+    useEffect(() => {
         if (!ref.current) {
             return;
         }
@@ -414,8 +425,10 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                       }))
                     : [];
 
+                sortRef.current = sort;
+
                 const rawFilters = Array.isArray(params.filter) ? params.filter : [];
-                filtersRef.current = rawFilters.flatMap(
+                headerFiltersRef.current = rawFilters.flatMap(
                     (filter: { field: string; value: unknown }) => {
                         const col = dataColumns.find((c) => c.field === filter.field);
                         const kind = col?.headerFilterKind;
@@ -455,11 +468,14 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                     },
                 );
 
-                return buildAjaxUrl({
-                    page: params.page,
-                    size: params.size,
-                    sort,
-                });
+                return requestUrl(
+                    {
+                        page: params.page ?? 1,
+                        size: params.size ?? pageSize,
+                        sort,
+                    },
+                    syncRequestFilters(),
+                );
             },
             ajaxResponse: (_url, _params, response) => ({
                 data: response.data,
@@ -475,11 +491,21 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
         };
         // Recreate on structural changes; pageSize handled via setPageSize below.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [endpoint, tabulatorColumns, buildAjaxUrl, t, i18n.language, dataColumns]);
+    }, [endpoint, tabulatorColumns, requestUrl, syncRequestFilters, t, i18n.language, dataColumns]);
 
     useEffect(() => {
         tableRef.current?.setPageSize(pageSize);
     }, [pageSize]);
+
+    useEffect(() => {
+        if (skipAdvancedReload.current) {
+            skipAdvancedReload.current = false;
+
+            return;
+        }
+
+        void tableRef.current?.setData();
+    }, [advancedFilters, advancedFilterMode]);
 
     useEffect(() => {
         const table = tableRef.current;
@@ -500,9 +526,7 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
     }, [hiddenColumns, dataColumns]);
 
     const toggleColumn = (field: string, visible: boolean) => {
-        const next = visible
-            ? hiddenColumns.filter((f) => f !== field)
-            : [...hiddenColumns, field];
+        const next = visible ? hiddenColumns.filter((f) => f !== field) : [...hiddenColumns, field];
         setHiddenColumns(next);
         persist(next, pageSize);
     };

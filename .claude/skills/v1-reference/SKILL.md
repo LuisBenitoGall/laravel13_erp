@@ -8,9 +8,20 @@ description: >-
 
 # Referencia v1 (solo lectura)
 
-Ruta: `C:\laragon\www\laravel8_erp_viudavila_github`.
+Ruta: `C:\laragon\www\laravel8_erp_viudavila`.
 
 Sirve para **entender** qué hace el negocio hoy. No es plantilla de código v2.
+
+## Acceso local (UI)
+
+- URL: `http://laravel8_erp_viudavila.test`
+- Email: `admin@viudavila.com`
+- Password: `87654321`
+- BD local: `viudavila_erp` (ver `.env` del repo v1)
+
+Usar el navegador / MCP browser cuando haga falta ver pantallas, menús o flujos.
+Preferir código + BD para reglas estructurales. No cambiar datos de negocio en v1
+salvo que Luis lo pida; es referencia de solo lectura.
 
 ## Qué sí copiar (concepto, no código)
 

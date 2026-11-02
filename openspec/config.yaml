@@ -2,7 +2,7 @@ schema: spec-driven
 
 context: |
   ERP v2 SaaS multi-tenant (Laravel 13 + Inertia v2 + React 19/TS + Tailwind 4 + MySQL),
-  reconstrucción del ERP Viuda Vila v1 (referencia: C:\laragon\www\laravel8_erp_viudavila_github).
+  reconstrucción del ERP Viuda Vila v1 (referencia: C:\laragon\www\laravel8_erp_viudavila).
   Visión y decisiones de producto: docs/vision-v2.md.
 
   NOMBRE DE CHANGE: siempre `cYYYY-MM-DD-<slug-corto>` (prefijo `c` + fecha ISO; el CLI

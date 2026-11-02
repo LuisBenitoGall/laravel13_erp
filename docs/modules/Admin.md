@@ -14,7 +14,8 @@ authorized∩enabled), bypass `EnsureModuleIsActive` solo AdminOnly+SA (perímet
 datos intacto).
 
 **No entra:** facturación SaaS (Cashier/Stripe/cuotas); ver todas las companies sin
-vínculo; invitar miembros no vinculados; engorde Company; Wysiwyg/Dropzone/LangTabs.
+vínculo; invitar miembros no vinculados; engorde Company; Wysiwyg/Dropzone.
+Edit/Delete Module completo (Edit sigue MVP hasta su change).
 
 ## Entidades / infra RBAC
 
@@ -35,6 +36,8 @@ vínculo; invitar miembros no vinculados; engorde Company; Wysiwyg/Dropzone/Lang
 | Shell topbar polish | Mini-rail md+ (`erp.aside.collapsed`); móvil off-canvas; flyout B1; logos reducidos; notas=Popover |
 | Shell breadcrumb | Bloque 2: `PageBreadcrumb` option (Link) + suboption; Index → `dashboard` |
 | Shell action bar | Bloque 3: `ViewActionBar` (Volver si origen, CTAs, delete+confirm); ≠ FormActions / Records/ActionBar |
+| Listado Modules | Referencia `ServerTable`: name, color, icon (Lucide + `title`), level (i18n), created_at y Acciones (Edit siempre; toggle solo si `level === optional`; sin Delete ni columna Estado ni búsqueda avanzada). Inactive permitido también en shell vía UpdateModule. Export xlsx/pdf por el mismo `table` |
+| Create Module | Alta con LangTabs (label+explanation; principal required), IconPicker, ColorPicker, Switch status default Active; slug solo servidor + `{slug}.access`; redirect Edit. Kit: `Form/LangTabs`, `ColorPicker`, `IconPicker` |
 
 ## Sync manager
 

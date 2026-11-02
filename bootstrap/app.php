@@ -9,7 +9,12 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Env;
 use Illuminate\Support\Facades\Route;
+
+// Apache en Windows comparte el proceso entre hilos. putenv es global y, en
+// paralelo con el polling del layout, deja APP_KEY vacío en alguna petición.
+Env::disablePutenv();
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(

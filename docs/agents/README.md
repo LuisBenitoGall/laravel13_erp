@@ -5,6 +5,9 @@ Cada rol tiene su ficha canónica en esta carpeta — **agnóstica de herramient
 para Claude Code, Cursor o Codex. Cada herramienta la carga con un adaptador fino
 (`.cursor/rules/*.mdc`, `.claude/agents/*.md`, `AGENTS.md`), que nunca duplica contenido.
 
+Además existe un especialista de toolchain fuera del ciclo OpenSpec:
+[agent-setup.md](agent-setup.md) (`Agent Setup & Settings`, comando `/setup`).
+
 | Rol | Ficha | Comando OpenSpec | Fase del playbook | Modelo recomendado |
 |---|---|---|---|---|
 | 10-architecture | [10-architecture.md](10-architecture.md) | propose | §1–2 (ficha + propuesta) | El más potente disponible |
@@ -12,6 +15,7 @@ para Claude Code, Cursor o Codex. Cada herramienta la carga con un adaptador fin
 | 25-architecture-review | [25-architecture-review.md](25-architecture-review.md) | — (sin comando propio) | Auditoría de solo lectura tras apply | El más potente disponible |
 | 40-e2e | [40-e2e.md](40-e2e.md) | — (sin comando propio) | E2E de flujos críticos (`tests/Browser`) | Tier medio |
 | 30-testing | [30-testing.md](30-testing.md) | archive (tras verificar) | §7–9 (tests + DoD + archivado) | Tier medio; potente para revisar diffs de dominios críticos |
+| Setup & Settings *(no OpenSpec)* | [agent-setup.md](agent-setup.md) | `/setup` | Toolchain / deps / DX | Tier medio |
 
 25 audita el diff tras apply y no toca el repo: si bloquea, devuelve a 20; si no, el
 change sigue a 40 (cuando hay tasks E2E) o a 30. No sustituye a 30: no escribe tests,
@@ -23,6 +27,15 @@ escribe; 30 no los redacta — los verifica y solo entonces archiva.
 
 Nomenclatura de comandos: en Claude Code son `/opsx:propose`, `/opsx:apply`, `/opsx:archive`,
 `/opsx:sync`; en Cursor/Codex, `/opsx-propose`, `/opsx-apply`, etc. Son las mismas skills.
+
+## Agent Setup & Settings (fuera del ciclo OpenSpec)
+
+Especialista de **toolchain**: instalar/configurar dependencias del canon, calidad
+(Pint/PHPStan/ESLint/CI), shadcn, MCP, Pest browser, DX de editor. Ficha:
+[agent-setup.md](agent-setup.md). Comando: `/setup`. Skill: `agent-setup`.
+
+No propone módulos ni implementa dominio. Si hace falta un paquete nuevo →
+10-architecture lo añade a `libraries.md` en el mismo PR.
 
 ## `/opsx:explore` no es un rol
 

@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { Pencil, Plus } from 'lucide-react';
-import { useMemo } from 'react';
+import { createElement, useMemo } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { useTranslation } from 'react-i18next';
 import type { CellComponent } from 'tabulator-tables';
 
@@ -8,6 +9,7 @@ import { fmt } from '@/Components/Table/formatters';
 import ServerTable, { type ColumnDef, type RowAction } from '@/Components/Table/ServerTable';
 import AppLayout from '@/Layouts/AppLayout';
 import { patchJson } from '@/lib/http';
+import { resolveMenuIcon } from '@/lib/menuIcons';
 import type { ModuleRow } from '@/types/admin';
 
 function colorSwatch(cell: CellComponent): HTMLElement {
@@ -26,6 +28,19 @@ function colorSwatch(cell: CellComponent): HTMLElement {
     return wrap;
 }
 
+function iconCell(cell: CellComponent): HTMLElement {
+    const name = String(cell.getValue() ?? '').trim();
+    const Icon = resolveMenuIcon(name);
+    const wrap = document.createElement('span');
+    wrap.className = 'cell-vcenter';
+    wrap.innerHTML = renderToStaticMarkup(
+        createElement(Icon, { size: 16, strokeWidth: 2, 'aria-hidden': true }),
+    );
+    wrap.querySelector('svg')?.setAttribute('title', name);
+
+    return wrap;
+}
+
 export default function Index() {
     const { t, i18n } = useTranslation();
 
@@ -34,10 +49,6 @@ export default function Index() {
             admin_only: t('nivel_admin_only'),
             basic: t('nivel_basic'),
             optional: t('nivel_optional'),
-        };
-        const statusValues: Record<string, string> = {
-            active: t('estado_active'),
-            inactive: t('estado_inactive'),
         };
 
         return [
@@ -60,7 +71,9 @@ export default function Index() {
                 title: t('icono'),
                 field: 'icon',
                 width: 120,
+                hozAlign: 'center',
                 headerFilterKind: 'string',
+                formatter: iconCell,
                 vertAlign: 'middle',
             },
             {
@@ -69,6 +82,11 @@ export default function Index() {
                 width: 140,
                 headerFilterKind: 'select',
                 headerFilterValues: levelValues,
+                formatter: (cell: CellComponent) => {
+                    const value = String(cell.getValue() ?? '');
+
+                    return levelValues[value] ?? value;
+                },
                 vertAlign: 'middle',
             },
             {
@@ -79,43 +97,38 @@ export default function Index() {
                 formatter: fmt.date(i18n.language),
                 vertAlign: 'middle',
             },
-            {
-                title: t('estado'),
-                field: 'status',
-                width: 120,
-                headerFilterKind: 'select',
-                headerFilterValues: statusValues,
-                vertAlign: 'middle',
-            },
         ];
     }, [t, i18n.language]);
 
-    const rowActions = (row: ModuleRow): Array<RowAction<ModuleRow> | false> => {
-        // admin/workspace: Inactive en catálogo ⇒ 403 en middleware module: (shell).
-        const shellCritical = row.slug === 'admin' || row.slug === 'workspace';
+    const rowActions = (row: ModuleRow): Array<RowAction<ModuleRow>> => {
+        const edit: RowAction<ModuleRow> = {
+            id: 'edit',
+            icon: Pencil,
+            labelKey: 'editar',
+            onClick: () => router.visit(`/admin/modules/${row.id}/edit`),
+        };
 
-        return [
-            !shellCritical && {
-                id: 'toggle-status',
-                kind: 'toggle' as const,
-                labelKey: row.status === 'active' ? 'desactivar' : 'activar',
-                checked: row.status === 'active',
-                onToggle: async (_row, checked) => {
-                    const status = checked ? 'active' : 'inactive';
-                    await patchJson<{ status: string }>(`/admin/modules/${row.id}/status`, {
-                        status,
-                    });
+        if (row.level === 'optional') {
+            return [
+                {
+                    id: 'toggle-status',
+                    kind: 'toggle' as const,
+                    labelKey: row.status === 'active' ? 'desactivar' : 'activar',
+                    checked: row.status === 'active',
+                    onToggle: async (_row, checked) => {
+                        const status = checked ? 'active' : 'inactive';
+                        await patchJson<{ status: string }>(`/admin/modules/${row.id}/status`, {
+                            status,
+                        });
 
-                    return { status };
+                        return { status };
+                    },
                 },
-            },
-            {
-                id: 'edit',
-                icon: Pencil,
-                labelKey: 'editar',
-                onClick: () => router.visit(`/admin/modules/${row.id}/edit`),
-            },
-        ];
+                edit,
+            ];
+        }
+
+        return [edit];
     };
 
     return (

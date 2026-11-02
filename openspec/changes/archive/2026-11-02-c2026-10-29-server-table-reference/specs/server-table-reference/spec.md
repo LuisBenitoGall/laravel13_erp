@@ -22,9 +22,20 @@ filtro) SHALL tener un borde de color suave distintivo.
   Módulos
 - **THEN** la tabla solicita datos remotos filtrados según el protocolo table + whitelist
 
-#### Scenario: Acciones solo Edit en Módulos
+#### Scenario: Acciones en Módulos = toggle + Edit
 - **WHEN** se muestra el listado de Módulos
-- **THEN** la columna Acciones ofrece Edit (icono + tooltip) y no Delete
+- **THEN** la columna Acciones ofrece un toggle de activar/desactivar y Edit (icono +
+  tooltip), en ese orden, y no ofrece Delete
+
+#### Scenario: Toggle sin recarga
+- **WHEN** el usuario cambia el toggle de estado de un módulo en el listado
+- **THEN** el estado se persiste sin recargar la página y la fila refleja el nuevo
+  estado
+
+#### Scenario: Tamaño del toggle alineado a Acciones
+- **WHEN** se renderiza la columna Acciones en Módulos
+- **THEN** el toggle tiene un tamaño visual coherente con el resto de botones de esa
+  columna (misma escala de la celda)
 
 #### Scenario: Columnas del Index de Módulos
 - **WHEN** se muestra el listado de Módulos

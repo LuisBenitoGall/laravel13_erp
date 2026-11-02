@@ -87,7 +87,7 @@ Encender/apagar (Capa 2) **no** altera los permisos del rol; autorizar/desautori
 
 ## 6. Referencia v1
 
-Ruta: `C:\laragon\www\laravel8_erp_viudavila_github`. **Solo lectura funcional**
+Ruta: `C:\laragon\www\laravel8_erp_viudavila`. **Solo lectura funcional**
 (reglas de negocio, modelos, flujos). **Prohibido** clonar su stack (Livewire,
 Blade, yajra, middleware `*Get/*Post`, `session('currentCompany')`, menús
 duplicados, `serialize()`, MySQL sin strict). Portar una regla de v1 exige

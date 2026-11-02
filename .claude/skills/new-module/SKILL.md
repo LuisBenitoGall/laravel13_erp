@@ -19,7 +19,7 @@ garante de que **ninguna casilla se salta**. Documentos normativos:
 ### Paso 1 — Contexto
 1. Lee el playbook y el module-map. Determina si el encargo es un MÓDULO nuevo o una
    ENTIDAD dentro de un módulo existente (pregunta si es ambiguo).
-2. Localiza la referencia v1 en `C:\laragon\www\laravel8_erp_viudavila_github` con el
+2. Localiza la referencia v1 en `C:\laragon\www\laravel8_erp_viudavila` con el
    skill `v1-reference` (solo lectura funcional; no clonar Livewire/Blade/yajra).
    Consulta `info_modulos.txt` y `openspec/inventory/`. Resume qué hace v1 y qué se
    decide portar.

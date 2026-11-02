@@ -12,8 +12,8 @@ norma** para que todo CRUD lo copie salvo excepción escrita.
   Tabulator reactivo; toolbar (columnas visibles + localStorage por usuario, page size,
   Excel/PDF).
 - Componente modal búsqueda avanzada genérico (inputs por props); sin botón en Módulos.
-- Modules Index como primera referencia (Acciones = solo Edit; exportable; sin advanced
-  search).
+- Modules Index como primera referencia (Acciones = toggle de estado + Edit; exportable;
+  sin advanced search; sin Delete).
 - Alinear `ModuleTableRequest` / `TableBuilder` con filtros de columna + export.
 - Actualizar `frontend.md` (+ templates frontend/backend de tabla si aplica).
 

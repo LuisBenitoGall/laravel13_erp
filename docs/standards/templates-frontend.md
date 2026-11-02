@@ -93,6 +93,16 @@ export default function Index() {
 }
 ```
 
+Búsqueda avanzada (opt-in; el Index de Modules no la monta): `AdvancedSearchModal` llama
+`onApply(filters)` con `[{ field, type, value }]`. La página guarda esa lista y se la pasa
+a `ServerTable` con `advancedFilterMode`:
+
+- `merge` — el query `filter` es la cabecera seguida del modal (un mismo `field` va dos veces).
+- `replace` — el query `filter` es solo la lista del modal.
+
+`advancedFilters={undefined}` deja solo los filtros de cabecera. Excel y PDF reenvían ese
+mismo `filter`.
+
 ## 3. Formulario compartido Create/Edit (patrón 2)
 
 Kit MVP (`Components/Form`): `Field`, `FormField` (RHF), `Input`, `Textarea`,

@@ -20,7 +20,7 @@ Idioma obligatorio: español.
 ## Contexto de proyecto (desde 00-project)
 
 v2 multi-tenant del ERP Viuda Vila. Referencia funcional v1 (SOLO lectura):
-`C:\laragon\www\laravel8_erp_viudavila_github`. Visión: `docs/vision-v2.md`.
+`C:\laragon\www\laravel8_erp_viudavila`. Visión: `docs/vision-v2.md`.
 
 ### Stack
 

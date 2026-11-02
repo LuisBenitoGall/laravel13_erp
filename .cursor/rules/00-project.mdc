@@ -7,7 +7,7 @@ globs:
 # 00-project — ERP v2 (SaaS) · Laravel 13 + Inertia + React
 
 v2 multi-tenant del ERP Viuda Vila. Referencia funcional (v1, SOLO lectura):
-`C:\laragon\www\laravel8_erp_viudavila_github`. Visión y decisiones: `docs/vision-v2.md`.
+`C:\laragon\www\laravel8_erp_viudavila`. Visión y decisiones: `docs/vision-v2.md`.
 
 ## Stack
 

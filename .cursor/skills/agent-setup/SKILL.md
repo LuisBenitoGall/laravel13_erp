@@ -10,7 +10,8 @@ description: >-
 
 # Agent Setup & Settings
 
-Especialista de toolchain del ERP v2. Canon: `docs/standards/libraries.md` +
+Especialista de toolchain del ERP v2. Ficha canónica: `docs/agents/agent-setup.md`
+(léela primero). Canon de deps: `docs/standards/libraries.md` +
 `docs/standards/tooling.md`. Detalle de paquetes y extensiones: [canon.md](canon.md).
 
 No es un rol OpenSpec. No implementa dominio.

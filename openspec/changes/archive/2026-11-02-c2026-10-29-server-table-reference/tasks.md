@@ -36,7 +36,7 @@
 ## 4. Aplicación — Admin Modules Index
 
 - [x] 4.1 Actualizar `Admin/Modules/Index.tsx`: columns + header filters, `persistKey`,
-      `exportable`, `rowActions` solo Edit, sin advanced search
+      `exportable`, `rowActions` = toggle estado + Edit (sin Delete), sin advanced search
 - [x] 4.2 Claves i18n nuevas (es/en/ca, A–Z) para toolbar, tooltips Acciones, export,
       paginador Tabulator si faltan
 - [x] 4.3 Añadir `AdvancedSearchModal` y actualizar fila `ServerTable` en catálogo
@@ -57,7 +57,7 @@
       ignora no whitelist)
 - [x] 6.2 Feature: export xlsx y pdf Modules respetan filtro y Policy `viewAny`
 - [x] 6.3 Smoke/front o Feature Inertia: Index Modules sin CTA advanced search; Acciones
-      Edit (cobertura razonable según harness actual)
+      = toggle + Edit (cobertura razonable según harness actual)
 - [x] 6.4 R-TEN-05: N/A para `Module` (catálogo global sin `company_id`); no inventar
       aislamiento tenant en esta entidad
 - [x] 6.5 `vendor/bin/pint`, `vendor/bin/phpstan analyse`, `composer test` en verde
@@ -85,5 +85,13 @@
 - [x] 6.13 Acciones: botones fondo primario; danger rojo pastel; toggle status primero
       a la izquierda (Modules) vía PATCH JSON async sin recarga (`modules.status` +
       `kind: 'toggle'`). frontend.md / R-FE-03 actualizados.
+      **Resuelto (Luis, opción A):** el toggle se queda. 10 enmendó design.md D3,
+      proposal, deltas `admin-ui-login` y `server-table-reference`, y esta nota.
+      Alternativa B (quitar toggle) descartada. 20 no revierte el Index.
 - [x] 6.14 Guard shell: no desactivar catálogo `admin`/`workspace` (UpdateModule +
       sin toggle UI); evita 403 `module:admin` por Inactive global.
+- [x] 6.15 Polish visual toggle Acciones (Modules): el switch SHALL encajar en tamaño
+      con los botones icono de la misma columna (hoy ~2×1.125rem vs botones 1.75²;
+      alinear escala de celda en `tabulator-erp.css` / markup toggle). Sin cambiar
+      comportamiento PATCH ni quitar Edit. Verificar escenario «Tamaño del toggle
+      alineado a Acciones».

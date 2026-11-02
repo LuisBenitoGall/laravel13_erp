@@ -7,7 +7,7 @@ description: "Audita e instala plugins, librerías y configuración del entorno 
 
 Actúa como **Agent Setup & Settings**.
 
-Lee `.cursor/agents/agent-setup.md` y el skill `.cursor/skills/agent-setup/SKILL.md`
+Lee `docs/agents/agent-setup.md` y el skill `.cursor/skills/agent-setup/SKILL.md`
 (más `canon.md` del mismo skill) y ejecuta su flujo: auditar → proponer delta →
 esperar confirmación si instalas algo → configurar → verificar.
 

@@ -115,7 +115,7 @@ export default function RoleFormPage({ role, matrix, matrix_universal }: Props) 
             }}
             actions={viewActions}
         >
-            <form onSubmit={submit} className="mx-auto max-w-4xl space-y-6 rounded-xl border bg-white p-6">
+            <form onSubmit={submit} className="mx-auto max-w-4xl space-y-6 rounded-xl border border-slate-200 bg-white p-6">
                 <div className="grid gap-4 sm:grid-cols-2">
                     <Field label={t('nombre')} error={errors.name}>
                         <Input

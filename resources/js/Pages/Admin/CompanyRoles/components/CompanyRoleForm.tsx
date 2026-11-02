@@ -108,7 +108,7 @@ export default function CompanyRoleForm({ role, matrix }: Props) {
             }}
             actions={viewActions}
         >
-            <form onSubmit={submit} className="mx-auto max-w-4xl space-y-6 rounded-xl border bg-white p-6">
+            <form onSubmit={submit} className="mx-auto max-w-4xl space-y-6 rounded-xl border border-slate-200 bg-white p-6">
                 <Field label={t('nombre')} error={errors.name}>
                     <Input
                         value={data.name}

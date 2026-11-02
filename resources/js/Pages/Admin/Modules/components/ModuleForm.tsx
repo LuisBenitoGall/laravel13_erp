@@ -51,7 +51,7 @@ export default function ModuleFormPage({ module }: Props) {
             }}
             actions={[]}
         >
-            <form onSubmit={submit} className="mx-auto max-w-2xl space-y-4 rounded-xl border bg-white p-6">
+            <form onSubmit={submit} className="mx-auto max-w-2xl space-y-4 rounded-xl border border-slate-200 bg-white p-6">
                 <Field label={t('nombre')} error={errors.name}>
                     <Input value={data.name} onChange={(e) => setData('name', e.target.value)} />
                 </Field>

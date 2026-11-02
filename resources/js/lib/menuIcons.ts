@@ -1,21 +1,124 @@
 import {
+    Archive,
+    Banknote,
+    BarChart3,
+    BookOpen,
+    Boxes,
     Briefcase,
+    Building2,
+    Calculator,
+    Calendar,
+    ClipboardCheck,
+    ClipboardList,
+    CreditCard,
+    Factory,
+    FileText,
+    Folder,
+    Globe,
+    Handshake,
     Home,
+    Landmark,
     LayoutGrid,
+    Mail,
+    Package,
+    Receipt,
     Settings,
+    Shield,
+    ShoppingCart,
+    Store,
+    Tags,
+    Truck,
+    UserCog,
+    Users,
+    Wallet,
+    Warehouse,
+    Wrench,
     type LucideIcon,
 } from 'lucide-react';
 
-const ICON_MAP: Record<string, LucideIcon> = {
-    home: Home,
-    settings: Settings,
+/** Catálogo curado ERP (nombres Lucide). Sin emoticonos. */
+export const ERP_ICON_NAMES = [
+    'archive',
+    'banknote',
+    'bar-chart-3',
+    'book-open',
+    'boxes',
+    'briefcase',
+    'building-2',
+    'calculator',
+    'calendar',
+    'clipboard-check',
+    'clipboard-list',
+    'credit-card',
+    'factory',
+    'file-text',
+    'folder',
+    'globe',
+    'handshake',
+    'home',
+    'landmark',
+    'layout-grid',
+    'mail',
+    'package',
+    'receipt',
+    'settings',
+    'shield',
+    'shopping-cart',
+    'store',
+    'tags',
+    'truck',
+    'user-cog',
+    'users',
+    'wallet',
+    'warehouse',
+    'wrench',
+] as const;
+
+export type ErpIconName = (typeof ERP_ICON_NAMES)[number];
+
+const ICON_MAP: Record<ErpIconName, LucideIcon> = {
+    archive: Archive,
+    banknote: Banknote,
+    'bar-chart-3': BarChart3,
+    'book-open': BookOpen,
+    boxes: Boxes,
     briefcase: Briefcase,
+    'building-2': Building2,
+    calculator: Calculator,
+    calendar: Calendar,
+    'clipboard-check': ClipboardCheck,
+    'clipboard-list': ClipboardList,
+    'credit-card': CreditCard,
+    factory: Factory,
+    'file-text': FileText,
+    folder: Folder,
+    globe: Globe,
+    handshake: Handshake,
+    home: Home,
+    landmark: Landmark,
+    'layout-grid': LayoutGrid,
+    mail: Mail,
+    package: Package,
+    receipt: Receipt,
+    settings: Settings,
+    shield: Shield,
+    'shopping-cart': ShoppingCart,
+    store: Store,
+    tags: Tags,
+    truck: Truck,
+    'user-cog': UserCog,
+    users: Users,
+    wallet: Wallet,
+    warehouse: Warehouse,
+    wrench: Wrench,
 };
 
 export function resolveMenuIcon(name: string | null | undefined): LucideIcon {
-    if (!name) {
-        return LayoutGrid;
+    const key = name?.trim().toLowerCase();
+
+    if (key && key in ICON_MAP) {
+        return ICON_MAP[key as ErpIconName];
     }
 
-    return ICON_MAP[name.trim().toLowerCase()] ?? LayoutGrid;
+    return LayoutGrid;
 }

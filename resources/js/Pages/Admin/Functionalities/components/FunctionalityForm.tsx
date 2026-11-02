@@ -48,7 +48,7 @@ export default function FunctionalityFormPage({ modules, functionality }: Props)
             }}
             actions={[]}
         >
-            <form onSubmit={submit} className="mx-auto max-w-2xl space-y-4 rounded-xl border bg-white p-6">
+            <form onSubmit={submit} className="mx-auto max-w-2xl space-y-4 rounded-xl border border-slate-200 bg-white p-6">
                 <div className="space-y-1">
                     <label className="block text-sm font-medium">
                         {t('modulo')}

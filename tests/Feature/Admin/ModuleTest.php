@@ -35,6 +35,7 @@ it('permite CRUD de Module al Super Admin', function () {
         'name' => 'Sales',
         'slug' => 'sales',
         'label' => ['es' => 'Ventas', 'en' => 'Sales'],
+        'explanation' => ['es' => 'Ventas del catálogo'],
         'color' => '#0369a1',
         'icon' => 'shopping-cart',
         'level' => ModuleLevel::Basic->value,

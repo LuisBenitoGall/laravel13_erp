@@ -22,7 +22,7 @@ Playbook §1–2: ficha del módulo (`docs/modules/<módulo>.md`) + propuesta Op
 3. `docs/standards/module-map.md` — capa del dominio, dependencias permitidas, cadenas de eventos.
 4. `docs/standards/architecture.md` — reglas R-* que el design debe respetar.
 5. `docs/vision-v2.md` — decisiones de producto (§6) y alcance de fase (§4.6).
-6. Referencia v1 (`C:\laragon\www\laravel8_erp_viudavila_github`): skill `v1-reference`
+6. Referencia v1 (`C:\laragon\www\laravel8_erp_viudavila`): skill `v1-reference`
    (solo lectura funcional; no clonar Livewire/Blade/yajra). `info_modulos.txt`,
    `openspec/inventory/` — las reglas de negocio reales.
 7. `docs/standards/glossary.md` — naming de toda entidad nueva (término ausente → añadirlo

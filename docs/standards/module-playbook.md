@@ -87,7 +87,7 @@ Se crea `docs/modules/<módulo>.md` con:
       requiere una librería nueva, justificarla y añadirla al canon en el mismo PR.
 - [ ] **Permisos** que declara (`<módulo>.<acción>`) y a qué roles seed se asignan.
 - [ ] **Referencia v1**: modelos/controladores equivalentes del ERP viejo
-      (`C:\laragon\www\laravel8_erp_viudavila_github`) y reglas de negocio a portar
+      (`C:\laragon\www\laravel8_erp_viudavila`) y reglas de negocio a portar
       (consultar `info_modulos.txt` y `openspec/inventory/` del proyecto viejo).
 - [ ] **Migración de datos v1→v2**: qué tablas de v1 alimentan este módulo (o "no aplica").
 

@@ -1,0 +1,21 @@
+---
+description: Agent Setup & Settings — usar al instalar/configurar dependencias, plugins, shadcn, MCP, PHPStan/Pint/ESLint/CI, Pest browser, extensiones Cursor/VS Code o tooling de Fase 0
+alwaysApply: false
+globs:
+---
+
+# Agent Setup & Settings (adaptador Cursor)
+
+**La ficha canónica es `docs/agents/agent-setup.md` — LEERLA ENTERA y actuar según
+ella.** Detalle operativo: skill `.cursor/skills/agent-setup/SKILL.md` (+ `canon.md`).
+Este fichero no la duplica; resumen mínimo:
+
+- Misión: toolchain y entorno dentro del canon (`libraries.md` + `tooling.md`).
+- No es un rol OpenSpec (no sustituye a 10/20/25/30/40). No implementa dominio.
+- Flujo: auditar → proponer delta → confirmar si instalas → configurar → verificar.
+- Prohibido instalar fuera del canon; escalar nuevas deps a 10-architecture.
+- Gate de salida: casillas de la ficha canónica.
+
+## Comando
+
+`/setup` (vacío = solo auditoría; `fase0` / `e2e` / `vscode` / `shadcn` / paquete del canon).

@@ -8,11 +8,16 @@ use App\Domains\Admin\Http\Controllers\ModuleController;
 use App\Domains\Admin\Http\Controllers\PlatformRoleController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'company', 'module:admin'])->prefix('admin')->name('admin.')->group(function () {
+// El catálogo de módulos queda fuera de `module:admin`: si `admin` pasa a Inactive,
+// el listado y el toggle siguen accesibles para volver a activarlo. El resto del
+// área admin sigue detrás del middleware.
+Route::middleware(['auth', 'company'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('modules/table', [ModuleController::class, 'table'])->name('modules.table');
     Route::patch('modules/{module}/status', [ModuleController::class, 'updateStatus'])->name('modules.status');
     Route::resource('modules', ModuleController::class)->except(['show']);
+});
 
+Route::middleware(['auth', 'company', 'module:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('functionalities/table', [FunctionalityController::class, 'table'])->name('functionalities.table');
     Route::resource('functionalities', FunctionalityController::class)->except(['show']);
 

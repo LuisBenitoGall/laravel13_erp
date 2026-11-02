@@ -1,7 +1,7 @@
 # ERP v2 (SaaS) — Laravel 13 + Inertia + React
 
 v2 multi-tenant del ERP Viuda Vila. Referencia funcional (v1, solo lectura):
-`C:\laragon\www\laravel8_erp_viudavila_github`. Visión y decisiones de producto:
+`C:\laragon\www\laravel8_erp_viudavila`. Visión y decisiones de producto:
 `docs/vision-v2.md`.
 
 ## Normativa obligatoria
@@ -41,7 +41,8 @@ antes de proponer (checklist de vinculaciones incluida).
 Metodología de roles (transversal Claude/Cursor/Codex): fichas canónicas en `docs/agents/`
 — 10-architecture (propose), 20-implementation (apply), 25-architecture-review
 (auditoría de solo lectura tras apply), 40-e2e (Pest browser), 30-testing (verificar
-DoD + archive). Al ejecutar cada fase, actuar según la ficha del
+DoD + archive). Toolchain (deps/plugins/MCP/CI, fuera de OpenSpec):
+`docs/agents/agent-setup.md` (`/setup`). Al ejecutar cada fase, actuar según la ficha del
 rol correspondiente. El estado del change vive en los artefactos OpenSpec: si
 conversación y artefactos chocan, mandan los artefactos; regla de oro: no inventar
 requisitos no especificados.

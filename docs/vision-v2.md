@@ -1,7 +1,7 @@
 # ERP v2 — Análisis del sistema anterior y proyección de la nueva versión
 
 > Documento generado el 2026-07-13 a partir del análisis exhaustivo de
-> `C:\laragon\www\laravel8_erp_viudavila_github` (ERP Viuda Vila, Laravel 9 + Blade/Livewire).
+> `C:\laragon\www\laravel8_erp_viudavila` (ERP Viuda Vila, Laravel 9 + Blade/Livewire).
 > Sirve como base de conocimiento y blueprint para esta nueva versión
 > (Laravel 12+ / Inertia / React / MySQL).
 

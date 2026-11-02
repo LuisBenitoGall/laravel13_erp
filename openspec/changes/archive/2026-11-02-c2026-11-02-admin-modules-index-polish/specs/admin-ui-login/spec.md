@@ -1,3 +1,5 @@
+# Spec Delta
+
 ## MODIFIED Requirements
 
 ### Requirement: Catálogo UI mínimo y login
@@ -8,9 +10,10 @@ vista bloque 3** (`ViewActionBar` cuando la página declare acciones; véase
 formularios mínimo Create/Edit, y un login mínimo con el guard de sesión estándar de
 Laravel. El `AppLayout` SHALL NOT renderizar el título de la vista dentro del topbar
 (bloque 1). Logout SHALL estar disponible desde el menú del avatar. El Index de Module
-SHALL ser la referencia del contrato `server-table-reference`: header filters, columna
-Acciones solo Edit, toolbar (columnas / page size / Excel+PDF), i18n Tabulator reactiva,
-sin botón de búsqueda avanzada.
+SHALL ser la referencia del contrato `server-table-reference`: header filters, columnas
+sin Estado, columna Acciones = Edit en todas las filas y toggle de estado solo si el
+nivel es `optional` (oculto en `basic` y `admin_only`; sin Delete), toolbar (columnas / page size / Excel+PDF),
+i18n Tabulator reactiva, sin botón de búsqueda avanzada.
 
 #### Scenario: Login del superadmin
 - **WHEN** el superadmin sembrado introduce sus credenciales en el login
@@ -19,10 +22,11 @@ sin botón de búsqueda avanzada.
 
 #### Scenario: Listado de Module con ServerTable
 - **WHEN** el superadmin visita el índice de Module
-- **THEN** ve un `ServerTable` conforme al contrato de referencia (filtros de cabecera,
-  Acciones solo Edit, toolbar columnas/page size/Excel+PDF, i18n), sin búsqueda
-  avanzada en la ActionBar, el breadcrumb, y la ActionBar de vista con al menos Crear
-  cuando corresponda
+- **THEN** ve un `ServerTable` conforme al contrato de referencia actualizado
+  (filtros de cabecera, sin columna Estado, Acciones = Edit en todas las filas y
+  toggle solo en nivel `optional`, icono Lucide con title, Nivel i18n, toolbar
+  columnas/page size/Excel+PDF, i18n), sin búsqueda avanzada en la ActionBar, el
+  breadcrumb, y la ActionBar de vista con al menos Crear cuando corresponda
 
 #### Scenario: Logout
 - **WHEN** el usuario autenticado cierra sesión desde el menú del avatar (o flujo

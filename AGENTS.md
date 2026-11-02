@@ -24,6 +24,7 @@ Trabaja siempre COMO UNO de los roles (fichas canónicas en `docs/agents/`):
 | Auditar la implementación tras apply (solo lectura, sin modificar) | `docs/agents/25-architecture-review.md` | — |
 | Escribir/mantener E2E Pest browser (`tests/Browser/`) | `docs/agents/40-e2e.md` | — |
 | Verificar, endurecer tests, comprobar DoD y archivar | `docs/agents/30-testing.md` | `/opsx-archive` |
+| Instalar/configurar deps, plugins, MCP, CI, shadcn, Pest browser *(no OpenSpec)* | `docs/agents/agent-setup.md` | `/setup` |
 
 Lee la ficha del rol ENTERA antes de empezar y respeta su gate de salida. El estado del
 change vive en `openspec/changes/<change>/` (los skills están en `.codex/skills/`); si

@@ -138,7 +138,8 @@ Obligatorio en todo Index/CRUD salvo excepción escrita en el design del change:
    / mayúscula inicial en todos los labels de columna), iconos + tooltip i18n; botones
    con fondo primario (`#0f766e`); Delete último si existe (rojo pastel `#fee2e2` /
    `#b91c1c`). Si el Index declara toggle activo/inactivo: **primero a la izquierda**
-   (`kind: 'toggle'`), persistencia async sin recarga (JSON + `row.update`). **El set
+   (`kind: 'toggle'`), misma altura que el botón icono (`--st-action-size`), persistencia
+   async sin recarga (JSON + `row.update`). **El set
    de botones lo decide Luis** en cada Index futuro. **Prohibido** mostrar columna
    `slug` en listados ServerTable (sí en formularios). Referencia Modules: `name`,
    `color`, `icon`, `level`, `created_at`, `status` + Acciones (toggle + Edit).
@@ -147,7 +148,13 @@ Obligatorio en todo Index/CRUD salvo excepción escrita en el design del change:
 4. **i18n Tabulator** (paginador/textos) al locale de sesión; reactiva al cambio de idioma
    sin F5 (`ca` usa override de strings del proyecto).
 5. **AdvancedSearchModal** opt-in: primer CTA en `ViewActionBar` tras Volver cuando la
-   página lo active. Módulos: **sin** botón. Escribe al mismo `filter[]`.
+   página lo active. Módulos: **sin** botón. Campos por `fields` o `children` (render
+   prop `{ filters, setFilters }`). `onApply(filters)` entrega `[{ field, type, value }]`.
+   La página guarda esa lista en `ServerTable` `advancedFilters` y declara
+   `advancedFilterMode`: `merge` (el query `filter` es la cabecera seguida del modal;
+   un mismo `field` se envía dos veces) o `replace` (el query `filter` es solo la lista
+   del modal). No hay otro modo. `advancedFilters` en `undefined` = el modal no ha
+   aplicado (solo cabecera). El mismo `filter` sale en el endpoint `table` y en Excel/PDF.
 
 - `ServerTable` es el único wrapper Tabulator (R-FE-07). Estilos: solo `tabulator-erp.css`.
 - Formatters tipados en `Components/Table/formatters.tsx` — no HTML strings ad-hoc.
@@ -161,9 +168,9 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 | Componente | Propósito / contrato resumido |
 |---|---|
 | `Table/ServerTable` | Listados server-side (§3): header filters, `rowActions`, toolbar, export, i18n Tabulator; referencia = Admin Modules |
-| `Table/AdvancedSearchModal` | Modal búsqueda avanzada opt-in (`fields`/children + `onApply`); ActionBar tras Volver; mismo canal `filter[]` |
+| `Table/AdvancedSearchModal` | Modal búsqueda avanzada opt-in (`fields` o `children` render prop + `onApply(filters)`). `ServerTable`: `advancedFilters` + `advancedFilterMode` `merge` o `replace`; mismo query `filter` (table y Excel/PDF) |
 | `Table/formatters` | Formatters tipados: `money(dec)`, `date`, `number(dec)`, `boolean` (+ ampliar por dominio); con `valueKind`/`headerFilterKind` date|number → align right |
-| `Form/Field` + kit MVP | **Implementado** (`c2026-10-26-form-kit-mvp`): `Field`/`FormField`, `Input` (→ `ui/input` R-FE-08), `Textarea`, `NumberInput`, `Select` (filtro local; `onSearch` opcional), `DatePicker` (`date-fns` + input date), `Checkbox`, `Switch`. Pendientes de kit: `Wysiwyg`, `Dropzone`, `LangTabs` |
+| `Form/Field` + kit MVP | **Implementado** (`c2026-10-26-form-kit-mvp` + `c2026-11-02-admin-modules-create`): `Field`/`FormField`, `Input` (→ `ui/input` R-FE-08), `Textarea`, `NumberInput`, `Select` (filtro local; `onSearch` opcional), `DatePicker` (`date-fns` + input date), `Checkbox`, `Switch`, `LangTabs` (tabs = `supportedLocales`, children por locale), `ColorPicker` (input `type=color` + hex, sin dep nueva), `IconPicker` (Dialog + grid `ERP_ICON_NAMES`). Pendientes de kit: `Wysiwyg`, `Dropzone` |
 | `Form/FormActions` | Guardar/cancelar **dentro del form** — **pendiente** (≠ `ViewActionBar`) |
 | `Records/RecordEditLayout` | Esqueleto de Create/Edit: tabs, sidebar meta, zona de contenido — **pendiente** (cabecera de ficha → `RecordSummary`) |
 | `Records/RecordSummary` | Ficha edit/show (card blanca): `titleKey` + badge `identifier` + `fields[]` (`labelKey`/`value`/`tone`); helper `auditRecordSummaryFields` en `lib/recordSummary`. Opt-in por page (no AppLayout). Sin totales ni lápiz inline |

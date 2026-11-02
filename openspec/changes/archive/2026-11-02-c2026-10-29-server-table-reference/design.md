@@ -26,8 +26,8 @@ Stack confirmado: `tabulator-tables` + `barryvdh/laravel-dompdf` + `maatwebsite/
    page size, Excel + PDF).
 2. Modal genérico de búsqueda avanzada (opt-in vía ActionBar); API lista; **sin botón** en
    Módulos.
-3. Modules Index: primera aplicación (Acciones = solo Edit; exportable; sin advanced
-   search).
+3. Modules Index: primera aplicación (Acciones = toggle de estado + Edit, en ese orden;
+   exportable; sin advanced search; sin Delete).
 4. Alinear backend table + export con el mismo canal `filter` (whitelist).
 5. Actualizar `frontend.md` (+ templates de listado si existen) como norma obligatoria
    salvo excepción escrita en design de un change.
@@ -68,12 +68,22 @@ No se instancia Tabulator en páginas de dominio.
 ### D3 — Columna Acciones vía `rowActions`
 
 **Decisión:** API `rowActions?: (row) => RowAction[]` (id, icon Lucide, labelKey i18n,
-`onClick`, `confirm?`, `variant?`). ServerTable inyecta columna derecha fija título
-centrado (`acciones`), iconos alineados a la derecha, tooltip obligatorio, Delete último
-si existe + `ConfirmDialog`.
+`onClick`, `confirm?`, `variant?`, `kind?: 'button' | 'toggle'`). ServerTable inyecta
+columna derecha fija título centrado (`acciones`), tooltips i18n obligatorios, Delete
+último si existe + `ConfirmDialog`. Los `kind: 'toggle'` se renderizan a la izquierda de
+los botones icono.
 
-Modules: solo Edit → `router.visit(edit)`. Futuros dashboards: preguntar a Luis qué
-acciones van (norma en frontend.md).
+**Modules (referencia):** Acciones = (1) **toggle** activar/desactivar estado + (2)
+**Edit** → `router.visit(edit)`. SHALL NOT Delete. El toggle es un control switch (no
+navegación a Edit); persiste vía mutación async/JSON **sin recargar la página** y
+actualiza la fila. Aspecto: el switch SHALL encajar en tamaño con el resto de botones
+de la columna Acciones (misma escala visual de la celda).
+
+**Enmienda (Luis, opción A tras 25-architecture-review):** se descarta el contrato
+previo «solo Edit». El toggle se queda; 10 alinea design/specs/tasks. Alternativa B
+(quitar toggle) rechazada.
+
+Futuros dashboards: preguntar a Luis qué acciones van (norma en frontend.md).
 
 ### D4 — Persistencia columnas / page size en localStorage
 
@@ -144,7 +154,7 @@ usa field whitelistado.
 
 1. Implementar ServerTable + helpers + AdvancedSearchModal + i18n keys.
 2. Backend Modules: whitelist, export xlsx/pdf, tests Feature.
-3. Modules Index UI (toolbar, Acciones Edit, sin advanced search).
+3. Modules Index UI (toolbar, Acciones = toggle + Edit, sin advanced search).
 4. Actualizar `frontend.md` / templates.
 5. Rollback: revert change; listados previos sin props nuevas siguen funcionando si
    ServerTable mantiene defaults seguros (sin toolbar export si `exportable` false).

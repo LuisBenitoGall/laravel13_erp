@@ -6,3 +6,6 @@ export { Select, type SelectOption, type SelectProps } from './Select';
 export { DatePicker, type DatePickerProps } from './DatePicker';
 export { Checkbox, CheckboxControl, type FormCheckboxProps } from './Checkbox';
 export { Switch, type FormSwitchProps } from './Switch';
+export { LangTabs, type LangTabsProps } from './LangTabs';
+export { ColorPicker, type ColorPickerProps } from './ColorPicker';
+export { IconPicker, type IconPickerProps } from './IconPicker';
