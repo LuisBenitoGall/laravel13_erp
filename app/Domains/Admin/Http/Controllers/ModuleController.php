@@ -85,6 +85,8 @@ class ModuleController extends Controller
     {
         $this->authorize('update', $module);
 
+        $module->load('creator');
+
         return Inertia::render('Admin/Modules/Edit', [
             'module' => ModuleResource::make($module)->resolve(),
         ]);

@@ -2,9 +2,8 @@
 
 namespace App\Domains\Admin\Http\Requests;
 
-use App\Domains\Admin\Enums\FunctionalityStatus;
+use App\Support\I18n\LocaleResolver;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateFunctionalityRequest extends FormRequest
 {
@@ -16,14 +15,19 @@ class UpdateFunctionalityRequest extends FormRequest
     /** @return array<string, mixed> */
     public function rules(): array
     {
-        return [
-            'module_id' => ['required', 'exists:modules,id'],
-            'name' => ['required', 'string', 'max:255'],
+        $locales = app(LocaleResolver::class);
+        $default = $locales->default();
+
+        $rules = [
             'label' => ['required', 'array'],
-            'label.es' => ['required', 'string', 'max:255'],
-            'label.en' => ['nullable', 'string', 'max:255'],
-            'status' => ['required', Rule::enum(FunctionalityStatus::class)],
-            // slug intentionally absent — immutable (R-AUT-07)
+            // name / slug / module_id / status intentionally absent — modal Edit solo label
         ];
+
+        foreach ($locales->supported() as $locale) {
+            $presence = $locale === $default ? 'required' : 'nullable';
+            $rules['label.'.$locale] = [$presence, 'string', 'max:255'];
+        }
+
+        return $rules;
     }
 }

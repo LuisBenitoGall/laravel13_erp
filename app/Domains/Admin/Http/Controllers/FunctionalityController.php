@@ -7,6 +7,7 @@ use App\Domains\Admin\Actions\DeleteFunctionality;
 use App\Domains\Admin\Actions\UpdateFunctionality;
 use App\Domains\Admin\Http\Requests\FunctionalityTableRequest;
 use App\Domains\Admin\Http\Requests\StoreFunctionalityRequest;
+use App\Domains\Admin\Http\Requests\ToggleFunctionalityStatusRequest;
 use App\Domains\Admin\Http\Requests\UpdateFunctionalityRequest;
 use App\Domains\Admin\Http\Resources\FunctionalityResource;
 use App\Domains\Admin\Models\Functionality;
@@ -15,56 +16,38 @@ use App\Http\Controllers\Controller;
 use App\Support\Table\TableBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class FunctionalityController extends Controller
 {
-    public function index(): Response
-    {
+    /** Table filtrado por módulo (Module Edit → pestaña Funcionalidades). */
+    public function moduleTable(
+        FunctionalityTableRequest $request,
+        Module $module,
+        TableBuilder $table,
+    ): JsonResponse {
         $this->authorize('viewAny', Functionality::class);
 
-        return Inertia::render('Admin/Functionalities/Index', [
-            'modules' => Module::query()->orderBy('slug')->get(['id', 'slug', 'label']),
-        ]);
-    }
-
-    public function table(FunctionalityTableRequest $request, TableBuilder $table): JsonResponse
-    {
-        $this->authorize('viewAny', Functionality::class);
-
-        return $table->for(Functionality::query()->with('module'))
+        return $table->for(
+            Functionality::query()->where('module_id', $module->id)->with('module'),
+        )
             ->searchable(['name', 'slug'])
             ->request($request)
             ->through(FunctionalityResource::class)
             ->json();
     }
 
-    public function create(): Response
-    {
-        $this->authorize('create', Functionality::class);
+    /** Alta anidada desde Module Edit (modal); vuelve al tab Funcionalidades. */
+    public function moduleStore(
+        StoreFunctionalityRequest $request,
+        Module $module,
+        CreateFunctionality $action,
+    ): RedirectResponse {
+        $action->handle($request->validated());
 
-        return Inertia::render('Admin/Functionalities/Create', [
-            'modules' => Module::query()->orderBy('slug')->get(['id', 'slug', 'label']),
-        ]);
-    }
-
-    public function store(StoreFunctionalityRequest $request, CreateFunctionality $action): RedirectResponse
-    {
-        $functionality = $action->handle($request->validated());
-
-        return to_route('admin.functionalities.edit', $functionality)
-            ->with('success', __('funcionalidad_creada'));
-    }
-
-    public function edit(Functionality $functionality): Response
-    {
-        $this->authorize('update', $functionality);
-
-        return Inertia::render('Admin/Functionalities/Edit', [
-            'functionality' => FunctionalityResource::make($functionality->load('module'))->resolve(),
-            'modules' => Module::query()->orderBy('slug')->get(['id', 'slug', 'label']),
-        ]);
+        return to_route('admin.modules.edit', [
+            'module' => $module,
+            'tab' => 'functionalities',
+        ])->with('success', __('funcionalidad_creada'));
     }
 
     public function update(
@@ -74,15 +57,34 @@ class FunctionalityController extends Controller
     ): RedirectResponse {
         $action->handle($functionality, $request->validated());
 
-        return back()->with('success', __('funcionalidad_actualizada'));
+        return to_route('admin.modules.edit', [
+            'module' => $functionality->module_id,
+            'tab' => 'functionalities',
+        ])->with('success', __('funcionalidad_actualizada'));
+    }
+
+    /** Toggle activo/inactivo desde Acciones del ServerTable (JSON, sin recarga). */
+    public function updateStatus(
+        ToggleFunctionalityStatusRequest $request,
+        Functionality $functionality,
+        UpdateFunctionality $action,
+    ): JsonResponse {
+        $functionality = $action->handle($functionality, $request->validated());
+
+        return response()->json([
+            'status' => $functionality->status->value,
+        ]);
     }
 
     public function destroy(Functionality $functionality, DeleteFunctionality $action): RedirectResponse
     {
         $this->authorize('delete', $functionality);
+        $moduleId = $functionality->module_id;
         $action->handle($functionality);
 
-        return to_route('admin.functionalities.index')
-            ->with('success', __('funcionalidad_eliminada'));
+        return to_route('admin.modules.edit', [
+            'module' => $moduleId,
+            'tab' => 'functionalities',
+        ])->with('success', __('funcionalidad_eliminada'));
     }
 }

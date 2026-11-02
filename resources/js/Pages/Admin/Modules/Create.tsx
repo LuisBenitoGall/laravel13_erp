@@ -6,10 +6,7 @@ import { ColorPicker, Field, IconPicker, Input, LangTabs, Select, Switch, Textar
 import { Button } from '@/Components/ui/button';
 import { Label } from '@/Components/ui/label';
 import AppLayout from '@/Layouts/AppLayout';
-
-type PageProps = {
-    supportedLocales?: string[];
-};
+import type { I18nSharedProps } from '@/types/i18n';
 
 type LocaleMap = Record<string, string>;
 
@@ -29,8 +26,8 @@ function emptyLocaleMap(locales: string[]): LocaleMap {
 
 export default function Create() {
     const { t } = useTranslation();
-    const pageLocales = usePage<PageProps>().props.supportedLocales;
-    const locales = useMemo(() => pageLocales ?? ['es', 'en', 'ca'], [pageLocales]);
+    const { supportedLocales, defaultLocale } = usePage<I18nSharedProps>().props;
+    const locales = useMemo(() => supportedLocales, [supportedLocales]);
     const { data, setData, post, processing, errors } = useForm<ModuleCreateForm>({
         name: '',
         label: emptyLocaleMap(locales),
@@ -118,7 +115,7 @@ export default function Create() {
                                 label={t('etiqueta')}
                                 htmlFor={`module-label-${locale}`}
                                 error={errors[`label.${locale}`]}
-                                required={locale === 'es'}
+                                required={locale === defaultLocale}
                             >
                                 <Input
                                     id={`module-label-${locale}`}
@@ -132,7 +129,7 @@ export default function Create() {
                                 label={t('explicacion')}
                                 htmlFor={`module-explanation-${locale}`}
                                 error={errors[`explanation.${locale}`]}
-                                required={locale === 'es'}
+                                required={locale === defaultLocale}
                             >
                                 <Textarea
                                     id={`module-explanation-${locale}`}

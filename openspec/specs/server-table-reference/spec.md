@@ -17,10 +17,11 @@ tabla SHALL mostrarse con la primera letra en mayúscula vía i18n (p. ej. «Acc
 no «acciones»). Los controles de filtro de cabecera (solo en columnas que declaren
 filtro) SHALL tener un borde de color suave distintivo.
 
-En el Index de Módulos, la columna Acciones SHALL ofrecer Edit en todas las filas, sin
-Delete. El toggle de estado SHALL mostrarse solo en filas cuyo nivel es `optional`.
-En niveles `basic` y `admin_only` el toggle SHALL NOT renderizarse. El Index SHALL
-NOT mostrar columna Estado.
+En el Index de Módulos, la columna Acciones SHALL ofrecer Edit en todas las filas
+elegibles y Delete (último, con confirm) en módulos no shell. El toggle de estado SHALL
+mostrarse solo en filas cuyo nivel es `optional`. En niveles `basic` y `admin_only` el
+toggle SHALL NOT renderizarse. Los módulos shell `admin`/`workspace` SHALL NOT ofrecer
+Delete. El Index SHALL NOT mostrar columna Estado.
 
 #### Scenario: Filtro por columna en Módulos
 - **WHEN** el usuario escribe/elige un filtro en la cabecera de una columna del Index de
@@ -28,13 +29,13 @@ NOT mostrar columna Estado.
 - **THEN** la tabla solicita datos remotos filtrados según el protocolo table + whitelist
 
 #### Scenario: Acciones en un módulo optativo
-- **WHEN** se muestra una fila de módulo con nivel `optional`
-- **THEN** la columna Acciones ofrece un toggle de activar/desactivar y Edit (icono +
-  tooltip), en ese orden, y no ofrece Delete
+- **WHEN** se muestra una fila de módulo con nivel `optional` y slug no shell
+- **THEN** la columna Acciones ofrece toggle, Edit y Delete (confirm), en ese orden
 
 #### Scenario: Sin toggle en básico ni Admin only
-- **WHEN** se muestra una fila de módulo con nivel `basic` o `admin_only`
-- **THEN** la columna Acciones no ofrece toggle de estado y sí ofrece Edit
+- **WHEN** se muestra una fila de módulo con nivel `basic` o `admin_only` y slug no shell
+- **THEN** la columna Acciones no ofrece toggle de estado y sí ofrece Edit y Delete
+  (último, confirm)
 
 #### Scenario: Toggle sin recarga
 - **WHEN** el usuario cambia el toggle de estado de un módulo de nivel `optional` en
@@ -144,6 +145,22 @@ active. En el dashboard de Módulos SHALL NOT mostrarse el botón.
 - **THEN** `ServerTable` solicita datos con los filtros del modal en el protocolo table
 
 ---
+
+### Requirement: ServerTable de Functionalities anidado
+El listado de Functionalities bajo Module Edit SHALL usar el wrapper `ServerTable`
+(R-FE-07). Columnas visibles: label, name, Acciones (toggle status, Edit, Delete con
+confirm, en ese orden). SHALL NOT mostrar columna slug. SHALL filtrar por el módulo
+padre. Toolbar/export: opt-in según necesidad del listado embebido (mínimo filtros de
+cabecera e i18n del contrato ServerTable).
+
+#### Scenario: Acciones Functionalities = toggle + Edit + Delete
+- **WHEN** se muestra el ServerTable de Functionalities en Module Edit
+- **THEN** Acciones ofrece toggle, Edit y Delete (confirm) en ese orden, sin columna
+  slug
+
+#### Scenario: Sin instancia Tabulator fuera de ServerTable
+- **WHEN** se implementa el listado de Functionalities anidado
+- **THEN** no se instancia Tabulator fuera de `ServerTable`
 
 ### Requirement: Norma CRUD listados
 El sistema SHALL actualizar `docs/standards/frontend.md` (y templates asociados si

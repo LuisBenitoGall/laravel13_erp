@@ -12,7 +12,8 @@ it('usa castellano por defecto sin preferencia', function () {
         ->assertInertia(fn ($page) => $page
             ->where('locale', 'es')
             ->has('translations')
-            ->has('supportedLocales'));
+            ->has('supportedLocales')
+            ->where('defaultLocale', config('i18n.default')));
 
     expect(App::getLocale())->toBe('es');
 });

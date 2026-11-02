@@ -1,15 +1,19 @@
 ## Purpose
 
-Pilares de menú Empresas (Mis empresas), Usuarios (Usuarios empresa → Members) y Configuración SA (Módulos, Roles, Permisos→Roles temporal). Labels/agrupación sin CRUDs nuevos ni ampliar perímetro.
+Pilares de menú Empresas (Mis empresas), Usuarios (Usuarios empresa → Members) y
+Configuración SA (Módulos, Roles, Permisos → catálogo Spatie). Labels/agrupación;
+CRUD de permisos custom vive en `admin-permission-catalog`.
 
 ## Requirements
 
 ### Requirement: Pilares de menú Empresas, Usuarios y Configuración SA
 El sistema SHALL exponer en el menú los pilares Empresas (con Mis empresas), Usuarios
 (con Usuarios empresa) y Configuración solo para Super Admin, con subítems al menos
-Módulos, Roles y Permisos. Mis empresas SHALL seguir listando solo companies vinculadas;
-el cambio es de label/agrupación, no de perímetro. Configuración AdminOnly SHALL ser
-visible solo para Super Admin.
+Módulos, Roles y Permisos. SHALL NOT incluir un ítem de menú genérico «Funcionalidades»
+(Index independiente): la gestión de funcionalidades queda anclada a Module/Edit. Mis
+empresas SHALL seguir listando solo companies vinculadas; el cambio es de
+label/agrupación, no de perímetro. Configuración AdminOnly SHALL ser visible solo para
+Super Admin.
 
 #### Scenario: Mis empresas label
 - **WHEN** un usuario con companies vinculadas ve el menú
@@ -22,18 +26,23 @@ visible solo para Super Admin.
 
 #### Scenario: SA ve Configuración
 - **WHEN** un Super Admin obtiene el menú
-- **THEN** ve Configuración con Módulos, Roles y Permisos
+- **THEN** ve Configuración con Módulos, Roles y Permisos, y no ve un ítem genérico
+  Funcionalidades
 
-### Requirement: Ítem Permisos temporal hacia Roles
-El sistema SHALL incluir un ítem de menú Permisos distinto de Roles. Mientras no exista
-el CRUD propio de permisos, ese ítem SHALL enlazar a la UI de Roles existente (índice /
-flujo donde se gestiona la matriz de permisos). SHALL NOT implementar el CRUD de
-permisos custom al margen de funcionalidades×7 acciones.
+### Requirement: Ítem Permisos hacia catálogo de permisos
+El sistema SHALL incluir un ítem de menú Permisos distinto de Roles bajo Configuración.
+Ese ítem SHALL enlazar el Index Admin del catálogo Spatie de permisos. El set canónico
+auto-provisionado por Functionality SHALL ser exactamente
+`viewAny`/`view`/`create`/`update`/`delete` más el comodín `{module}.access`.
 
-#### Scenario: Permisos abre Roles
-- **WHEN** Super Admin abre Permisos desde el menú
-- **THEN** navega a la experiencia actual de Roles (matriz vía esa UI), sin pantalla
-  nueva de permisos
+#### Scenario: Permisos abre el catálogo
+- **WHEN** Super Admin abre Permisos desde el menú Configuración
+- **THEN** navega al Index de permisos Spatie (no a Roles)
+
+#### Scenario: Contrato de acciones canónicas
+- **WHEN** se documenta o valida el set auto-provisionado por Functionality
+- **THEN** son exactamente las cinco acciones anteriores más el comodín de módulo
+  `access` (no un set de siete)
 
 ### Requirement: Usuarios empresa temporal hacia Members
 El sistema SHALL incluir la entrada Usuarios empresa sin pantalla nueva. SHALL enlazarla

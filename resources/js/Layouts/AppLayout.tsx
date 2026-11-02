@@ -33,12 +33,15 @@ export default function AppLayout({
     actions,
     /** Index / raíces: `false`. Create/Edit mantienen default `true` (Volver si hay origen). */
     showBack = true,
+    /** Destino fijo de Volver. Prioridad sobre el origen de navegación. */
+    backHref,
     children,
 }: {
     title?: string;
     breadcrumb?: PageBreadcrumbData;
     actions?: ViewAction[];
     showBack?: boolean;
+    backHref?: string;
     children: ReactNode;
 }) {
     const { t } = useTranslation();
@@ -194,7 +197,7 @@ export default function AppLayout({
                 ) : null}
                 <main className="flex-1 px-6 pb-6 pt-3">
                     {breadcrumb ? <PageBreadcrumb {...breadcrumb} /> : null}
-                    <ViewActionBar actions={actions ?? []} showBack={showBack} />
+                    <ViewActionBar actions={actions ?? []} showBack={showBack} backHref={backHref} />
                     {children}
                 </main>
             </div>

@@ -84,20 +84,21 @@ class AdminCatalogSeeder extends Seeder
             }
 
             foreach ([
-                ['name' => 'Modules', 'slug' => 'modules', 'label' => ['es' => 'Módulos', 'en' => 'Modules', 'ca' => 'Mòduls']],
-                ['name' => 'Functionalities', 'slug' => 'functionalities', 'label' => ['es' => 'Funcionalidades', 'en' => 'Functionalities', 'ca' => 'Funcionalitats']],
-                ['name' => 'Companies', 'slug' => 'companies', 'label' => ['es' => 'Mis empresas', 'en' => 'My companies', 'ca' => 'Les meves empreses']],
+                ['name' => 'Modules', 'slug' => 'modules', 'label' => ['es' => 'Módulos', 'en' => 'Modules', 'ca' => 'Mòduls'], 'status' => FunctionalityStatus::Active],
+                ['name' => 'Functionalities', 'slug' => 'functionalities', 'label' => ['es' => 'Funcionalidades', 'en' => 'Functionalities', 'ca' => 'Funcionalitats'], 'status' => FunctionalityStatus::Inactive],
+                ['name' => 'Companies', 'slug' => 'companies', 'label' => ['es' => 'Mis empresas', 'en' => 'My companies', 'ca' => 'Les meves empreses'], 'status' => FunctionalityStatus::Active],
                 ['name' => 'Company modules', 'slug' => 'company-modules', 'label' => ['es' => 'Módulos de empresa', 'en' => 'Company modules', 'ca' => 'Mòduls d\'empresa']],
                 ['name' => 'Module authorizations', 'slug' => 'company-module-authorizations', 'label' => ['es' => 'Autorización de módulos', 'en' => 'Module authorizations', 'ca' => 'Autorització de mòduls']],
                 ['name' => 'Roles', 'slug' => 'roles', 'label' => ['es' => 'Roles', 'en' => 'Roles', 'ca' => 'Rols']],
                 ['name' => 'Permissions', 'slug' => 'permissions', 'label' => ['es' => 'Permisos', 'en' => 'Permissions', 'ca' => 'Permisos']],
             ] as $item) {
+                $status = $item['status'] ?? FunctionalityStatus::Active;
                 $existing = Functionality::query()->where('slug', $item['slug'])->first();
 
                 if ($existing !== null) {
                     $existing->forceFill([
                         'label' => $item['label'],
-                        'status' => FunctionalityStatus::Active,
+                        'status' => $status,
                     ])->save();
 
                     continue;
@@ -108,7 +109,7 @@ class AdminCatalogSeeder extends Seeder
                     'name' => $item['name'],
                     'slug' => $item['slug'],
                     'label' => $item['label'],
-                    'status' => FunctionalityStatus::Active->value,
+                    'status' => $status->value,
                 ]);
             }
 

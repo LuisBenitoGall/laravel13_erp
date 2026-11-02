@@ -2,6 +2,7 @@
 
 namespace App\Domains\Admin\Actions;
 
+use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Models\Functionality;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
@@ -12,6 +13,8 @@ class CreateFunctionality
     public function handle(array $data): Functionality
     {
         return DB::transaction(function () use ($data) {
+            $data['status'] ??= FunctionalityStatus::Active->value;
+
             $functionality = Functionality::query()->create($data);
             $functionality->load('module');
 

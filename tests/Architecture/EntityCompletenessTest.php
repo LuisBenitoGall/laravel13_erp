@@ -86,8 +86,12 @@ it('EntityCompleteness: todos los modelos de dominio tienen artefactos Siempre',
             app_path("Domains/{$domain}/Http/Controllers/{$entity}Controller.php"),
             base_path("tests/Feature/{$domain}/{$entity}Test.php"),
             resource_path("js/types/{$domainSnake}.d.ts"),
-            resource_path("js/Pages/{$domain}/{$entityPlural}/Index.tsx"),
         ];
+
+        // Functionality: CRUD anidado bajo Module Edit (sin Index genérico).
+        if ($entity !== 'Functionality') {
+            $required[] = resource_path("js/Pages/{$domain}/{$entityPlural}/Index.tsx");
+        }
 
         foreach ($required as $path) {
             if (! $fs->exists($path)) {

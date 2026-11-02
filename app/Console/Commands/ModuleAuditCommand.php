@@ -123,7 +123,7 @@ class ModuleAuditCommand extends Command
         $entityPlural = Str::pluralStudly($entity);
         $domainSnake = Str::snake($domain);
 
-        return [
+        $checklist = [
             'Policy' => $this->files->exists(app_path("Domains/{$domain}/Policies/{$entity}Policy.php")),
             'Factory' => $this->files->exists(database_path("factories/{$entity}Factory.php")),
             'StoreRequest' => $this->files->exists(app_path("Domains/{$domain}/Http/Requests/Store{$entity}Request.php")),
@@ -133,8 +133,16 @@ class ModuleAuditCommand extends Command
             'Controller' => $this->files->exists(app_path("Domains/{$domain}/Http/Controllers/{$entity}Controller.php")),
             'FeatureTest' => $this->files->exists(base_path("tests/Feature/{$domain}/{$entity}Test.php")),
             'TypesTS' => $this->files->exists(resource_path("js/types/{$domainSnake}.d.ts")),
-            'PageIndex' => $this->files->exists(resource_path("js/Pages/{$domain}/{$entityPlural}/Index.tsx")),
         ];
+
+        // Functionality: CRUD anidado bajo Module Edit (sin Index genérico).
+        if ($entity !== 'Functionality') {
+            $checklist['PageIndex'] = $this->files->exists(
+                resource_path("js/Pages/{$domain}/{$entityPlural}/Index.tsx"),
+            );
+        }
+
+        return $checklist;
     }
 
     private function checkFunctionalityPermissions(): void

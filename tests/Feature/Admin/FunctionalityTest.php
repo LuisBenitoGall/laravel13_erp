@@ -7,10 +7,9 @@ use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
-use App\Domains\Admin\Models\Role;
 use App\Domains\Partners\Models\Company;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -61,25 +60,23 @@ it('rechaza cambio de slug en UpdateFunctionality', function () {
     ]))->toThrow(InvalidArgumentException::class);
 });
 
-it('niega Functionality index sin permiso', function () {
-    $user = User::factory()->create();
-    actingWithCompany($user, $this->company);
-
-    $this->get(route('admin.functionalities.index'))->assertForbidden();
-});
-
 it('Functionality es visible globalmente', function () {
     Functionality::factory()->create(['slug' => 'shared-fn']);
 
     expect(Functionality::query()->where('slug', 'shared-fn')->count())->toBe(1);
 });
 
-it('Super Admin bypasa Policy', function () {
-    $user = User::factory()->create();
-    setPermissionsTeamId(null);
-    Role::findOrCreate(Role::SUPER_ADMIN);
-    $user->assignRole(Role::SUPER_ADMIN);
-    actingWithCompany($user, $this->company);
+it('no expone CRUD genérico de Functionalities', function () {
+    expect(Route::has('admin.functionalities.index'))->toBeFalse()
+        ->and(Route::has('admin.functionalities.create'))->toBeFalse()
+        ->and(Route::has('admin.functionalities.edit'))->toBeFalse()
+        ->and(Route::has('admin.functionalities.table'))->toBeFalse()
+        ->and(Route::has('admin.functionalities.store'))->toBeFalse()
+        ->and(Route::has('admin.modules.functionalities.table'))->toBeTrue()
+        ->and(Route::has('admin.modules.functionalities.store'))->toBeTrue()
+        ->and(Route::has('admin.functionalities.update'))->toBeTrue()
+        ->and(Route::has('admin.functionalities.status'))->toBeTrue()
+        ->and(Route::has('admin.functionalities.destroy'))->toBeTrue();
 
-    $this->get(route('admin.functionalities.index'))->assertOk();
+    $this->get('/admin/functionalities')->assertNotFound();
 });

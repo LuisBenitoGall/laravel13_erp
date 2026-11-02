@@ -8,6 +8,7 @@ use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Policies\CompanyRolePolicy;
 use App\Domains\Admin\Policies\FunctionalityPolicy;
 use App\Domains\Admin\Policies\ModulePolicy;
+use App\Domains\Admin\Policies\PermissionPolicy;
 use App\Domains\Admin\Policies\PlatformRolePolicy;
 use App\Domains\Admin\Services\CompanyModuleActivationChecker;
 use App\Domains\Partners\Models\Company;
@@ -18,6 +19,7 @@ use App\Support\Tenancy\CurrentCompany;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Permission\Models\Permission;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Module::class, ModulePolicy::class);
         Gate::policy(Functionality::class, FunctionalityPolicy::class);
+        Gate::policy(Permission::class, PermissionPolicy::class);
         Gate::policy(Role::class, PlatformRolePolicy::class);
         Gate::policy(Company::class, CompanyPolicy::class);
 

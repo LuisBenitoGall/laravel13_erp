@@ -64,6 +64,7 @@ class HandleInertiaRequests extends Middleware
                 : [],
             'locale' => App::getLocale(),
             'supportedLocales' => app(LocaleResolver::class)->supported(),
+            'defaultLocale' => app(LocaleResolver::class)->default(),
             'translations' => app(TranslationDictionary::class)->forLocale(App::getLocale()),
         ];
     }

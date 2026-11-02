@@ -23,6 +23,8 @@ class ModuleResource extends JsonResource
             'level' => $this->level->value,
             'status' => $this->status->value,
             'created_at' => $this->created_at?->toIso8601String(),
+            'updated_at' => $this->updated_at?->toIso8601String(),
+            'created_by_name' => $this->relationLoaded('creator') ? $this->creator?->name : null,
             'explanation' => $this->getTranslations('explanation'),
         ];
     }

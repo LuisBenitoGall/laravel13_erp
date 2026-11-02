@@ -4,11 +4,13 @@ namespace App\Domains\Admin\Models;
 
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Models\User;
 use App\Support\Models\Concerns\Auditable;
 use Database\Factories\ModuleFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Translatable\HasTranslations;
@@ -57,6 +59,12 @@ class Module extends Model
     public function functionalities(): HasMany
     {
         return $this->hasMany(Functionality::class);
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     protected static function newFactory(): ModuleFactory

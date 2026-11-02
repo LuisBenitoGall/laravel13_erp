@@ -15,7 +15,7 @@ class UpdateModule
     public function handle(Module $module, array $data): Module
     {
         return DB::transaction(function () use ($module, $data) {
-            unset($data['slug']);
+            unset($data['slug'], $data['level']);
 
             $module->update($data);
             $module->refresh();

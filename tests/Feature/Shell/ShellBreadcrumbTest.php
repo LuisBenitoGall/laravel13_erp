@@ -42,7 +42,7 @@ it('Modules Index declara breadcrumb con Dashboard y href al index', function ()
 });
 
 it('Modules Edit declara suboption editar y option enlaza al index', function () {
-    $source = file_get_contents(resource_path('js/Pages/Admin/Modules/components/ModuleForm.tsx'));
+    $source = file_get_contents(resource_path('js/Pages/Admin/Modules/Edit.tsx'));
 
     expect($source)->toContain("optionKey: 'modulos'")
         ->and($source)->toContain('modulo_editar')

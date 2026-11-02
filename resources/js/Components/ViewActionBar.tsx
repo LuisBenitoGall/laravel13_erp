@@ -30,18 +30,28 @@ function isDelete(action: ViewAction): action is Extract<ViewAction, { type: 'de
 
 export default function ViewActionBar({
     actions = [],
-    /** Index / raíces: false. Create/Edit: true (default) si hay origen. */
+    /** Index / raíces: false. Create/Edit: true (default) si hay origen o backHref. */
     showBack = true,
+    /** Destino fijo de Volver. Prioridad sobre el origen de navegación. */
+    backHref: fixedBackHref,
 }: {
     actions?: ViewAction[];
     showBack?: boolean;
+    backHref?: string;
 }) {
     const { t } = useTranslation();
     const { url } = usePage();
-    const backHref = useMemo(
-        () => (showBack ? resolveBackHref(url) : null),
-        [showBack, url],
-    );
+    const backHref = useMemo(() => {
+        if (!showBack) {
+            return null;
+        }
+
+        if (fixedBackHref) {
+            return fixedBackHref;
+        }
+
+        return resolveBackHref(url);
+    }, [showBack, fixedBackHref, url]);
     const [pendingDelete, setPendingDelete] = useState<Extract<
         ViewAction,
         { type: 'delete' }

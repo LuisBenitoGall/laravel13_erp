@@ -16,7 +16,8 @@ class UpdateFunctionality
         }
 
         return DB::transaction(function () use ($functionality, $data) {
-            unset($data['slug']);
+            // name/module_id/slug inmutables desde el modal; status solo vía toggle request.
+            unset($data['slug'], $data['name'], $data['module_id']);
             $functionality->update($data);
 
             return $functionality->refresh();

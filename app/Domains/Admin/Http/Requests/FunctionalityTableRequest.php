@@ -8,5 +8,5 @@ class FunctionalityTableRequest extends TableRequest
 {
     protected array $sortable = ['name', 'slug', 'status', 'created_at'];
 
-    protected array $filterable = ['status', 'module_id', 'search'];
+    protected array $filterable = ['name', 'status', 'module_id', 'search'];
 }

@@ -122,6 +122,9 @@ it('Index Modules declara ServerTable de referencia sin advanced search', functi
         ->and($source)->toContain('patchJson')
         ->and($source)->toContain('/admin/modules/${row.id}/status')
         ->and($source)->toContain("labelKey: 'editar'")
+        ->and($source)->toContain("labelKey: 'eliminar'")
+        ->and($source)->toContain("variant: 'danger'")
+        ->and($source)->toContain("row.slug === 'admin'")
         ->and($source)->toContain("field: 'name'")
         ->and($source)->toContain("field: 'color'")
         ->and($source)->toContain("field: 'icon'")
@@ -224,7 +227,6 @@ it('permite desactivar y reactivar módulos shell admin y workspace', function (
 it('ningún Index ServerTable muestra columna slug', function () {
     $files = [
         resource_path('js/Pages/Admin/Modules/Index.tsx'),
-        resource_path('js/Pages/Admin/Functionalities/Index.tsx'),
         resource_path('js/Pages/Partners/Companies/Index.tsx'),
     ];
 

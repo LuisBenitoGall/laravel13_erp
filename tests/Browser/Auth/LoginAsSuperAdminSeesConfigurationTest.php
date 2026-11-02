@@ -20,7 +20,7 @@ beforeEach(function () {
     setPermissionsTeamId(null);
 });
 
-it('login como super admin ve Configuración aunque admin no esté encendido', function () {
+it('login como super admin ve Módulos aunque admin no esté encendido', function () {
     $admin = Module::factory()->create([
         'slug' => 'admin',
         'level' => ModuleLevel::AdminOnly,
@@ -66,13 +66,10 @@ it('login como super admin ve Configuración aunque admin no esté encendido', f
         ->click('Acceder')
         ->assertPathIs('/dashboard')
         ->assertSee('Dashboard')
-        ->assertSee('Configuración')
-        ->assertSee('ACME Shell')
-        ->assertDontSee('Funcionalidades');
-
-    $page->click('Configuración')
         ->assertSee('Módulos')
-        ->assertSee('Funcionalidades')
+        ->assertSee('ACME Shell')
+        ->assertDontSee('Configuración')
+        ->assertDontSee('Funcionalidades')
         ->click('Módulos')
         ->assertPathIs('/admin/modules')
         ->assertSee('Módulos')

@@ -101,34 +101,49 @@ export default function Index() {
     }, [t, i18n.language]);
 
     const rowActions = (row: ModuleRow): Array<RowAction<ModuleRow>> => {
+        const isShell = row.slug === 'admin' || row.slug === 'workspace';
         const edit: RowAction<ModuleRow> = {
             id: 'edit',
             icon: Pencil,
             labelKey: 'editar',
             onClick: () => router.visit(`/admin/modules/${row.id}/edit`),
         };
+        const remove: RowAction<ModuleRow> = {
+            id: 'delete',
+            labelKey: 'eliminar',
+            variant: 'danger',
+            confirm: true,
+            onClick: (current) => {
+                router.delete(`/admin/modules/${current.id}`, { preserveScroll: true });
+            },
+        };
+
+        const actions: Array<RowAction<ModuleRow>> = [];
 
         if (row.level === 'optional') {
-            return [
-                {
-                    id: 'toggle-status',
-                    kind: 'toggle' as const,
-                    labelKey: row.status === 'active' ? 'desactivar' : 'activar',
-                    checked: row.status === 'active',
-                    onToggle: async (_row, checked) => {
-                        const status = checked ? 'active' : 'inactive';
-                        await patchJson<{ status: string }>(`/admin/modules/${row.id}/status`, {
-                            status,
-                        });
+            actions.push({
+                id: 'toggle-status',
+                kind: 'toggle' as const,
+                labelKey: row.status === 'active' ? 'desactivar' : 'activar',
+                checked: row.status === 'active',
+                onToggle: async (_row, checked) => {
+                    const status = checked ? 'active' : 'inactive';
+                    await patchJson<{ status: string }>(`/admin/modules/${row.id}/status`, {
+                        status,
+                    });
 
-                        return { status };
-                    },
+                    return { status };
                 },
-                edit,
-            ];
+            });
         }
 
-        return [edit];
+        actions.push(edit);
+
+        if (!isShell) {
+            actions.push(remove);
+        }
+
+        return actions;
     };
 
     return (

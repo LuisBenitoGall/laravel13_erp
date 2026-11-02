@@ -132,3 +132,11 @@ it('niega el alta sin permiso modules.create', function () {
     $this->post(route('admin.modules.store'), moduleCreatePayload())
         ->assertForbidden();
 });
+
+it('Create usa defaultLocale shared y no hardcodea locale principal', function () {
+    $source = (string) file_get_contents(resource_path('js/Pages/Admin/Modules/Create.tsx'));
+
+    expect($source)->toContain('defaultLocale')
+        ->and($source)->not->toContain("locale === 'es'")
+        ->and($source)->not->toContain('locale === "es"');
+});

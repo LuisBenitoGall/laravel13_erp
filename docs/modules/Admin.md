@@ -14,8 +14,9 @@ authorized∩enabled), bypass `EnsureModuleIsActive` solo AdminOnly+SA (perímet
 datos intacto).
 
 **No entra:** facturación SaaS (Cashier/Stripe/cuotas); ver todas las companies sin
-vínculo; invitar miembros no vinculados; engorde Company; Wysiwyg/Dropzone.
-Edit/Delete Module completo (Edit sigue MVP hasta su change).
+vínculo; invitar miembros no vinculados; engorde Company; Wysiwyg/Dropzone;
+menú/Index/CRUD genérico de Funcionalidades; soft delete de módulos shell
+(`admin`/`workspace`).
 
 ## Entidades / infra RBAC
 
@@ -31,13 +32,17 @@ Edit/Delete Module completo (Edit sigue MVP hasta su change).
 | Functionality `roles` / `company-roles` | Plataforma / workspace |
 | Consola plataforma | Partners Companies Index (CTA) + authorizations scoped |
 | Shell navegación | Dashboard + Configuración SA; seed ACME; post-login → dashboard |
-| Menú pilares | Empresas (Mis empresas), Usuarios (Usuarios empresa→Members sesión vía `module:workspace` + `company-users.*`), Configuración SA (Módulos/Roles/Permisos→Roles). CRUD permisos Spatie custom = change futuro |
+| Menú pilares | Empresas (Mis empresas), Usuarios (Usuarios empresa→Members sesión vía `module:workspace` + `company-users.*`), Configuración SA (Módulos/Roles/Permisos→catálogo Spatie; sin ítem genérico Funcionalidades) |
+| Catálogo Permisos | Index ServerTable (name, Functionality vía prefijo, Acciones Delete custom); Create modal (`{slug}.{sufijo}` único; reserved 5+access); canónicos + `*.access` no borrables; Functionality `permissions` + Policy; sin Edit ni asignación Roles/Users |
 | Shell topbar | Bloque 1: collapse izq. / acciones der.; stubs popover; perfil+logout |
 | Shell topbar polish | Mini-rail md+ (`erp.aside.collapsed`); móvil off-canvas; flyout B1; logos reducidos; notas=Popover |
 | Shell breadcrumb | Bloque 2: `PageBreadcrumb` option (Link) + suboption; Index → `dashboard` |
-| Shell action bar | Bloque 3: `ViewActionBar` (Volver si origen, CTAs, delete+confirm); ≠ FormActions / Records/ActionBar |
-| Listado Modules | Referencia `ServerTable`: name, color, icon (Lucide + `title`), level (i18n), created_at y Acciones (Edit siempre; toggle solo si `level === optional`; sin Delete ni columna Estado ni búsqueda avanzada). Inactive permitido también en shell vía UpdateModule. Export xlsx/pdf por el mismo `table` |
+| Shell action bar | Bloque 3: `ViewActionBar` (Volver con `backHref` fijo o origen, CTAs, delete+confirm); ≠ FormActions / Records/ActionBar |
+| Listado Modules | Referencia `ServerTable`: name, color, icon (Lucide + `title`), level (i18n), created_at y Acciones (toggle solo `optional` → Edit → Delete confirm en no-shell; sin Delete en shell; sin columna Estado ni búsqueda avanzada). Inactive permitido también en shell vía UpdateModule. Export xlsx/pdf por el mismo `table` |
 | Create Module | Alta con LangTabs (label+explanation; principal required), IconPicker, ColorPicker, Switch status default Active; slug solo servidor + `{slug}.access`; redirect Edit. Kit: `Form/LangTabs`, `ColorPicker`, `IconPicker` |
+| Edit Module | Tabs Módulo \| Funcionalidades; form kit; slug inmutable/oculto; level readonly i18n; `backHref=/admin/modules`; RecordSummary; ActionBar Nueva funcionalidad + Delete (no shell) |
+| Soft delete Module | Index Acciones + Edit ActionBar; Spatie intacto; shell `admin`/`workspace` → 403 |
+| Functionalities anidadas | ServerTable (label, name, Acciones toggle→Edit→Delete; sin slug; `exportable=false`); modales Create (name+LangTabs label; slug auto) / Edit (solo label); soft delete sin purge Spatie; `defaultLocale` shared; sin CRUD genérico ni `ModuleForm` |
 
 ## Sync manager
 
@@ -54,6 +59,16 @@ local.
 | V-09 | No | Reutiliza módulo `admin` |
 | Resto | No | Billing, stock, etc. fuera |
 | E2E | N/A | `e2e.md` §4 |
+
+## Vinculaciones — admin-permissions (catálogo Spatie)
+
+| Id | ¿Aplica? | Nota |
+|---|---|---|
+| V-07 | Sí | Reutiliza Functionality `permissions` + Spatie `permissions.*` (ya sembrable) |
+| V-08 | Sí | Ítem Permisos → Index catálogo (deja temporal→Roles) |
+| V-09 | No | Módulo `admin` existente |
+| R-TEN-05 | N/A | Permission global Spatie, sin `company_id` |
+| E2E | N/A | `e2e.md` §4; feature tests del CRUD |
 
 ## Dependencias
 

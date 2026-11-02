@@ -83,8 +83,8 @@ it('SA ve Configuración con Módulos Roles Permisos y Permisos apunta a roles',
 
     expect(collect($menu)->pluck('slug')->all())->toContain('configuracion')
         ->and($slugs)->toContain('modules', 'roles', 'permissions')
-        ->and($slugs)->not->toContain('companies', 'company-modules')
-        ->and($permissions['href'])->toBe(route('admin.roles.index', absolute: false))
+        ->and($slugs)->not->toContain('companies', 'company-modules', 'functionalities')
+        ->and($permissions['href'])->toBe(route('admin.permissions.index', absolute: false))
         ->and($permissions['label'])->toBe(__('permisos'));
 });
 

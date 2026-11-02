@@ -14,6 +14,7 @@ export interface FunctionalityRow {
     id: number;
     name: string;
     slug: string;
+    label: Record<string, string>;
     label_text: string;
     status: string;
     module_id: number;

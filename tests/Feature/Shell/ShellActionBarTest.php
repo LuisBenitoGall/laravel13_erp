@@ -43,10 +43,20 @@ it('Modules Index declara Crear en ViewActionBar y sin Volver', function () {
 });
 
 it('Create Modules declara actions vacío (Volver solo si hay origen en cliente)', function () {
-    $source = file_get_contents(resource_path('js/Pages/Admin/Modules/components/ModuleForm.tsx'));
+    $source = file_get_contents(resource_path('js/Pages/Admin/Modules/Create.tsx'));
 
     expect($source)->toContain('actions={[]}')
         ->and($source)->not->toContain("labelKey: 'crear'");
+});
+
+it('backHref fijo tiene prioridad y sin origen ni backHref no hay Volver', function () {
+    $bar = file_get_contents(resource_path('js/Components/ViewActionBar.tsx'));
+    $layout = file_get_contents(resource_path('js/Layouts/AppLayout.tsx'));
+
+    expect($bar)->toContain('fixedBackHref')
+        ->and($bar)->toContain('if (!showBack)')
+        ->and($bar)->toContain('resolveBackHref')
+        ->and($layout)->toContain('backHref={backHref}');
 });
 
 it('navOrigin helper y ViewActionBar existen', function () {

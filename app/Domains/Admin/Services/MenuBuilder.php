@@ -36,7 +36,6 @@ class MenuBuilder
      */
     private const CONFIGURATION_SLUGS = [
         'modules',
-        'functionalities',
         'roles',
         'permissions',
     ];
@@ -304,11 +303,11 @@ class MenuBuilder
     {
         return match ($functionality->slug) {
             'modules' => route('admin.modules.index', absolute: false),
-            'functionalities' => route('admin.functionalities.index', absolute: false),
             'companies' => route('partners.companies.index', absolute: false),
             'company-modules' => route('admin.company-modules.index', absolute: false),
             'company-module-authorizations' => route('admin.company-module-authorizations.index', absolute: false),
-            'roles', 'permissions' => route('admin.roles.index', absolute: false),
+            'roles' => route('admin.roles.index', absolute: false),
+            'permissions' => route('admin.permissions.index', absolute: false),
             'company-roles' => route('company.roles.index', absolute: false),
             'company-users' => $this->companyUsersHref(),
             default => '#',
