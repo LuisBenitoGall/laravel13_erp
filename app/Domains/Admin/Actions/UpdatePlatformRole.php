@@ -67,15 +67,13 @@ class UpdatePlatformRole
                 $role->save();
 
                 if (array_key_exists('permissions', $data)) {
-                    if ($role->isManagerTemplate()) {
-                        // Matriz solo lectura: ignorar cambios de permisos.
-                    } else {
-                        $permissions = $this->catalog->filterPermissionNames(
-                            $data['permissions'],
-                            allowAdminOnly: ! $role->universal,
-                        );
-                        $this->syncPermissions->handle($role, $permissions);
-                    }
+                    // Plantillas manager/guest: editables (asignar permisos).
+                    // El manager local de cada company sigue gobernado por sync.
+                    $permissions = $this->catalog->filterPermissionNames(
+                        $data['permissions'],
+                        allowAdminOnly: ! $role->universal,
+                    );
+                    $this->syncPermissions->handle($role, $permissions);
                 }
 
                 return $role->fresh(['permissions']) ?? $role;

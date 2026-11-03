@@ -28,6 +28,7 @@ menú/Index/CRUD genérico de Funcionalidades; soft delete de módulos shell
 | Module Basic `workspace` | Cáscara tenant |
 | Roles Spatie `manager` / `guest` | Plantilla universal + copia local |
 | Roles plataforma / custom | Admin CRUD / company CRUD |
+| Index roles plataforma | ServerTable (name, description, universal, Acciones Edit + Delete confirm si `can_delete`); Super Admin fuera; CTA Crear stub disabled; plantillas `manager`/`guest` no borrables pero matriz editable; roles con usuarios no borrables; manager local sigue por sync |
 | `AssignCompanyRole` | Cualquier rol local; un rol por company |
 | Functionality `roles` / `company-roles` | Plataforma / workspace |
 | Consola plataforma | Partners Companies Index (CTA) + authorizations scoped |
@@ -69,6 +70,16 @@ local.
 | V-09 | No | Módulo `admin` existente |
 | R-TEN-05 | N/A | Permission global Spatie, sin `company_id` |
 | E2E | N/A | `e2e.md` §4; feature tests del CRUD |
+
+## Vinculaciones — admin-platform-roles-index
+
+| Id | ¿Aplica? | Nota |
+|---|---|---|
+| V-07 | No | Reutiliza Functionality `roles` / `roles.*` |
+| V-08 | No | Menú Roles ya apunta a Index |
+| V-09 | No | Módulo `admin` |
+| R-TEN-05 | N/A | Roles plataforma `company_id` NULL |
+| E2E | N/A | `e2e.md` §4; feature Index |
 
 ## Dependencias
 

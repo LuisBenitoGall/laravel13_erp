@@ -9,7 +9,14 @@ import { resolveBackHref } from '@/lib/navOrigin';
 
 export type ViewAction =
     | { type: 'link'; labelKey: string; href: string; icon: LucideIcon }
-    | { type: 'button'; labelKey: string; icon: LucideIcon; onClick: () => void }
+    | {
+          type: 'button';
+          labelKey: string;
+          icon: LucideIcon;
+          onClick: () => void;
+          /** Stub / no-op: visible pero no accionable. */
+          disabled?: boolean;
+      }
     | {
           type: 'delete';
           onConfirm: () => void;
@@ -98,7 +105,9 @@ export default function ViewActionBar({
                                 key={`button-${action.labelKey}-${index}`}
                                 type="button"
                                 size="sm"
-                                onClick={action.onClick}
+                                disabled={action.disabled}
+                                aria-disabled={action.disabled ? true : undefined}
+                                onClick={action.disabled ? undefined : action.onClick}
                             >
                                 <Icon aria-hidden />
                                 {t(action.labelKey)}

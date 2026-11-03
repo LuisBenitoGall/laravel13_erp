@@ -16,6 +16,7 @@ use Spatie\Permission\PermissionRegistrar;
  * @property bool $universal
  * @property string|null $description
  * @property int|null $company_id
+ * @property-read int|null $users_count
  */
 class Role extends SpatieRole
 {

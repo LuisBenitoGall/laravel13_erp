@@ -31,7 +31,7 @@ class PlatformRoleController extends Controller
     {
         $this->authorize('viewAny', Role::class);
 
-        return $table->for(Role::query()->platformManaged())
+        return $table->for(Role::query()->platformManaged()->withCount('users'))
             ->searchable(['name', 'description'])
             ->request($request)
             ->through(PlatformRoleResource::class)

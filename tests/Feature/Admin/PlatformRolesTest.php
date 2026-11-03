@@ -76,6 +76,102 @@ function platformAdmin(): User
     return $user;
 }
 
+it('Index de roles plataforma responde Inertia y el CTA Crear es stub disabled', function () {
+    platformAdmin();
+
+    $this->get(route('admin.roles.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('Admin/Roles/Index'));
+
+    $source = file_get_contents(resource_path('js/Pages/Admin/Roles/Index.tsx'));
+
+    expect($source)->toContain("labelKey: 'rol_crear'")
+        ->and($source)->toContain('disabled: true')
+        ->and($source)->toContain('rowActions')
+        ->and($source)->toContain('persistKey="admin.roles"')
+        ->and($source)->toContain('exportable={false}')
+        ->and($source)->toContain("headerFilterKind: 'string'")
+        ->and($source)->toContain("labelKey: 'editar'")
+        ->and($source)->toContain('/admin/roles/${row.id}/edit')
+        ->and($source)->not->toContain("href: '/admin/roles/create'")
+        ->and($source)->not->toContain("labelKey: 'crear'")
+        ->and($source)->not->toContain("field: 'accion'")
+        ->and($source)->toContain("labelKey: 'eliminar'");
+});
+
+it('table filtra por name whitelistado y no por campos ajenos', function () {
+    platformAdmin();
+
+    Role::create([
+        'name' => 'filter_alpha_role',
+        'guard_name' => 'web',
+        'universal' => false,
+        'description' => 'Alpha desc',
+    ]);
+    Role::create([
+        'name' => 'filter_beta_role',
+        'guard_name' => 'web',
+        'universal' => false,
+        'description' => 'Beta desc',
+    ]);
+
+    $response = $this->getJson(route('admin.roles.table', [
+        'filter' => json_encode([
+            ['field' => 'name', 'type' => 'like', 'value' => 'filter_alpha'],
+            ['field' => 'hacked', 'type' => '=', 'value' => 'x'],
+        ]),
+    ]))->assertOk();
+
+    $names = collect($response->json('data'))->pluck('name')->all();
+
+    expect($names)->toContain('filter_alpha_role')
+        ->and($names)->not->toContain('filter_beta_role');
+});
+
+it('table excluye Super Admin y marca can_delete en plantillas protegidas', function () {
+    // R-TEN-05 N/A: roles plataforma (company_id NULL); aislamiento tenant = otro change.
+    platformAdmin();
+
+    Role::create([
+        'name' => 'ops_temp',
+        'guard_name' => 'web',
+        'universal' => false,
+        'description' => 'Temp',
+    ]);
+
+    $withUsers = Role::create([
+        'name' => 'with_users_flag',
+        'guard_name' => 'web',
+        'universal' => false,
+    ]);
+    $assignee = User::factory()->create();
+    setPermissionsTeamId(null);
+    $assignee->assignRole($withUsers);
+
+    $response = $this->getJson(route('admin.roles.table'))->assertOk();
+    $rows = collect($response->json('data'));
+
+    expect($rows->contains(fn (array $row): bool => ($row['name'] ?? null) === Role::SUPER_ADMIN))->toBeFalse();
+
+    $manager = $rows->firstWhere('name', Role::MANAGER);
+    $guest = $rows->firstWhere('name', Role::GUEST);
+    $ops = $rows->firstWhere('name', 'ops_temp');
+    $assigned = $rows->firstWhere('name', 'with_users_flag');
+
+    expect($manager)->not->toBeNull()
+        ->and($manager['can_delete'])->toBeFalse()
+        ->and($manager['permissions_readonly'])->toBeFalse()
+        ->and($guest)->not->toBeNull()
+        ->and($guest['can_delete'])->toBeFalse()
+        ->and($guest['permissions_readonly'])->toBeFalse()
+        ->and($ops)->not->toBeNull()
+        ->and($ops['can_delete'])->toBeTrue()
+        ->and($ops['universal'])->toBeFalse()
+        ->and(array_key_exists('description', $ops))->toBeTrue()
+        ->and($assigned)->not->toBeNull()
+        ->and($assigned['can_delete'])->toBeFalse();
+});
+
 it('permite CRUD de rol de plataforma al Super Admin', function () {
     platformAdmin();
 
@@ -171,7 +267,7 @@ it('universales no guardan permisos AdminOnly; genéricos sí', function () {
         ->and($plat->permissions->pluck('name')->all())->toContain('budgets.viewAny');
 });
 
-it('plantilla manager no altera permisos al update de matriz', function () {
+it('plantilla manager guarda permisos en la matriz y sigue sin borrarse', function () {
     platformAdmin();
 
     $manager = Role::query()->platform()->where('name', Role::MANAGER)->firstOrFail();
@@ -183,8 +279,45 @@ it('plantilla manager no altera permisos al update de matriz', function () {
     ])->assertRedirect();
 
     $manager->refresh();
-    expect($manager->permissions)->toHaveCount(0)
-        ->and($manager->description)->toBe('Manager template');
+    expect($manager->description)->toBe('Manager template')
+        ->and($manager->permissions->pluck('name')->sort()->values()->all())
+        ->toBe(['budgets.create', 'budgets.viewAny']);
+
+    $this->delete(route('admin.roles.destroy', $manager))->assertSessionHasErrors('role');
+    expect(Role::query()->platform()->where('name', Role::MANAGER)->exists())->toBeTrue();
+});
+
+it('guardar plantilla manager no recorta el manager local de una company', function () {
+    platformAdmin();
+
+    $creator = User::factory()->create();
+    $company = app(CreateCompany::class)->handle([
+        'name' => 'Local Mgr Co',
+        'slug' => 'local-mgr-'.uniqid(),
+        'tradename' => 'Local',
+        'nif' => 'B'.random_int(10000000, 99999999),
+        'status' => CompanyStatus::Active->value,
+        'logo' => null,
+    ], $creator);
+
+    enableModuleForCompany($company, 'sales');
+    app(SyncManagerPermissionsForCompany::class)->handle($company);
+
+    setPermissionsTeamId($company->id);
+    $local = Role::findByName(Role::MANAGER);
+    $before = $local->permissions->pluck('name')->sort()->values()->all();
+    expect($before)->not->toBeEmpty();
+
+    setPermissionsTeamId(null);
+    $template = Role::query()->platform()->where('name', Role::MANAGER)->firstOrFail();
+    $this->put(route('admin.roles.update', $template), [
+        'description' => 'Plantilla vacía no debe afectar locales',
+        'permissions' => [],
+    ])->assertRedirect();
+
+    setPermissionsTeamId($company->id);
+    $local->refresh();
+    expect($local->permissions->pluck('name')->sort()->values()->all())->toBe($before);
 });
 
 it('crear company materializa universales y copia permisos excepto manager', function () {
