@@ -36,6 +36,7 @@ beforeEach(function () {
         ['Modules', 'modules', ['es' => 'Módulos']],
         ['Roles', 'roles', ['es' => 'Roles']],
         ['Permissions', 'permissions', ['es' => 'Permisos']],
+        ['Countries', 'countries', ['es' => 'Países']],
         ['Companies', 'companies', ['es' => 'Mis empresas']],
         ['Company modules', 'company-modules', ['es' => 'Módulos de empresa']],
     ] as [$name, $slug, $label]) {
@@ -71,7 +72,7 @@ beforeEach(function () {
     ]);
 });
 
-it('SA ve Configuración con Módulos Roles Permisos y Permisos apunta a roles', function () {
+it('SA ve Configuración con Módulos Roles Permisos Países', function () {
     $sa = User::factory()->create();
     $sa->assignRole(Role::SUPER_ADMIN);
     withCurrentCompany($this->company);
@@ -80,12 +81,14 @@ it('SA ve Configuración con Módulos Roles Permisos y Permisos apunta a roles',
     $config = collect($menu)->firstWhere('slug', 'configuracion');
     $slugs = collect($config['functionalities'])->pluck('slug')->all();
     $permissions = collect($config['functionalities'])->firstWhere('slug', 'permissions');
+    $countries = collect($config['functionalities'])->firstWhere('slug', 'countries');
 
     expect(collect($menu)->pluck('slug')->all())->toContain('configuracion')
-        ->and($slugs)->toContain('modules', 'roles', 'permissions')
+        ->and($slugs)->toContain('modules', 'roles', 'permissions', 'countries')
         ->and($slugs)->not->toContain('companies', 'company-modules', 'functionalities')
         ->and($permissions['href'])->toBe(route('admin.permissions.index', absolute: false))
-        ->and($permissions['label'])->toBe(__('permisos'));
+        ->and($permissions['label'])->toBe(__('permisos'))
+        ->and($countries['href'])->toBe(route('admin.countries.index', absolute: false));
 });
 
 it('SA ve Mis empresas bajo pilar Empresas fuera de Configuración', function () {

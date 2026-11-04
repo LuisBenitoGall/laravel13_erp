@@ -55,6 +55,10 @@ it('todo modelo de negocio en Domains usa BelongsToCompany', function () {
         $ignored = [
             'App\\Domains\\Admin\\Models\\Module',
             'App\\Domains\\Admin\\Models\\Functionality',
+            // Catálogo geográfico global (--global; c2026-11-04-admin-countries).
+            'App\\Domains\\Admin\\Models\\Country',
+            'App\\Domains\\Admin\\Models\\Province',
+            'App\\Domains\\Admin\\Models\\Town',
             // Spatie Teams: plantillas `company_id` NULL + copias locales; no BelongsToCompany.
             'App\\Domains\\Admin\\Models\\Role',
             // Company ES el tenant (no un registro scoped a otro tenant).

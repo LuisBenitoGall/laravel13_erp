@@ -33,7 +33,8 @@ menú/Index/CRUD genérico de Funcionalidades; soft delete de módulos shell
 | Functionality `roles` / `company-roles` | Plataforma / workspace |
 | Consola plataforma | Partners Companies Index (CTA) + authorizations scoped |
 | Shell navegación | Dashboard + Configuración SA; seed ACME; post-login → dashboard |
-| Menú pilares | Empresas (Mis empresas), Usuarios (Usuarios empresa→Members sesión vía `module:workspace` + `company-users.*`), Configuración SA (Módulos/Roles/Permisos→catálogo Spatie; sin ítem genérico Funcionalidades) |
+| Menú pilares | Empresas (Mis empresas), Usuarios (Usuarios empresa→Members sesión vía `module:workspace` + `company-users.*`), Configuración SA (Módulos/Roles/Permisos/Países; sin ítem genérico Funcionalidades) |
+| Geografía (Países) | Catálogo global Country→Province→Town (sin `company_id`); soft delete; status active/inactive; Index drill v1+ServerTable; Functionality `countries`; cascada JSON; seeder datos v1 con IDs preservados; `flag` nullable; Indexes sin columna Estado (toggle en Acciones); drill Map/MapPin ≠ Pencil |
 | Catálogo Permisos | Index ServerTable (name, Functionality vía prefijo, Acciones Delete custom); Create modal (`{slug}.{sufijo}` único; reserved 5+access); canónicos + `*.access` no borrables; Functionality `permissions` + Policy; sin Edit ni asignación Roles/Users |
 | Shell topbar | Bloque 1: collapse izq. / acciones der.; stubs popover; perfil+logout |
 | Shell topbar polish | Mini-rail md+ (`erp.aside.collapsed`); móvil off-canvas; flyout B1; logos reducidos; notas=Popover |
@@ -80,6 +81,16 @@ local.
 | V-09 | No | Módulo `admin` |
 | R-TEN-05 | N/A | Roles plataforma `company_id` NULL |
 | E2E | N/A | `e2e.md` §4; feature Index |
+
+## Vinculaciones — admin-countries (geografía)
+
+| Id | ¿Aplica? | Nota |
+|---|---|---|
+| V-07 | Sí | Functionality `countries` + Spatie `countries.*` (cubre Province/Town) |
+| V-08 | Sí | Configuración → Países |
+| V-09 | No | Reutiliza módulo `admin` |
+| R-TEN-05 | N/A | Catálogo global; test cross-company “mismo dato” |
+| E2E | N/A | `e2e.md` §4; feature CRUD + cascada |
 
 ## Dependencias
 

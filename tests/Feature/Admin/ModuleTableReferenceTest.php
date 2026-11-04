@@ -427,6 +427,33 @@ it('ServerTable declara dateRangeHeaderFilter para columnas date', function () {
         ->and($css)->toContain('.tabulator-date-range-panel');
 });
 
+it('ServerTable Acciones honra action.icon y widthGrow 0 por slots', function () {
+    $source = (string) file_get_contents(resource_path('js/Components/Table/ServerTable.tsx'));
+    $modules = (string) file_get_contents(resource_path('js/Pages/Admin/Modules/Index.tsx'));
+
+    expect($source)->toContain('actionIconHtml')
+        ->and($source)->toContain('renderToStaticMarkup')
+        ->and($source)->toContain('widthGrow: 0')
+        ->and($source)->toContain('actionsColumnWidth')
+        ->and($source)->not->toContain('width: 130')
+        ->and($modules)->toContain('icon: Pencil')
+        ->and($modules)->toContain('kind: \'toggle\'');
+});
+
+it('ServerTable pie muestra Total desde response.total', function () {
+    $source = (string) file_get_contents(resource_path('js/Components/Table/ServerTable.tsx'));
+    $css = (string) file_get_contents(resource_path('css/tabulator-erp.css'));
+    $es = json_decode((string) file_get_contents(lang_path('es.json')), true);
+
+    expect($source)->toContain('syncFooterTotal')
+        ->and($source)->toContain('server-table-total')
+        ->and($source)->toContain("t('total_registros'")
+        ->and($source)->toContain('response?.total')
+        ->and($css)->toContain('.server-table-total')
+        ->and($css)->toContain('justify-content: space-between')
+        ->and($es['total_registros'])->toBe('Total: {{count}}');
+});
+
 it('ordena el export xlsx con el sort whitelistado', function () {
     Module::factory()->create([
         'name' => 'Zzsorttoken A',

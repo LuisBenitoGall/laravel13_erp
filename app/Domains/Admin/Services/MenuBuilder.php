@@ -38,6 +38,7 @@ class MenuBuilder
         'modules',
         'roles',
         'permissions',
+        'countries',
     ];
 
     public function __construct(
@@ -308,6 +309,7 @@ class MenuBuilder
             'company-module-authorizations' => route('admin.company-module-authorizations.index', absolute: false),
             'roles' => route('admin.roles.index', absolute: false),
             'permissions' => route('admin.permissions.index', absolute: false),
+            'countries' => route('admin.countries.index', absolute: false),
             'company-roles' => route('company.roles.index', absolute: false),
             'company-users' => $this->companyUsersHref(),
             default => '#',

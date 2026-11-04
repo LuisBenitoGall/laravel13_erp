@@ -91,6 +91,7 @@ class AdminCatalogSeeder extends Seeder
                 ['name' => 'Module authorizations', 'slug' => 'company-module-authorizations', 'label' => ['es' => 'Autorización de módulos', 'en' => 'Module authorizations', 'ca' => 'Autorització de mòduls']],
                 ['name' => 'Roles', 'slug' => 'roles', 'label' => ['es' => 'Roles', 'en' => 'Roles', 'ca' => 'Rols']],
                 ['name' => 'Permissions', 'slug' => 'permissions', 'label' => ['es' => 'Permisos', 'en' => 'Permissions', 'ca' => 'Permisos']],
+                ['name' => 'Countries', 'slug' => 'countries', 'label' => ['es' => 'Países', 'en' => 'Countries', 'ca' => 'Països']],
             ] as $item) {
                 $status = $item['status'] ?? FunctionalityStatus::Active;
                 $existing = Functionality::query()->where('slug', $item['slug'])->first();

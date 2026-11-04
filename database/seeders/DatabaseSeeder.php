@@ -11,6 +11,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminCatalogSeeder::class,
             UserSeeder::class,
+            // Geografía v1 (IDs preservados): php artisan db:seed --class=GeographySeeder
+            // GeographySeeder::class,
         ]);
     }
 }

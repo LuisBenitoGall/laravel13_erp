@@ -3,10 +3,13 @@
 use App\Domains\Admin\Http\Controllers\CompanyModuleAuthorizationController;
 use App\Domains\Admin\Http\Controllers\CompanyModuleController;
 use App\Domains\Admin\Http\Controllers\CompanyRoleController;
+use App\Domains\Admin\Http\Controllers\CountryController;
 use App\Domains\Admin\Http\Controllers\FunctionalityController;
 use App\Domains\Admin\Http\Controllers\ModuleController;
 use App\Domains\Admin\Http\Controllers\PermissionController;
 use App\Domains\Admin\Http\Controllers\PlatformRoleController;
+use App\Domains\Admin\Http\Controllers\ProvinceController;
+use App\Domains\Admin\Http\Controllers\TownController;
 use Illuminate\Support\Facades\Route;
 
 // El catálogo de módulos queda fuera de `module:admin`: si `admin` pasa a Inactive,
@@ -38,6 +41,35 @@ Route::middleware(['auth', 'company', 'module:admin'])->prefix('admin')->name('a
 
     Route::get('roles/table', [PlatformRoleController::class, 'table'])->name('roles.table');
     Route::resource('roles', PlatformRoleController::class)->except(['show']);
+
+    // Geografía global (Country → Province → Town); permisos `countries.*` (D3/D4/D5).
+    Route::get('countries/table', [CountryController::class, 'table'])->name('countries.table');
+    Route::patch('countries/{country}/status', [CountryController::class, 'updateStatus'])->name('countries.status');
+    Route::resource('countries', CountryController::class)->only(['index', 'store', 'update', 'destroy']);
+
+    Route::get('countries/{country}/provinces/table', [ProvinceController::class, 'table'])
+        ->name('countries.provinces.table');
+    Route::get('countries/{country}/provinces/options', [ProvinceController::class, 'options'])
+        ->name('countries.provinces.options');
+    Route::get('countries/{country}/provinces', [ProvinceController::class, 'index'])
+        ->name('countries.provinces.index');
+    Route::post('countries/{country}/provinces', [ProvinceController::class, 'store'])
+        ->name('countries.provinces.store');
+    Route::put('provinces/{province}', [ProvinceController::class, 'update'])->name('provinces.update');
+    Route::patch('provinces/{province}/status', [ProvinceController::class, 'updateStatus'])->name('provinces.status');
+    Route::delete('provinces/{province}', [ProvinceController::class, 'destroy'])->name('provinces.destroy');
+
+    Route::get('provinces/{province}/towns/table', [TownController::class, 'table'])
+        ->name('provinces.towns.table');
+    Route::get('provinces/{province}/towns/options', [TownController::class, 'options'])
+        ->name('provinces.towns.options');
+    Route::get('provinces/{province}/towns', [TownController::class, 'index'])
+        ->name('provinces.towns.index');
+    Route::post('provinces/{province}/towns', [TownController::class, 'store'])
+        ->name('provinces.towns.store');
+    Route::put('towns/{town}', [TownController::class, 'update'])->name('towns.update');
+    Route::patch('towns/{town}/status', [TownController::class, 'updateStatus'])->name('towns.status');
+    Route::delete('towns/{town}', [TownController::class, 'destroy'])->name('towns.destroy');
 
     Route::get('company-modules', [CompanyModuleController::class, 'index'])->name('company-modules.index');
     Route::post('company-modules/{module}/enable', [CompanyModuleController::class, 'enable'])->name('company-modules.enable');

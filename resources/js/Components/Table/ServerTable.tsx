@@ -1,6 +1,15 @@
 import { usePage } from '@inertiajs/react';
 import type { LucideIcon } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+    createElement,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    type ReactNode,
+} from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { useTranslation } from 'react-i18next';
 import {
     TabulatorFull as Tabulator,
@@ -24,6 +33,26 @@ import { Button } from '@/Components/ui/button';
 import { readTableState, writeTableState } from '@/lib/tablePersistence';
 import { cn } from '@/lib/utils';
 import '../../../css/tabulator-erp.css';
+
+/** Ancho columna Acciones: padding + slots (toggle ~40px, botón ~36px). */
+const ACTIONS_COL_PADDING = 16;
+const ACTIONS_SLOT_TOGGLE = 40;
+const ACTIONS_SLOT_BUTTON = 36;
+const ACTIONS_DEFAULT_SLOTS = 4;
+
+const ACTIONS_TRASH_SVG =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>';
+
+const ACTIONS_PENCIL_SVG =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+
+function actionsColumnWidth(slots: number): number {
+    const safeSlots = Math.max(1, slots);
+    const toggles = Math.min(1, safeSlots);
+    const buttons = Math.max(0, safeSlots - toggles);
+
+    return ACTIONS_COL_PADDING + toggles * ACTIONS_SLOT_TOGGLE + buttons * ACTIONS_SLOT_BUTTON;
+}
 
 export type ColumnDef = ColumnDefinition & {
     field?: string;
@@ -56,6 +85,42 @@ export type RowAction<T = Record<string, unknown>> = {
     confirm?: boolean | { titleKey?: string };
     variant?: 'default' | 'danger';
 };
+
+function actionIconHtml(action: RowAction): string {
+    if (action.icon) {
+        return renderToStaticMarkup(
+            createElement(action.icon, { size: 14, strokeWidth: 2, 'aria-hidden': true }),
+        );
+    }
+
+    if (action.variant === 'danger') {
+        return ACTIONS_TRASH_SVG;
+    }
+
+    return ACTIONS_PENCIL_SVG;
+}
+
+function syncFooterTotal(host: HTMLElement | null, label: string): void {
+    if (!host) {
+        return;
+    }
+
+    const footer = host.querySelector('.tabulator-footer');
+
+    if (!(footer instanceof HTMLElement)) {
+        return;
+    }
+
+    let node = footer.querySelector('.server-table-total');
+
+    if (!(node instanceof HTMLElement)) {
+        node = document.createElement('span');
+        node.className = 'server-table-total';
+        footer.insertBefore(node, footer.firstChild);
+    }
+
+    node.textContent = label;
+}
 
 export type { AdvancedFilterMode, TableFilter };
 
@@ -146,6 +211,8 @@ type ServerTableProps<T extends object> = {
     persistKey?: string;
     exportable?: boolean;
     rowActions?: (row: T) => Array<RowAction<T> | false | null | undefined>;
+    /** Techo de controles en Acciones para el ancho (default 4 = Countries). */
+    actionsColumnSlots?: number;
     pageSize?: number;
     className?: string;
     toolbarExtra?: ReactNode;
@@ -171,6 +238,7 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
     persistKey,
     exportable = false,
     rowActions,
+    actionsColumnSlots = ACTIONS_DEFAULT_SLOTS,
     pageSize: initialPageSize = 25,
     className,
     toolbarExtra,
@@ -298,7 +366,8 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                 headerSort: false,
                 hozAlign: 'right',
                 headerHozAlign: 'center',
-                width: 130,
+                widthGrow: 0,
+                width: actionsColumnWidth(actionsColumnSlots),
                 cssClass: 'tabulator-actions-col',
                 formatter: (cell: CellComponent) => {
                     const rowData = cell.getRow().getData() as T;
@@ -360,10 +429,7 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                             'tabulator-actions-btn',
                             action.variant === 'danger' && 'tabulator-actions-btn-danger',
                         );
-                        btn.innerHTML =
-                            action.variant === 'danger'
-                                ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>'
-                                : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+                        btn.innerHTML = actionIconHtml(action);
                         btn.addEventListener('click', (event) => {
                             event.stopPropagation();
 
@@ -391,7 +457,7 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
         }
 
         return cols;
-    }, [dataColumns, hiddenColumns, rowActions, t, i18n.language]);
+    }, [dataColumns, hiddenColumns, rowActions, actionsColumnSlots, t, i18n.language]);
 
     useEffect(() => {
         advancedFiltersRef.current = advancedFilters;
@@ -404,6 +470,7 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
         }
 
         const langs = buildTabulatorLang(t);
+        let lastTotal = 0;
 
         const table = new Tabulator(ref.current, {
             layout: 'fitColumns',
@@ -477,13 +544,29 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                     syncRequestFilters(),
                 );
             },
-            ajaxResponse: (_url, _params, response) => ({
-                data: response.data,
-                last_page: response.last_page,
-            }),
+            ajaxResponse: (_url, _params, response) => {
+                lastTotal =
+                    typeof response?.total === 'number' && Number.isFinite(response.total)
+                        ? response.total
+                        : 0;
+
+                queueMicrotask(() => {
+                    syncFooterTotal(ref.current, t('total_registros', { count: lastTotal }));
+                });
+
+                return {
+                    data: response.data,
+                    last_page: response.last_page,
+                };
+            },
         });
 
         tableRef.current = table;
+
+        // Reinyecta si Tabulator recrea el footer tras paginar/filtrar.
+        table.on('dataProcessed', () => {
+            syncFooterTotal(ref.current, t('total_registros', { count: lastTotal }));
+        });
 
         return () => {
             table.destroy();

@@ -2,14 +2,20 @@
 
 namespace App\Providers;
 
+use App\Domains\Admin\Models\Country;
 use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
+use App\Domains\Admin\Models\Province;
 use App\Domains\Admin\Models\Role;
+use App\Domains\Admin\Models\Town;
 use App\Domains\Admin\Policies\CompanyRolePolicy;
+use App\Domains\Admin\Policies\CountryPolicy;
 use App\Domains\Admin\Policies\FunctionalityPolicy;
 use App\Domains\Admin\Policies\ModulePolicy;
 use App\Domains\Admin\Policies\PermissionPolicy;
 use App\Domains\Admin\Policies\PlatformRolePolicy;
+use App\Domains\Admin\Policies\ProvincePolicy;
+use App\Domains\Admin\Policies\TownPolicy;
 use App\Domains\Admin\Services\CompanyModuleActivationChecker;
 use App\Domains\Partners\Models\Company;
 use App\Domains\Partners\Policies\CompanyPolicy;
@@ -33,6 +39,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(Module::class, ModulePolicy::class);
+        Gate::policy(Country::class, CountryPolicy::class);
+        Gate::policy(Province::class, ProvincePolicy::class);
+        Gate::policy(Town::class, TownPolicy::class);
         Gate::policy(Functionality::class, FunctionalityPolicy::class);
         Gate::policy(Permission::class, PermissionPolicy::class);
         Gate::policy(Role::class, PlatformRolePolicy::class);

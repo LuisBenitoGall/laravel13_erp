@@ -79,6 +79,9 @@
 | Módulo (activable) | `Module` | Module | Planes SaaS = módulos. Catálogo global (sin `company_id`); gate de plan vía `CompanyModules` |
 | Funcionalidad | `Functionality` | Functionality | **No confundir con `Module`**: es la unidad de permiso y de entrada de submenú dentro de un módulo (R-AUT-07). Catálogo global también |
 | Permiso (Spatie) | `Permission` (Spatie; name `{functionalitySlug}.{acción}`) | Permission | Catálogo global guard `web`; canónicos 5+`{module}.access` vía CreateFunctionality; custom vía Admin Permissions; vínculo a Functionality por prefijo, sin FK |
+| País | `Country` | País | Catálogo global geografía (Admin); sin `company_id` |
+| Provincia | `Province` | Provincia | Hija de `Country`; catálogo global |
+| Población | `Town` | Población | Hija de `Province`; código `Town` como v1 (no Municipality) |
 | Rol manager (empresa) | `manager` (Spatie Role + `company_id`) | `{id}/manager` | Máximo dentro de la empresa; UI «Manager»; plantilla universal `company_id` NULL |
 | Rol guest / invitado (empresa) | `guest` (Spatie Role + `company_id`) | `{id}/basico` | Nace sin permisos; UI «Invitado»; plantilla universal `company_id` NULL |
 | Rol custom (empresa) | Spatie Role `company_id` = company, `universal=false`, nombre ≠ manager\|guest | — | Creado por el manager del tenant; matriz acotada a módulos autorizados∩activos |

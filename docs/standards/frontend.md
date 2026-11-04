@@ -145,9 +145,11 @@ Obligatorio en todo Index/CRUD salvo excepción escrita en el design del change:
    `color`, `icon`, `level`, `created_at`, `status` + Acciones (toggle + Edit).
 3. **Toolbar**: mostrar/ocultar columnas (checkboxes), page size, Excel/PDF si
    `exportable`. Persistencia solo localStorage (no BD).
-4. **i18n Tabulator** (paginador/textos) al locale de sesión; reactiva al cambio de idioma
+4. **Pie**: a la izquierda `Total: {n}` i18n (`total_registros`, campo `total` del
+   JSON remoto, respeta filtros); paginador a la derecha (misma franja). Sin opt-in.
+5. **i18n Tabulator** (paginador/textos) al locale de sesión; reactiva al cambio de idioma
    sin F5 (`ca` usa override de strings del proyecto).
-5. **AdvancedSearchModal** opt-in: primer CTA en `ViewActionBar` tras Volver cuando la
+6. **AdvancedSearchModal** opt-in: primer CTA en `ViewActionBar` tras Volver cuando la
    página lo active. Módulos: **sin** botón. Campos por `fields` o `children` (render
    prop `{ filters, setFilters }`). `onApply(filters)` entrega `[{ field, type, value }]`.
    La página guarda esa lista en `ServerTable` `advancedFilters` y declara

@@ -249,3 +249,24 @@
     opacity: 0.6;
     cursor: wait;
 }
+
+/* Pie: Total a la izquierda, paginador a la derecha (misma franja). */
+.tabulator.tabulator-erp .tabulator-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.tabulator.tabulator-erp .server-table-total {
+    margin: 0;
+    padding: 0.25rem;
+    font-size: 0.8125rem;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.tabulator.tabulator-erp .tabulator-footer .tabulator-paginator {
+    margin-left: auto;
+}
