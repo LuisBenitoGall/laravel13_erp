@@ -37,6 +37,11 @@ beforeEach(function () {
         ['Roles', 'roles', ['es' => 'Roles']],
         ['Permissions', 'permissions', ['es' => 'Permisos']],
         ['Countries', 'countries', ['es' => 'Países']],
+        ['Currencies', 'currencies', ['es' => 'Monedas']],
+        ['Banks', 'banks', ['es' => 'Bancos']],
+        ['Units', 'units', ['es' => 'Unidades']],
+        ['VAT types', 'vat-types', ['es' => 'Tipos de IVA']],
+        ['Accounting account types', 'accounting-account-types', ['es' => 'Grupos contables']],
         ['Companies', 'companies', ['es' => 'Mis empresas']],
         ['Company modules', 'company-modules', ['es' => 'Módulos de empresa']],
     ] as [$name, $slug, $label]) {
@@ -82,13 +87,23 @@ it('SA ve Configuración con Módulos Roles Permisos Países', function () {
     $slugs = collect($config['functionalities'])->pluck('slug')->all();
     $permissions = collect($config['functionalities'])->firstWhere('slug', 'permissions');
     $countries = collect($config['functionalities'])->firstWhere('slug', 'countries');
+    $currencies = collect($config['functionalities'])->firstWhere('slug', 'currencies');
+    $banks = collect($config['functionalities'])->firstWhere('slug', 'banks');
+    $units = collect($config['functionalities'])->firstWhere('slug', 'units');
+    $vatTypes = collect($config['functionalities'])->firstWhere('slug', 'vat-types');
+    $accountTypes = collect($config['functionalities'])->firstWhere('slug', 'accounting-account-types');
 
     expect(collect($menu)->pluck('slug')->all())->toContain('configuracion')
-        ->and($slugs)->toContain('modules', 'roles', 'permissions', 'countries')
+        ->and($slugs)->toContain('modules', 'roles', 'permissions', 'countries', 'currencies', 'banks', 'units', 'vat-types', 'accounting-account-types')
         ->and($slugs)->not->toContain('companies', 'company-modules', 'functionalities')
         ->and($permissions['href'])->toBe(route('admin.permissions.index', absolute: false))
         ->and($permissions['label'])->toBe(__('permisos'))
-        ->and($countries['href'])->toBe(route('admin.countries.index', absolute: false));
+        ->and($countries['href'])->toBe(route('admin.countries.index', absolute: false))
+        ->and($currencies['href'])->toBe(route('admin.currencies.index', absolute: false))
+        ->and($banks['href'])->toBe(route('admin.banks.index', absolute: false))
+        ->and($units['href'])->toBe(route('admin.units.index', absolute: false))
+        ->and($vatTypes['href'])->toBe(route('admin.vat-types.index', absolute: false))
+        ->and($accountTypes['href'])->toBe(route('admin.accounting-account-types.index', absolute: false));
 });
 
 it('SA ve Mis empresas bajo pilar Empresas fuera de Configuración', function () {

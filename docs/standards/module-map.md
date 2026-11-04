@@ -13,22 +13,23 @@ usa las inferiores); las dependencias hacia arriba u horizontales van SIEMPRE po
 Capa 4 — Extensiones     Portal · Projects · HR · Platform
 Capa 3 — Financiera      Invoicing · Treasury · Accounting · Tax
 Capa 2 — Operaciones     Sales · Purchasing · Inventory
-Capa 1 — Maestros        Partners · Catalog · Admin (+ Support sin dominio)
+Capa 1 — Maestros        Partners · Catalog · Admin · Banks (+ Support sin dominio)
 ```
 
 | Dominio | Propósito | Entidades núcleo (v1 de referencia) | Fase |
 |---|---|---|---|
-| **Admin** | Usuarios, roles/permisos, módulos por empresa, configuración, series y patrones de numeración, menú | User, Role, Module, Functionality, CompanyModules, `*Pattern`, InvoiceSerie | 0–1 |
+| **Admin** | Usuarios, roles/permisos, módulos por empresa, configuración, series y patrones de numeración, menú, catálogos globales (países, monedas, unidades, tipos de IVA, grupos contables PGC…) | User, Role, Module, Functionality, CompanyModules, Country, Currency, Unit, VatType, AccountingAccountType, `*Pattern`, InvoiceSerie | 0–1 |
+| **Banks** | Catálogo global de bancos (SWIFT/LEI/códigos EU); UI Configuración vía Functionality `banks` | Bank | 0–1 |
 | **Platform** | Consola del operador SaaS: tenants, planes, uso, soporte, onboarding | Tenant/Subscription, Plan | 0 |
 | **Partners** | Empresas (tenant y tercero), clientes↔proveedores, obras, contactos, NIF histórico | Company, CustomerProviders, Worksite (Obra), Contact, CompanyIdentifier | 1 |
-| **Catalog** | Productos, precios versionados, tarifas (5 + A/B/C), familias/categorías/tags, unidades, catálogo proveedor | Product, ProductPrices, Rate, Family, Category, ProductProviders | 1 |
+| **Catalog** | Productos, precios versionados, tarifas (5 + A/B/C), familias/categorías/tags, catálogo proveedor (unidades de producto **leen** el maestro `Unit` de Admin) | Product, ProductPrices, Rate, Family, Category, ProductProviders | 1 |
 | **Inventory** | Multi-almacén, kardex, consolidado, reservas, lotes, nº serie, inventario | Store, Stock, StockTotal, StockReserve, Lot, SerialNumber | 2 |
 | **Sales** | Presupuesto → pedido → albarán (modelo `Order` unificado, lado venta), previsiones, equipos comerciales | Order, Item, OrderVersion, ItemRevision, DeliveryNote, OrderPrevisions | 2 |
 | **Purchasing** | Pedido de compra, recepciones, costes reales/portes, compra desde venta | Order (lado compra), Receiving, ReceivingLine | 3 |
 | **Invoicing** | Facturas venta/compra, agrupadas, abonos, rectificativas, tickets de caja | Invoice, InvoiceLine, Cash, CashBalance | 2–3 |
-| **Treasury** | Efectos, remesas SEPA (pain.008/001), impagados, bancos, caja | Effect, Remittance, Bank, Mandate | 4 |
-| **Accounting** | Plan contable, ledger→asientos, amortizaciones, balances, extractos | AccountingAccount, Seat, SeatLine, Amortization | 4 |
-| **Tax** | IVA/ámbitos, SII, VERI*FACTU, credenciales fiscales por tenant | VatType, SiiCredential, SiiReport | 4 |
+| **Treasury** | Efectos, remesas SEPA (pain.008/001), impagados, caja | Effect, Remittance, Mandate | 4 |
+| **Accounting** | Plan contable, ledger→asientos, amortizaciones, balances, extractos (maestro `AccountingAccountType` vive en Admin; Accounting lo **lee**) | AccountingAccount, Seat, SeatLine, Amortization | 4 |
+| **Tax** | Ámbitos fiscales, SII, VERI*FACTU, credenciales por tenant (maestro `VatType` vive en Admin; Tax lo **lee**) | SiiCredential, SiiReport | 4 |
 | **Portal** | Tienda B2B, carrito, presupuestos/pedidos de cliente, roles cliente, chat por obra | Cart, roles cliente, ChatRoom | 5 |
 | **Projects** | Proyectos, órdenes de trabajo, producción, SAT, tareas/incidencias | Project, WorkOrder, SatTicket, Task | 6 |
 | **HR** | Empleados, contratos, fichajes, calendarios, planning, vehículos | Employee, Contract, TimeEntry, WorkCalendar | 6 |
@@ -49,22 +50,23 @@ y [architecture.md](architecture.md) R-AUT-07/R-AUT-08.
 `D` = dependencia directa permitida (lectura/Actions). `E` = solo por eventos.
 Fila = dominio que depende; columna = dominio del que depende.
 
-| ↓ usa → | Admin | Partners | Catalog | Inventory | Sales | Purchasing | Invoicing | Treasury | Accounting | Tax |
-|---|---|---|---|---|---|---|---|---|---|---|
-| **Admin** | — | D⁵ | | | | | | | | |
-| **Partners** | D | — | | | | | | | | |
-| **Catalog** | D | D | — | | | | | | | |
-| **Inventory** | D | D | D | — | | | | | | |
-| **Sales** | D | D | D | D | — | | | | | |
-| **Purchasing** | D | D | D | D | D¹ | — | | | | |
-| **Invoicing** | D | D | D | E² | D | D | — | | | |
-| **Treasury** | D | D | | | | | D | — | | |
-| **Accounting** | D | D | | | E³ | E³ | E³ | E³ | — | |
-| **Tax** | D | D | | | | | D | | | — |
-| **Portal** | D | D | D | D | D⁴ | | D | | | |
-| **Projects** | D | D | D | D | D | D | D | | | |
-| **HR** | D | D | | | | | | | | |
-| **Platform** | D | D | | | | | | | | |
+| ↓ usa → | Admin | Banks | Partners | Catalog | Inventory | Sales | Purchasing | Invoicing | Treasury | Accounting | Tax |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **Admin** | — | | D⁵ | | | | | | | | |
+| **Banks** | D⁶ | — | | | | | | | | | |
+| **Partners** | D | | — | | | | | | | | |
+| **Catalog** | D | | D | — | | | | | | | |
+| **Inventory** | D | | D | D | — | | | | | | |
+| **Sales** | D | | D | D | D | — | | | | | |
+| **Purchasing** | D | | D | D | D | D¹ | — | | | | |
+| **Invoicing** | D | | D | D | E² | D | D | — | | | |
+| **Treasury** | D | D | D | | | | | D | — | | |
+| **Accounting** | D | | D | | | E³ | E³ | E³ | E³ | — | |
+| **Tax** | D | | D | | | | | D | | | — |
+| **Portal** | D | | D | D | D | D⁴ | | D | | | |
+| **Projects** | D | | D | D | D | D | D | D | | | |
+| **HR** | D | | D | | | | | | | | |
+| **Platform** | D | | D | | | | | | | | |
 
 1. Compra desde venta (envío directo de fábrica) — comparte el modelo `Order`.
 2. Facturar albarán ajusta stock SOLO vía eventos/Actions de Inventory.
@@ -74,6 +76,8 @@ Fila = dominio que depende; columna = dominio del que depende.
    pertenencia (change `c2026-10-09-company-tenancy-modules`). Company es el tenant;
    no usa `BelongsToCompany`.
 4. El portal desemboca en el motor estándar de pedidos de Sales (borrador + notificación).
+6. Banks usa Functionality/menú del módulo SaaS `admin` (catálogo global; sin
+   `company_id`). Treasury/Partners leen Banks; escritura solo vía Actions de Banks.
 
 Una dependencia que no esté en esta matriz **no se puede introducir** sin actualizar este
 documento en el mismo PR y validar que no crea ciclos.

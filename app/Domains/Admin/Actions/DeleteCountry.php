@@ -17,6 +17,12 @@ class DeleteCountry
             ]);
         }
 
+        if ($country->vatTypes()->exists()) {
+            throw ValidationException::withMessages([
+                'country' => __('pais_con_tipos_iva'),
+            ]);
+        }
+
         DB::transaction(fn () => $country->delete());
     }
 }

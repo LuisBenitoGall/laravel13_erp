@@ -92,6 +92,11 @@ class AdminCatalogSeeder extends Seeder
                 ['name' => 'Roles', 'slug' => 'roles', 'label' => ['es' => 'Roles', 'en' => 'Roles', 'ca' => 'Rols']],
                 ['name' => 'Permissions', 'slug' => 'permissions', 'label' => ['es' => 'Permisos', 'en' => 'Permissions', 'ca' => 'Permisos']],
                 ['name' => 'Countries', 'slug' => 'countries', 'label' => ['es' => 'Países', 'en' => 'Countries', 'ca' => 'Països']],
+                ['name' => 'Currencies', 'slug' => 'currencies', 'label' => ['es' => 'Monedas', 'en' => 'Currencies', 'ca' => 'Monedes']],
+                ['name' => 'Banks', 'slug' => 'banks', 'label' => ['es' => 'Bancos', 'en' => 'Banks', 'ca' => 'Bancs']],
+                ['name' => 'Units', 'slug' => 'units', 'label' => ['es' => 'Unidades', 'en' => 'Units', 'ca' => 'Unitats']],
+                ['name' => 'VAT types', 'slug' => 'vat-types', 'label' => ['es' => 'Tipos de IVA', 'en' => 'VAT types', 'ca' => 'Tipus d\'IVA']],
+                ['name' => 'Accounting account types', 'slug' => 'accounting-account-types', 'label' => ['es' => 'Grupos contables', 'en' => 'Account groups', 'ca' => 'Grups comptables']],
             ] as $item) {
                 $status = $item['status'] ?? FunctionalityStatus::Active;
                 $existing = Functionality::query()->where('slug', $item['slug'])->first();

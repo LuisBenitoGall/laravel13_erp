@@ -1,0 +1,36 @@
+# Spec Delta
+
+## MODIFIED Requirements
+
+### Requirement: Pilares de menú Empresas, Usuarios y Configuración SA
+El sistema SHALL exponer en el menú los pilares Empresas (con Mis empresas), Usuarios
+(con Usuarios empresa) y Configuración solo para Super Admin, con subítems al menos
+Módulos, Roles, Permisos, Países, Monedas, Bancos, Unidades y Tipos de IVA. SHALL NOT
+incluir un ítem de menú genérico «Funcionalidades» (Index independiente): la gestión de
+funcionalidades queda anclada a Module/Edit. Mis empresas SHALL seguir listando solo
+companies vinculadas; el cambio es de label/agrupación, no de perímetro. Configuración
+AdminOnly SHALL ser visible solo para Super Admin.
+
+#### Scenario: Mis empresas label
+- **WHEN** un usuario con companies vinculadas ve el menú
+- **THEN** la entrada al listado de empresas del perímetro se muestra como Mis empresas
+  bajo el pilar Empresas (o label equivalente acordado)
+
+#### Scenario: Configuración solo SA
+- **WHEN** un usuario no Super Admin obtiene el menú
+- **THEN** no ve el bloque Configuración AdminOnly
+
+#### Scenario: SA ve Configuración
+- **WHEN** un Super Admin obtiene el menú
+- **THEN** ve Configuración con Módulos, Roles, Permisos, Países, Monedas, Bancos,
+  Unidades y Tipos de IVA, y no ve un ítem genérico Funcionalidades
+
+## ADDED Requirements
+
+### Requirement: Ítem Tipos de IVA en Configuración
+El sistema SHALL incluir bajo Configuración un ítem Tipos de IVA (Functionality
+`vat-types`) que enlaza el Index del catálogo VatType Admin.
+
+#### Scenario: SA abre Tipos de IVA desde el menú
+- **WHEN** Super Admin abre Tipos de IVA desde Configuración
+- **THEN** navega al Index de vat-types

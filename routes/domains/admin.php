@@ -1,15 +1,20 @@
 <?php
 
+use App\Domains\Admin\Http\Controllers\AccountingAccountTypeController;
 use App\Domains\Admin\Http\Controllers\CompanyModuleAuthorizationController;
 use App\Domains\Admin\Http\Controllers\CompanyModuleController;
 use App\Domains\Admin\Http\Controllers\CompanyRoleController;
 use App\Domains\Admin\Http\Controllers\CountryController;
+use App\Domains\Admin\Http\Controllers\CurrencyController;
 use App\Domains\Admin\Http\Controllers\FunctionalityController;
 use App\Domains\Admin\Http\Controllers\ModuleController;
 use App\Domains\Admin\Http\Controllers\PermissionController;
 use App\Domains\Admin\Http\Controllers\PlatformRoleController;
 use App\Domains\Admin\Http\Controllers\ProvinceController;
 use App\Domains\Admin\Http\Controllers\TownController;
+use App\Domains\Admin\Http\Controllers\UnitController;
+use App\Domains\Admin\Http\Controllers\VatTypeController;
+use App\Domains\Banks\Http\Controllers\BankController;
 use Illuminate\Support\Facades\Route;
 
 // El catálogo de módulos queda fuera de `module:admin`: si `admin` pasa a Inactive,
@@ -70,6 +75,37 @@ Route::middleware(['auth', 'company', 'module:admin'])->prefix('admin')->name('a
     Route::put('towns/{town}', [TownController::class, 'update'])->name('towns.update');
     Route::patch('towns/{town}/status', [TownController::class, 'updateStatus'])->name('towns.status');
     Route::delete('towns/{town}', [TownController::class, 'destroy'])->name('towns.destroy');
+
+    // Monedas globales (catálogo plano); permisos `currencies.*`.
+    Route::get('currencies/table', [CurrencyController::class, 'table'])->name('currencies.table');
+    Route::patch('currencies/{currency}/status', [CurrencyController::class, 'updateStatus'])->name('currencies.status');
+    Route::resource('currencies', CurrencyController::class)->only(['index', 'store', 'update', 'destroy']);
+
+    // Bancos globales (dominio Banks); permisos `banks.*`.
+    Route::get('banks/table', [BankController::class, 'table'])->name('banks.table');
+    Route::patch('banks/{bank}/status', [BankController::class, 'updateStatus'])->name('banks.status');
+    Route::resource('banks', BankController::class)->only(['index', 'store', 'update', 'destroy']);
+
+    // Unidades globales (catálogo plano); permisos `units.*`.
+    Route::get('units/table', [UnitController::class, 'table'])->name('units.table');
+    Route::patch('units/{unit}/status', [UnitController::class, 'updateStatus'])->name('units.status');
+    Route::resource('units', UnitController::class)->only(['index', 'store', 'update', 'destroy']);
+
+    // Tipos de IVA globales por país; permisos `vat-types.*`.
+    Route::get('vat-types/table', [VatTypeController::class, 'table'])->name('vat-types.table');
+    Route::patch('vat-types/{vatType}/status', [VatTypeController::class, 'updateStatus'])->name('vat-types.status');
+    Route::resource('vat-types', VatTypeController::class)
+        ->parameters(['vat-types' => 'vatType'])
+        ->only(['index', 'store', 'update', 'destroy']);
+
+    // Grupos contables PGC; permisos `accounting-account-types.*`.
+    Route::get('accounting-account-types/table', [AccountingAccountTypeController::class, 'table'])
+        ->name('accounting-account-types.table');
+    Route::get('accounting-account-types/show', [AccountingAccountTypeController::class, 'show'])
+        ->name('accounting-account-types.show');
+    Route::resource('accounting-account-types', AccountingAccountTypeController::class)
+        ->parameters(['accounting-account-types' => 'accountingAccountType'])
+        ->only(['index', 'store', 'update', 'destroy']);
 
     Route::get('company-modules', [CompanyModuleController::class, 'index'])->name('company-modules.index');
     Route::post('company-modules/{module}/enable', [CompanyModuleController::class, 'enable'])->name('company-modules.enable');

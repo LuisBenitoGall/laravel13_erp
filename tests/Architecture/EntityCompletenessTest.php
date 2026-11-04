@@ -10,6 +10,7 @@ it('pasa con conjunto vacío de modelos de dominio o solo catálogos/tenant shel
             ->filter(fn ($f) => preg_match('#[\\\\/]Models[\\\\/][^\\\\/]+\.php$#', $f->getPathname()))
             ->reject(fn ($f) => str_contains($f->getPathname(), 'Admin'.DIRECTORY_SEPARATOR.'Models'))
             ->reject(fn ($f) => str_contains($f->getPathname(), 'Partners'.DIRECTORY_SEPARATOR.'Models'))
+            ->reject(fn ($f) => str_contains($f->getPathname(), 'Banks'.DIRECTORY_SEPARATOR.'Models'))
         : collect();
 
     expect($files)->toBeEmpty();

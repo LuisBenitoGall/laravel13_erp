@@ -5,6 +5,7 @@ namespace App\Domains\Admin\Http\Controllers;
 use App\Domains\Admin\Actions\CreateModule;
 use App\Domains\Admin\Actions\DeleteModule;
 use App\Domains\Admin\Actions\UpdateModule;
+use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Exports\ModulesExport;
 use App\Domains\Admin\Http\Requests\ModuleTableRequest;
 use App\Domains\Admin\Http\Requests\StoreModuleRequest;
@@ -13,6 +14,7 @@ use App\Domains\Admin\Http\Requests\UpdateModuleRequest;
 use App\Domains\Admin\Http\Resources\ModuleResource;
 use App\Domains\Admin\Models\Module;
 use App\Http\Controllers\Controller;
+use App\Support\Table\ActiveFirstOrder;
 use App\Support\Table\TableBuilder;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
@@ -39,7 +41,13 @@ class ModuleController extends Controller
     ): JsonResponse|BinaryFileResponse|Response {
         $this->authorize('viewAny', Module::class);
 
-        $builder = $table->for(Module::query())
+        $query = Module::query();
+
+        if ($request->sorts() === []) {
+            ActiveFirstOrder::apply($query, ModuleStatus::Active);
+        }
+
+        $builder = $table->for($query)
             ->searchable(['name', 'slug'])
             ->request($request)
             ->through(ModuleResource::class);

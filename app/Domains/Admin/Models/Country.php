@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $flag
  * @property GeographyStatus $status
  * @property-read Collection<int, Province> $provinces
+ * @property-read Collection<int, VatType> $vatTypes
  */
 class Country extends Model
 {
@@ -50,6 +51,12 @@ class Country extends Model
     public function provinces(): HasMany
     {
         return $this->hasMany(Province::class);
+    }
+
+    /** @return HasMany<VatType, $this> */
+    public function vatTypes(): HasMany
+    {
+        return $this->hasMany(VatType::class);
     }
 
     protected static function newFactory(): CountryFactory

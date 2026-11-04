@@ -32,6 +32,58 @@ export interface CountryRow {
     provinces_count?: number;
 }
 
+export interface CurrencyRow {
+    id: number;
+    name: string;
+    slug: string | null;
+    code: string | null;
+    number: string | null;
+    symbol: string | null;
+    status: string;
+}
+
+export interface UnitRow {
+    id: number;
+    name: string;
+    slug: string | null;
+    symbol: string | null;
+    status: string;
+}
+
+export interface VatTypeCountryOption {
+    id: number;
+    name: string;
+    status: string;
+}
+
+export interface VatTypeRow {
+    id: number;
+    country_id: number;
+    country?: { id: number; name: string } | null;
+    name: string;
+    rate: string;
+    equivalence_surcharge: string | null;
+    status: string;
+}
+
+export interface AccountingAccountTypeRow {
+    id: number;
+    autoreference: number;
+    code: string | null;
+    name: string | null;
+    mode: string | null;
+    level: number;
+}
+
+export interface AccountingAccountTypeTreeNode {
+    id: number;
+    code: string | null;
+    name: string | null;
+    mode: string | null;
+    level: number;
+    children: AccountingAccountTypeTreeNode[];
+}
+
 export interface ProvinceRow {
     id: number;
     name: string;

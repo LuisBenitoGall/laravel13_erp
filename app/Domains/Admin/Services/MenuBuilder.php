@@ -39,6 +39,11 @@ class MenuBuilder
         'roles',
         'permissions',
         'countries',
+        'currencies',
+        'banks',
+        'units',
+        'vat-types',
+        'accounting-account-types',
     ];
 
     public function __construct(
@@ -310,6 +315,11 @@ class MenuBuilder
             'roles' => route('admin.roles.index', absolute: false),
             'permissions' => route('admin.permissions.index', absolute: false),
             'countries' => route('admin.countries.index', absolute: false),
+            'currencies' => route('admin.currencies.index', absolute: false),
+            'banks' => route('admin.banks.index', absolute: false),
+            'units' => route('admin.units.index', absolute: false),
+            'vat-types' => route('admin.vat-types.index', absolute: false),
+            'accounting-account-types' => route('admin.accounting-account-types.index', absolute: false),
             'company-roles' => route('company.roles.index', absolute: false),
             'company-users' => $this->companyUsersHref(),
             default => '#',

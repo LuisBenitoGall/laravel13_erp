@@ -14,6 +14,7 @@ use App\Domains\Admin\Http\Requests\UpdateCountryRequest;
 use App\Domains\Admin\Http\Resources\CountryResource;
 use App\Domains\Admin\Models\Country;
 use App\Http\Controllers\Controller;
+use App\Support\Table\ActiveFirstOrder;
 use App\Support\Table\TableBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -36,7 +37,7 @@ class CountryController extends Controller
         $query = Country::query()->withCount('provinces');
 
         if ($request->sorts() === []) {
-            $query->orderBy('name');
+            ActiveFirstOrder::apply($query, GeographyStatus::Active, 'name');
         }
 
         return $table->for($query)

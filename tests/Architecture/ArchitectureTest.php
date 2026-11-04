@@ -59,6 +59,16 @@ it('todo modelo de negocio en Domains usa BelongsToCompany', function () {
             'App\\Domains\\Admin\\Models\\Country',
             'App\\Domains\\Admin\\Models\\Province',
             'App\\Domains\\Admin\\Models\\Town',
+            // Catálogo global de monedas (--global; c2026-11-04-admin-currencies).
+            'App\\Domains\\Admin\\Models\\Currency',
+            // Catálogo global de unidades (--global; c2026-11-04-admin-units).
+            'App\\Domains\\Admin\\Models\\Unit',
+            // Catálogo global de tipos de IVA (--global; c2026-11-04-admin-vat-types).
+            'App\\Domains\\Admin\\Models\\VatType',
+            // Catálogo global grupos contables PGC (--global; c2026-11-04-admin-accounting-account-types).
+            'App\\Domains\\Admin\\Models\\AccountingAccountType',
+            // Catálogo global de bancos (--global; c2026-11-04-banks).
+            'App\\Domains\\Banks\\Models\\Bank',
             // Spatie Teams: plantillas `company_id` NULL + copias locales; no BelongsToCompany.
             'App\\Domains\\Admin\\Models\\Role',
             // Company ES el tenant (no un registro scoped a otro tenant).

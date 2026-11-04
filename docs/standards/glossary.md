@@ -80,6 +80,11 @@
 | Funcionalidad | `Functionality` | Functionality | **No confundir con `Module`**: es la unidad de permiso y de entrada de submenú dentro de un módulo (R-AUT-07). Catálogo global también |
 | Permiso (Spatie) | `Permission` (Spatie; name `{functionalitySlug}.{acción}`) | Permission | Catálogo global guard `web`; canónicos 5+`{module}.access` vía CreateFunctionality; custom vía Admin Permissions; vínculo a Functionality por prefijo, sin FK |
 | País | `Country` | País | Catálogo global geografía (Admin); sin `company_id` |
+| Banco | `Bank` | Banco | Catálogo global dominio Banks (sin `company_id`); Functionality `banks` bajo menú Configuración |
+| Unidad | `Unit` | Unidad | Catálogo global Admin (sin `company_id`); name único; symbol max 4; Functionality `units`; Catalog consume a futuro |
+| Tipo de IVA | `VatType` | Tipo de IVA | Catálogo global Admin por `Country` (sin `company_id`); `rate` + RE nullable; Functionality `vat-types`; Tax consume a futuro |
+| Grupo contable | `AccountingAccountType` | Grupo contable | Catálogo jerárquico PGC Admin (sin `company_id`/status); `autoreference`/`code`/`name`/`mode`; Functionality `accounting-account-types`; Accounting consume a futuro |
+| Moneda | `Currency` | Moneda | Catálogo global Admin (sin `company_id`); `code` ISO 4217 y `number` inmutables tras el alta; Functionality `currencies` |
 | Provincia | `Province` | Provincia | Hija de `Country`; catálogo global |
 | Población | `Town` | Población | Hija de `Province`; código `Town` como v1 (no Municipality) |
 | Rol manager (empresa) | `manager` (Spatie Role + `company_id`) | `{id}/manager` | Máximo dentro de la empresa; UI «Manager»; plantilla universal `company_id` NULL |

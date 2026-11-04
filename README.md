@@ -40,6 +40,63 @@ php artisan boost:update --no-discover
 
 Do not run `boost:install --mcp` here: it would rewrite `.mcp.json` and drop the Laragon PHP path. Enable the server in Cursor MCP Settings.
 
+## Seeders (producción y despliegue)
+
+Tras migrar el esquema, hay que ejecutar los seeders de catálogo / datos maestros que
+el ERP necesita. **Al crear un Seeder nuevo, documentarlo en esta sección** (comando
+y si entra en `DatabaseSeeder` o solo vía `--class=`).
+
+Orden típico en producción (o entorno limpio):
+
+```bash
+php artisan migrate --force
+
+# Catálogo Admin (módulos, functionalities incl. countries, company ACME, roles plantilla…)
+# + usuario Super Admin (admin@erp.com). Equivalente a DatabaseSeeder actual.
+php artisan db:seed --force
+
+# Geografía Country → Province → Town (datos v1, IDs preservados). NO está en
+# DatabaseSeeder: hay que lanzarlo aparte.
+php artisan db:seed --class=GeographySeeder --force
+
+# Monedas globales (datos v1, IDs preservados; Active solo EUR/USD/GBP/CHF). NO está en
+# DatabaseSeeder: hay que lanzarlo aparte. El Index de Monedas nunca importa.
+php artisan db:seed --class=CurrenciesSeeder --force
+
+# Bancos globales (enriched v1, IDs y status preservados). NO está en DatabaseSeeder.
+# El Index de Bancos nunca importa.
+php artisan db:seed --class=BanksSeeder --force
+
+# Unidades globales (datos v1, IDs y status preservados). NO está en DatabaseSeeder.
+# El Index de Unidades nunca importa.
+php artisan db:seed --class=UnitsSeeder --force
+
+# Tipos de IVA (v1 → España id=66). Requiere GeographySeeder antes. NO está en
+# DatabaseSeeder. El Index nunca importa.
+php artisan db:seed --class=VatTypesSeeder --force
+
+# Grupos contables PGC (i18n fiscal.*, locale es). delete()+reset AI + insert.
+# NO está en DatabaseSeeder.
+php artisan db:seed --class=AccountingAccountTypesSeeder --force
+```
+
+Comandos sueltos (idempotentes o re-ejecutables según cada seeder):
+
+| Seeder | Comando | Notas |
+|---|---|---|
+| `AdminCatalogSeeder` | `php artisan db:seed --class=AdminCatalogSeeder --force` | Incluido en `db:seed`. Crea/actualiza functionalities (p. ej. menú Países). |
+| `UserSeeder` | `php artisan db:seed --class=UserSeeder --force` | Incluido en `db:seed`. Requiere company id=1 (sale de AdminCatalog). |
+| `GeographySeeder` | `php artisan db:seed --class=GeographySeeder --force` | **Fuera** de `DatabaseSeeder`. Upsert por `id` desde `database/data/geography/*.json`. No re-sembrar a la ligera si ya hay FKs consumidoras. |
+| `CurrenciesSeeder` | `php artisan db:seed --class=CurrenciesSeeder --force` | **Fuera** de `DatabaseSeeder`. Upsert por `id` desde `database/data/currencies/currencies.json`. Active: EUR, USD, GBP, CHF; resto Inactive. Símbolo null → mapa v1 (EUR/USD/AUD/CAD). Si falta el JSON avisa y se omite. No re-sembrar a la ligera si ya hay FKs consumidoras. |
+| `BanksSeeder` | `php artisan db:seed --class=BanksSeeder --force` | **Fuera** de `DatabaseSeeder`. Upsert por `id` desde `database/data/banks/banks.enriched.json`. Status del JSON (1→active). Si falta el JSON avisa y se omite. No re-sembrar a la ligera si ya hay FKs consumidoras. |
+| `UnitsSeeder` | `php artisan db:seed --class=UnitsSeeder --force` | **Fuera** de `DatabaseSeeder`. Upsert por `id` desde `database/data/units/units.json`. Status del JSON (1→active). Sin `translations`. Si falta el JSON avisa y se omite. |
+| `VatTypesSeeder` | `php artisan db:seed --class=VatTypesSeeder --force` | **Fuera** de `DatabaseSeeder`. Upsert por `id` desde `database/data/vat-types/iva-types.json` con `country_id=66` (España). **Requiere** `GeographySeeder` previo. Si falta España, falla con error claro. |
+| `AccountingAccountTypesSeeder` | `php artisan db:seed --class=AccountingAccountTypesSeeder --force` | **Fuera** de `DatabaseSeeder`. PGC España portado de v1; nombres vía `lang/*/fiscal.php` con `App::setLocale('es')`. `delete()` + reset AUTO_INCREMENT + insert (entorno limpio). |
+
+Desarrollo local: mismos comandos sin `--force` si preferís confirmación interactiva.
+Tras añadir una Functionality solo en código, re-ejecutar `AdminCatalogSeeder` (o
+`db:seed`) en la BD existente; si no, el menú no verá el ítem.
+
 ## Contributing
 
 Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).

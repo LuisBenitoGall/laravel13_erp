@@ -2,21 +2,31 @@
 
 namespace App\Providers;
 
+use App\Domains\Admin\Models\AccountingAccountType;
 use App\Domains\Admin\Models\Country;
+use App\Domains\Admin\Models\Currency;
 use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Province;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Models\Town;
+use App\Domains\Admin\Models\Unit;
+use App\Domains\Admin\Models\VatType;
+use App\Domains\Admin\Policies\AccountingAccountTypePolicy;
 use App\Domains\Admin\Policies\CompanyRolePolicy;
 use App\Domains\Admin\Policies\CountryPolicy;
+use App\Domains\Admin\Policies\CurrencyPolicy;
 use App\Domains\Admin\Policies\FunctionalityPolicy;
 use App\Domains\Admin\Policies\ModulePolicy;
 use App\Domains\Admin\Policies\PermissionPolicy;
 use App\Domains\Admin\Policies\PlatformRolePolicy;
 use App\Domains\Admin\Policies\ProvincePolicy;
 use App\Domains\Admin\Policies\TownPolicy;
+use App\Domains\Admin\Policies\UnitPolicy;
+use App\Domains\Admin\Policies\VatTypePolicy;
 use App\Domains\Admin\Services\CompanyModuleActivationChecker;
+use App\Domains\Banks\Models\Bank;
+use App\Domains\Banks\Policies\BankPolicy;
 use App\Domains\Partners\Models\Company;
 use App\Domains\Partners\Policies\CompanyPolicy;
 use App\Support\Modules\ModuleActivationChecker;
@@ -40,6 +50,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Module::class, ModulePolicy::class);
         Gate::policy(Country::class, CountryPolicy::class);
+        Gate::policy(Currency::class, CurrencyPolicy::class);
+        Gate::policy(Bank::class, BankPolicy::class);
+        Gate::policy(Unit::class, UnitPolicy::class);
+        Gate::policy(VatType::class, VatTypePolicy::class);
+        Gate::policy(AccountingAccountType::class, AccountingAccountTypePolicy::class);
         Gate::policy(Province::class, ProvincePolicy::class);
         Gate::policy(Town::class, TownPolicy::class);
         Gate::policy(Functionality::class, FunctionalityPolicy::class);
