@@ -22,8 +22,7 @@ beforeEach(function () {
 
     // Reproduce el store de local/prod (phpunit.xml fuerza array).
     config(['cache.default' => 'database']);
-    Cache::forget(MenuCatalogCache::KEY);
-    Cache::forget('menu.catalog.active');
+    MenuCatalogCache::forget();
 });
 
 it('warm+hit en cache database devuelve payload plano usable por MenuBuilder', function () {

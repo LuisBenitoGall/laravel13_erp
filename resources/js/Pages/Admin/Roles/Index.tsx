@@ -82,11 +82,10 @@ export default function Index() {
             showBack={false}
             actions={[
                 {
-                    type: 'button',
+                    type: 'link',
                     labelKey: 'rol_crear',
+                    href: '/admin/roles/create',
                     icon: Plus,
-                    disabled: true,
-                    onClick: () => undefined,
                 },
             ]}
         >

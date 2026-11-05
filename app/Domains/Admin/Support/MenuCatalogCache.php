@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\Cache;
 /**
  * Catálogo Active Modules+Functionalities (sin company/user). Invalidar en CUD.
  *
- * D6: payload plano (arrays) — serializable con cache.serializable_classes=false
- * (database/redis). No Eloquent ni enums en el valor cacheado.
+ * Payload plano (arrays) — serializable con cache.serializable_classes=false.
+ * Orden: sort ASC NULLS LAST, desempate slug ASC.
  */
 final class MenuCatalogCache
 {
-    /** v2: árbol de arrays; v1 cacheaba Eloquent y rompía al leer del store database. */
-    public const KEY = 'menu.catalog.active.v2';
+    /** v3: orden por sort; v2 arrays por slug; v1 Eloquent. */
+    public const KEY = 'menu.catalog.active.v3';
 
     /**
      * @return Collection<int, array{
@@ -39,7 +39,11 @@ final class MenuCatalogCache
                 ->where('status', ModuleStatus::Active)
                 ->with(['functionalities' => fn ($q) => $q
                     ->where('status', FunctionalityStatus::Active)
+                    ->orderByRaw('`sort` is null')
+                    ->orderBy('sort')
                     ->orderBy('slug')])
+                ->orderByRaw('`sort` is null')
+                ->orderBy('sort')
                 ->orderBy('slug')
                 ->get()
                 ->map(fn (Module $module): array => self::serializeModule($module))
@@ -53,7 +57,7 @@ final class MenuCatalogCache
     public static function forget(): void
     {
         Cache::forget(self::KEY);
-        // Huérfanos del payload Eloquent (v1) bajo serializable_classes=false.
+        Cache::forget('menu.catalog.active.v2');
         Cache::forget('menu.catalog.active');
     }
 

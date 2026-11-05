@@ -1,6 +1,10 @@
 ## Purpose
 
-CRUD Super Admin de roles Spatie con `company_id` NULL (universales vs genéricos de plataforma), matriz de permisos, protección de Super Admin/manager/guest y materialización de universales al crear Company.
+CRUD Super Admin de roles Spatie con `company_id` NULL (universales vs genéricos de
+plataforma): Create solo metadatos + Edit con toggles async (canónicos y custom),
+Guardar=descripción, copy a companies del perímetro y layout v1; Index con CTA
+Crear; protección Super Admin/manager/guest; materialización de universales al
+crear Company.
 
 ## Requirements
 
@@ -40,14 +44,35 @@ listado.
   protegido y sin usuarios asignados
 - **THEN** el rol se elimina y deja de aparecer en el listado
 
-### Requirement: CTA Crear rol stub en Index
-El Index SHALL mostrar un control Crear rol en la ActionBar. Ese control SHALL NOT
-navegar al flujo Create mientras Create permanezca fuera del DoD de este incremento
-(stub visible). Edit desde Acciones SÍ está en alcance de este change (ratificado).
+### Requirement: CTA Crear rol navega a Create
+El Index de roles de plataforma SHALL mostrar un control Crear rol en la
+ActionBar que navega al flujo Create. SHALL completar el alta vía ese flujo
+(ya no stub).
 
-#### Scenario: CTA Crear visible y no completa Create
-- **WHEN** Super Admin está en el Index de roles de plataforma
-- **THEN** ve el control Crear rol y al usarlo no completa un alta de rol
+#### Scenario: CTA Crear abre Create
+- **WHEN** Super Admin pulsa Crear rol en el Index de roles de plataforma
+- **THEN** navega a la pantalla Create de roles de plataforma
+
+### Requirement: Formulario Create de rol de plataforma (metadatos)
+El sistema SHALL exponer un formulario Create de rol de plataforma con nombre
+obligatorio, descripción opcional e indicador universal (sí/no). SHALL NOT
+mostrar la matriz de permisos en Create. Tras un alta válida SHALL persistir el
+rol con `company_id` NULL y redirigir a Edit para atribuir permisos. El mismo
+patrón de formulario (metadatos + permisos en Edit) SHALL quedar preparado para
+reutilizar en roles tenant en un change posterior; este change solo cablea
+plataforma.
+
+#### Scenario: Create solo metadatos
+- **WHEN** Super Admin abre Create de rol de plataforma
+- **THEN** ve nombre, descripción y universal, y no ve la matriz de permisos
+
+#### Scenario: Alta y redirect a Edit
+- **WHEN** Super Admin guarda un rol nuevo válido (universal o genérico)
+- **THEN** el rol queda persistido con `company_id` NULL y es redirigido a Edit
+
+#### Scenario: Permisos se atribuyen en Edit
+- **WHEN** Super Admin llega a Edit tras crear un rol
+- **THEN** puede marcar y guardar permisos en la matriz (contrato Edit existente)
 
 ### Requirement: CRUD de roles de plataforma (Super Admin)
 El sistema SHALL permitir a Super Admin listar, crear y editar roles Spatie con
@@ -55,7 +80,9 @@ El sistema SHALL permitir a Super Admin listar, crear y editar roles Spatie con
 tenants / defaults de empresa) o genéricos de plataforma (`universal = false`, no
 usables por tenants). SHALL excluir el rol `Super Admin` del CRUD editable. SHALL
 impedir borrar las plantillas universales `manager` y `guest`. SHALL permitir borrar
-otros roles de plataforma solo si no tienen usuarios asignados.
+otros roles de plataforma solo si no tienen usuarios asignados. El alta Create
+SHALL capturar metadatos (nombre, descripción, universal); la atribución de
+permisos SHALL ocurrir en Edit.
 
 #### Scenario: Listar roles de plataforma
 - **WHEN** Super Admin abre el listado de roles de plataforma
@@ -66,6 +93,7 @@ otros roles de plataforma solo si no tienen usuarios asignados.
 - **WHEN** Super Admin crea un rol indicando nombre, descripción opcional y si es
   universal o genérico de plataforma
 - **THEN** el rol queda persistido con `company_id` NULL y la clasificación indicada
+  (sin exigir permisos en el alta)
 
 #### Scenario: Manager y guest no borrables
 - **WHEN** Super Admin intenta eliminar la plantilla universal `manager` o `guest`
@@ -86,17 +114,130 @@ otros roles de plataforma solo si no tienen usuarios asignados.
   usuarios en `model_has_roles`
 - **THEN** la operación se rechaza
 
+### Requirement: Layout Edit roles plataforma estilo v1
+El sistema SHALL presentar el Edit a ancho completo con la organización de
+permisos equivalente a v1 (anclas/bloques Module y tarjetas Functionality).
+
+#### Scenario: Vista ancho completo organizada como v1
+- **WHEN** Super Admin abre Edit de un rol de plataforma gestionable
+- **THEN** la vista sigue el layout v1 a ancho completo (no el contenedor
+  estrecho actual)
+
+### Requirement: Persistencia de permisos por checkbox sin recarga
+El sistema SHALL persistir al cambiar un checkbox de permiso individual o el
+control global de una Functionality, sin recargar. Un permiso SHALL NOT
+conceder el resto de acciones de esa Functionality ni permisos de otras
+Functionalities del mismo Module. Ante fallo SHALL revertir el checkbox y
+mostrar toast.
+
+#### Scenario: Toggle individual
+- **WHEN** se marca o desmarca un permiso concreto
+- **THEN** queda persistido sin recarga y no arrastra otras acciones ni otras
+  funcs
+
+#### Scenario: Toggle Functionality completa
+- **WHEN** se usa el control global de una Functionality
+- **THEN** se conceden o revocan los permisos de esa Functionality sin recarga
+
+#### Scenario: Fallo de toggle
+- **WHEN** falla la persistencia del checkbox
+- **THEN** se revierte el estado visual y se muestra un toast de error
+
+### Requirement: Activación Module al tener permisos
+Cuando el rol obtiene al menos un permiso de Functionality de un Module, el
+sistema SHALL dejar el Module “activado” para ese rol (comodín
+`{module}.access`). Cuando el rol deja de tener cualquier permiso de
+Functionalities de ese Module, SHALL revocar `{module}.access`. Un permiso de
+Functionality no implica el resto de permisos de esa Functionality ni otras
+Functionalities del Module.
+
+#### Scenario: Al menos un permiso activa el Module
+- **WHEN** el rol recibe el primer permiso bajo un Module
+- **THEN** el rol tiene el comodín `{module}.access` de ese Module
+
+#### Scenario: Sin permisos de Functionalities revoca access
+- **WHEN** se revoca el último permiso de Functionalities de un Module en el
+  rol
+- **THEN** el rol deja de tener `{module}.access` de ese Module
+
+### Requirement: Guardar solo descripción
+El botón Guardar del Edit SHALL persistir la descripción editable. SHALL NOT
+ser el mecanismo para guardar la matriz de permisos.
+
+#### Scenario: Guardar descripción
+- **WHEN** Super Admin cambia la descripción y pulsa Guardar
+- **THEN** se actualiza la descripción; los permisos no dependen de ese submit
+
+### Requirement: Copiar rol a companies del perímetro
+El sistema SHALL ofrecer CTA Copiar (como v1: no aplicable a Super Admin ni a
+universales) solo cuando el usuario en sesión está vinculado a más de una
+company Active, hacia companies Active de su perímetro **excluyendo** la
+empresa en sesión (`CurrentCompany`). Si el `name` ya existe en destino, SHALL
+versionar el nombre del rol nuevo.
+
+#### Scenario: Copy con nombre libre
+- **WHEN** se copia un rol no universal a una company del perímetro (distinta
+  de la de sesión) sin rol homónimo
+- **THEN** existe el rol local con ese nombre y los permisos del origen
+
+#### Scenario: Copy con colisión de nombre
+- **WHEN** en destino ya existe un rol con el mismo `name`
+- **THEN** el rol nuevo se crea con nombre versionado
+
+#### Scenario: Universales sin CTA Copiar
+- **WHEN** Super Admin edita un rol universal
+- **THEN** no se ofrece el CTA Copiar (o no es usable)
+
+#### Scenario: Una sola empresa vinculada sin CTA Copiar
+- **WHEN** Super Admin edita un rol no universal y solo está vinculado a una
+  company Active
+- **THEN** no se ofrece el CTA Copiar
+
+#### Scenario: Destinos sin empresa en sesión
+- **WHEN** el CTA Copiar está disponible
+- **THEN** la lista de destinos no incluye la company de sesión
+
+### Requirement: Matriz de roles incluye permisos custom de Functionality
+El sistema SHALL listar en la matriz Edit de roles de plataforma, por cada
+Functionality, los permisos Spatie canónicos y los custom cuyo prefijo sea el
+slug de esa Functionality. SHALL permitir asignarlos/revocarlos por la misma
+UI de checkboxes. SHALL NOT ocultar un permiso custom existente del catálogo
+por el solo hecho de no ser una de las cinco acciones automáticas. SHALL NOT
+incluir el comodín `{module}.access` (ni `{slug}.access`) en la card
+Functionality.
+
+#### Scenario: Custom visible en la card
+- **WHEN** existe el permiso `companies.limpiar-algunas-empresas` y Super Admin
+  abre Edit de un rol de plataforma con la Functionality `companies` en matriz
+- **THEN** ese permiso aparece en la card «Mis empresas» junto a los canónicos
+
+#### Scenario: Toggle custom igual que canónico
+- **WHEN** Super Admin marca o desmarca un permiso custom en la matriz
+- **THEN** el cambio se persiste con el mismo mecanismo que un canónico (sin
+  recarga)
+
+#### Scenario: Todas las acciones incluye custom
+- **WHEN** Super Admin usa «Todas las acciones» en una Functionality que tiene
+  canónicos y custom
+- **THEN** se conceden o revocan todos los permisos listados de esa
+  Functionality, incluidos los custom
+
 ### Requirement: Matriz de permisos en edición de rol de plataforma
-El sistema SHALL mostrar en la edición de un rol de plataforma los permisos de las
-Functionalities del catálogo (agrupados por Module; acciones
-`viewAny`/`view`/`create`/`update`/`delete`) para sincronizarlos al rol. En roles
-universales SHALL omitir módulos AdminOnly. SHALL permitir editar y guardar la
-matriz de las plantillas universales `manager` y `guest`. SHALL NOT permitir
-eliminar esas plantillas desde este CRUD. SHALL NOT usar la matriz de la plantilla
-universal `manager` como techo que recorte funcionalidades de un módulo ya
-autorizado y activado para una empresa. Los permisos efectivos del rol local
-`manager` de cada company SHALL seguir gobernados por el sync de autorizaciones;
-guardar la plantilla SHALL NOT sustituir ese sync.
+El sistema SHALL mostrar en la edición de un rol de plataforma los permisos
+Spatie ligados a cada Functionality del catálogo (agrupados por Module): las
+cinco acciones canónicas `viewAny`/`view`/`create`/`update`/`delete` cuando
+existan y cualquier permiso custom con prefijo `{functionalitySlug}.`,
+excluyendo el comodín `access` de Module. SHALL permitir concederlos o
+revocarlos mediante checkboxes con persistencia inmediata (sin submit de
+matriz). En roles universales SHALL omitir módulos AdminOnly. SHALL permitir
+editar la matriz de las plantillas universales `manager` y `guest` vía esos
+toggles (salvo flags de solo lectura ya existentes). SHALL NOT permitir
+eliminar esas plantillas desde este CRUD. SHALL NOT usar la matriz de la
+plantilla universal `manager` como techo que recorte funcionalidades de un
+módulo ya autorizado y activado para una empresa. Los permisos efectivos del
+rol local `manager` de cada company SHALL seguir gobernados por el sync de
+autorizaciones; cambiar la plantilla SHALL NOT sustituir ese sync. El botón
+Guardar del formulario Edit queda limitado a descripción.
 
 #### Scenario: Universales sin AdminOnly en la matriz
 - **WHEN** Super Admin edita un rol universal
@@ -104,28 +245,31 @@ guardar la plantilla SHALL NOT sustituir ese sync.
 
 #### Scenario: Genérico de plataforma puede incluir AdminOnly
 - **WHEN** Super Admin edita un rol genérico de plataforma (`universal = false`)
-- **THEN** la matriz puede incluir módulos AdminOnly y guardar esos permisos en el rol
+- **THEN** la matriz puede incluir módulos AdminOnly y persistir esos permisos
+  en el rol vía toggles
 
 #### Scenario: Plantillas manager y guest editables
-- **WHEN** Super Admin abre la edición de la plantilla universal `manager` o `guest`
-  y guarda permisos marcados
-- **THEN** `role_has_permissions` de esa plantilla refleja la selección; la plantilla
-  sigue sin poder borrarse
+- **WHEN** Super Admin abre la edición de la plantilla universal `manager` o
+  `guest` y cambia permisos con los checkboxes
+- **THEN** `role_has_permissions` de esa plantilla refleja la selección; la
+  plantilla sigue sin poder borrarse
 
 #### Scenario: Sync manager local intacto
-- **WHEN** se guarda la matriz de la plantilla universal `manager`
-- **THEN** el rol local `manager` de cada company no se recorta automáticamente por
-  esa plantilla; sigue el sync de módulos autorizados/activados
+- **WHEN** se modifican permisos de la plantilla universal `manager` vía
+  toggles
+- **THEN** el rol local `manager` de cada company no se recorta automáticamente
+  por esa plantilla; sigue el sync de módulos autorizados/activados
 
 #### Scenario: Guardar permisos en rol genérico o universal
-- **WHEN** Super Admin marca o desmarca permisos en un rol de plataforma editable y
-  guarda
-- **THEN** `role_has_permissions` del rol refleja la selección guardada
+- **WHEN** Super Admin marca o desmarca permisos en un rol de plataforma
+  editable
+- **THEN** `role_has_permissions` del rol refleja la selección persistida por
+  el toggle (sin depender del botón Guardar de descripción)
 
 #### Scenario: Nuevas funcionalidades aparecen en la matriz
 - **WHEN** se crea una Functionality (y sus permisos) en el catálogo
-- **THEN** esos permisos pasan a estar disponibles en el panel de edición de roles de
-  plataforma (omitidos en universales si el Module es AdminOnly)
+- **THEN** esos permisos pasan a estar disponibles en el panel de edición de
+  roles de plataforma (omitidos en universales si el Module es AdminOnly)
 
 ### Requirement: Materialización de roles universales al crear Company
 El sistema SHALL, al crear una Company, materializar como roles locales

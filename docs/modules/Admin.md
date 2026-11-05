@@ -28,7 +28,7 @@ menú/Index/CRUD genérico de Funcionalidades; soft delete de módulos shell
 | Modules Basic `dashboard`/`cuenta`/`usuarios`/`empresas` | Menú PDF mínimo |
 | Roles Spatie `manager` / `guest` | Plantilla universal + copia local |
 | Roles plataforma / custom | Admin CRUD / company CRUD |
-| Index roles plataforma | ServerTable (name, description, universal, Acciones Edit + Delete confirm si `can_delete`); Super Admin fuera; CTA Crear stub disabled; plantillas `manager`/`guest` no borrables pero matriz editable; roles con usuarios no borrables; manager local sigue por sync |
+| Index roles plataforma | ServerTable (name, description, universal, Acciones Edit + Delete confirm si `can_delete`); Super Admin fuera; CTA Crear → `/admin/roles/create`; Create = metadatos (name, description, universal) sin matriz; Edit ancho completo estilo v1 (anclas Module + cards Functionality; plegar/desplegar todos; `ScrollToTop`); matriz = canónicos + custom (`{functionality}.*`, sin `*.access`); permisos por toggle async (`patchJson`) + auto `{module}.access`; «Todas las acciones» = set visible; Guardar = solo descripción; CTA Copiar solo si el usuario tiene ≥2 companies Active vinculadas y el rol no es universal; destinos = perímetro Active sin la empresa en sesión; versionado de nombre); plantillas `manager`/`guest` no borrables pero matriz editable vía toggles; roles con usuarios no borrables; manager local sigue por sync |
 | `AssignCompanyRole` | Cualquier rol local; un rol por company |
 | Functionality `roles` / `company-roles` | Plataforma / Module `usuarios` |
 | Consola plataforma | Partners Companies Index (CTA) + authorizations scoped |
@@ -104,4 +104,19 @@ Admin → Partners (lectura `Company`). Sin cambio de module-map.
 ## Menú PDF (backlog)
 
 Mapa MENU_ERP = referencia de trabajo ordenado (1 change ≥ Module; ≥1 por Functionality al abrirla). No sembrar Optional vacíos del PDF en este change.
+
+## Pendiente: reformular company-module-authorizations
+
+Explorado 2026-11-05 (depuración menú). Por ahora se deja la Functionality/ruta
+bajo Configuración; **habrá que reformular** la UX/contrato.
+
+Regla ya acordada (Luis), pendiente de change:
+
+- En la UI de elegibilidad (`/admin/company-module-authorizations`) **no** deben
+  aparecer Modules `Basic`: no se autorizan ni se revocan; están siempre a
+  disposición de la empresa (por eso son Basic).
+- Optional / AdminOnly: sí entran en authorize/revoke (circuito actual).
+
+Entrada de menú vs solo enlace desde Mis empresas: también a reconsiderar en
+ese change futuro (no cerrado en explore).
 

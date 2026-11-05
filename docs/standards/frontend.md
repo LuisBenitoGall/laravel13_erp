@@ -182,6 +182,7 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 | `Lines/LineItemsEditor` | **El componente clave** (vision §4.3): grid editable de líneas de documento — buscador de artículo, 4 descuentos en cascada, stock por almacén, precios/tarifas, totales/margen/IVA en vivo, drag&drop. Único lugar con edición en grid. Cálculo SIEMPRE con `lib/line-calc` (espejo unit-testeado del cálculo backend) |
 | `Feedback/ConfirmDialog` | Confirmaciones destructivas (`Components/Feedback/ConfirmDialog`) |
 | `Feedback/EmptyState` · `ErrorBoundary` | Vacíos con CTA · captura de errores de página |
+| `Navigation/ScrollToTop` | Botón flotante inferior-derecha; aparece tras scroll (`threshold`); `scrollTo` suave; reutilizable en vistas largas |
 | `ui/input` (`Input`) | Primativa shadcn de texto con `maxLength` default 255 (R-FE-08); override + FormRequest `max` espejo |
 | `ui/*` | Resto de primitivas shadcn (Button, Dialog, DropdownMenu, Badge, Tooltip…) |
 | `SearchCommand` | Buscador global (⌘K) multi-entidad — adaptar el patrón ya resuelto en la plantilla de referencia (§2) |

@@ -21,7 +21,7 @@ export function Switch({
     return (
         <label
             htmlFor={id}
-            className={cn('inline-flex items-center gap-2 text-sm text-slate-700', className)}
+            className={cn('inline-flex items-center gap-3 text-sm leading-5 text-slate-700', className)}
         >
             <UiSwitch
                 id={id}
@@ -29,7 +29,7 @@ export function Switch({
                 disabled={disabled}
                 onCheckedChange={(state) => onCheckedChange?.(state)}
             />
-            {label ? <span>{label}</span> : null}
+            {label ? <span className="leading-5">{label}</span> : null}
         </label>
     );
 }

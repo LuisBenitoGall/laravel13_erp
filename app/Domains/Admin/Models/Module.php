@@ -26,6 +26,7 @@ use Spatie\Translatable\HasTranslations;
  * @property string $icon
  * @property ModuleLevel $level
  * @property ModuleStatus $status
+ * @property int|null $sort
  * @property-read Collection<int, Functionality> $functionalities
  */
 class Module extends Model
@@ -45,6 +46,7 @@ class Module extends Model
         'level',
         'status',
         'explanation',
+        'sort',
     ];
 
     protected function casts(): array
@@ -52,6 +54,7 @@ class Module extends Model
         return [
             'level' => ModuleLevel::class,
             'status' => ModuleStatus::class,
+            'sort' => 'integer',
         ];
     }
 

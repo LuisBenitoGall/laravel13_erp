@@ -51,6 +51,11 @@ Route::middleware(['auth', 'company', 'module:configuracion'])->prefix('admin')-
     Route::delete('permissions/{permission}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
 
     Route::get('roles/table', [PlatformRoleController::class, 'table'])->name('roles.table');
+    Route::patch('roles/{role}/permissions', [PlatformRoleController::class, 'togglePermission'])
+        ->name('roles.permissions.toggle');
+    Route::patch('roles/{role}/functionalities', [PlatformRoleController::class, 'toggleFunctionality'])
+        ->name('roles.functionalities.toggle');
+    Route::post('roles/{role}/copy', [PlatformRoleController::class, 'copy'])->name('roles.copy');
     Route::resource('roles', PlatformRoleController::class)->except(['show']);
 
     // Geografía global (Country → Province → Town); permisos `countries.*` (D3/D4/D5).

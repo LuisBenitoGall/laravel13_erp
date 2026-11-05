@@ -4,6 +4,8 @@ type ModuleBlock = {
     slug: string;
     label: string;
     level: string;
+    color: string;
+    icon: string;
     functionalities: Array<{
         slug: string;
         label: string;
@@ -25,9 +27,17 @@ type RolePayload = {
 type Props = {
     role: RolePayload;
     matrix: ModuleBlock[];
-    matrix_universal: ModuleBlock[];
+    can_copy: boolean;
+    copy_companies: Array<{ id: number; name: string }>;
 };
 
-export default function Edit({ role, matrix, matrix_universal }: Props) {
-    return <RoleForm role={role} matrix={matrix} matrix_universal={matrix_universal} />;
+export default function Edit({ role, matrix, can_copy, copy_companies }: Props) {
+    return (
+        <RoleForm
+            role={role}
+            matrix={matrix}
+            can_copy={can_copy}
+            copy_companies={copy_companies}
+        />
+    );
 }

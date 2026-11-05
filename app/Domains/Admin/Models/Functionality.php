@@ -20,6 +20,7 @@ use Spatie\Translatable\HasTranslations;
  * @property string $slug
  * @property string $label
  * @property FunctionalityStatus $status
+ * @property int|null $sort
  * @property-read Module $module
  */
 class Functionality extends Model
@@ -36,12 +37,14 @@ class Functionality extends Model
         'slug',
         'label',
         'status',
+        'sort',
     ];
 
     protected function casts(): array
     {
         return [
             'status' => FunctionalityStatus::class,
+            'sort' => 'integer',
         ];
     }
 
