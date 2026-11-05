@@ -1,9 +1,11 @@
 <?php
 
 use App\Domains\Admin\Http\Controllers\AccountingAccountTypeController;
+use App\Domains\Admin\Http\Controllers\AllUserController;
 use App\Domains\Admin\Http\Controllers\CompanyModuleAuthorizationController;
 use App\Domains\Admin\Http\Controllers\CompanyModuleController;
 use App\Domains\Admin\Http\Controllers\CompanyRoleController;
+use App\Domains\Admin\Http\Controllers\CompanyUserController;
 use App\Domains\Admin\Http\Controllers\CountryController;
 use App\Domains\Admin\Http\Controllers\CurrencyController;
 use App\Domains\Admin\Http\Controllers\FunctionalityController;
@@ -131,4 +133,16 @@ Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('company')->na
     Route::resource('roles', CompanyRoleController::class)
         ->except(['show'])
         ->parameters(['roles' => 'companyRole']);
+});
+
+Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('all-users/table', [AllUserController::class, 'table'])->name('all-users.table');
+    Route::get('all-users', [AllUserController::class, 'index'])->name('all-users.index');
+
+    Route::get('company-users/table', [CompanyUserController::class, 'table'])->name('company-users.table');
+    Route::patch('company-users/{user}/status', [CompanyUserController::class, 'updateStatus'])
+        ->name('company-users.status');
+    Route::get('company-users', [CompanyUserController::class, 'index'])->name('company-users.index');
+    Route::delete('company-users/{user}', [CompanyUserController::class, 'destroy'])
+        ->name('company-users.destroy');
 });

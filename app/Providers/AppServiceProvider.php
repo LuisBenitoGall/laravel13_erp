@@ -13,7 +13,9 @@ use App\Domains\Admin\Models\Town;
 use App\Domains\Admin\Models\Unit;
 use App\Domains\Admin\Models\VatType;
 use App\Domains\Admin\Policies\AccountingAccountTypePolicy;
+use App\Domains\Admin\Policies\AllUserPolicy;
 use App\Domains\Admin\Policies\CompanyRolePolicy;
+use App\Domains\Admin\Policies\CompanyUserPolicy;
 use App\Domains\Admin\Policies\CountryPolicy;
 use App\Domains\Admin\Policies\CurrencyPolicy;
 use App\Domains\Admin\Policies\FunctionalityPolicy;
@@ -67,6 +69,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('createCompanyRole', [CompanyRolePolicy::class, 'create']);
         Gate::define('updateCompanyRole', [CompanyRolePolicy::class, 'update']);
         Gate::define('deleteCompanyRole', [CompanyRolePolicy::class, 'delete']);
+
+        Gate::define('viewAnyAllUser', [AllUserPolicy::class, 'viewAny']);
+        Gate::define('viewAnyCompanyUser', [CompanyUserPolicy::class, 'viewAny']);
+        Gate::define('updateCompanyUser', [CompanyUserPolicy::class, 'update']);
+        Gate::define('deleteCompanyUser', [CompanyUserPolicy::class, 'delete']);
 
         Route::bind('role', function (string $value): Role {
             return Role::query()->platformManaged()->whereKey($value)->firstOrFail();

@@ -36,7 +36,7 @@ class RealignMenuCatalog
             'company-module-authorizations',
         ],
         'empresas' => ['companies'],
-        'usuarios' => ['company-users', 'company-roles'],
+        'usuarios' => ['company-users', 'all-users', 'company-roles'],
         'cuenta' => ['company-modules', 'profile'],
     ];
 
@@ -52,6 +52,7 @@ class RealignMenuCatalog
         DB::transaction(function (): void {
             $modules = $this->ensureModules();
             $this->ensureProfile($modules['cuenta']);
+            $this->ensureAllUsers($modules['usuarios']);
             $this->reassignFunctionalities($modules);
             $this->migrateAccessPermissions();
             $this->retireLegacyModules($modules);
@@ -191,6 +192,41 @@ class RealignMenuCatalog
             'name' => 'Profile',
             'slug' => 'profile',
             'label' => ['es' => 'Mi cuenta', 'en' => 'My account', 'ca' => 'El meu compte'],
+            'status' => FunctionalityStatus::Active->value,
+        ]);
+    }
+
+    private function ensureAllUsers(Module $usuarios): void
+    {
+        $existing = Functionality::withTrashed()->where('slug', 'all-users')->first();
+
+        if ($existing !== null) {
+            if ($existing->trashed()) {
+                $existing->restore();
+            }
+
+            $existing->forceFill([
+                'module_id' => $usuarios->id,
+                'label' => [
+                    'es' => 'Todos los usuarios',
+                    'en' => 'All users',
+                    'ca' => 'Tots els usuaris',
+                ],
+                'status' => FunctionalityStatus::Active,
+            ])->save();
+
+            return;
+        }
+
+        $this->createFunctionality->handle([
+            'module_id' => $usuarios->id,
+            'name' => 'All users',
+            'slug' => 'all-users',
+            'label' => [
+                'es' => 'Todos los usuarios',
+                'en' => 'All users',
+                'ca' => 'Tots els usuaris',
+            ],
             'status' => FunctionalityStatus::Active->value,
         ]);
     }

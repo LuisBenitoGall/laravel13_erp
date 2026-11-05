@@ -109,6 +109,14 @@ beforeEach(function () {
         'status' => FunctionalityStatus::Active->value,
     ]);
 
+    app(CreateFunctionality::class)->handle([
+        'module_id' => $this->usuarios->id,
+        'name' => 'All users',
+        'slug' => 'all-users',
+        'label' => ['es' => 'Todos los usuarios'],
+        'status' => FunctionalityStatus::Active->value,
+    ]);
+
     $this->cuenta = app(CreateModule::class)->handle([
         'name' => 'Cuenta',
         'label' => ['es' => 'Cuenta'],
@@ -177,28 +185,30 @@ it('no-SA sin comodín configuracion no ve Configuración', function () {
         ->and($slugs)->toContain('usuarios');
 });
 
-it('Usuarios empresa apunta a Members de la company de sesión', function () {
+it('Usuarios empresa apunta al Index ServerTable company-users', function () {
     $user = User::factory()->create();
     $user->companies()->attach($this->company->id);
     setPermissionsTeamId($this->company->id);
     $user->givePermissionTo([
         Permission::findOrCreate('usuarios.access'),
         Permission::findOrCreate('company-users.viewAny'),
+        Permission::findOrCreate('all-users.viewAny'),
     ]);
     withCurrentCompany($this->company);
 
     $menu = app(MenuBuilder::class)->forUser($user);
-    setPermissionsTeamId(null);
 
     $usuarios = collect($menu)->firstWhere('slug', 'usuarios');
     $item = collect($usuarios['functionalities'] ?? [])->firstWhere('slug', 'company-users');
+    $allUsers = collect($usuarios['functionalities'] ?? [])->firstWhere('slug', 'all-users');
 
     expect($usuarios)->not->toBeNull()
         ->and($item['label'])->toBe(__('usuarios_empresa'))
-        ->and($item['href'])->toBe(route('partners.companies.members.index', $this->company, absolute: false));
+        ->and($item['href'])->toBe(route('admin.company-users.index', absolute: false))
+        ->and($allUsers['href'])->toBe(route('admin.all-users.index', absolute: false));
 });
 
-it('no-SA con usuarios.access y company-users.viewAny abre Members', function () {
+it('no-SA con usuarios.access y company-users.viewAny abre Index Usuarios empresa', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
     $user->givePermissionTo([
@@ -208,7 +218,7 @@ it('no-SA con usuarios.access y company-users.viewAny abre Members', function ()
     setPermissionsTeamId(null);
     actingWithCompany($user, $this->company);
 
-    $this->get(route('partners.companies.members.index', $this->company))->assertOk();
+    $this->get(route('admin.company-users.index'))->assertOk();
 });
 
 it('SA abre Members de su company vinculada', function () {

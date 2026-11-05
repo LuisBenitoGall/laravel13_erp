@@ -154,6 +154,7 @@ class MenuBuilder
         return match ($functionality['slug']) {
             'companies' => __('mis_empresas'),
             'company-users' => __('usuarios_empresa'),
+            'all-users' => __('todos_los_usuarios'),
             'company-modules' => __('mis_modulos'),
             'profile' => __('mi_cuenta'),
             'permissions' => __('permisos'),
@@ -221,20 +222,10 @@ class MenuBuilder
             'vat-types' => route('admin.vat-types.index', absolute: false),
             'accounting-account-types' => route('admin.accounting-account-types.index', absolute: false),
             'company-roles' => route('company.roles.index', absolute: false),
-            'company-users' => $this->companyUsersHref(),
+            'company-users' => route('admin.company-users.index', absolute: false),
+            'all-users' => route('admin.all-users.index', absolute: false),
             'profile' => route('profile.show', absolute: false),
             default => '#',
         };
-    }
-
-    private function companyUsersHref(): string
-    {
-        $companyId = $this->currentCompany->id();
-
-        if ($companyId === null) {
-            return '#';
-        }
-
-        return route('partners.companies.members.index', $companyId, absolute: false);
     }
 }

@@ -84,8 +84,9 @@ class AdminCatalogSeeder extends Seeder
                 ['module' => 'configuracion', 'name' => 'Accounting account types', 'slug' => 'accounting-account-types', 'label' => ['es' => 'Grupos contables', 'en' => 'Account groups', 'ca' => 'Grups comptables']],
                 ['module' => 'empresas', 'name' => 'Companies', 'slug' => 'companies', 'label' => ['es' => 'Mis empresas', 'en' => 'My companies', 'ca' => 'Les meves empreses']],
                 ['module' => 'cuenta', 'name' => 'Company modules', 'slug' => 'company-modules', 'label' => ['es' => 'Mis módulos', 'en' => 'My modules', 'ca' => 'Els meus mòduls']],
-                ['module' => 'usuarios', 'name' => 'Company roles', 'slug' => 'company-roles', 'label' => ['es' => 'Roles de empresa', 'en' => 'Company roles', 'ca' => 'Rols d\'empresa']],
                 ['module' => 'usuarios', 'name' => 'Company users', 'slug' => 'company-users', 'label' => ['es' => 'Usuarios empresa', 'en' => 'Company users', 'ca' => 'Usuaris empresa']],
+                ['module' => 'usuarios', 'name' => 'All users', 'slug' => 'all-users', 'label' => ['es' => 'Todos los usuarios', 'en' => 'All users', 'ca' => 'Tots els usuaris']],
+                ['module' => 'usuarios', 'name' => 'Company roles', 'slug' => 'company-roles', 'label' => ['es' => 'Roles de empresa', 'en' => 'Company roles', 'ca' => 'Rols d\'empresa']],
             ] as $item) {
                 $module = $bySlug[$item['module']];
                 $status = $item['status'] ?? FunctionalityStatus::Active;

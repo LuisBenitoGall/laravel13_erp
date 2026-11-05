@@ -1,10 +1,11 @@
 ## Purpose
 
 Pilares de menú como Modules del catálogo: `empresas` (Mis empresas), `usuarios`
-(Usuarios empresa → Members; company-roles), `cuenta` (Mi cuenta / Mis módulos),
-`dashboard` (hoja) y `configuracion` (SA AdminOnly: Módulos, Roles, Permisos,
-Países, Monedas, Bancos, Unidades, Tipos de IVA, Grupos contables,
-Autorizaciones). Sin bloques sintéticos ni slugs `admin`/`workspace`.
+(Usuarios empresa → Index ServerTable; Todos los usuarios; company-roles),
+`cuenta` (Mi cuenta / Mis módulos), `dashboard` (hoja) y `configuracion`
+(SA AdminOnly: Módulos, Roles, Permisos, Países, Monedas, Bancos, Unidades,
+Tipos de IVA, Grupos contables, Autorizaciones). Sin bloques sintéticos ni
+slugs `admin`/`workspace`.
 
 ## Requirements
 
@@ -110,14 +111,20 @@ ser exactamente `viewAny`/`view`/`create`/`update`/`delete` más el comodín
 - **THEN** son exactamente las cinco acciones anteriores más el comodín de
   módulo `access` (no un set de siete)
 
-### Requirement: Usuarios empresa temporal hacia Members
-El sistema SHALL incluir la entrada Usuarios empresa sin pantalla nueva, bajo el
-Module `usuarios`. SHALL enlazarla de forma temporal al listado de miembros de
-la company de sesión (ruta Members existente).
+### Requirement: Menú Usuarios con Usuarios empresa y Todos
+El sistema SHALL exponer bajo el Module `usuarios` las entradas de menú
+«Usuarios empresa» (Functionality `company-users` → Index Usuarios empresa) y
+«Todos los usuarios» (Functionality de directorio global). Este change SHALL NOT
+exigir la entrada Roles de empresa bajo Usuarios ni bajo Empresas.
 
-#### Scenario: Usuarios empresa abre Members de sesión
+#### Scenario: Submenú Usuarios
+- **WHEN** un usuario con acceso al Module Usuarios obtiene el menú
+- **THEN** ve Usuarios empresa y Todos los usuarios
+
+#### Scenario: Usuarios empresa abre Index company-users
 - **WHEN** un usuario con company de sesión abre Usuarios empresa
-- **THEN** navega al índice de miembros de esa company
+- **THEN** navega al Index ServerTable de Usuarios empresa (no al Members HTML
+  legacy como destino de menú)
 
 ### Requirement: Cuenta con Mi cuenta y Mis módulos
 El sistema SHALL exponer bajo el Module `cuenta` las Functionalities `profile`
