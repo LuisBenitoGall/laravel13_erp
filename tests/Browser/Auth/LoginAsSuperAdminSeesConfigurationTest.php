@@ -22,7 +22,9 @@ beforeEach(function () {
 
 it('login como super admin ve Módulos aunque admin no esté encendido', function () {
     $admin = Module::factory()->create([
-        'slug' => 'admin',
+        'name' => 'Configuracion',
+        'slug' => 'configuracion',
+        'label' => ['es' => 'Configuración', 'en' => 'Settings'],
         'level' => ModuleLevel::AdminOnly,
         'status' => ModuleStatus::Active,
     ]);
@@ -66,10 +68,13 @@ it('login como super admin ve Módulos aunque admin no esté encendido', functio
         ->click('Acceder')
         ->assertPathIs('/dashboard')
         ->assertSee('Dashboard')
-        ->assertSee('Módulos')
+        ->assertSee('Configuración')
         ->assertSee('ACME Shell')
-        ->assertDontSee('Configuración')
+        ->assertDontSee('Módulos')
         ->assertDontSee('Funcionalidades')
+        ->click('Configuración')
+        ->assertSee('Módulos')
+        ->assertSee('Funcionalidades')
         ->click('Módulos')
         ->assertPathIs('/admin/modules')
         ->assertSee('Módulos')

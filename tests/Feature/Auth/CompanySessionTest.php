@@ -17,7 +17,7 @@ beforeEach(function () {
     setPermissionsTeamId(null);
 
     Module::factory()->create([
-        'slug' => 'admin',
+        'slug' => 'configuracion',
         'level' => ModuleLevel::AdminOnly,
         'status' => ModuleStatus::Active,
     ]);
@@ -39,7 +39,7 @@ it('login sin empresa vinculada redirige a onboarding con sesión', function () 
 
 it('login con una empresa fija sesión automáticamente', function () {
     $company = Company::factory()->create();
-    enableModuleForCompany($company, 'admin');
+    enableModuleForCompany($company, 'configuracion');
 
     $user = User::factory()->create([
         'email' => 'one@example.com',
@@ -76,7 +76,7 @@ it('login con N empresas redirige a selección bloqueante', function () {
 it('rechaza fijar empresa ajena', function () {
     $own = Company::factory()->create(['slug' => 'own']);
     $other = Company::factory()->create(['slug' => 'other']);
-    enableModuleForCompany($own, 'admin');
+    enableModuleForCompany($own, 'configuracion');
 
     $user = User::factory()->create();
     actingWithCompany($user, $own);
@@ -92,7 +92,7 @@ it('rechaza fijar empresa ajena', function () {
 it('Super Admin no bypasa pertenencia de empresa', function () {
     $own = Company::factory()->create(['slug' => 'sa-own']);
     $other = Company::factory()->create(['slug' => 'sa-other']);
-    enableModuleForCompany($own, 'admin');
+    enableModuleForCompany($own, 'configuracion');
 
     $user = User::factory()->create();
     Role::findOrCreate('Super Admin');

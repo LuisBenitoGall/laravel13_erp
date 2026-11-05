@@ -18,11 +18,11 @@ beforeEach(function () {
 
     $this->company = Company::factory()->create();
     Module::factory()->create([
-        'slug' => 'admin',
+        'slug' => 'configuracion',
         'level' => ModuleLevel::AdminOnly,
         'status' => ModuleStatus::Active,
     ]);
-    enableModuleForCompany($this->company, 'admin');
+    enableModuleForCompany($this->company, 'configuracion');
 });
 
 it('permite CRUD de Module al Super Admin', function () {

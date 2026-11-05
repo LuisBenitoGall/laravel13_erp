@@ -40,7 +40,7 @@ function actingWithCompany(User $user, Company $company): void
 /**
  * Autoriza y enciende un módulo (por slug) para la company.
  */
-function enableModuleForCompany(Company $company, string $moduleSlug = 'admin'): Module
+function enableModuleForCompany(Company $company, string $moduleSlug = 'configuracion'): Module
 {
     $module = Module::query()->where('slug', $moduleSlug)->firstOrFail();
     app(AuthorizeModuleForCompany::class)->handle($company, $module);

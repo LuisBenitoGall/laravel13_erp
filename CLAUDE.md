@@ -25,7 +25,7 @@ Si un estándar está mal: corregir el estándar primero, después seguir.
 1. Multi-tenant BD única: todo modelo de negocio con `BelongsToCompany` (Company es el tenant; Module/Functionality son catálogo global); jamás `session('currentCompany')`; test de aislamiento cruzado obligatorio por entidad.
 2. Sin empresa preferente hardcodeada (esto es un SaaS de N empresas iguales). User puede existir sin empresa; no entra al ERP sin ≥1 company activa.
 3. Autorización = Policy por modelo + permisos Spatie `<functionality>.<acción>`. Nada de middleware ad-hoc. Super Admin bypassa permisos/módulos, no el perímetro de companies vinculadas.
-4. Module ≠ Functionality. Tres capas: catálogo Active/Inactive + elegibilidad + activación por empresa. Menú = las tres **y** (comodín OR `viewAny`).
+4. Module ≠ Functionality. Tres capas: catálogo Active/Inactive + elegibilidad + activación por empresa. Menú = las tres **y** (comodín **AND** permiso Functionality; Module hoja solo comodín).
 5. Controllers delgados → Actions transaccionales → eventos de dominio. Cross-domain: leer libre, escribir SOLO vía Action del dominio propietario o evento (matriz en `module-map.md`).
 6. Estados = enums PHP con transiciones sobre columna `string` (jamás `ENUM` de MySQL); numeración solo vía `NumberingService`; decimales 3 venta / 4 coste / 2 contable; MySQL strict ON; nada de `serialize()`.
 7. Contabilidad solo por eventos → LedgerGenerator → SeatBuilder → Seat (idempotente, cuadrado).

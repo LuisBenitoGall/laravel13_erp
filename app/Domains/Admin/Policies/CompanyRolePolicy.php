@@ -67,6 +67,8 @@ class CompanyRolePolicy
             return $user->hasRole(Role::MANAGER);
         } finally {
             setPermissionsTeamId($previous);
+            $user->unsetRelation('roles');
+            $user->unsetRelation('permissions');
         }
     }
 

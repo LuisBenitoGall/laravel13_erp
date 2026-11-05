@@ -19,7 +19,7 @@ beforeEach(function () {
     Role::findOrCreate(Role::SUPER_ADMIN);
 
     Module::factory()->create([
-        'slug' => 'admin',
+        'slug' => 'configuracion',
         'level' => ModuleLevel::AdminOnly,
         'status' => ModuleStatus::Active,
     ]);

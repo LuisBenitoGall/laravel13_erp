@@ -23,7 +23,7 @@ beforeEach(function () {
     $this->seed(AdminCatalogSeeder::class);
 
     $this->company = Company::factory()->create();
-    enableModuleForCompany($this->company, 'admin');
+    enableModuleForCompany($this->company, 'configuracion');
 
     $this->user = User::factory()->create();
     Role::findOrCreate('Super Admin');
@@ -35,7 +35,7 @@ beforeEach(function () {
 
 it('CanonicalPermission distingue canónicos, access y custom', function () {
     expect(CanonicalPermission::isCanonical('modules.viewAny'))->toBeTrue()
-        ->and(CanonicalPermission::isCanonical('admin.access'))->toBeTrue()
+        ->and(CanonicalPermission::isCanonical('configuracion.access'))->toBeTrue()
         ->and(CanonicalPermission::isCanonical('modules.export'))->toBeFalse()
         ->and(CanonicalPermission::isReservedSuffix('view'))->toBeTrue()
         ->and(CanonicalPermission::isReservedSuffix('export'))->toBeFalse()
@@ -47,14 +47,14 @@ it('Permission es catálogo global Spatie sin company_id (R-TEN-05 N/A)', functi
         ->and(Schema::hasColumn('permissions', 'company_id'))->toBeFalse();
 });
 
-it('seeder deja Functionality permissions y Spatie permissions.* + admin.access', function () {
+it('seeder deja Functionality permissions y Spatie permissions.* + configuracion.access', function () {
     expect(Functionality::query()->where('slug', 'permissions')->where('status', FunctionalityStatus::Active)->exists())->toBeTrue();
 
     foreach (['viewAny', 'view', 'create', 'update', 'delete'] as $ability) {
         expect(Permission::query()->where('name', "permissions.{$ability}")->exists())->toBeTrue();
     }
 
-    expect(Permission::query()->where('name', 'admin.access')->exists())->toBeTrue();
+    expect(Permission::query()->where('name', 'configuracion.access')->exists())->toBeTrue();
 });
 
 it('Index requiere permissions.viewAny', function () {
@@ -75,8 +75,8 @@ it('Index requiere permissions.viewAny', function () {
     expect(Permission::query()->whereKey($permission->id)->exists())->toBeTrue();
 });
 
-it('bloquea permissions si admin no está activo para la company (V-21)', function () {
-    $module = Module::query()->where('slug', 'admin')->firstOrFail();
+it('bloquea permissions si configuracion no está activo para la company (V-21)', function () {
+    $module = Module::query()->where('slug', 'configuracion')->firstOrFail();
     app(DisableModuleForCompany::class)->handle($this->company, $module);
 
     $user = User::factory()->create();
@@ -87,15 +87,24 @@ it('bloquea permissions si admin no está activo para la company (V-21)', functi
     $this->get(route('admin.permissions.index'))->assertForbidden();
 });
 
-it('permite Index con admin activo y permissions.viewAny (V-21)', function () {
+it('permite Index con configuracion activo, comodín y permissions.viewAny (AND)', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    $user->givePermissionTo('permissions.viewAny');
+    $user->givePermissionTo(['configuracion.access', 'permissions.viewAny']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.permissions.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page->component('Admin/Permissions/Index'));
+});
+
+it('403 si solo viewAny sin comodín configuracion.access (AND HTTP)', function () {
+    $user = User::factory()->create();
+    setPermissionsTeamId($this->company->id);
+    $user->givePermissionTo('permissions.viewAny');
+    actingWithCompany($user, $this->company);
+
+    $this->get(route('admin.permissions.index'))->assertForbidden();
 });
 
 it('Super Admin abre Index de permisos', function () {
@@ -167,7 +176,7 @@ it('rechaza name duplicado', function () {
 it('borra permiso custom y protege canónicos y access', function () {
     $custom = Permission::findOrCreate('modules.export');
     $canonical = Permission::query()->where('name', 'modules.viewAny')->firstOrFail();
-    $access = Permission::query()->where('name', 'admin.access')->firstOrFail();
+    $access = Permission::query()->where('name', 'configuracion.access')->firstOrFail();
 
     $this->delete(route('admin.permissions.destroy', $custom))->assertRedirect();
     expect(Permission::query()->whereKey($custom->id)->exists())->toBeFalse();

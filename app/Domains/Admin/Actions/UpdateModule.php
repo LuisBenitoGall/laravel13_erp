@@ -3,6 +3,7 @@
 namespace App\Domains\Admin\Actions;
 
 use App\Domains\Admin\Models\Module;
+use App\Domains\Admin\Support\MenuCatalogCache;
 use Illuminate\Support\Facades\DB;
 
 class UpdateModule
@@ -21,6 +22,8 @@ class UpdateModule
             $module->refresh();
 
             $this->authorizeModuleForActiveCompanies->handle($module);
+
+            MenuCatalogCache::forget();
 
             return $module;
         });

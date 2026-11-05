@@ -8,6 +8,7 @@ use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Database\Seeders\AdminCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 
 uses(RefreshDatabase::class);
@@ -19,7 +20,7 @@ beforeEach(function () {
     $this->seed(AdminCatalogSeeder::class);
 
     $this->company = Company::factory()->create();
-    enableModuleForCompany($this->company, 'admin');
+    enableModuleForCompany($this->company, 'configuracion');
 
     $this->user = User::factory()->create();
     Role::findOrCreate('Super Admin');
@@ -60,7 +61,8 @@ it('sin countries.* las rutas de países responden 403', function () {
 it('usuario con countries.viewAny abre el Index', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    $user->givePermissionTo('countries.viewAny');
+    Permission::findOrCreate('configuracion.access');
+    $user->givePermissionTo(['configuracion.access', 'countries.viewAny']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.countries.index'))->assertOk();

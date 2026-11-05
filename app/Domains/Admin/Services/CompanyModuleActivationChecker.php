@@ -49,10 +49,23 @@ final class CompanyModuleActivationChecker implements ModuleActivationChecker
             return false;
         }
 
-        return CompanyModule::query()->withoutGlobalScope('company')
+        $enabled = CompanyModule::query()->withoutGlobalScope('company')
             ->where('company_id', $companyId)
             ->where('module_id', $catalog->id)
             ->exists();
+
+        if (! $enabled) {
+            return false;
+        }
+
+        // AND: tras las tres capas, el actor no-SA necesita el comodín del Module.
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        $user = Auth::user();
+
+        return $user instanceof User && $user->can($module.'.access');
     }
 
     private function isSuperAdmin(): bool
@@ -65,11 +78,15 @@ final class CompanyModuleActivationChecker implements ModuleActivationChecker
 
         $previous = getPermissionsTeamId();
         setPermissionsTeamId(null);
+        $user->unsetRelation('roles');
+        $user->unsetRelation('permissions');
 
         try {
             return $user->hasRole('Super Admin');
         } finally {
             setPermissionsTeamId($previous);
+            $user->unsetRelation('roles');
+            $user->unsetRelation('permissions');
         }
     }
 }

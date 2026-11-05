@@ -26,18 +26,18 @@ it('es visible igual desde cualquier contexto de empresa (catálogo global)', fu
 });
 
 it('permite CRUD de Company al Super Admin con empresa de sesión', function () {
-    $workspace = Company::factory()->create(['slug' => 'workspace']);
-    $adminModule = Module::factory()->create([
-        'slug' => 'admin',
-        'level' => ModuleLevel::AdminOnly,
+    $sessionCompany = Company::factory()->create(['slug' => 'session-co']);
+    Module::factory()->create([
+        'slug' => 'empresas',
+        'level' => ModuleLevel::Basic,
         'status' => ModuleStatus::Active,
     ]);
-    enableModuleForCompany($workspace, 'admin');
+    enableModuleForCompany($sessionCompany, 'empresas');
 
     $user = User::factory()->create();
     Role::findOrCreate('Super Admin');
     $user->assignRole('Super Admin');
-    actingWithCompany($user, $workspace);
+    actingWithCompany($user, $sessionCompany);
 
     $this->post(route('partners.companies.store'), [
         'name' => 'Acme',
@@ -52,16 +52,16 @@ it('permite CRUD de Company al Super Admin con empresa de sesión', function () 
 });
 
 it('niega Company index sin permiso', function () {
-    $workspace = Company::factory()->create();
+    $sessionCompany = Company::factory()->create();
     Module::factory()->create([
-        'slug' => 'admin',
-        'level' => ModuleLevel::AdminOnly,
+        'slug' => 'empresas',
+        'level' => ModuleLevel::Basic,
         'status' => ModuleStatus::Active,
     ]);
-    enableModuleForCompany($workspace, 'admin');
+    enableModuleForCompany($sessionCompany, 'empresas');
 
     $user = User::factory()->create();
-    actingWithCompany($user, $workspace);
+    actingWithCompany($user, $sessionCompany);
 
     $this->get(route('partners.companies.index'))->assertForbidden();
 });

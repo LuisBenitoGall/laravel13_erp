@@ -49,8 +49,8 @@ identificadores en inglés según [glossary.md](glossary.md).
 
 | Concepto | Qué es | Qué no es |
 |---|---|---|
-| **Module** | Unidad **SaaS-activable** (plan/catálogo). Gate de `EnsureModuleIsActive`. Catálogo **global** (excepción R-TEN-01, sin `company_id`). | La unidad de permiso ni de ítem de submenú. |
-| **Functionality** | Unidad de **permiso y menú** dentro de un Module. Slug **inmutable** tras crearse. Catálogo global. | Un Module. |
+| **Module** | Unidad **SaaS-activable** (plan/catálogo). Gate de `EnsureModuleIsActive`. Catálogo **global** (excepción R-TEN-01, sin `company_id`). Puede ser **hoja de menú** si no tiene Functionalities (p. ej. `dashboard`). | La unidad de permiso de acciones CRUD. |
+| **Functionality** | Unidad de **permiso y subítem de menú** dentro de un Module. Slug **inmutable** tras crearse. Catálogo global. | Un Module. |
 
 Permisos Spatie: `<slug-de-Functionality>.<acción>` (`modules.viewAny`,
 `invoices.create`). **No** usar el slug del Module como prefijo salvo el comodín
@@ -76,11 +76,13 @@ Un solo mecanismo de menú/acceso (prohibido replicar `basic-menu.json` /
    - `ModuleLevel::AdminOnly`: **mismo circuito que Optional** (no auto-autorizar).
      No inventar “solo ciertas companies” u otras restricciones extra.
 
-`MenuBuilder` y `EnsureModuleIsActive`: Active **y** autorizado **y** encendido para
-la empresa de sesión; **después** comodín `<module-slug>.access` **OR** al menos un
-`viewAny` de Functionality del módulo. El comodín **implica** el `viewAny` de todas
-las Functionalities del módulo. Prohibido el AND estricto de v1 (exigir comodín
-aunque el usuario ya tenga permiso de una Functionality).
+`MenuBuilder` y acceso a Functionalities: Active **y** autorizado **y** encendido para
+la empresa de sesión; **después** modelo **AND** — hace falta el comodín
+`<module-slug>.access` **y** el permiso de la Functionality (`viewAny`/acción).
+Module hoja (sin Functionalities): basta el comodín. El comodín **ya no implica**
+todas las Functionalities del módulo. Super Admin: bypass Spatie intacto; perímetro
+company intacto. Excepción menú SA: Module `AdminOnly` Active (p. ej. `configuracion`)
+puede mostrarse a Super Admin sin authorize/enable en company.
 
 Encender/apagar (Capa 2) **no** altera los permisos del rol; autorizar/desautorizar
 (Capa 3) sí es el momento de sincronizar derecho a activar.

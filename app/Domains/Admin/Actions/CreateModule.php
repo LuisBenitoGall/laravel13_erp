@@ -4,6 +4,7 @@ namespace App\Domains\Admin\Actions;
 
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\Module;
+use App\Domains\Admin\Support\MenuCatalogCache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
@@ -26,6 +27,8 @@ class CreateModule
             Permission::findOrCreate($module->slug.'.access');
 
             $this->authorizeModuleForActiveCompanies->handle($module);
+
+            MenuCatalogCache::forget();
 
             return $module;
         });

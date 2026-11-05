@@ -122,7 +122,9 @@ export default function Edit({ module }: { module: ModuleRecord }) {
 
     const editInvalidLocales = locales.filter((locale) => editForm.errors[`label.${locale}`]);
 
-    const isShellModule = module.slug === 'admin' || module.slug === 'workspace';
+    const isShellModule = ['dashboard', 'cuenta', 'usuarios', 'empresas', 'configuracion'].includes(
+        module.slug,
+    );
     const levelLabelKey = `nivel_${module.level}` as const;
 
     function refreshFunctionalitiesTable() {

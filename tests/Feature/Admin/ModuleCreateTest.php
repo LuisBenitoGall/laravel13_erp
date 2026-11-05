@@ -17,11 +17,11 @@ beforeEach(function () {
 
     $this->company = Company::factory()->create();
     Module::factory()->create([
-        'slug' => 'admin',
+        'slug' => 'configuracion',
         'level' => ModuleLevel::AdminOnly,
         'status' => ModuleStatus::Active,
     ]);
-    enableModuleForCompany($this->company, 'admin');
+    enableModuleForCompany($this->company, 'configuracion');
 
     $this->user = User::factory()->create();
     Role::findOrCreate('Super Admin');

@@ -29,11 +29,17 @@ beforeEach(function () {
     ]);
 
     $this->admin = Module::factory()->create([
-        'slug' => 'admin',
+        'slug' => 'configuracion',
         'level' => ModuleLevel::AdminOnly,
         'status' => ModuleStatus::Active,
     ]);
-    enableModuleForCompany($this->linked, 'admin');
+    Module::factory()->create([
+        'slug' => 'empresas',
+        'level' => ModuleLevel::Basic,
+        'status' => ModuleStatus::Active,
+    ]);
+    enableModuleForCompany($this->linked, 'configuracion');
+    enableModuleForCompany($this->linked, 'empresas');
 
     $this->optional = Module::factory()->create([
         'slug' => 'optional-mod',

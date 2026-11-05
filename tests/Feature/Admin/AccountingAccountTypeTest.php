@@ -20,7 +20,7 @@ beforeEach(function () {
     $this->seed(AdminCatalogSeeder::class);
 
     $this->company = Company::factory()->create();
-    enableModuleForCompany($this->company, 'admin');
+    enableModuleForCompany($this->company, 'configuracion');
 
     $this->user = User::factory()->create();
     Role::findOrCreate('Super Admin');
@@ -60,7 +60,8 @@ it('sin accounting-account-types.* responde 403', function () {
 it('usuario con viewAny abre Index y show', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    $user->givePermissionTo('accounting-account-types.viewAny');
+    Permission::findOrCreate('configuracion.access');
+    $user->givePermissionTo(['configuracion.access', 'accounting-account-types.viewAny']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.accounting-account-types.index'))->assertOk();
@@ -161,7 +162,7 @@ it('catálogo global sin company_id visible desde dos companies', function () {
 
     AccountingAccountType::factory()->create(['code' => '5', 'name' => 'Atlantis']);
     $otherCompany = Company::factory()->create();
-    enableModuleForCompany($otherCompany, 'admin');
+    enableModuleForCompany($otherCompany, 'configuracion');
 
     $names = fn () => collect($this->getJson(route('admin.accounting-account-types.table'))->assertOk()->json('data'))->pluck('name');
 

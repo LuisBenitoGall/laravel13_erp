@@ -5,13 +5,11 @@ namespace Database\Seeders;
 use App\Domains\Admin\Actions\AssignCompanyRole;
 use App\Domains\Admin\Actions\AuthorizeModuleForCompany;
 use App\Domains\Admin\Actions\CreateFunctionality;
-use App\Domains\Admin\Actions\CreateModule;
 use App\Domains\Admin\Actions\EnableModuleForCompany;
 use App\Domains\Admin\Actions\EnsureCompanyDefaultRoles;
+use App\Domains\Admin\Actions\RealignMenuCatalog;
 use App\Domains\Admin\Actions\SyncManagerPermissionsForCompany;
 use App\Domains\Admin\Enums\FunctionalityStatus;
-use App\Domains\Admin\Enums\ModuleLevel;
-use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
@@ -65,44 +63,37 @@ class AdminCatalogSeeder extends Seeder
                 $user->assignRole(Role::SUPER_ADMIN);
             }
 
-            $module = Module::query()->where('slug', 'admin')->first();
+            app(RealignMenuCatalog::class)->handle();
 
-            if ($module === null) {
-                $module = app(CreateModule::class)->handle([
-                    'name' => 'Admin',
-                    'slug' => 'admin',
-                    'label' => ['es' => 'Administración', 'en' => 'Administration'],
-                    'color' => '#0f766e',
-                    'icon' => 'settings',
-                    'level' => ModuleLevel::AdminOnly->value,
-                    'status' => ModuleStatus::Active->value,
-                    'explanation' => [
-                        'es' => 'Catálogo de módulos y funcionalidades',
-                        'en' => 'Module and functionality catalog',
-                    ],
-                ]);
-            }
+            $bySlug = Module::query()
+                ->whereIn('slug', ['dashboard', 'cuenta', 'usuarios', 'empresas', 'configuracion'])
+                ->get()
+                ->keyBy('slug');
 
             foreach ([
-                ['name' => 'Modules', 'slug' => 'modules', 'label' => ['es' => 'Módulos', 'en' => 'Modules', 'ca' => 'Mòduls'], 'status' => FunctionalityStatus::Active],
-                ['name' => 'Functionalities', 'slug' => 'functionalities', 'label' => ['es' => 'Funcionalidades', 'en' => 'Functionalities', 'ca' => 'Funcionalitats'], 'status' => FunctionalityStatus::Inactive],
-                ['name' => 'Companies', 'slug' => 'companies', 'label' => ['es' => 'Mis empresas', 'en' => 'My companies', 'ca' => 'Les meves empreses'], 'status' => FunctionalityStatus::Active],
-                ['name' => 'Company modules', 'slug' => 'company-modules', 'label' => ['es' => 'Módulos de empresa', 'en' => 'Company modules', 'ca' => 'Mòduls d\'empresa']],
-                ['name' => 'Module authorizations', 'slug' => 'company-module-authorizations', 'label' => ['es' => 'Autorización de módulos', 'en' => 'Module authorizations', 'ca' => 'Autorització de mòduls']],
-                ['name' => 'Roles', 'slug' => 'roles', 'label' => ['es' => 'Roles', 'en' => 'Roles', 'ca' => 'Rols']],
-                ['name' => 'Permissions', 'slug' => 'permissions', 'label' => ['es' => 'Permisos', 'en' => 'Permissions', 'ca' => 'Permisos']],
-                ['name' => 'Countries', 'slug' => 'countries', 'label' => ['es' => 'Países', 'en' => 'Countries', 'ca' => 'Països']],
-                ['name' => 'Currencies', 'slug' => 'currencies', 'label' => ['es' => 'Monedas', 'en' => 'Currencies', 'ca' => 'Monedes']],
-                ['name' => 'Banks', 'slug' => 'banks', 'label' => ['es' => 'Bancos', 'en' => 'Banks', 'ca' => 'Bancs']],
-                ['name' => 'Units', 'slug' => 'units', 'label' => ['es' => 'Unidades', 'en' => 'Units', 'ca' => 'Unitats']],
-                ['name' => 'VAT types', 'slug' => 'vat-types', 'label' => ['es' => 'Tipos de IVA', 'en' => 'VAT types', 'ca' => 'Tipus d\'IVA']],
-                ['name' => 'Accounting account types', 'slug' => 'accounting-account-types', 'label' => ['es' => 'Grupos contables', 'en' => 'Account groups', 'ca' => 'Grups comptables']],
+                ['module' => 'configuracion', 'name' => 'Modules', 'slug' => 'modules', 'label' => ['es' => 'Módulos', 'en' => 'Modules', 'ca' => 'Mòduls']],
+                ['module' => 'configuracion', 'name' => 'Functionalities', 'slug' => 'functionalities', 'label' => ['es' => 'Funcionalidades', 'en' => 'Functionalities', 'ca' => 'Funcionalitats'], 'status' => FunctionalityStatus::Inactive],
+                ['module' => 'configuracion', 'name' => 'Module authorizations', 'slug' => 'company-module-authorizations', 'label' => ['es' => 'Autorización de módulos', 'en' => 'Module authorizations', 'ca' => 'Autorització de mòduls']],
+                ['module' => 'configuracion', 'name' => 'Roles', 'slug' => 'roles', 'label' => ['es' => 'Roles', 'en' => 'Roles', 'ca' => 'Rols']],
+                ['module' => 'configuracion', 'name' => 'Permissions', 'slug' => 'permissions', 'label' => ['es' => 'Permisos', 'en' => 'Permissions', 'ca' => 'Permisos']],
+                ['module' => 'configuracion', 'name' => 'Countries', 'slug' => 'countries', 'label' => ['es' => 'Países', 'en' => 'Countries', 'ca' => 'Països']],
+                ['module' => 'configuracion', 'name' => 'Currencies', 'slug' => 'currencies', 'label' => ['es' => 'Monedas', 'en' => 'Currencies', 'ca' => 'Monedes']],
+                ['module' => 'configuracion', 'name' => 'Banks', 'slug' => 'banks', 'label' => ['es' => 'Bancos', 'en' => 'Banks', 'ca' => 'Bancs']],
+                ['module' => 'configuracion', 'name' => 'Units', 'slug' => 'units', 'label' => ['es' => 'Unidades', 'en' => 'Units', 'ca' => 'Unitats']],
+                ['module' => 'configuracion', 'name' => 'VAT types', 'slug' => 'vat-types', 'label' => ['es' => 'Tipos de IVA', 'en' => 'VAT types', 'ca' => 'Tipus d\'IVA']],
+                ['module' => 'configuracion', 'name' => 'Accounting account types', 'slug' => 'accounting-account-types', 'label' => ['es' => 'Grupos contables', 'en' => 'Account groups', 'ca' => 'Grups comptables']],
+                ['module' => 'empresas', 'name' => 'Companies', 'slug' => 'companies', 'label' => ['es' => 'Mis empresas', 'en' => 'My companies', 'ca' => 'Les meves empreses']],
+                ['module' => 'cuenta', 'name' => 'Company modules', 'slug' => 'company-modules', 'label' => ['es' => 'Mis módulos', 'en' => 'My modules', 'ca' => 'Els meus mòduls']],
+                ['module' => 'usuarios', 'name' => 'Company roles', 'slug' => 'company-roles', 'label' => ['es' => 'Roles de empresa', 'en' => 'Company roles', 'ca' => 'Rols d\'empresa']],
+                ['module' => 'usuarios', 'name' => 'Company users', 'slug' => 'company-users', 'label' => ['es' => 'Usuarios empresa', 'en' => 'Company users', 'ca' => 'Usuaris empresa']],
             ] as $item) {
+                $module = $bySlug[$item['module']];
                 $status = $item['status'] ?? FunctionalityStatus::Active;
                 $existing = Functionality::query()->where('slug', $item['slug'])->first();
 
                 if ($existing !== null) {
                     $existing->forceFill([
+                        'module_id' => $module->id,
                         'label' => $item['label'],
                         'status' => $status,
                     ])->save();
@@ -119,68 +110,8 @@ class AdminCatalogSeeder extends Seeder
                 ]);
             }
 
-            $workspace = Module::query()->where('slug', 'workspace')->first();
-
-            if ($workspace === null) {
-                $workspace = app(CreateModule::class)->handle([
-                    'name' => 'Workspace',
-                    'slug' => 'workspace',
-                    'label' => [
-                        'es' => 'Espacio de trabajo',
-                        'en' => 'Workspace',
-                        'ca' => 'Espai de treball',
-                    ],
-                    'color' => '#0369a1',
-                    'icon' => 'briefcase',
-                    'level' => ModuleLevel::Basic->value,
-                    'status' => ModuleStatus::Active->value,
-                    'explanation' => [
-                        'es' => 'Ajustes y roles de la empresa',
-                        'en' => 'Company settings and roles',
-                        'ca' => 'Ajustos i rols de l\'empresa',
-                    ],
-                ]);
-            }
-
-            foreach ([
-                [
-                    'name' => 'Company roles',
-                    'slug' => 'company-roles',
-                    'label' => [
-                        'es' => 'Roles de empresa',
-                        'en' => 'Company roles',
-                        'ca' => 'Rols d\'empresa',
-                    ],
-                ],
-                [
-                    'name' => 'Company users',
-                    'slug' => 'company-users',
-                    'label' => [
-                        'es' => 'Usuarios empresa',
-                        'en' => 'Company users',
-                        'ca' => 'Usuaris empresa',
-                    ],
-                ],
-            ] as $item) {
-                $existing = Functionality::query()->where('slug', $item['slug'])->first();
-
-                if ($existing !== null) {
-                    $existing->forceFill([
-                        'label' => $item['label'],
-                        'status' => FunctionalityStatus::Active,
-                    ])->save();
-
-                    continue;
-                }
-
-                app(CreateFunctionality::class)->handle([
-                    'module_id' => $workspace->id,
-                    'name' => $item['name'],
-                    'slug' => $item['slug'],
-                    'label' => $item['label'],
-                    'status' => FunctionalityStatus::Active->value,
-                ]);
-            }
+            // Re-run realign to reassign any leftovers + ensure profile.
+            app(RealignMenuCatalog::class)->handle();
 
             $company = Company::query()->where('slug', 'acme')->first()
                 ?? Company::query()->where('slug', 'demo')->first();
@@ -210,15 +141,13 @@ class AdminCatalogSeeder extends Seeder
                 }
 
                 app(AssignCompanyRole::class)->handle($user, $company, 'manager');
-                app(SyncManagerPermissionsForCompany::class)->handle($company);
             }
 
-            // AdminOnly: no obligatorio encender `admin` (bypass SA + menú Configuración).
-            app(AuthorizeModuleForCompany::class)->handle($company, $workspace);
-            app(EnableModuleForCompany::class)->handle($company, $workspace);
+            $basicModules = Module::query()
+                ->whereIn('slug', ['dashboard', 'cuenta', 'usuarios', 'empresas'])
+                ->get();
 
-            // Backfill: asegurar roles + manager + sync en todas las companies.
-            Company::query()->each(function (Company $existing) use ($user, $workspace): void {
+            Company::query()->each(function (Company $existing) use ($user, $basicModules): void {
                 app(EnsureCompanyDefaultRoles::class)->handle($existing);
 
                 $managerCandidate = $existing->users()->first() ?? $user;
@@ -228,8 +157,12 @@ class AdminCatalogSeeder extends Seeder
                 }
 
                 app(AssignCompanyRole::class)->handle($managerCandidate, $existing, 'manager');
-                app(AuthorizeModuleForCompany::class)->handle($existing, $workspace);
-                app(EnableModuleForCompany::class)->handle($existing, $workspace);
+
+                foreach ($basicModules as $module) {
+                    app(AuthorizeModuleForCompany::class)->handle($existing, $module);
+                    app(EnableModuleForCompany::class)->handle($existing, $module);
+                }
+
                 app(SyncManagerPermissionsForCompany::class)->handle($existing);
             });
         } finally {

@@ -84,6 +84,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Super Admin bypass (R-AUT-03). Con Teams, el rol tiene company_id NULL;
         // setPermissionsTeamId(null) + unset relations evita cache de roles del team tenant.
+        // Tras restaurar el team hay que volver a vaciar relations: si no, el hasRole
+        // bajo team null deja roles=[] cacheados y Spatie niega permisos vía rol (manager).
         Gate::before(function ($user, string $ability) {
             if (! method_exists($user, 'hasRole')) {
                 return null;
@@ -103,6 +105,11 @@ class AppServiceProvider extends ServiceProvider
                 }
             } finally {
                 setPermissionsTeamId($previousTeamId);
+
+                if (method_exists($user, 'unsetRelation')) {
+                    $user->unsetRelation('roles');
+                    $user->unsetRelation('permissions');
+                }
             }
 
             return null;

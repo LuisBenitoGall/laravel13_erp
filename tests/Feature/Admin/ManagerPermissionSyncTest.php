@@ -99,7 +99,7 @@ it('AdminOnly no entra en el sync del manager', function () {
     app(EnsureCompanyDefaultRoles::class)->handle($company);
 
     $admin = Module::factory()->create([
-        'slug' => 'admin',
+        'slug' => 'configuracion',
         'level' => ModuleLevel::AdminOnly,
         'status' => ModuleStatus::Active,
     ]);

@@ -2,50 +2,19 @@
 
 namespace App\Domains\Admin\Services;
 
-use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
-use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\CompanyModule;
 use App\Domains\Admin\Models\CompanyModuleAuthorization;
-use App\Domains\Admin\Models\Functionality;
-use App\Domains\Admin\Models\Module;
+use App\Domains\Admin\Support\MenuCatalogCache;
 use App\Models\User;
 use App\Support\Tenancy\CurrentCompany;
-use Illuminate\Support\Collection;
 
 /**
- * Menú data-driven (R-AUT-08) + excepciones shell: Dashboard fijo; pilares; Configuración SA.
+ * Menú 100 % data-driven: raíz = Module; hijo = Functionality (o Module hoja).
+ * Permisos AND: comodín + viewAny (hoja: solo comodín). Cache de catálogo Active.
  */
 class MenuBuilder
 {
-    /**
-     * Mapa estático functionality slug → grupo de menú tenant (empresa|usuarios|…).
-     * Sin entrada = permanece bajo el Module de origen.
-     *
-     * @var array<string, string>
-     */
-    private const FUNCTIONALITY_GROUPS = [
-        'company-roles' => 'empresa',
-        'company-users' => 'usuarios',
-    ];
-
-    /**
-     * Ítems visibles en Configuración SA (orden de menú). Resto AdminOnly queda por URL.
-     *
-     * @var list<string>
-     */
-    private const CONFIGURATION_SLUGS = [
-        'modules',
-        'roles',
-        'permissions',
-        'countries',
-        'currencies',
-        'banks',
-        'units',
-        'vat-types',
-        'accounting-account-types',
-    ];
-
     public function __construct(
         private readonly CurrentCompany $currentCompany,
     ) {}
@@ -56,6 +25,7 @@ class MenuBuilder
      *     label: string,
      *     color: string,
      *     icon: string,
+     *     href?: string,
      *     functionalities: list<array{slug: string, label: string, href: string}>
      * }>
      */
@@ -67,8 +37,6 @@ class MenuBuilder
             return [];
         }
 
-        $menu = [$this->dashboardItem()];
-
         $authorizedIds = CompanyModuleAuthorization::query()->withoutGlobalScope('company')
             ->where('company_id', $companyId)
             ->pluck('module_id');
@@ -78,218 +46,146 @@ class MenuBuilder
             ->pluck('module_id');
 
         $eligibleIds = $authorizedIds->intersect($enabledIds)->values();
+        $isSa = $this->isSuperAdmin($user);
 
-        if ($eligibleIds->isNotEmpty()) {
-            /** @var Collection<int, Module> $modules */
-            $modules = Module::query()
-                ->where('status', ModuleStatus::Active)
-                ->whereIn('level', [ModuleLevel::Basic, ModuleLevel::Optional])
-                ->whereIn('id', $eligibleIds)
-                ->with(['functionalities' => fn ($q) => $q->where('status', FunctionalityStatus::Active)->orderBy('slug')])
-                ->orderBy('slug')
-                ->get();
+        $menu = [];
 
-            foreach ($modules as $module) {
-                foreach ($this->tenantModuleEntries($user, $module) as $entry) {
-                    $menu[] = $entry;
-                }
-            }
-        }
+        foreach (MenuCatalogCache::modules() as $module) {
+            $isAdminOnly = $module['level'] === ModuleLevel::AdminOnly->value;
+            $layersOk = $eligibleIds->contains($module['id'])
+                || ($isSa && $isAdminOnly);
 
-        if ($this->isSuperAdmin($user)) {
-            $empresas = $this->empresasBlock();
-
-            if ($empresas !== null) {
-                $menu[] = $empresas;
+            if (! $layersOk) {
+                continue;
             }
 
-            $menu[] = $this->configurationBlock();
+            $entry = $this->moduleEntry($user, $module, $isSa);
+
+            if ($entry !== null) {
+                $menu[] = $entry;
+            }
         }
 
         return $menu;
     }
 
     /**
-     * @return array{slug: string, label: string, color: string, icon: string, functionalities: list<array{slug: string, label: string, href: string}>}
+     * @param  array{
+     *     id: int,
+     *     slug: string,
+     *     label: array<string, string>,
+     *     color: string,
+     *     icon: string,
+     *     level: string,
+     *     functionalities: list<array{id: int, slug: string, label: array<string, string>}>
+     * }  $module
+     * @return array{
+     *     slug: string,
+     *     label: string,
+     *     color: string,
+     *     icon: string,
+     *     href?: string,
+     *     functionalities: list<array{slug: string, label: string, href: string}>
+     * }|null
      */
-    private function dashboardItem(): array
+    private function moduleEntry(User $user, array $module, bool $isSa): ?array
     {
-        return [
-            'slug' => 'dashboard',
-            'label' => __('dashboard'),
-            'color' => '#0f172a',
-            'icon' => 'home',
-            'functionalities' => [
-                [
-                    'slug' => 'dashboard',
-                    'label' => __('dashboard'),
-                    'href' => route('dashboard', absolute: false),
-                ],
-            ],
-        ];
-    }
+        $hasWildcard = $isSa || $user->can($module['slug'].'.access');
+        $functionalities = $module['functionalities'];
 
-    /**
-     * @return list<array{slug: string, label: string, color: string, icon: string, functionalities: list<array{slug: string, label: string, href: string}>}>
-     */
-    private function tenantModuleEntries(User $user, Module $module): array
-    {
-        $hasWildcard = $user->can($module->slug.'.access');
+        if ($functionalities === []) {
+            if (! $hasWildcard) {
+                return null;
+            }
+
+            return [
+                'slug' => $module['slug'],
+                'label' => $this->resolveLabel($module['label']),
+                'color' => $module['color'],
+                'icon' => $module['icon'],
+                'href' => $this->moduleHref($module['slug']),
+                'functionalities' => [],
+            ];
+        }
+
+        if (! $hasWildcard) {
+            return null;
+        }
+
         $items = [];
 
-        foreach ($module->functionalities as $functionality) {
-            if ($hasWildcard || $user->can($functionality->slug.'.viewAny')) {
+        foreach ($functionalities as $functionality) {
+            if ($isSa || $user->can($functionality['slug'].'.viewAny')) {
                 $items[] = $this->functionalityItem($functionality);
             }
         }
 
-        if (! $hasWildcard && $items === []) {
-            return [];
-        }
-
-        if ($hasWildcard) {
-            $items = $module->functionalities
-                ->map(fn (Functionality $f) => $this->functionalityItem($f))
-                ->values()
-                ->all();
-        }
-
-        return $this->groupTenantItems($items, $module);
-    }
-
-    /**
-     * @param  list<array{slug: string, label: string, href: string}>  $items
-     * @return list<array{slug: string, label: string, color: string, icon: string, functionalities: list<array{slug: string, label: string, href: string}>}>
-     */
-    private function groupTenantItems(array $items, Module $module): array
-    {
-        $buckets = [];
-
-        foreach ($items as $item) {
-            $group = self::FUNCTIONALITY_GROUPS[$item['slug']] ?? 'default';
-            $buckets[$group][] = $item;
-        }
-
-        $entries = [];
-
-        foreach ($buckets as $group => $groupItems) {
-            if ($group === 'default') {
-                $entries[] = [
-                    'slug' => $module->slug,
-                    'label' => (string) $module->label,
-                    'color' => $module->color,
-                    'icon' => $module->icon,
-                    'functionalities' => $groupItems,
-                ];
-
-                continue;
-            }
-
-            $entries[] = [
-                'slug' => $group,
-                'label' => __($group),
-                'color' => $module->color,
-                'icon' => $module->icon,
-                'functionalities' => $groupItems,
-            ];
-        }
-
-        return $entries;
-    }
-
-    /**
-     * Pilar Empresas (SA): Mis empresas fuera de Configuración.
-     *
-     * @return array{slug: string, label: string, color: string, icon: string, functionalities: list<array{slug: string, label: string, href: string}>}|null
-     */
-    private function empresasBlock(): ?array
-    {
-        $functionality = Functionality::query()
-            ->where('slug', 'companies')
-            ->where('status', FunctionalityStatus::Active)
-            ->first();
-
-        if ($functionality === null) {
+        if ($items === []) {
             return null;
         }
 
         return [
-            'slug' => 'empresas',
-            'label' => __('empresas'),
-            'color' => '#0369a1',
-            'icon' => 'briefcase',
-            'functionalities' => [
-                $this->functionalityItem($functionality),
-            ],
-        ];
-    }
-
-    /**
-     * @return array{slug: string, label: string, color: string, icon: string, functionalities: list<array{slug: string, label: string, href: string}>}
-     */
-    private function configurationBlock(): array
-    {
-        /** @var Collection<int, Module> $modules */
-        $modules = Module::query()
-            ->where('status', ModuleStatus::Active)
-            ->where('level', ModuleLevel::AdminOnly)
-            ->with(['functionalities' => fn ($q) => $q->where('status', FunctionalityStatus::Active)->orderBy('slug')])
-            ->orderBy('slug')
-            ->get();
-
-        $bySlug = [];
-        $color = '#0f766e';
-        $icon = 'settings';
-
-        foreach ($modules as $module) {
-            $color = $module->color;
-            $icon = $module->icon;
-
-            foreach ($module->functionalities as $functionality) {
-                if (! in_array($functionality->slug, self::CONFIGURATION_SLUGS, true)) {
-                    continue;
-                }
-
-                $bySlug[$functionality->slug] = $this->functionalityItem($functionality);
-            }
-        }
-
-        $items = [];
-
-        foreach (self::CONFIGURATION_SLUGS as $slug) {
-            if (isset($bySlug[$slug])) {
-                $items[] = $bySlug[$slug];
-            }
-        }
-
-        return [
-            'slug' => 'configuracion',
-            'label' => __('configuracion'),
-            'color' => $color,
-            'icon' => $icon,
+            'slug' => $module['slug'],
+            'label' => $this->resolveLabel($module['label']),
+            'color' => $module['color'],
+            'icon' => $module['icon'],
             'functionalities' => $items,
         ];
     }
 
     /**
+     * @param  array{id: int, slug: string, label: array<string, string>}  $functionality
      * @return array{slug: string, label: string, href: string}
      */
-    private function functionalityItem(Functionality $functionality): array
+    private function functionalityItem(array $functionality): array
     {
         return [
-            'slug' => $functionality->slug,
+            'slug' => $functionality['slug'],
             'label' => $this->labelFor($functionality),
-            'href' => $this->hrefFor($functionality),
+            'href' => $this->hrefFor($functionality['slug']),
         ];
     }
 
-    private function labelFor(Functionality $functionality): string
+    /**
+     * @param  array{slug: string, label: array<string, string>}  $functionality
+     */
+    private function labelFor(array $functionality): string
     {
-        return match ($functionality->slug) {
+        return match ($functionality['slug']) {
             'companies' => __('mis_empresas'),
             'company-users' => __('usuarios_empresa'),
+            'company-modules' => __('mis_modulos'),
+            'profile' => __('mi_cuenta'),
             'permissions' => __('permisos'),
-            default => (string) $functionality->label,
+            default => $this->resolveLabel($functionality['label']),
+        };
+    }
+
+    /**
+     * @param  array<string, string>  $translations
+     */
+    private function resolveLabel(array $translations): string
+    {
+        $locale = app()->getLocale();
+
+        if (isset($translations[$locale]) && $translations[$locale] !== '') {
+            return $translations[$locale];
+        }
+
+        if (isset($translations['es']) && $translations['es'] !== '') {
+            return $translations['es'];
+        }
+
+        $first = reset($translations);
+
+        return is_string($first) ? $first : '';
+    }
+
+    private function moduleHref(string $slug): string
+    {
+        return match ($slug) {
+            'dashboard' => route('dashboard', absolute: false),
+            default => '#',
         };
     }
 
@@ -297,17 +193,21 @@ class MenuBuilder
     {
         $previous = getPermissionsTeamId();
         setPermissionsTeamId(null);
+        $user->unsetRelation('roles');
+        $user->unsetRelation('permissions');
 
         try {
             return $user->hasRole('Super Admin');
         } finally {
             setPermissionsTeamId($previous);
+            $user->unsetRelation('roles');
+            $user->unsetRelation('permissions');
         }
     }
 
-    private function hrefFor(Functionality $functionality): string
+    private function hrefFor(string $slug): string
     {
-        return match ($functionality->slug) {
+        return match ($slug) {
             'modules' => route('admin.modules.index', absolute: false),
             'companies' => route('partners.companies.index', absolute: false),
             'company-modules' => route('admin.company-modules.index', absolute: false),
@@ -322,6 +222,7 @@ class MenuBuilder
             'accounting-account-types' => route('admin.accounting-account-types.index', absolute: false),
             'company-roles' => route('company.roles.index', absolute: false),
             'company-users' => $this->companyUsersHref(),
+            'profile' => route('profile.show', absolute: false),
             default => '#',
         };
     }

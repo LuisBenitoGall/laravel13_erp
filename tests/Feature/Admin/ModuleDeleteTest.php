@@ -18,16 +18,16 @@ beforeEach(function () {
 
     $this->company = Company::factory()->create();
     Module::factory()->create([
-        'slug' => 'admin',
+        'slug' => 'configuracion',
         'level' => ModuleLevel::AdminOnly,
         'status' => ModuleStatus::Active,
     ]);
     Module::factory()->create([
-        'slug' => 'workspace',
+        'slug' => 'dashboard',
         'level' => ModuleLevel::Basic,
         'status' => ModuleStatus::Active,
     ]);
-    enableModuleForCompany($this->company, 'admin');
+    enableModuleForCompany($this->company, 'configuracion');
 
     $this->user = User::factory()->create();
     Role::findOrCreate('Super Admin');
@@ -52,15 +52,15 @@ it('soft-deletea un módulo no shell y redirige al Index', function () {
         ->and(Permission::query()->where('name', 'albaranes.access')->exists())->toBeTrue();
 });
 
-it('rechaza soft delete de módulos shell admin y workspace', function () {
-    $admin = Module::query()->where('slug', 'admin')->firstOrFail();
-    $workspace = Module::query()->where('slug', 'workspace')->firstOrFail();
+it('rechaza soft delete de módulos shell dashboard y configuracion', function () {
+    $config = Module::query()->where('slug', 'configuracion')->firstOrFail();
+    $dashboard = Module::query()->where('slug', 'dashboard')->firstOrFail();
 
-    $this->delete(route('admin.modules.destroy', $admin))->assertForbidden();
-    $this->delete(route('admin.modules.destroy', $workspace))->assertForbidden();
+    $this->delete(route('admin.modules.destroy', $config))->assertForbidden();
+    $this->delete(route('admin.modules.destroy', $dashboard))->assertForbidden();
 
-    expect(Module::query()->where('slug', 'admin')->exists())->toBeTrue()
-        ->and(Module::query()->where('slug', 'workspace')->exists())->toBeTrue();
+    expect(Module::query()->where('slug', 'configuracion')->exists())->toBeTrue()
+        ->and(Module::query()->where('slug', 'dashboard')->exists())->toBeTrue();
 });
 
 it('Edit expone level en la ficha del módulo', function () {

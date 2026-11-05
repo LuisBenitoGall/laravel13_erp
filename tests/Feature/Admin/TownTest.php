@@ -19,7 +19,7 @@ beforeEach(function () {
     $this->seed(AdminCatalogSeeder::class);
 
     $this->company = Company::factory()->create();
-    enableModuleForCompany($this->company, 'admin');
+    enableModuleForCompany($this->company, 'configuracion');
 
     $this->user = User::factory()->create();
     Role::findOrCreate('Super Admin');

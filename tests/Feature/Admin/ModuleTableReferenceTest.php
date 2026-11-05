@@ -124,7 +124,8 @@ it('Index Modules declara ServerTable de referencia sin advanced search', functi
         ->and($source)->toContain("labelKey: 'editar'")
         ->and($source)->toContain("labelKey: 'eliminar'")
         ->and($source)->toContain("variant: 'danger'")
-        ->and($source)->toContain("row.slug === 'admin'")
+        ->and($source)->toContain("'configuracion'")
+        ->and($source)->toContain('isShell')
         ->and($source)->toContain("field: 'name'")
         ->and($source)->toContain("field: 'color'")
         ->and($source)->toContain("field: 'icon'")
@@ -194,34 +195,34 @@ it('toggle status exige permiso modules.update', function () {
         ->assertForbidden();
 });
 
-it('permite desactivar y reactivar módulos shell admin y workspace', function () {
-    $workspace = Module::query()->where('slug', 'workspace')->firstOrFail();
+it('permite desactivar y reactivar módulos shell dashboard y configuracion', function () {
+    $dashboard = Module::query()->where('slug', 'dashboard')->firstOrFail();
 
-    $this->patchJson(route('admin.modules.status', $workspace), ['status' => 'inactive'])
+    $this->patchJson(route('admin.modules.status', $dashboard), ['status' => 'inactive'])
         ->assertOk()
         ->assertJsonPath('status', 'inactive');
 
-    expect($workspace->fresh()->status)->toBe(ModuleStatus::Inactive);
+    expect($dashboard->fresh()->status)->toBe(ModuleStatus::Inactive);
 
-    $this->patchJson(route('admin.modules.status', $workspace), ['status' => 'active'])
+    $this->patchJson(route('admin.modules.status', $dashboard), ['status' => 'active'])
         ->assertOk()
         ->assertJsonPath('status', 'active');
 
-    expect($workspace->fresh()->status)->toBe(ModuleStatus::Active);
+    expect($dashboard->fresh()->status)->toBe(ModuleStatus::Active);
 
-    $admin = Module::query()->where('slug', 'admin')->firstOrFail();
+    $config = Module::query()->where('slug', 'configuracion')->firstOrFail();
 
-    $this->patchJson(route('admin.modules.status', $admin), ['status' => 'inactive'])
+    $this->patchJson(route('admin.modules.status', $config), ['status' => 'inactive'])
         ->assertOk()
         ->assertJsonPath('status', 'inactive');
 
-    expect($admin->fresh()->status)->toBe(ModuleStatus::Inactive);
+    expect($config->fresh()->status)->toBe(ModuleStatus::Inactive);
 
-    $this->patchJson(route('admin.modules.status', $admin), ['status' => 'active'])
+    $this->patchJson(route('admin.modules.status', $config), ['status' => 'active'])
         ->assertOk()
         ->assertJsonPath('status', 'active');
 
-    expect($admin->fresh()->status)->toBe(ModuleStatus::Active);
+    expect($config->fresh()->status)->toBe(ModuleStatus::Active);
 });
 
 it('ningún Index ServerTable muestra columna slug', function () {

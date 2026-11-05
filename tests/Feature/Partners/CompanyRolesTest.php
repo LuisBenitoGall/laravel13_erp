@@ -19,11 +19,17 @@ beforeEach(function () {
 
     $this->workspace = Company::factory()->create(['slug' => 'workspace']);
     Module::factory()->create([
-        'slug' => 'admin',
+        'slug' => 'configuracion',
         'level' => ModuleLevel::AdminOnly,
         'status' => ModuleStatus::Active,
     ]);
-    enableModuleForCompany($this->workspace, 'admin');
+    Module::factory()->create([
+        'slug' => 'empresas',
+        'level' => ModuleLevel::Basic,
+        'status' => ModuleStatus::Active,
+    ]);
+    enableModuleForCompany($this->workspace, 'configuracion');
+    enableModuleForCompany($this->workspace, 'empresas');
 
     $this->actor = User::factory()->create();
     Role::findOrCreate('Super Admin');

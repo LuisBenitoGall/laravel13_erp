@@ -150,11 +150,12 @@ empresa preferente.
      autorizado debe fallar. `ModuleLevel`: `Basic` se autoriza por defecto al crear
      company activa y al activar un Module Basic; `Optional` y `AdminOnly` requieren
      Capa 3 (no auto-autorizar). No inventar restricciones extra de AdminOnly.
-  - Menú / `EnsureModuleIsActive`: tras las 3 capas, el usuario ve el Module si tiene
-    el comodín `<module-slug>.access` **o** al menos un `viewAny` de Functionality del
-    módulo. El comodín **implica** el `viewAny` de todas sus Functionalities.
-  - v1 hacía un AND estricto (exigía el comodín aunque hubiera permiso de una
-    Functionality): prohibido replicar ese comportamiento.
+  - Menú / acceso a Functionality: tras las 3 capas, el usuario ve/usa una
+    Functionality solo si tiene el comodín `<module-slug>.access` **y** el permiso
+    de esa Functionality (`viewAny`/acción). Module hoja (sin Functionalities):
+    basta el comodín. El comodín **no implica** todas las Functionalities.
+  - Excepción menú SA: Module `AdminOnly` Active puede mostrarse a Super Admin sin
+    authorize/enable en company (perímetro de datos intacto).
 
 ## 5. Capas y responsabilidades
 
@@ -270,6 +271,6 @@ español (y demás idiomas) vía i18n; el usuario nunca ve identificadores.
 10. Colas en sync / envíos comentados → R-TRV-01.
 11. Menú duplicado básico/secundario con lógica de visibilidad distinta → mecanismo único
     `Module`/`Functionality` (R-AUT-08).
-12. Visibilidad de módulo con AND estricto sobre un permiso comodín (oculta funcionalidades
-    con permiso propio) → comodín que implica, o permiso propio, nunca ambos obligatorios
+12. Visibilidad de Functionality solo con `viewAny` sin comodín del Module (o solo
+    comodín sin `viewAny`) → modelo AND: ambos obligatorios; Module hoja solo comodín
     (R-AUT-08).

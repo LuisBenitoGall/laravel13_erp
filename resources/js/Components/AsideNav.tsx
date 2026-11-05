@@ -11,6 +11,8 @@ export type AsideNavItem = {
     label: string;
     color: string;
     icon: string;
+    /** Module hoja (p. ej. dashboard): enlace directo sin hijos. */
+    href?: string;
     functionalities: Array<{ slug: string; label: string; href: string }>;
 };
 
@@ -53,7 +55,29 @@ function pathMatches(currentUrl: string, href: string): boolean {
 }
 
 function isDirectLink(item: AsideNavItem): boolean {
+    if (item.href && item.functionalities.length === 0) {
+        return true;
+    }
+
     return item.functionalities.length === 1;
+}
+
+function directHref(item: AsideNavItem): string {
+    if (item.href && item.functionalities.length === 0) {
+        return item.href;
+    }
+
+    return item.functionalities[0]?.href ?? '#';
+}
+
+function directLabel(item: AsideNavItem): string {
+    if (item.href && item.functionalities.length === 0) {
+        return item.label;
+    }
+
+    const only = item.functionalities[0];
+
+    return item.slug === 'dashboard' ? item.label : (only?.label ?? item.label);
 }
 
 function activeGroupSlugs(menu: AsideNavItem[], currentUrl: string): Set<string> {
@@ -69,6 +93,10 @@ function activeGroupSlugs(menu: AsideNavItem[], currentUrl: string): Set<string>
 }
 
 function itemIsActive(item: AsideNavItem, currentUrl: string): boolean {
+    if (item.href && item.functionalities.length === 0) {
+        return pathMatches(currentUrl, item.href);
+    }
+
     return item.functionalities.some((child) => pathMatches(currentUrl, child.href));
 }
 
@@ -103,20 +131,18 @@ function ExpandedNav({ menu }: { menu: AsideNavItem[] }) {
                 const Icon = resolveMenuIcon(item.icon);
 
                 if (isDirectLink(item)) {
-                    const only = item.functionalities[0];
-                    const active = pathMatches(currentUrl, only.href);
+                    const href = directHref(item);
+                    const active = pathMatches(currentUrl, href);
 
                     return (
                         <Link
                             key={item.slug}
-                            href={only.href}
+                            href={href}
                             className={active ? primaryActive : primaryIdle}
                             aria-current={active ? 'page' : undefined}
                         >
                             <Icon className="size-4 shrink-0" aria-hidden />
-                            <span className="truncate">
-                                {item.slug === 'dashboard' ? item.label : only.label}
-                            </span>
+                            <span className="truncate">{directLabel(item)}</span>
                         </Link>
                     );
                 }
@@ -178,14 +204,15 @@ function RailNav({ menu }: { menu: AsideNavItem[] }) {
                 const active = itemIsActive(item, currentUrl);
 
                 if (isDirectLink(item)) {
-                    const only = item.functionalities[0];
+                    const href = directHref(item);
+                    const label = directLabel(item);
 
                     return (
                         <Link
                             key={item.slug}
-                            href={only.href}
-                            title={item.slug === 'dashboard' ? item.label : only.label}
-                            aria-label={item.slug === 'dashboard' ? item.label : only.label}
+                            href={href}
+                            title={label}
+                            aria-label={label}
                             className={active ? railButtonActive : railButton}
                             aria-current={active ? 'page' : undefined}
                         >

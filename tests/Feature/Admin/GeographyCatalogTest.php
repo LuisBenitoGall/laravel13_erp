@@ -22,7 +22,7 @@ beforeEach(function () {
     $this->seed(AdminCatalogSeeder::class);
 
     $this->company = Company::factory()->create();
-    enableModuleForCompany($this->company, 'admin');
+    enableModuleForCompany($this->company, 'configuracion');
 
     $this->user = User::factory()->create();
     Role::findOrCreate('Super Admin');
@@ -37,7 +37,7 @@ it('geografía es catálogo global sin company_id y visible desde dos companies 
 
     $country = Country::factory()->create(['name' => 'Atlantis']);
     $otherCompany = Company::factory()->create();
-    enableModuleForCompany($otherCompany, 'admin');
+    enableModuleForCompany($otherCompany, 'configuracion');
 
     $names = fn () => collect($this->getJson(route('admin.countries.table'))->assertOk()->json('data'))->pluck('name');
 
@@ -90,7 +90,8 @@ it('options acepta usuarios con countries.viewAny', function () {
 
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    $user->givePermissionTo('countries.viewAny');
+    Permission::findOrCreate('configuracion.access');
+    $user->givePermissionTo(['configuracion.access', 'countries.viewAny']);
     actingWithCompany($user, $this->company);
 
     $this->getJson(route('admin.countries.provinces.options', $country))

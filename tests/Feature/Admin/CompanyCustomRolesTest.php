@@ -27,7 +27,7 @@ beforeEach(function () {
     $this->company = Company::factory()->create();
 
     $admin = Module::factory()->create([
-        'slug' => 'admin',
+        'slug' => 'configuracion',
         'level' => ModuleLevel::AdminOnly,
         'status' => ModuleStatus::Active,
     ]);
@@ -39,18 +39,17 @@ beforeEach(function () {
         'status' => FunctionalityStatus::Active->value,
     ]);
 
-    $this->workspace = app(CreateModule::class)->handle([
-        'name' => 'Workspace',
-        'slug' => 'workspace',
-        'label' => ['es' => 'Espacio de trabajo', 'en' => 'Workspace'],
+    $this->usuarios = app(CreateModule::class)->handle([
+        'name' => 'Usuarios',
+        'label' => ['es' => 'Usuarios', 'en' => 'Users'],
         'color' => '#0369a1',
-        'icon' => 'briefcase',
+        'icon' => 'users',
         'level' => ModuleLevel::Basic->value,
         'status' => ModuleStatus::Active->value,
     ]);
 
     app(CreateFunctionality::class)->handle([
-        'module_id' => $this->workspace->id,
+        'module_id' => $this->usuarios->id,
         'name' => 'Company roles',
         'slug' => 'company-roles',
         'label' => ['es' => 'Roles de empresa', 'en' => 'Company roles'],
@@ -82,8 +81,8 @@ beforeEach(function () {
     }
 
     app(EnsureCompanyDefaultRoles::class)->handle($this->company);
-    app(AuthorizeModuleForCompany::class)->handle($this->company, $this->workspace);
-    app(EnableModuleForCompany::class)->handle($this->company, $this->workspace);
+    app(AuthorizeModuleForCompany::class)->handle($this->company, $this->usuarios);
+    app(EnableModuleForCompany::class)->handle($this->company, $this->usuarios);
     app(AuthorizeModuleForCompany::class)->handle($this->company, $this->sales);
     app(EnableModuleForCompany::class)->handle($this->company, $this->sales);
     app(SyncManagerPermissionsForCompany::class)->handle($this->company);
@@ -240,8 +239,8 @@ it('rechaza borrar custom con usuarios asignados', function () {
 it('aisla roles entre companies (R-TEN-05)', function () {
     $otherCompany = Company::factory()->create();
     app(EnsureCompanyDefaultRoles::class)->handle($otherCompany);
-    app(AuthorizeModuleForCompany::class)->handle($otherCompany, $this->workspace);
-    app(EnableModuleForCompany::class)->handle($otherCompany, $this->workspace);
+    app(AuthorizeModuleForCompany::class)->handle($otherCompany, $this->usuarios);
+    app(EnableModuleForCompany::class)->handle($otherCompany, $this->usuarios);
     app(SyncManagerPermissionsForCompany::class)->handle($otherCompany);
 
     setPermissionsTeamId($otherCompany->id);
@@ -271,9 +270,9 @@ it('matriz no incluye AdminOnly ni módulos apagados o no autorizados', function
             ->where('matrix', function ($matrix) {
                 $slugs = collect($matrix)->pluck('slug')->all();
 
-                return ! in_array('admin', $slugs, true)
+                return ! in_array('configuracion', $slugs, true)
                     && in_array('sales', $slugs, true)
-                    && in_array('workspace', $slugs, true);
+                    && in_array('usuarios', $slugs, true);
             }));
 
     app(DisableModuleForCompany::class)->handle($this->company, $this->sales);
@@ -297,9 +296,9 @@ it('filtra permisos fuera de catálogo al guardar', function () {
     expect($role->permissions->pluck('name')->all())->toBe(['budgets.viewAny']);
 });
 
-it('bloquea rutas si workspace no está activo (V-21)', function () {
+it('bloquea rutas si usuarios no está activo (V-21)', function () {
     companyManager();
-    app(DisableModuleForCompany::class)->handle($this->company, $this->workspace);
+    app(DisableModuleForCompany::class)->handle($this->company, $this->usuarios);
 
     $this->get(route('company.roles.index'))->assertForbidden();
 });

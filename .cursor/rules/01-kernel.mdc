@@ -34,8 +34,9 @@ perímetro: datos solo de companies vinculadas.
 
 ## Module ≠ Functionality
 
-- **Module** = unidad SaaS-activable (catálogo global).
-- **Functionality** = unidad de permiso y menú. Slug inmutable.
+- **Module** = unidad SaaS-activable (catálogo global); puede ser hoja de menú
+  sin Functionalities (p. ej. `dashboard`).
+- **Functionality** = unidad de permiso y subítem de menú. Slug inmutable.
 - Permisos: `<functionality>.<acción>` (`viewAny/view/create/update/delete`).
   Comodín de módulo: `<module-slug>.access`.
 
@@ -46,8 +47,9 @@ perímetro: datos solo de companies vinculadas.
 3. Elegibilidad `company_module_authorizations` (Super Admin; Basic auto;
    Optional y AdminOnly **no** auto). Encender un no autorizado = error.
 
-Menú / `EnsureModuleIsActive`: Active **y** autorizado **y** encendido, **luego**
-comodín OR `viewAny`. Prohibido el AND estricto de v1.
+Menú / acceso Functionality: Active **y** autorizado **y** encendido, **luego**
+comodín **AND** permiso de la Functionality. Module hoja: solo comodín.
+Comodín no implica todos los `viewAny`.
 
 ## v1
 

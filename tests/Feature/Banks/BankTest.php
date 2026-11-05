@@ -21,7 +21,7 @@ beforeEach(function () {
     $this->seed(AdminCatalogSeeder::class);
 
     $this->company = Company::factory()->create();
-    enableModuleForCompany($this->company, 'admin');
+    enableModuleForCompany($this->company, 'configuracion');
 
     $this->user = User::factory()->create();
     Role::findOrCreate('Super Admin');
@@ -71,7 +71,8 @@ it('sin banks.* las rutas de bancos responden 403', function () {
 it('usuario con banks.viewAny abre el Index', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    $user->givePermissionTo('banks.viewAny');
+    Permission::findOrCreate('configuracion.access');
+    $user->givePermissionTo(['configuracion.access', 'banks.viewAny']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.banks.index'))->assertOk();
@@ -239,7 +240,7 @@ it('bancos es catálogo global sin company_id y visible desde dos companies', fu
 
     $bank = Bank::factory()->create(['name' => 'Atlantis Bank', 'eu_code' => 'ES5555']);
     $otherCompany = Company::factory()->create();
-    enableModuleForCompany($otherCompany, 'admin');
+    enableModuleForCompany($otherCompany, 'configuracion');
 
     $names = fn () => collect($this->getJson(route('admin.banks.table'))->assertOk()->json('data'))->pluck('name');
 

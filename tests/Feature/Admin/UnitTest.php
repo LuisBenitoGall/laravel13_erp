@@ -21,7 +21,7 @@ beforeEach(function () {
     $this->seed(AdminCatalogSeeder::class);
 
     $this->company = Company::factory()->create();
-    enableModuleForCompany($this->company, 'admin');
+    enableModuleForCompany($this->company, 'configuracion');
 
     $this->user = User::factory()->create();
     Role::findOrCreate('Super Admin');
@@ -71,7 +71,8 @@ it('sin units.* las rutas de unidades responden 403', function () {
 it('usuario con units.viewAny abre el Index', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    $user->givePermissionTo('units.viewAny');
+    Permission::findOrCreate('configuracion.access');
+    $user->givePermissionTo(['configuracion.access', 'units.viewAny']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.units.index'))->assertOk();
@@ -200,7 +201,7 @@ it('unidades es catálogo global sin company_id y visible desde dos companies', 
 
     $unit = Unit::factory()->create(['name' => 'Atlantis Unit']);
     $otherCompany = Company::factory()->create();
-    enableModuleForCompany($otherCompany, 'admin');
+    enableModuleForCompany($otherCompany, 'configuracion');
 
     $names = fn () => collect($this->getJson(route('admin.units.table'))->assertOk()->json('data'))->pluck('name');
 

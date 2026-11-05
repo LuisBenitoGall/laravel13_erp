@@ -24,5 +24,6 @@ it('Index Module responde JSON de ServerTable', function () {
         ->assertOk()
         ->assertJsonStructure(['data', 'last_page', 'total']);
 
-    expect(Module::query()->where('slug', 'admin')->exists())->toBeTrue();
+    expect(Module::query()->where('slug', 'configuracion')->exists())->toBeTrue()
+        ->and(Module::query()->whereIn('slug', ['admin', 'workspace'])->exists())->toBeFalse();
 });

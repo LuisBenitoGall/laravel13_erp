@@ -4,6 +4,7 @@ namespace App\Domains\Admin\Actions;
 
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Models\Functionality;
+use App\Domains\Admin\Support\MenuCatalogCache;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 
@@ -23,6 +24,8 @@ class CreateFunctionality
             }
 
             Permission::findOrCreate($functionality->module->slug.'.access');
+
+            MenuCatalogCache::forget();
 
             return $functionality;
         });

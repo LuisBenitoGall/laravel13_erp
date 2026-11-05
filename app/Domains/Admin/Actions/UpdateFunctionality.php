@@ -3,6 +3,7 @@
 namespace App\Domains\Admin\Actions;
 
 use App\Domains\Admin\Models\Functionality;
+use App\Domains\Admin\Support\MenuCatalogCache;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -19,6 +20,8 @@ class UpdateFunctionality
             // name/module_id/slug inmutables desde el modal; status solo vía toggle request.
             unset($data['slug'], $data['name'], $data['module_id']);
             $functionality->update($data);
+
+            MenuCatalogCache::forget();
 
             return $functionality->refresh();
         });

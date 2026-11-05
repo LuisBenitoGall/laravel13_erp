@@ -101,7 +101,9 @@ export default function Index() {
     }, [t, i18n.language]);
 
     const rowActions = (row: ModuleRow): Array<RowAction<ModuleRow>> => {
-        const isShell = row.slug === 'admin' || row.slug === 'workspace';
+        const isShell = ['dashboard', 'cuenta', 'usuarios', 'empresas', 'configuracion'].includes(
+            row.slug,
+        );
         const edit: RowAction<ModuleRow> = {
             id: 'edit',
             icon: Pencil,

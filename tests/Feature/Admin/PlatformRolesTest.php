@@ -27,11 +27,11 @@ beforeEach(function () {
     $this->company = Company::factory()->create();
 
     $admin = Module::factory()->create([
-        'slug' => 'admin',
+        'slug' => 'configuracion',
         'level' => ModuleLevel::AdminOnly,
         'status' => ModuleStatus::Active,
     ]);
-    enableModuleForCompany($this->company, 'admin');
+    enableModuleForCompany($this->company, 'configuracion');
 
     app(CreateFunctionality::class)->handle([
         'module_id' => $admin->id,

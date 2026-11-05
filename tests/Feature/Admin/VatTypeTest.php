@@ -22,7 +22,7 @@ beforeEach(function () {
     $this->seed(AdminCatalogSeeder::class);
 
     $this->company = Company::factory()->create();
-    enableModuleForCompany($this->company, 'admin');
+    enableModuleForCompany($this->company, 'configuracion');
 
     $this->country = Country::factory()->create(['name' => 'España Test']);
     $this->otherCountry = Country::factory()->create(['name' => 'Francia Test']);
@@ -102,7 +102,8 @@ it('sin vat-types.* las rutas responden 403', function () {
 it('usuario con vat-types.viewAny abre el Index', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    $user->givePermissionTo('vat-types.viewAny');
+    Permission::findOrCreate('configuracion.access');
+    $user->givePermissionTo(['configuracion.access', 'vat-types.viewAny']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.vat-types.index'))->assertOk();
@@ -262,7 +263,7 @@ it('tipos IVA es catálogo global sin company_id y visible desde dos companies',
         'name' => 'Atlantis VAT',
     ]);
     $otherCompany = Company::factory()->create();
-    enableModuleForCompany($otherCompany, 'admin');
+    enableModuleForCompany($otherCompany, 'configuracion');
 
     $names = fn () => collect($this->getJson(route('admin.vat-types.table'))->assertOk()->json('data'))->pluck('name');
 

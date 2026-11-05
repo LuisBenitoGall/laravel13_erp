@@ -30,7 +30,7 @@ beforeEach(function () {
     app(EnsureCompanyDefaultRoles::class)->handle($this->company);
 
     $workspace = Module::factory()->create([
-        'slug' => 'workspace',
+        'slug' => 'usuarios',
         'level' => ModuleLevel::Basic,
         'status' => ModuleStatus::Active,
     ]);
@@ -41,7 +41,7 @@ beforeEach(function () {
         'label' => ['es' => 'Usuarios empresa'],
         'status' => FunctionalityStatus::Active->value,
     ]);
-    enableModuleForCompany($this->company, 'workspace');
+    enableModuleForCompany($this->company, 'usuarios');
 
     $this->manager = User::factory()->create();
     $this->manager->companies()->attach($this->company->id);

@@ -3,13 +3,14 @@
 namespace App\Domains\Admin\Actions;
 
 use App\Domains\Admin\Models\Module;
+use App\Domains\Admin\Support\MenuCatalogCache;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class DeleteModule
 {
     /** @var list<string> */
-    private const SHELL_SLUGS = ['admin', 'workspace'];
+    private const SHELL_SLUGS = ['dashboard', 'cuenta', 'usuarios', 'empresas', 'configuracion'];
 
     public function handle(Module $module): void
     {
@@ -17,6 +18,9 @@ class DeleteModule
             throw new HttpException(403, 'Shell modules cannot be soft-deleted.');
         }
 
-        DB::transaction(fn () => $module->delete());
+        DB::transaction(function () use ($module): void {
+            $module->delete();
+            MenuCatalogCache::forget();
+        });
     }
 }

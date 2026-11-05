@@ -21,15 +21,15 @@ beforeEach(function () {
 
     $this->company = Company::factory()->create();
     Module::factory()->create([
-        'slug' => 'admin',
+        'slug' => 'configuracion',
         'level' => ModuleLevel::AdminOnly,
         'status' => ModuleStatus::Active,
     ]);
-    enableModuleForCompany($this->company, 'admin');
+    enableModuleForCompany($this->company, 'configuracion');
 });
 
 it('crea Functionality y provisiona 5 permisos + comodín', function () {
-    $module = Module::query()->where('slug', 'admin')->firstOrFail();
+    $module = Module::query()->where('slug', 'configuracion')->firstOrFail();
 
     $functionality = app(CreateFunctionality::class)->handle([
         'module_id' => $module->id,
@@ -43,7 +43,7 @@ it('crea Functionality y provisiona 5 permisos + comodín', function () {
         expect(Permission::query()->where('name', "modules.{$ability}")->exists())->toBeTrue();
     }
 
-    expect(Permission::query()->where('name', 'admin.access')->exists())->toBeTrue()
+    expect(Permission::query()->where('name', 'configuracion.access')->exists())->toBeTrue()
         ->and($functionality->slug)->toBe('modules');
 });
 

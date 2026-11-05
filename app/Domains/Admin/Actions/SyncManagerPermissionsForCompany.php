@@ -13,8 +13,9 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 
 /**
- * Resync idempotente: manager = permisos de Functionalities de Modules
+ * Resync idempotente: manager = comodines + permisos de Functionalities de Modules
  * Active ∩ autorizados ∩ level ∈ {Basic, Optional}. Excluye AdminOnly.
+ * AND: el manager necesita `{module}.access` además de los viewAny.
  */
 class SyncManagerPermissionsForCompany
 {
@@ -39,23 +40,27 @@ class SyncManagerPermissionsForCompany
                 return;
             }
 
-            $moduleIds = Module::query()
+            $modules = Module::query()
                 ->whereIn('id', $authorizedModuleIds)
                 ->where('status', ModuleStatus::Active)
                 ->whereIn('level', [ModuleLevel::Basic, ModuleLevel::Optional])
-                ->pluck('id');
+                ->get(['id', 'slug']);
 
-            if ($moduleIds->isEmpty()) {
+            if ($modules->isEmpty()) {
                 $manager->syncPermissions([]);
 
                 return;
             }
 
-            $functionalitySlugs = Functionality::query()
-                ->whereIn('module_id', $moduleIds)
-                ->pluck('slug');
-
             $permissionNames = [];
+
+            foreach ($modules as $module) {
+                $permissionNames[] = $module->slug.'.access';
+            }
+
+            $functionalitySlugs = Functionality::query()
+                ->whereIn('module_id', $modules->pluck('id'))
+                ->pluck('slug');
 
             foreach ($functionalitySlugs as $slug) {
                 foreach (['viewAny', 'view', 'create', 'update', 'delete'] as $ability) {
