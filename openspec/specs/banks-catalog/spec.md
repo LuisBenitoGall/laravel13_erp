@@ -20,15 +20,16 @@ swift, swift_source y swift_updated_at.
 El sistema SHALL exponer bajo Configuración → Bancos un Index ServerTable con
 Acciones (toggle status, Edit, Delete confirm) y Create/Edit por modal. Index
 SHALL NOT mostrar columna Estado textual si existe toggle en Acciones.
-Autorización vía Functionality `banks` y permisos `banks.*`.
+Autorización vía Functionality `banks` y permisos `banks.*`. El acceso al Index
+SHALL exigir `banks.view`.
 
 #### Scenario: Usuario autorizado abre Bancos
-- **WHEN** un usuario con `banks.viewAny` (o Super Admin) abre Configuración →
+- **WHEN** un usuario con `banks.view` (o Super Admin) abre Configuración →
   Bancos
 - **THEN** ve el Index ServerTable de banks
 
-#### Scenario: Sin permiso viewAny
-- **WHEN** un usuario sin `banks.viewAny` y sin Super Admin fuerza la URL del
+#### Scenario: Sin permiso view
+- **WHEN** un usuario sin `banks.view` y sin Super Admin fuerza la URL del
   Index
 - **THEN** recibe 403
 

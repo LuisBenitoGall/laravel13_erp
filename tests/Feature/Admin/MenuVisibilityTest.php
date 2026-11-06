@@ -64,17 +64,17 @@ beforeEach(function () {
     MenuCatalogCache::forget();
 });
 
-it('solo viewAny sin comodín no muestra Functionality', function () {
+it('solo view sin comodín no muestra Functionality', function () {
     $user = User::factory()->create();
-    Permission::findOrCreate('catalog-items.viewAny');
-    $user->givePermissionTo('catalog-items.viewAny');
+    Permission::findOrCreate('catalog-items.view');
+    $user->givePermissionTo('catalog-items.view');
 
     $menu = app(MenuBuilder::class)->forUser($user);
 
     expect(collect($menu)->pluck('slug')->all())->not->toContain('catalog');
 });
 
-it('solo comodín sin viewAny no muestra Functionality', function () {
+it('solo comodín sin view no muestra Functionality', function () {
     $user = User::factory()->create();
     Permission::findOrCreate('catalog.access');
     $user->givePermissionTo('catalog.access');
@@ -85,11 +85,11 @@ it('solo comodín sin viewAny no muestra Functionality', function () {
     expect($tenant)->toBeNull();
 });
 
-it('comodín y viewAny muestran solo Functionalities con permiso', function () {
+it('comodín y view muestran solo Functionalities con permiso', function () {
     $user = User::factory()->create();
     Permission::findOrCreate('catalog.access');
-    Permission::findOrCreate('catalog-items.viewAny');
-    $user->givePermissionTo(['catalog.access', 'catalog-items.viewAny']);
+    Permission::findOrCreate('catalog-items.view');
+    $user->givePermissionTo(['catalog.access', 'catalog-items.view']);
 
     $menu = app(MenuBuilder::class)->forUser($user);
     $tenant = collect($menu)->firstWhere('slug', 'catalog');
@@ -101,8 +101,8 @@ it('comodín y viewAny muestran solo Functionalities con permiso', function () {
 it('módulo solo visible si elegible y encendido', function () {
     $user = User::factory()->create();
     Permission::findOrCreate('catalog.access');
-    Permission::findOrCreate('catalog-items.viewAny');
-    $user->givePermissionTo(['catalog.access', 'catalog-items.viewAny']);
+    Permission::findOrCreate('catalog-items.view');
+    $user->givePermissionTo(['catalog.access', 'catalog-items.view']);
 
     app(DisableModuleForCompany::class)
         ->handle($this->company, $this->module);
@@ -139,8 +139,8 @@ it('raíces del menú corresponden a Modules del catálogo', function () {
 it('invalidación de cache tras crear Functionality', function () {
     $user = User::factory()->create();
     Permission::findOrCreate('catalog.access');
-    Permission::findOrCreate('catalog-items.viewAny');
-    $user->givePermissionTo(['catalog.access', 'catalog-items.viewAny']);
+    Permission::findOrCreate('catalog-items.view');
+    $user->givePermissionTo(['catalog.access', 'catalog-items.view']);
 
     app(MenuBuilder::class)->forUser($user);
 
@@ -152,8 +152,8 @@ it('invalidación de cache tras crear Functionality', function () {
         'status' => FunctionalityStatus::Active->value,
     ]);
 
-    Permission::findOrCreate('catalog-tags.viewAny');
-    $user->givePermissionTo('catalog-tags.viewAny');
+    Permission::findOrCreate('catalog-tags.view');
+    $user->givePermissionTo('catalog-tags.view');
 
     $tenant = collect(app(MenuBuilder::class)->forUser($user))->firstWhere('slug', 'catalog');
 
@@ -169,8 +169,8 @@ it('dos companies filtran menú distinto sobre el mismo catálogo', function () 
     $user = User::factory()->create();
     Permission::findOrCreate('dashboard.access');
     Permission::findOrCreate('catalog.access');
-    Permission::findOrCreate('catalog-items.viewAny');
-    $user->givePermissionTo(['dashboard.access', 'catalog.access', 'catalog-items.viewAny']);
+    Permission::findOrCreate('catalog-items.view');
+    $user->givePermissionTo(['dashboard.access', 'catalog.access', 'catalog-items.view']);
 
     withCurrentCompany($this->company);
     $slugsA = collect(app(MenuBuilder::class)->forUser($user))->pluck('slug')->all();

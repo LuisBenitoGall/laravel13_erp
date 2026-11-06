@@ -15,7 +15,7 @@ use Spatie\Permission\PermissionRegistrar;
 /**
  * Resync idempotente: manager = comodines + permisos de Functionalities de Modules
  * Active ∩ autorizados ∩ level ∈ {Basic, Optional}. Excluye AdminOnly.
- * AND: el manager necesita `{module}.access` además de los viewAny.
+ * AND: el manager necesita `{module}.access` además de los 5 canónicos (incl. `.view`).
  */
 class SyncManagerPermissionsForCompany
 {

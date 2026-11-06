@@ -84,14 +84,14 @@ it('options: solo Active, no eliminados, ordenados por nombre con payload {id, n
         ]);
 });
 
-it('options acepta usuarios con countries.viewAny', function () {
+it('options acepta usuarios con countries.view', function () {
     $country = Country::factory()->create();
     Province::factory()->create(['country_id' => $country->id]);
 
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
     Permission::findOrCreate('configuracion.access');
-    $user->givePermissionTo(['configuracion.access', 'countries.viewAny']);
+    $user->givePermissionTo(['configuracion.access', 'countries.view']);
     actingWithCompany($user, $this->company);
 
     $this->getJson(route('admin.countries.provinces.options', $country))

@@ -3,6 +3,7 @@
 namespace App\Domains\Admin\Actions;
 
 use App\Domains\Admin\Models\Role;
+use App\Domains\Admin\Support\AssertsCompanyRoleTenantPerimeter;
 use App\Domains\Partners\Models\Company;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -10,15 +11,12 @@ use Spatie\Permission\PermissionRegistrar;
 
 class DeleteCompanyRole
 {
+    use AssertsCompanyRoleTenantPerimeter;
+
     public function handle(Company $company, Role $role): void
     {
-        $teamKey = (string) config('permission.column_names.team_foreign_key');
-
-        if ((int) $role->getAttribute($teamKey) !== (int) $company->id) {
-            throw ValidationException::withMessages([
-                'role' => __('rol_empresa_fuera_de_tenant'),
-            ]);
-        }
+        $this->assertCompanyIsCurrent($company);
+        $this->assertRoleBelongsToCompany($role, $company);
 
         if ($role->isLocalProtected()) {
             throw ValidationException::withMessages([

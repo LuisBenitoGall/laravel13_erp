@@ -57,7 +57,7 @@ it('seeder deja Functionality permissions y Spatie permissions.* + configuracion
     expect(Permission::query()->where('name', 'configuracion.access')->exists())->toBeTrue();
 });
 
-it('Index requiere permissions.viewAny', function () {
+it('Index requiere permissions.view', function () {
     $guest = User::factory()->create();
     actingWithCompany($guest, $this->company);
 
@@ -81,16 +81,16 @@ it('bloquea permissions si configuracion no está activo para la company (V-21)'
 
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    $user->givePermissionTo('permissions.viewAny');
+    $user->givePermissionTo('permissions.view');
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.permissions.index'))->assertForbidden();
 });
 
-it('permite Index con configuracion activo, comodín y permissions.viewAny (AND)', function () {
+it('permite Index con configuracion activo, comodín y permissions.view (AND)', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    $user->givePermissionTo(['configuracion.access', 'permissions.viewAny']);
+    $user->givePermissionTo(['configuracion.access', 'permissions.view']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.permissions.index'))
@@ -98,10 +98,10 @@ it('permite Index con configuracion activo, comodín y permissions.viewAny (AND)
         ->assertInertia(fn ($page) => $page->component('Admin/Permissions/Index'));
 });
 
-it('403 si solo viewAny sin comodín configuracion.access (AND HTTP)', function () {
+it('403 si solo view sin comodín configuracion.access (AND HTTP)', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    $user->givePermissionTo('permissions.viewAny');
+    $user->givePermissionTo('permissions.view');
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.permissions.index'))->assertForbidden();

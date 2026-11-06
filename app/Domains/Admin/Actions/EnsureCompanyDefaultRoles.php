@@ -9,7 +9,7 @@ use Spatie\Permission\PermissionRegistrar;
 
 /**
  * Materializa plantillas universales (`company_id` NULL, `universal`) como roles locales.
- * Manager: permisos vía SyncManagerPermissionsForCompany (no copia plantilla).
+ * Locales siempre `universal = false`. Manager: permisos vía SyncManagerPermissionsForCompany.
  * Resto: copia snapshot de permisos de la plantilla.
  */
 class EnsureCompanyDefaultRoles
@@ -41,6 +41,7 @@ class EnsureCompanyDefaultRoles
 
             foreach ($templates as $template) {
                 $local = Role::findOrCreate($template->name, 'web');
+                $local->forceFill(['universal' => false])->save();
 
                 if ($template->name !== Role::MANAGER) {
                     $local->syncPermissions($template->permissions);
@@ -51,6 +52,12 @@ class EnsureCompanyDefaultRoles
 
             $created[Role::MANAGER] ??= Role::findOrCreate(Role::MANAGER, 'web');
             $created[Role::GUEST] ??= Role::findOrCreate(Role::GUEST, 'web');
+
+            foreach ([Role::MANAGER, Role::GUEST] as $protected) {
+                if (isset($created[$protected])) {
+                    $created[$protected]->forceFill(['universal' => false])->save();
+                }
+            }
 
             return $created;
         } finally {

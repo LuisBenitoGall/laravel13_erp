@@ -9,12 +9,12 @@ class AccountingAccountTypePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('accounting-account-types.viewAny');
+        return $user->can('accounting-account-types.view');
     }
 
     public function view(User $user, AccountingAccountType $accountingAccountType): bool
     {
-        return $user->can('accounting-account-types.view');
+        return $user->can('accounting-account-types.viewAny');
     }
 
     public function create(User $user): bool

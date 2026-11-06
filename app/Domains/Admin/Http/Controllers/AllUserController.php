@@ -24,7 +24,7 @@ class AllUserController extends Controller
     {
         $this->authorize('viewAnyAllUser');
 
-        return $table->for(User::query())
+        return $table->for(User::query()->where('is_public', true))
             ->searchable(['name', 'surname', 'email'])
             ->request($request)
             ->through(DirectoryUserResource::class)

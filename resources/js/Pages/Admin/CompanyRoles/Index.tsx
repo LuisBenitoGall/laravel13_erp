@@ -1,30 +1,76 @@
-import { Plus } from 'lucide-react';
+import { router } from '@inertiajs/react';
+import { Pencil, Plus } from 'lucide-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { ColumnDefinition } from 'tabulator-tables';
+import { toast } from 'sonner';
 
-import ServerTable from '@/Components/Table/ServerTable';
+import ServerTable, { type ColumnDef, type RowAction } from '@/Components/Table/ServerTable';
 import AppLayout from '@/Layouts/AppLayout';
+
+type CompanyRoleRow = {
+    id: number;
+    name: string;
+    description: string | null;
+    protected_local: boolean;
+    can_edit: boolean;
+    can_delete: boolean;
+};
 
 export default function Index() {
     const { t } = useTranslation();
-    const columns = useMemo<ColumnDefinition[]>(
+
+    const columns = useMemo<ColumnDef[]>(
         () => [
-            { title: t('nombre'), field: 'name', widthGrow: 1 },
-            { title: t('descripcion'), field: 'description', widthGrow: 2 },
             {
-                title: t('accion'),
-                field: 'id',
-                width: 100,
-                headerSort: false,
-                formatter: (cell) => {
-                    const id = cell.getValue();
-                    return `<a class="text-teal-700 underline" href="/company/roles/${id}/edit">${t('editar')}</a>`;
-                },
+                title: t('nombre'),
+                field: 'name',
+                widthGrow: 1,
+                headerFilterKind: 'string',
+            },
+            {
+                title: t('descripcion'),
+                field: 'description',
+                widthGrow: 2,
+                headerFilterKind: 'string',
             },
         ],
         [t],
     );
+
+    const rowActions = (row: CompanyRoleRow): Array<RowAction<CompanyRoleRow>> => {
+        const actions: Array<RowAction<CompanyRoleRow>> = [];
+
+        if (row.can_edit) {
+            actions.push({
+                id: 'edit',
+                icon: Pencil,
+                labelKey: 'editar',
+                onClick: () => router.visit(`/company/roles/${row.id}/edit`),
+            });
+        }
+
+        if (row.can_delete) {
+            actions.push({
+                id: 'delete',
+                labelKey: 'eliminar',
+                variant: 'danger',
+                confirm: true,
+                onClick: (current) => {
+                    router.delete(`/company/roles/${current.id}`, {
+                        preserveScroll: true,
+                        onError: (errors) => {
+                            const message = Object.values(errors)[0];
+                            if (message) {
+                                toast.error(String(message));
+                            }
+                        },
+                    });
+                },
+            });
+        }
+
+        return actions;
+    };
 
     return (
         <AppLayout
@@ -43,7 +89,13 @@ export default function Index() {
                 },
             ]}
         >
-            <ServerTable endpoint="/company/roles/table" columns={columns} />
+            <ServerTable<CompanyRoleRow>
+                endpoint="/company/roles/table"
+                columns={columns}
+                persistKey="company.roles"
+                exportable={false}
+                rowActions={rowActions}
+            />
         </AppLayout>
     );
 }

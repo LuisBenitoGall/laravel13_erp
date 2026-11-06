@@ -12,12 +12,12 @@ class CompanyPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('companies.viewAny');
+        return $user->can('companies.view');
     }
 
     public function view(User $user, Company $company): bool
     {
-        return $company->isLinkedTo($user) && $user->can('companies.view');
+        return $company->isLinkedTo($user) && $user->can('companies.viewAny');
     }
 
     public function create(User $user): bool

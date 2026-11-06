@@ -9,18 +9,18 @@ sin gestionar aún la asignación a Roles ni Users.
 ### Requirement: Index Admin de permisos Spatie
 El sistema SHALL exponer un Index Admin de permisos Spatie (ServerTable) con el nombre
 del permiso, la funcionalidad asociada vía prefijo del name, y Acciones. El acceso SHALL
-exigir el permiso Spatie `permissions.viewAny` (Super Admin bypass vía Gate::before).
+exigir el permiso Spatie `permissions.view` (Super Admin bypass vía Gate::before).
 
 #### Scenario: Usuario autorizado abre Index
-- **WHEN** un usuario con `permissions.viewAny` (o Super Admin) abre el Index de permisos
+- **WHEN** un usuario con `permissions.view` (o Super Admin) abre el Index de permisos
 - **THEN** ve el listado ServerTable de permisos Spatie del guard web
 
 #### Scenario: Listado muestra vínculo a Functionality
 - **WHEN** el Index carga filas de permisos cuyo name sigue `{functionalitySlug}.*`
 - **THEN** cada fila muestra el name Spatie y la funcionalidad derivada de ese prefijo
 
-#### Scenario: Sin permiso viewAny
-- **WHEN** un usuario sin `permissions.viewAny` y sin Super Admin fuerza la URL del Index
+#### Scenario: Sin permiso view
+- **WHEN** un usuario sin `permissions.view` y sin Super Admin fuerza la URL del Index
 - **THEN** recibe 403
 
 ### Requirement: Create de permiso custom vinculado a Functionality

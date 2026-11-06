@@ -27,8 +27,7 @@ class StorePlatformRoleRequest extends FormRequest
             ],
             'description' => ['nullable', 'string', 'max:2000'],
             'universal' => ['required', 'boolean'],
-            'permissions' => ['sometimes', 'array'],
-            'permissions.*' => ['string', 'max:255'],
+            'permissions' => ['prohibited'],
         ];
     }
 }

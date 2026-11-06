@@ -19,7 +19,7 @@ class CompanyMemberController extends Controller
     {
         $user = request()->user();
         abort_unless($user !== null && $company->isLinkedTo($user), 403);
-        abort_unless($user->can('company-users.viewAny'), 403);
+        abort_unless($user->can('company-users.view'), 403);
 
         app(EnsureCompanyDefaultRoles::class)->handle($company);
 

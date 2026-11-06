@@ -4,6 +4,8 @@ type ModuleBlock = {
     slug: string;
     label: string;
     level: string;
+    color: string;
+    icon: string;
     functionalities: Array<{
         slug: string;
         label: string;

@@ -40,16 +40,17 @@ dejar de existir como slugs de catálogo tras la migración.
 
 ### Requirement: Permiso Module AND Functionality
 Para acceder a una Functionality el usuario SHALL tener el comodín
-`{module}.access` del Module padre **y** el permiso de acción de esa
-Functionality. SHALL NOT bastar solo el `viewAny` de la Functionality sin el
-comodín del Module. El estándar kernel SHALL reflejar esta regla AND.
+`{module}.access` del Module padre **y** el permiso de dashboard
+`{functionality}.view`. SHALL NOT bastar solo el `.view` (ni el `.viewAny`) de
+la Functionality sin el comodín del Module. El estándar kernel SHALL reflejar
+esta regla AND con `.view` como permiso de menú/dashboard.
 
-#### Scenario: Solo viewAny de Functionality
-- **WHEN** un usuario tiene `countries.viewAny` pero no `configuracion.access`
+#### Scenario: Solo view de Functionality sin comodín
+- **WHEN** un usuario tiene `countries.view` pero no `configuracion.access`
 - **THEN** no ve Países en el menú y recibe 403 al forzar la URL
 
 #### Scenario: Solo comodín de Module
-- **WHEN** un usuario tiene `configuracion.access` pero no `countries.viewAny`
+- **WHEN** un usuario tiene `configuracion.access` pero no `countries.view`
 - **THEN** no ve ni usa Países (salvo Super Admin bypass)
 
 ### Requirement: Cache de catálogo de menú
@@ -72,28 +73,28 @@ El sistema SHALL mostrar un `Module` en el menú tenant si, para la empresa de l
 sesión, el Module está Active globalmente, la empresa está autorizada a él, lo
 tiene encendido, y el usuario cumple la regla de permisos AND: comodín
 `<module-slug>.access` y, para cada `Functionality` hija visible, el permiso
-`viewAny` de esa Functionality. Un Module sin Functionalities (hoja) SHALL
+`view` de esa Functionality. Un Module sin Functionalities (hoja) SHALL
 aparecer si el usuario tiene el comodín y las tres capas. SHALL NOT mostrar una
-Functionality con solo `viewAny` sin comodín, ni con solo comodín sin `viewAny`.
+Functionality con solo `view` sin comodín, ni con solo comodín sin `view`.
 `EnsureModuleIsActive` SHALL bloquear rutas cuyo módulo no cumpla Active +
 autorizado + encendido para la empresa de sesión, **excepto** Super Admin sobre
 Modules AdminOnly Active (véase bypass AdminOnly). La excepción de shell
 Configuración SA (Module AdminOnly sin capas company) SHALL coexistir con esta
 regla sin sustituirla para Basic/Optional ni para usuarios no SA.
 
-#### Scenario: Functionality exige comodín y viewAny
-- **WHEN** un usuario tiene `countries.viewAny` y `configuracion.access`, y el
+#### Scenario: Functionality exige comodín y view
+- **WHEN** un usuario tiene `countries.view` y `configuracion.access`, y el
   Module está Active, autorizado y encendido (o excepción SA AdminOnly)
 - **THEN** Países aparece en el menú bajo `configuracion`
 
-#### Scenario: Sin comodín no basta viewAny
-- **WHEN** un usuario tiene el permiso `viewAny` de una `Functionality` pero no
+#### Scenario: Sin comodín no basta view
+- **WHEN** un usuario tiene el permiso `view` de una `Functionality` pero no
   el comodín `<module-slug>.access`
 - **THEN** esa Functionality no aparece en el menú
 
 #### Scenario: Comodín solo no implica todas las Functionalities
 - **WHEN** un usuario tiene el permiso comodín `<module-slug>.access` pero no
-  `viewAny` de una Functionality concreta del módulo
+  `view` de una Functionality concreta del módulo
 - **THEN** esa Functionality no aparece en el submenú (salvo Super Admin bypass)
 
 #### Scenario: Módulo visible solo si elegible y encendido

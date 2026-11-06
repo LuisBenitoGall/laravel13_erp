@@ -49,13 +49,18 @@ type CopyCompany = { id: number; name: string };
 type Props = {
     role: RolePayload;
     matrix: ModuleBlock[];
-    can_copy: boolean;
-    copy_companies: CopyCompany[];
+    can_copy?: boolean;
+    copy_companies?: CopyCompany[];
 };
 
 type ToggleResponse = { permission_names: string[] };
 
-export default function RoleForm({ role, matrix, can_copy, copy_companies }: Props) {
+export default function RoleForm({
+    role,
+    matrix,
+    can_copy = false,
+    copy_companies = [],
+}: Props) {
     const { t } = useTranslation();
     const permissionsReadonly = Boolean(role.permissions_readonly);
 

@@ -49,7 +49,7 @@ beforeEach(function () {
 
     setPermissionsTeamId($this->company->id);
     $this->manager->givePermissionTo([
-        Permission::findOrCreate('company-users.viewAny'),
+        Permission::findOrCreate('company-users.view'),
         Permission::findOrCreate('company-users.update'),
     ]);
     setPermissionsTeamId(null);

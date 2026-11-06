@@ -9,12 +9,12 @@ class {{ entity }}Policy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('{{ permission }}.viewAny');
+        return $user->can('{{ permission }}.view');
     }
 
     public function view(User $user, {{ entity }} ${{ entitySnake }}): bool
     {
-        return $user->can('{{ permission }}.view') && ${{ entitySnake }}->belongsToCurrentCompany();
+        return $user->can('{{ permission }}.viewAny') && ${{ entitySnake }}->belongsToCurrentCompany();
     }
 
     public function create(User $user): bool

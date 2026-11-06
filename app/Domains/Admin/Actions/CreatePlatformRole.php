@@ -3,20 +3,16 @@
 namespace App\Domains\Admin\Actions;
 
 use App\Domains\Admin\Models\Role;
-use App\Domains\Admin\Support\PlatformRolePermissionCatalog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\PermissionRegistrar;
 
 class CreatePlatformRole
 {
-    public function __construct(
-        private readonly PlatformRolePermissionCatalog $catalog,
-        private readonly SyncPlatformRolePermissions $syncPermissions,
-    ) {}
-
     /**
-     * @param  array{name: string, description?: string|null, universal: bool, permissions?: list<string>}  $data
+     * Alta solo metadatos. Matriz vía Edit (toggles).
+     *
+     * @param  array{name: string, description?: string|null, universal: bool}  $data
      */
     public function handle(array $data): Role
     {
@@ -47,13 +43,6 @@ class CreatePlatformRole
                     'universal' => (bool) $data['universal'],
                     'description' => $data['description'] ?? null,
                 ]);
-
-                $permissions = $this->catalog->filterPermissionNames(
-                    $data['permissions'] ?? [],
-                    allowAdminOnly: ! $role->universal,
-                );
-
-                $this->syncPermissions->handle($role, $permissions);
 
                 $fresh = $role->fresh(['permissions']);
 

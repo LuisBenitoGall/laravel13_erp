@@ -20,10 +20,11 @@ El sistema SHALL exponer bajo Configuración → Grupos contables un Index
 ServerTable con code, name y level, Acciones Edit modal y Delete confirm, y
 Create por modal. En Edit, code SHALL ser inmutable. Autorización vía
 Functionality `accounting-account-types` y permisos
-`accounting-account-types.*`.
+`accounting-account-types.*`. El acceso al Index/show de catálogo SHALL exigir
+`accounting-account-types.view`.
 
 #### Scenario: Usuario autorizado abre Index
-- **WHEN** un usuario con `accounting-account-types.viewAny` (o Super Admin)
+- **WHEN** un usuario con `accounting-account-types.view` (o Super Admin)
   abre Configuración → Grupos contables
 - **THEN** ve el Index ServerTable
 
@@ -31,8 +32,9 @@ Functionality `accounting-account-types` y permisos
 - **WHEN** el usuario edita un grupo existente
 - **THEN** puede cambiar name pero no code
 
-#### Scenario: Sin permiso viewAny
-- **WHEN** un usuario sin viewAny y sin Super Admin fuerza el Index
+#### Scenario: Sin permiso view
+- **WHEN** un usuario sin `accounting-account-types.view` y sin Super Admin
+  fuerza el Index
 - **THEN** recibe 403
 
 ### Requirement: Vista show asistente PGC

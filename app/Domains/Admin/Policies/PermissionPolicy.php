@@ -9,12 +9,12 @@ class PermissionPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('permissions.viewAny');
+        return $user->can('permissions.view');
     }
 
     public function view(User $user, Permission $permission): bool
     {
-        return $user->can('permissions.view');
+        return $user->can('permissions.viewAny');
     }
 
     public function create(User $user): bool

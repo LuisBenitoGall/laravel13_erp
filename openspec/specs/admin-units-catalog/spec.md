@@ -20,15 +20,16 @@ SHALL NOT persistir `translations`.
 El sistema SHALL exponer bajo Configuración → Unidades un Index ServerTable con
 Acciones (toggle status, Edit, Delete confirm) y Create/Edit por modal. Index
 SHALL NOT mostrar columna Estado textual si existe toggle en Acciones.
-Autorización vía Functionality `units` y permisos `units.*`.
+Autorización vía Functionality `units` y permisos `units.*`. El acceso al Index
+SHALL exigir `units.view`.
 
 #### Scenario: Usuario autorizado abre Unidades
-- **WHEN** un usuario con `units.viewAny` (o Super Admin) abre Configuración →
+- **WHEN** un usuario con `units.view` (o Super Admin) abre Configuración →
   Unidades
 - **THEN** ve el Index ServerTable de units
 
-#### Scenario: Sin permiso viewAny
-- **WHEN** un usuario sin `units.viewAny` y sin Super Admin fuerza la URL del
+#### Scenario: Sin permiso view
+- **WHEN** un usuario sin `units.view` y sin Super Admin fuerza la URL del
   Index
 - **THEN** recibe 403
 

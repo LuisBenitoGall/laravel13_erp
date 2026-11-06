@@ -11,7 +11,7 @@ use App\Support\Tenancy\CurrentCompany;
 
 /**
  * Menú 100 % data-driven: raíz = Module; hijo = Functionality (o Module hoja).
- * Permisos AND: comodín + viewAny (hoja: solo comodín). Cache de catálogo Active.
+ * Permisos AND: comodín + `.view` (hoja: solo comodín). Cache de catálogo Active.
  */
 class MenuBuilder
 {
@@ -115,7 +115,7 @@ class MenuBuilder
         $items = [];
 
         foreach ($functionalities as $functionality) {
-            if ($isSa || $user->can($functionality['slug'].'.viewAny')) {
+            if ($isSa || $user->can($functionality['slug'].'.view')) {
                 $items[] = $this->functionalityItem($functionality);
             }
         }

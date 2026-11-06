@@ -8,6 +8,24 @@ crear Company.
 
 ## Requirements
 
+### Requirement: Locales materializados nunca universales
+Al materializar plantillas universales en una company, cada rol local creado o
+asegurado SHALL quedar con `universal = false`.
+
+#### Scenario: Materialización fuerza no universal
+- **WHEN** se ejecuta la materialización de defaults para una company
+- **THEN** los roles locales resultantes tienen `universal = false`
+
+### Requirement: Create plataforma solo metadatos (sin permissions)
+El sistema SHALL rechazar o impedir de forma estricta cualquier `permissions`
+enviado en el Create/store de rol de plataforma; el alta solo persiste
+metadatos y deja la matriz para Edit.
+
+#### Scenario: POST Create con permissions
+- **WHEN** un cliente envía `permissions` en el store de rol plataforma
+- **THEN** esos permisos no quedan asignados por el Create (rechazo de
+  validación o equivalente inequívoco) y el rol nace sin esa matriz
+
 ### Requirement: Index ServerTable de roles de plataforma
 El sistema SHALL exponer bajo Configuración un Index ServerTable de roles globales
 (`company_id` NULL) con columnas al menos nombre, descripción, universal e i18n, y
@@ -56,11 +74,9 @@ ActionBar que navega al flujo Create. SHALL completar el alta vía ese flujo
 ### Requirement: Formulario Create de rol de plataforma (metadatos)
 El sistema SHALL exponer un formulario Create de rol de plataforma con nombre
 obligatorio, descripción opcional e indicador universal (sí/no). SHALL NOT
-mostrar la matriz de permisos en Create. Tras un alta válida SHALL persistir el
-rol con `company_id` NULL y redirigir a Edit para atribuir permisos. El mismo
-patrón de formulario (metadatos + permisos en Edit) SHALL quedar preparado para
-reutilizar en roles tenant en un change posterior; este change solo cablea
-plataforma.
+mostrar la matriz de permisos en Create. SHALL NOT aceptar ni persistir
+`permissions` en el alta. Tras un alta válida SHALL persistir el rol con
+`company_id` NULL y redirigir a Edit para atribuir permisos.
 
 #### Scenario: Create solo metadatos
 - **WHEN** Super Admin abre Create de rol de plataforma
@@ -173,12 +189,15 @@ El sistema SHALL ofrecer CTA Copiar (como v1: no aplicable a Super Admin ni a
 universales) solo cuando el usuario en sesión está vinculado a más de una
 company Active, hacia companies Active de su perímetro **excluyendo** la
 empresa en sesión (`CurrentCompany`). Si el `name` ya existe en destino, SHALL
-versionar el nombre del rol nuevo.
+versionar el nombre del rol nuevo. Los permisos del rol local destino SHALL
+ser la intersección de los del origen con el catálogo tenant del destino
+(autorizados ∩ activos ∩ ¬AdminOnly).
 
 #### Scenario: Copy con nombre libre
 - **WHEN** se copia un rol no universal a una company del perímetro (distinta
   de la de sesión) sin rol homónimo
-- **THEN** existe el rol local con ese nombre y los permisos del origen
+- **THEN** existe el rol local con ese nombre y los permisos del origen que
+  pertenezcan al catálogo filtrado del destino
 
 #### Scenario: Copy con colisión de nombre
 - **WHEN** en destino ya existe un rol con el mismo `name`
@@ -273,24 +292,30 @@ Guardar del formulario Edit queda limitado a descripción.
 
 ### Requirement: Materialización de roles universales al crear Company
 El sistema SHALL, al crear una Company, materializar como roles locales
-(`company_id` = esa company, mismo `name`) todas las plantillas con `company_id` NULL
-y `universal = true` distintas de `Super Admin`. Para `manager`, los permisos del rol
-local SHALL quedar gobernados por el sync de autorizaciones (no por copia de la
-matriz de la plantilla). Para el resto de universales materializados, SHALL copiar
-los permisos de la plantilla al rol local en el momento del alta. Universales creados
-después del alta de una company SHALL NO materializarse automáticamente en companies
-ya existentes (backfill solo vía comando explícito).
+(`company_id` = esa company, mismo `name`, `universal = false`) todas las
+plantillas con `company_id` NULL y `universal = true` distintas de
+`Super Admin`. Para `manager`, los permisos del rol local SHALL quedar
+gobernados por el sync de autorizaciones (no por copia de la matriz de la
+plantilla). Para el resto de universales materializados, SHALL copiar los
+permisos de la plantilla al rol local en el momento del alta. Universales
+creados después del alta de una company SHALL NO materializarse
+automáticamente en companies ya existentes (backfill solo vía comando
+explícito).
 
 #### Scenario: Alta materializa manager y guest locales
 - **WHEN** se crea una Company nueva
-- **THEN** existen roles locales `manager` y `guest` con `company_id` de esa company
+- **THEN** existen roles locales `manager` y `guest` con `company_id` de esa
+  company y `universal = false`
 
 #### Scenario: Alta materializa otros universales existentes
-- **WHEN** existe una plantilla universal adicional (p. ej. distinta de manager/guest) y
-  se crea una Company nueva
-- **THEN** existe el rol local homónimo con permisos copiados desde la plantilla
+- **WHEN** existe una plantilla universal adicional (p. ej. distinta de
+  manager/guest) y se crea una Company nueva
+- **THEN** existe el rol local homónimo con `universal = false` y permisos
+  copiados desde la plantilla
 
 #### Scenario: Universal nuevo no backfill automático
-- **WHEN** Super Admin crea una plantilla universal nueva tras existir companies
-- **THEN** esas companies existentes no reciben el rol local hasta un backfill
-  explícito; las companies creadas después sí lo materializan al nacer
+- **WHEN** Super Admin crea una plantilla universal nueva tras existir
+  companies
+- **THEN** esas companies existentes no reciben el rol local hasta un
+  backfill explícito; las companies creadas después sí lo materializan al
+  nacer

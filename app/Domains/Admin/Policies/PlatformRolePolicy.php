@@ -12,12 +12,12 @@ class PlatformRolePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('roles.viewAny');
+        return $user->can('roles.view');
     }
 
     public function view(User $user, Role $role): bool
     {
-        return $this->isPlatformManaged($role) && $user->can('roles.view');
+        return $this->isPlatformManaged($role) && $user->can('roles.viewAny');
     }
 
     public function create(User $user): bool

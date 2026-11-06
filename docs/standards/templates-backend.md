@@ -189,6 +189,8 @@ class WorksitePolicy
     //              (b) pertenencia al tenant activo en métodos con modelo (R-AUT-01).
     // El bypass de Super Admin vive en Gate::before (R-AUT-03), no aquí.
 
+    // Método Laravel viewAny → Spatie `.view` (Index/dashboard).
+    // Método Laravel view → Spatie `.viewAny` (detalle).
     public function viewAny(User $user): bool
     {
         return $user->can('worksites.view');
@@ -196,7 +198,7 @@ class WorksitePolicy
 
     public function view(User $user, Worksite $worksite): bool
     {
-        return $user->can('worksites.view') && $worksite->belongsToCurrentCompany();
+        return $user->can('worksites.viewAny') && $worksite->belongsToCurrentCompany();
     }
 
     public function create(User $user): bool
@@ -551,7 +553,7 @@ it('bloquea acceso si el módulo no está activo para la company', function () {
 it('niega acceso sin permiso de Functionality', function () {
     enableModuleForCompany($this->company, '{module}');
     setPermissionsTeamId($this->company->id);
-    $this->user->revokePermissionTo('{permission}'); // p. ej. company-roles.viewAny
+    $this->user->revokePermissionTo('{permission}'); // p. ej. company-roles.view (Index)
 
     $this->get(route('{route}'))->assertForbidden();
 });

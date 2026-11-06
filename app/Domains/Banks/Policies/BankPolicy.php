@@ -9,12 +9,12 @@ class BankPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('banks.viewAny');
+        return $user->can('banks.view');
     }
 
     public function view(User $user, Bank $bank): bool
     {
-        return $user->can('banks.view');
+        return $user->can('banks.viewAny');
     }
 
     public function create(User $user): bool

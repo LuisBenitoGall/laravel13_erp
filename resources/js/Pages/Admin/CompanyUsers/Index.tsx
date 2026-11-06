@@ -64,7 +64,7 @@ export default function Index() {
             icon: Pencil,
             labelKey: 'editar',
             onClick: () => {
-                toast.info(t('edicion_usuario_mascara'));
+                router.visit(`/admin/company-users/${row.id}/edit`);
             },
         },
         {
@@ -101,7 +101,7 @@ export default function Index() {
                     labelKey: 'crear_usuario',
                     icon: Plus,
                     onClick: () => {
-                        toast.info(t('alta_usuario_mascara'));
+                        router.visit('/admin/company-users/create');
                     },
                 },
             ]}

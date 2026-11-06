@@ -1,7 +1,6 @@
 /**
- * Campos metadatos de rol (name, description, universal).
- * Pensado para reutilizar en roles de empresa (change posterior); la matriz de
- * permisos queda fuera — se atribuye en Edit.
+ * Campos metadatos de rol (name, description, universal opcional).
+ * Company Create: `showUniversal={false}` (sin mención de universal).
  */
 import { Field, Input, Switch, Textarea } from '@/Components/Form';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 export type RoleMetadataValues = {
     name: string;
     description: string;
-    universal: boolean;
+    universal?: boolean;
 };
 
 export type RoleMetadataErrors = {
@@ -23,9 +22,11 @@ type Props = {
     errors: RoleMetadataErrors;
     nameReadonly?: boolean;
     universalReadonly?: boolean;
+    /** Plataforma: true (default). Tenant Create: false — oculta el bloque entero. */
+    showUniversal?: boolean;
     onNameChange: (value: string) => void;
     onDescriptionChange: (value: string) => void;
-    onUniversalChange: (value: boolean) => void;
+    onUniversalChange?: (value: boolean) => void;
 };
 
 export default function RoleMetadataFields({
@@ -33,6 +34,7 @@ export default function RoleMetadataFields({
     errors,
     nameReadonly = false,
     universalReadonly = false,
+    showUniversal = true,
     onNameChange,
     onDescriptionChange,
     onUniversalChange,
@@ -41,7 +43,13 @@ export default function RoleMetadataFields({
 
     return (
         <div className="space-y-4">
-            <div className="grid items-start gap-4 sm:grid-cols-2">
+            <div
+                className={
+                    showUniversal
+                        ? 'grid items-start gap-4 sm:grid-cols-2'
+                        : 'grid items-start gap-4'
+                }
+            >
                 <Field label={t('nombre')} htmlFor="role-name" error={errors.name} required>
                     <Input
                         id="role-name"
@@ -51,20 +59,21 @@ export default function RoleMetadataFields({
                     />
                 </Field>
 
-                <Field label={t('rol_universal')} htmlFor="role-universal" error={errors.universal}>
-                    {/* Bloque: evita que Label (inline) + Switch (inline-flex) queden en una sola línea. */}
-                    <div className="flex min-h-9 items-center gap-3">
-                        <Switch
-                            id="role-universal"
-                            checked={values.universal}
-                            disabled={universalReadonly}
-                            onCheckedChange={onUniversalChange}
-                        />
-                        <span className="text-sm leading-5 text-slate-500">
-                            {t('rol_universal_ayuda')}
-                        </span>
-                    </div>
-                </Field>
+                {showUniversal ? (
+                    <Field label={t('rol_universal')} htmlFor="role-universal" error={errors.universal}>
+                        <div className="flex min-h-9 items-center gap-3">
+                            <Switch
+                                id="role-universal"
+                                checked={Boolean(values.universal)}
+                                disabled={universalReadonly}
+                                onCheckedChange={(checked) => onUniversalChange?.(checked)}
+                            />
+                            <span className="text-sm leading-5 text-slate-500">
+                                {t('rol_universal_ayuda')}
+                            </span>
+                        </div>
+                    </Field>
+                ) : null}
             </div>
 
             <Field label={t('descripcion')} htmlFor="role-description" error={errors.description}>

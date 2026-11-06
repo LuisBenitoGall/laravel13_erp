@@ -109,7 +109,7 @@ class CompanyModuleController extends Controller
             return false;
         }
 
-        if ($user->can('company-modules.update') || $user->can('company-modules.viewAny')) {
+        if ($user->can('company-modules.update') || $user->can('company-modules.view')) {
             return true;
         }
 

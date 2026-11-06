@@ -68,14 +68,33 @@ it('sin currencies.* las rutas de monedas responden 403', function () {
     expect(Currency::query()->count())->toBe(1);
 });
 
-it('usuario con currencies.viewAny abre el Index', function () {
+it('usuario con currencies.view abre el Index', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
     Permission::findOrCreate('configuracion.access');
-    $user->givePermissionTo(['configuracion.access', 'currencies.viewAny']);
+    $user->givePermissionTo(['configuracion.access', 'currencies.view']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.currencies.index'))->assertOk();
+});
+
+it('Policy viewAny mapea a .view y view a .viewAny', function () {
+    $currency = Currency::factory()->create();
+    $user = User::factory()->create();
+    setPermissionsTeamId($this->company->id);
+    Permission::findOrCreate('currencies.view');
+    Permission::findOrCreate('currencies.viewAny');
+    $user->givePermissionTo(['currencies.view']);
+    actingWithCompany($user, $this->company);
+
+    expect($user->can('viewAny', Currency::class))->toBeTrue()
+        ->and($user->can('view', $currency))->toBeFalse();
+
+    $user->givePermissionTo('currencies.viewAny');
+    $user->unsetRelation('permissions');
+    $user->unsetRelation('roles');
+
+    expect($user->can('view', $currency))->toBeTrue();
 });
 
 it('seeder deja la Functionality currencies con permisos currencies.*', function () {

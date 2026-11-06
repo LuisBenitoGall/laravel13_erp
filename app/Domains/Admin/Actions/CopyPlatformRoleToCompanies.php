@@ -2,7 +2,9 @@
 
 namespace App\Domains\Admin\Actions;
 
+use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Role;
+use App\Domains\Admin\Support\CompanyRolePermissionCatalog;
 use App\Domains\Partners\Enums\CompanyStatus;
 use App\Domains\Partners\Models\Company;
 use App\Models\User;
@@ -13,6 +15,11 @@ use Spatie\Permission\PermissionRegistrar;
 
 class CopyPlatformRoleToCompanies
 {
+    public function __construct(
+        private readonly CompanyRolePermissionCatalog $catalog,
+        private readonly SyncCompanyRoleModuleAccess $syncModuleAccess,
+    ) {}
+
     /**
      * @param  list<int>  $companyIds
      * @return list<array{company_id: int, role_id: int, name: string}>
@@ -78,13 +85,16 @@ class CopyPlatformRoleToCompanies
         }
 
         $source->loadMissing('permissions');
-        /** @var list<string> $permissionNames */
-        $permissionNames = $source->permissions->pluck('name')->values()->all();
+        /** @var list<string> $sourcePermissionNames */
+        $sourcePermissionNames = $source->permissions->pluck('name')->values()->all();
 
-        return DB::transaction(function () use ($source, $allowedIds, $permissionNames, $teamKey) {
+        return DB::transaction(function () use ($source, $allowedIds, $sourcePermissionNames, $teamKey) {
             $created = [];
 
             foreach ($allowedIds as $companyId) {
+                /** @var Company $destination */
+                $destination = Company::query()->findOrFail($companyId);
+                $filtered = $this->catalog->filterPermissionNames($destination, $sourcePermissionNames);
                 $name = $this->uniqueLocalName($source->name, $companyId, $teamKey);
 
                 app()[PermissionRegistrar::class]->forgetCachedPermissions();
@@ -101,8 +111,12 @@ class CopyPlatformRoleToCompanies
                         $teamKey => $companyId,
                     ]);
 
-                    if ($permissionNames !== []) {
-                        $local->syncPermissions($permissionNames);
+                    if ($filtered !== []) {
+                        $local->syncPermissions($filtered);
+                    }
+
+                    foreach ($this->moduleSlugsForPermissions($filtered) as $moduleSlug) {
+                        $this->syncModuleAccess->handle($local, $moduleSlug);
                     }
 
                     $created[] = [
@@ -117,6 +131,34 @@ class CopyPlatformRoleToCompanies
 
             return $created;
         });
+    }
+
+    /**
+     * @param  list<string>  $permissionNames
+     * @return list<string>
+     */
+    private function moduleSlugsForPermissions(array $permissionNames): array
+    {
+        $slugs = [];
+
+        foreach ($permissionNames as $name) {
+            $parts = explode('.', $name, 2);
+            if (count($parts) !== 2 || $parts[1] === 'access') {
+                continue;
+            }
+
+            $functionality = Functionality::query()
+                ->where('slug', $parts[0])
+                ->with('module:id,slug')
+                ->first();
+
+            $moduleSlug = $functionality?->module?->slug;
+            if ($moduleSlug !== null) {
+                $slugs[$moduleSlug] = true;
+            }
+        }
+
+        return array_keys($slugs);
     }
 
     private function uniqueLocalName(string $base, int $companyId, string $teamKey): string

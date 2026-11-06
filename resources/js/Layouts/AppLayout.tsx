@@ -181,7 +181,7 @@ export default function AppLayout({
                         )}
                     </div>
                 </div>
-                <AsideNav menu={menu} rail={railMode} />
+                <AsideNav menu={menu ?? []} rail={railMode} />
             </aside>
 
             <div className="flex min-w-0 flex-1 flex-col">

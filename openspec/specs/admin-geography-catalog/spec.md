@@ -25,10 +25,11 @@ El sistema SHALL exponer bajo Configuración → Países un Index ServerTable de
 con Acciones (toggle status, ir a provincias, Edit, Delete confirm) y alta/edición
 adaptada a Inertia/React. Desde un país SHALL abrirse el Index de provincias; desde
 una provincia, el Index de poblaciones (`Town`). Autorización vía Functionality
-`countries` y permisos `countries.*` también para provincias y poblaciones.
+`countries` y permisos `countries.*` también para provincias y poblaciones. El
+acceso al Index/dashboard SHALL exigir `countries.view` (no `countries.viewAny`).
 
 #### Scenario: Usuario autorizado abre Países
-- **WHEN** un usuario con `countries.viewAny` (o Super Admin) abre Configuración →
+- **WHEN** un usuario con `countries.view` (o Super Admin) abre Configuración →
   Países
 - **THEN** ve el Index ServerTable de países
 
@@ -37,8 +38,8 @@ una provincia, el Index de poblaciones (`Town`). Autorización vía Functionalit
   Acciones de una provincia
 - **THEN** navega a los Indexes anidados correspondientes
 
-#### Scenario: Sin permiso viewAny
-- **WHEN** un usuario sin `countries.viewAny` y sin Super Admin fuerza la URL del
+#### Scenario: Sin permiso view
+- **WHEN** un usuario sin `countries.view` y sin Super Admin fuerza la URL del
   Index de países
 - **THEN** recibe 403
 

@@ -9,6 +9,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Env;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,13 @@ return Application::configure(basePath: dirname(__DIR__))
             SetCurrentCompany::class,
             HandleInertiaRequests::class,
         ]);
+
+        // CurrentCompany debe existir antes del route binding (p. ej. {companyRole}).
+        // Si no, binds que lean el tenant abortan 404 en requests reales.
+        $middleware->prependToPriorityList(
+            before: SubstituteBindings::class,
+            prepend: SetCurrentCompany::class,
+        );
 
         $middleware->alias([
             'current_company' => SetCurrentCompany::class,
