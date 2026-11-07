@@ -8,38 +8,46 @@ use App\Support\Tenancy\CurrentCompany;
 use Spatie\Permission\PermissionRegistrar;
 
 /**
- * CRUD roles de company: manager de CurrentCompany + `company-roles.*`.
- * Super Admin bypass vía Gate::before.
+ * CRUD roles de company: `company-roles.*` + perímetro CurrentCompany.
+ * Index (método `viewAny` → Spatie `.view`): perímetro + permiso; sin exigir manager.
+ * Create/view/update: permiso Spatie sin exigir rol manager.
+ * Delete: sigue manager + permiso. Detalle (`view` → Spatie `.viewAny`).
+ * Update/view rechazan universales. Super Admin bypass vía Gate::before.
  */
 class CompanyRolePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $this->isCompanyManager($user) && $user->can('company-roles.viewAny');
+        return $this->userBelongsToCurrentCompany($user)
+            && $user->can('company-roles.view');
     }
 
     public function view(User $user, Role $role): bool
     {
-        return $this->belongsToCurrentCompany($role)
-            && $this->isCompanyManager($user)
-            && $user->can('company-roles.view');
+        return ! $role->universal
+            && $this->belongsToCurrentCompany($role)
+            && $this->userBelongsToCurrentCompany($user)
+            && $user->can('company-roles.viewAny');
     }
 
     public function create(User $user): bool
     {
-        return $this->isCompanyManager($user) && $user->can('company-roles.create');
+        return $this->userBelongsToCurrentCompany($user)
+            && $user->can('company-roles.create');
     }
 
     public function update(User $user, Role $role): bool
     {
-        return $this->belongsToCurrentCompany($role)
-            && $this->isCompanyManager($user)
+        return ! $role->universal
+            && $this->belongsToCurrentCompany($role)
+            && $this->userBelongsToCurrentCompany($user)
             && $user->can('company-roles.update');
     }
 
     public function delete(User $user, Role $role): bool
     {
-        return $this->belongsToCurrentCompany($role)
+        return ! $role->universal
+            && $this->belongsToCurrentCompany($role)
             && ! $role->isLocalProtected()
             && $this->isCompanyManager($user)
             && $user->can('company-roles.delete');
@@ -47,16 +55,11 @@ class CompanyRolePolicy
 
     private function isCompanyManager(User $user): bool
     {
+        if (! $this->userBelongsToCurrentCompany($user)) {
+            return false;
+        }
+
         $companyId = app(CurrentCompany::class)->id();
-
-        if ($companyId === null) {
-            return false;
-        }
-
-        if (! $user->companies()->where('companies.id', $companyId)->exists()) {
-            return false;
-        }
-
         $previous = getPermissionsTeamId();
         setPermissionsTeamId($companyId);
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
@@ -70,6 +73,17 @@ class CompanyRolePolicy
             $user->unsetRelation('roles');
             $user->unsetRelation('permissions');
         }
+    }
+
+    private function userBelongsToCurrentCompany(User $user): bool
+    {
+        $companyId = app(CurrentCompany::class)->id();
+
+        if ($companyId === null) {
+            return false;
+        }
+
+        return $user->companies()->where('companies.id', $companyId)->exists();
     }
 
     private function belongsToCurrentCompany(Role $role): bool

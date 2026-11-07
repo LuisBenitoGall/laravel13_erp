@@ -129,11 +129,11 @@ it('SA sin configuracion encendido tiene Dashboard y Configuración en menú', f
 });
 
 it('no-SA no ve Configuración operador', function () {
-    Permission::findOrCreate('company-roles.viewAny');
+    Permission::findOrCreate('company-roles.view');
     Permission::findOrCreate('usuarios.access');
 
     $user = User::factory()->create();
-    $user->givePermissionTo(['company-roles.viewAny', 'usuarios.access']);
+    $user->givePermissionTo(['company-roles.view', 'usuarios.access']);
     withCurrentCompany($this->company);
 
     $slugs = collect(app(MenuBuilder::class)->forUser($user))->pluck('slug')->all();
@@ -144,11 +144,11 @@ it('no-SA no ve Configuración operador', function () {
 
 it('manager con Basic elegible ve ítems AND', function () {
     Permission::findOrCreate('usuarios.access');
-    Permission::findOrCreate('company-roles.viewAny');
+    Permission::findOrCreate('company-roles.view');
     Permission::findOrCreate('dashboard.access');
 
     $user = User::factory()->create();
-    $user->givePermissionTo(['usuarios.access', 'company-roles.viewAny', 'dashboard.access']);
+    $user->givePermissionTo(['usuarios.access', 'company-roles.view', 'dashboard.access']);
     withCurrentCompany($this->company);
 
     $menu = app(MenuBuilder::class)->forUser($user);

@@ -36,8 +36,9 @@ Un Module es usable en sesión solo si:
 Basic se autoriza solo. Optional y AdminOnly no. Encender sin autorizar debe
 fallar. Apagar no borra permisos del rol.
 
-Menú: tras las 3 capas, comodín `<module>.access` **AND** `viewAny` de la
-Functionality. Module hoja: solo comodín. El comodín no implica todos los `viewAny`.
+Menú: tras las 3 capas, comodín `<module>.access` **AND** `{functionality}.view`.
+Module hoja: solo comodín. El comodín no implica todos los `.view`.
+Policy: `viewAny()`→Spatie `.view`; `view()`→Spatie `.viewAny` (detalle).
 
 ## Super Admin
 

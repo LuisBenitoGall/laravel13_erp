@@ -271,7 +271,7 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
     } | null>(null);
 
     const dataColumns = useMemo(
-        () => columns.filter((c) => c.field && c.field !== 'acciones'),
+        () => (columns ?? []).filter((c) => c.field && c.field !== 'acciones'),
         [columns],
     );
 

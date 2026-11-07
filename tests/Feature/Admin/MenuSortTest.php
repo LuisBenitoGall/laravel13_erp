@@ -163,14 +163,14 @@ it('ordena Functionalities por sort ASC, igualdad por slug, NULL al final', func
     $user = User::factory()->create();
     Permission::findOrCreate('catalog.access');
     foreach (['catalog-zulu', 'catalog-alpha', 'catalog-bravo', 'catalog-nullish'] as $slug) {
-        Permission::findOrCreate("{$slug}.viewAny");
+        Permission::findOrCreate("{$slug}.view");
     }
     $user->givePermissionTo([
         'catalog.access',
-        'catalog-zulu.viewAny',
-        'catalog-alpha.viewAny',
-        'catalog-bravo.viewAny',
-        'catalog-nullish.viewAny',
+        'catalog-zulu.view',
+        'catalog-alpha.view',
+        'catalog-bravo.view',
+        'catalog-nullish.view',
     ]);
 
     $expected = ['catalog-alpha', 'catalog-bravo', 'catalog-zulu', 'catalog-nullish'];

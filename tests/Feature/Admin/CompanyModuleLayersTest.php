@@ -120,9 +120,9 @@ it('menú muestra módulo autorizado y encendido con permiso AND', function () {
 
     $user = User::factory()->create();
     Permission::findOrCreate('tools.access');
-    Permission::findOrCreate('tools-list.viewAny');
+    Permission::findOrCreate('tools-list.view');
     Permission::findOrCreate('dashboard.access');
-    $user->givePermissionTo(['tools.access', 'tools-list.viewAny', 'dashboard.access']);
+    $user->givePermissionTo(['tools.access', 'tools-list.view', 'dashboard.access']);
     withCurrentCompany($company);
 
     $menu = app(MenuBuilder::class)->forUser($user);

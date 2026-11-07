@@ -152,8 +152,10 @@ empresa preferente.
      Capa 3 (no auto-autorizar). No inventar restricciones extra de AdminOnly.
   - Menú / acceso a Functionality: tras las 3 capas, el usuario ve/usa una
     Functionality solo si tiene el comodín `<module-slug>.access` **y** el permiso
-    de esa Functionality (`viewAny`/acción). Module hoja (sin Functionalities):
-    basta el comodín. El comodín **no implica** todas las Functionalities.
+    de dashboard `{functionality}.view` (Spatie). Policy Laravel: método
+    `viewAny()` → Spatie `.view`; método `view()` → Spatie `.viewAny` (detalle).
+    Module hoja (sin Functionalities): basta el comodín. El comodín **no implica**
+    todas las Functionalities.
   - Excepción menú SA: Module `AdminOnly` Active puede mostrarse a Super Admin sin
     authorize/enable en company (perímetro de datos intacto).
 
@@ -271,6 +273,6 @@ español (y demás idiomas) vía i18n; el usuario nunca ve identificadores.
 10. Colas en sync / envíos comentados → R-TRV-01.
 11. Menú duplicado básico/secundario con lógica de visibilidad distinta → mecanismo único
     `Module`/`Functionality` (R-AUT-08).
-12. Visibilidad de Functionality solo con `viewAny` sin comodín del Module (o solo
-    comodín sin `viewAny`) → modelo AND: ambos obligatorios; Module hoja solo comodín
+12. Visibilidad de Functionality solo con `.view` sin comodín del Module (o solo
+    comodín sin `.view`) → modelo AND: ambos obligatorios; Module hoja solo comodín
     (R-AUT-08).

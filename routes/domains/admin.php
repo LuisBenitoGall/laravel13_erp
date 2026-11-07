@@ -130,6 +130,10 @@ Route::middleware(['auth', 'company', 'module:configuracion'])->prefix('admin')-
 
 Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('company')->name('company.')->group(function () {
     Route::get('roles/table', [CompanyRoleController::class, 'table'])->name('roles.table');
+    Route::patch('roles/{companyRole}/permissions', [CompanyRoleController::class, 'togglePermission'])
+        ->name('roles.permissions.toggle');
+    Route::patch('roles/{companyRole}/functionalities', [CompanyRoleController::class, 'toggleFunctionality'])
+        ->name('roles.functionalities.toggle');
     Route::resource('roles', CompanyRoleController::class)
         ->except(['show'])
         ->parameters(['roles' => 'companyRole']);
@@ -140,6 +144,9 @@ Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('admin')->name
     Route::get('all-users', [AllUserController::class, 'index'])->name('all-users.index');
 
     Route::get('company-users/table', [CompanyUserController::class, 'table'])->name('company-users.table');
+    Route::get('company-users/create', [CompanyUserController::class, 'create'])->name('company-users.create');
+    Route::post('company-users', [CompanyUserController::class, 'store'])->name('company-users.store');
+    Route::get('company-users/{user}/edit', [CompanyUserController::class, 'edit'])->name('company-users.edit');
     Route::patch('company-users/{user}/status', [CompanyUserController::class, 'updateStatus'])
         ->name('company-users.status');
     Route::get('company-users', [CompanyUserController::class, 'index'])->name('company-users.index');

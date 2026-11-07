@@ -6,7 +6,7 @@ use App\Support\Table\TableRequest;
 
 class CompanyRoleTableRequest extends TableRequest
 {
-    protected array $sortable = ['name', 'created_at'];
+    protected array $sortable = ['name', 'description', 'created_at'];
 
-    protected array $filterable = ['search'];
+    protected array $filterable = ['name', 'description', 'search'];
 }

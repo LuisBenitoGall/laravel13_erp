@@ -9,12 +9,12 @@ class VatTypePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('vat-types.viewAny');
+        return $user->can('vat-types.view');
     }
 
     public function view(User $user, VatType $vatType): bool
     {
-        return $user->can('vat-types.view');
+        return $user->can('vat-types.viewAny');
     }
 
     public function create(User $user): bool

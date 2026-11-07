@@ -52,10 +52,22 @@ identificadores en inglés según [glossary.md](glossary.md).
 | **Module** | Unidad **SaaS-activable** (plan/catálogo). Gate de `EnsureModuleIsActive`. Catálogo **global** (excepción R-TEN-01, sin `company_id`). Puede ser **hoja de menú** si no tiene Functionalities (p. ej. `dashboard`). | La unidad de permiso de acciones CRUD. |
 | **Functionality** | Unidad de **permiso y subítem de menú** dentro de un Module. Slug **inmutable** tras crearse. Catálogo global. | Un Module. |
 
-Permisos Spatie: `<slug-de-Functionality>.<acción>` (`modules.viewAny`,
+Permisos Spatie: `<slug-de-Functionality>.<acción>` (`modules.view`,
 `invoices.create`). **No** usar el slug del Module como prefijo salvo el comodín
-`<module-slug>.access`. Habilidades: `viewAny/view/create/update/delete` (nunca los
-7 de v1 `index/create/show/search/edit/update/destroy`).
+`<module-slug>.access`. Habilidades canónicas en BD:
+`viewAny/view/create/update/delete` (nunca los 7 de v1
+`index/create/show/search/edit/update/destroy`).
+
+**Semántica producto (≠ Laravel por defecto):**
+
+| Sufijo Spatie | Uso en el ERP |
+|---|---|
+| `{functionality}.view` | Dashboard / Index / menú (con comodín Module) |
+| `{functionality}.viewAny` | Detalle (show) de un registro |
+| `create` / `update` / `delete` | Sin cambio |
+
+Policy Laravel (métodos PHP sin renombrar): `viewAny()` comprueba Spatie `.view`;
+`view()` comprueba Spatie `.viewAny`.
 
 Al crear una Functionality se auto-provisionan esos 5 permisos (R-AUT-07).
 
@@ -78,7 +90,7 @@ Un solo mecanismo de menú/acceso (prohibido replicar `basic-menu.json` /
 
 `MenuBuilder` y acceso a Functionalities: Active **y** autorizado **y** encendido para
 la empresa de sesión; **después** modelo **AND** — hace falta el comodín
-`<module-slug>.access` **y** el permiso de la Functionality (`viewAny`/acción).
+`<module-slug>.access` **y** el permiso de dashboard `{functionality}.view`.
 Module hoja (sin Functionalities): basta el comodín. El comodín **ya no implica**
 todas las Functionalities del módulo. Super Admin: bypass Spatie intacto; perímetro
 company intacto. Excepción menú SA: Module `AdminOnly` Active (p. ej. `configuracion`)

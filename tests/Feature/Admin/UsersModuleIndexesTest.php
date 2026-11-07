@@ -68,10 +68,10 @@ function actingManagerWithUsersPerms(Company $company): User
     $user->assignRole(Role::MANAGER);
     $user->givePermissionTo([
         Permission::findOrCreate('usuarios.access'),
-        Permission::findOrCreate('company-users.viewAny'),
+        Permission::findOrCreate('company-users.view'),
         Permission::findOrCreate('company-users.update'),
         Permission::findOrCreate('company-users.delete'),
-        Permission::findOrCreate('all-users.viewAny'),
+        Permission::findOrCreate('all-users.view'),
     ]);
     $user->unsetRelation('roles');
     $user->unsetRelation('permissions');
@@ -95,9 +95,18 @@ it('menú Usuarios expone Usuarios empresa y Todos los usuarios', function () {
         ->and($allUsers['label'])->toBe(__('todos_los_usuarios'));
 });
 
-it('Index Todos lista users globales y solo máscara de notificación en UI', function () {
+it('Index Todos lista users públicos y solo máscara de notificación en UI', function () {
     $actor = actingManagerWithUsersPerms($this->company);
-    $global = User::factory()->create(['name' => 'GlobalOne', 'email' => 'global@example.test']);
+    $global = User::factory()->create([
+        'name' => 'GlobalOne',
+        'email' => 'global@example.test',
+        'is_public' => true,
+    ]);
+    $hidden = User::factory()->create([
+        'name' => 'HiddenOne',
+        'email' => 'hidden@example.test',
+        'is_public' => false,
+    ]);
 
     $this->get(route('admin.all-users.index'))
         ->assertOk()
@@ -106,7 +115,8 @@ it('Index Todos lista users globales y solo máscara de notificación en UI', fu
     $this->get(route('admin.all-users.table'))
         ->assertOk()
         ->assertJsonFragment(['email' => $global->email])
-        ->assertJsonFragment(['email' => $actor->email]);
+        ->assertJsonFragment(['email' => $actor->email])
+        ->assertJsonMissing(['email' => $hidden->email]);
 
     $source = file_get_contents(resource_path('js/Pages/Admin/AllUsers/Index.tsx'));
     expect($source)->toContain('enviar_notificacion')
@@ -156,20 +166,23 @@ it('toggle status y detach de Usuarios empresa no borran el User global', functi
         ->and($member->fresh()->companies()->where('companies.id', $this->company->id)->exists())->toBeFalse();
 });
 
-it('Create y Edit son máscaras sin persistir alta ni edición', function () {
+it('Create y Edit están cableados sin máscaras de Index', function () {
     actingManagerWithUsersPerms($this->company);
 
     $source = file_get_contents(resource_path('js/Pages/Admin/CompanyUsers/Index.tsx'));
-    expect($source)->toContain('alta_usuario_mascara')
-        ->and($source)->toContain('edicion_usuario_mascara')
-        ->and($source)->not->toContain("router.post('/admin/company-users'")
+    expect($source)->toContain('/admin/company-users/create')
+        ->and($source)->toContain('/admin/company-users/${row.id}/edit')
+        ->and($source)->not->toContain('alta_usuario_mascara')
+        ->and($source)->not->toContain('edicion_usuario_mascara')
         ->and($source)->not->toContain("router.put('/admin/company-users");
 
-    expect(Route::has('admin.company-users.store'))->toBeFalse()
+    expect(Route::has('admin.company-users.store'))->toBeTrue()
+        ->and(Route::has('admin.company-users.create'))->toBeTrue()
+        ->and(Route::has('admin.company-users.edit'))->toBeTrue()
         ->and(Route::has('admin.company-users.update'))->toBeFalse();
 });
 
-it('manager recibe all-users.viewAny tras sync Basic', function () {
+it('manager recibe all-users.view tras sync Basic', function () {
     $user = User::factory()->create();
     actingWithCompany($user, $this->company);
 
@@ -183,11 +196,12 @@ it('manager recibe all-users.viewAny tras sync Basic', function () {
     $user->unsetRelation('roles');
     $user->unsetRelation('permissions');
 
-    expect($user->can('all-users.viewAny'))->toBeTrue()
+    expect($user->can('all-users.view'))->toBeTrue()
+        ->and($user->can('all-users.viewAny'))->toBeTrue()
         ->and($user->can('usuarios.access'))->toBeTrue();
 });
 
-it('sin permiso viewAny responde 403 en Indexes y table', function () {
+it('sin permiso view responde 403 en Indexes y table', function () {
     $user = User::factory()->create();
     actingWithCompany($user, $this->company);
 

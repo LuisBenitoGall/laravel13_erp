@@ -58,11 +58,11 @@ it('sin countries.* las rutas de países responden 403', function () {
     expect(Country::query()->count())->toBe(1);
 });
 
-it('usuario con countries.viewAny abre el Index', function () {
+it('usuario con countries.view abre el Index', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
     Permission::findOrCreate('configuracion.access');
-    $user->givePermissionTo(['configuracion.access', 'countries.viewAny']);
+    $user->givePermissionTo(['configuracion.access', 'countries.view']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.countries.index'))->assertOk();

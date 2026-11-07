@@ -30,8 +30,6 @@ class StoreCompanyRoleRequest extends FormRequest
                 ),
             ],
             'description' => ['nullable', 'string', 'max:2000'],
-            'permissions' => ['sometimes', 'array'],
-            'permissions.*' => ['string', 'max:255'],
         ];
     }
 }

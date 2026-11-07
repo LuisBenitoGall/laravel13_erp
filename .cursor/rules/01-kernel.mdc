@@ -39,6 +39,8 @@ perímetro: datos solo de companies vinculadas.
 - **Functionality** = unidad de permiso y subítem de menú. Slug inmutable.
 - Permisos: `<functionality>.<acción>` (`viewAny/view/create/update/delete`).
   Comodín de módulo: `<module-slug>.access`.
+- Semántica: Spatie `.view` = dashboard/Index/menú; `.viewAny` = detalle (show).
+  Policy Laravel: `viewAny()`→`.view`, `view()`→`.viewAny`.
 
 ## Tres capas (todas obligatorias)
 
@@ -48,8 +50,8 @@ perímetro: datos solo de companies vinculadas.
    Optional y AdminOnly **no** auto). Encender un no autorizado = error.
 
 Menú / acceso Functionality: Active **y** autorizado **y** encendido, **luego**
-comodín **AND** permiso de la Functionality. Module hoja: solo comodín.
-Comodín no implica todos los `viewAny`.
+comodín **AND** `{functionality}.view`. Module hoja: solo comodín.
+Comodín no implica todos los `.view`.
 
 ## v1
 

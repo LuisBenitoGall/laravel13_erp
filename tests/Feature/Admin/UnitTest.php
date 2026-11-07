@@ -68,11 +68,11 @@ it('sin units.* las rutas de unidades responden 403', function () {
     expect(Unit::query()->count())->toBe(1);
 });
 
-it('usuario con units.viewAny abre el Index', function () {
+it('usuario con units.view abre el Index', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
     Permission::findOrCreate('configuracion.access');
-    $user->givePermissionTo(['configuracion.access', 'units.viewAny']);
+    $user->givePermissionTo(['configuracion.access', 'units.view']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.units.index'))->assertOk();

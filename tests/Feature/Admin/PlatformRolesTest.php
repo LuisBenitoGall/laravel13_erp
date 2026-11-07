@@ -219,14 +219,17 @@ it('permite CRUD de rol de plataforma al Super Admin', function () {
         'name' => 'operator',
         'description' => 'Ops',
         'universal' => false,
-        'permissions' => ['roles.viewAny', 'budgets.viewAny'],
     ])->assertRedirect();
 
     $role = Role::query()->platform()->where('name', 'operator')->first();
     expect($role)->not->toBeNull()
         ->and($role->universal)->toBeFalse()
-        ->and($role->permissions->pluck('name')->all())->toContain('roles.viewAny')
-        ->and($role->permissions->pluck('name')->all())->toContain('budgets.viewAny');
+        ->and($role->permissions)->toHaveCount(0);
+
+    $this->patchJson(route('admin.roles.permissions.toggle', $role), [
+        'permission' => 'budgets.viewAny',
+        'enabled' => true,
+    ])->assertOk();
 
     $this->put(route('admin.roles.update', $role), [
         'description' => 'Ops 2',
@@ -235,11 +238,22 @@ it('permite CRUD de rol de plataforma al Super Admin', function () {
     $role->refresh();
     expect($role->description)->toBe('Ops 2')
         ->and($role->universal)->toBeFalse()
-        ->and($role->permissions->pluck('name')->all())->toContain('roles.viewAny')
         ->and($role->permissions->pluck('name')->all())->toContain('budgets.viewAny');
 
     $this->delete(route('admin.roles.destroy', $role))->assertRedirect(route('admin.roles.index'));
     expect(Role::query()->platform()->where('name', 'operator')->exists())->toBeFalse();
+});
+
+it('Create plataforma rechaza permissions en el alta', function () {
+    platformAdmin();
+
+    $this->post(route('admin.roles.store'), [
+        'name' => 'no_matrix_on_create',
+        'universal' => false,
+        'permissions' => ['budgets.viewAny', 'roles.viewAny'],
+    ])->assertSessionHasErrors('permissions');
+
+    expect(Role::query()->platform()->where('name', 'no_matrix_on_create')->exists())->toBeFalse();
 });
 
 it('niega CRUD de roles a usuario no Super Admin', function () {
@@ -283,25 +297,48 @@ it('rechaza borrar rol con usuarios asignados', function () {
     expect(Role::query()->whereKey($role->id)->exists())->toBeTrue();
 });
 
-it('universales no guardan permisos AdminOnly; genéricos sí', function () {
+it('universales no guardan permisos AdminOnly vía toggle; genéricos sí', function () {
     platformAdmin();
 
     $this->post(route('admin.roles.store'), [
         'name' => 'uni_ops',
         'universal' => true,
-        'permissions' => ['roles.viewAny', 'budgets.viewAny'],
     ])->assertRedirect();
 
     $uni = Role::query()->platform()->where('name', 'uni_ops')->firstOrFail();
-    expect($uni->permissions->pluck('name')->all())->toBe(['budgets.viewAny']);
+
+    $this->patchJson(route('admin.roles.permissions.toggle', $uni), [
+        'permission' => 'roles.viewAny',
+        'enabled' => true,
+    ])->assertInvalid(['permission']);
+
+    $this->patchJson(route('admin.roles.permissions.toggle', $uni), [
+        'permission' => 'budgets.viewAny',
+        'enabled' => true,
+    ])->assertOk();
+
+    $uni->refresh();
+    expect($uni->permissions->pluck('name')->all())->toContain('budgets.viewAny')
+        ->and($uni->permissions->pluck('name')->all())->not->toContain('roles.viewAny');
 
     $this->post(route('admin.roles.store'), [
         'name' => 'plat_ops',
         'universal' => false,
-        'permissions' => ['roles.viewAny', 'budgets.viewAny'],
     ])->assertRedirect();
 
     $plat = Role::query()->platform()->where('name', 'plat_ops')->firstOrFail();
+
+    $this->patchJson(route('admin.roles.permissions.toggle', $plat), [
+        'permission' => 'roles.viewAny',
+        'enabled' => true,
+    ])->assertOk();
+
+    $this->patchJson(route('admin.roles.permissions.toggle', $plat), [
+        'permission' => 'budgets.viewAny',
+        'enabled' => true,
+    ])->assertOk();
+
+    $plat->refresh();
     expect($plat->permissions->pluck('name')->all())->toContain('roles.viewAny')
         ->and($plat->permissions->pluck('name')->all())->toContain('budgets.viewAny');
 });
@@ -388,9 +425,17 @@ it('crear company materializa universales y copia permisos excepto manager', fun
     ], $creator);
 
     setPermissionsTeamId($company->id);
-    expect(Role::findByName(Role::MANAGER))->not->toBeNull()
-        ->and(Role::findByName(Role::GUEST))->not->toBeNull()
-        ->and(Role::findByName('auditor')->permissions->pluck('name')->all())->toContain('budgets.view');
+    $managerLocal = Role::findByName(Role::MANAGER);
+    $guestLocal = Role::findByName(Role::GUEST);
+    $auditorLocal = Role::findByName('auditor');
+
+    expect($managerLocal)->not->toBeNull()
+        ->and($managerLocal->universal)->toBeFalse()
+        ->and($guestLocal)->not->toBeNull()
+        ->and($guestLocal->universal)->toBeFalse()
+        ->and($auditorLocal)->not->toBeNull()
+        ->and($auditorLocal->universal)->toBeFalse()
+        ->and($auditorLocal->permissions->pluck('name')->all())->toContain('budgets.view');
 
     setPermissionsTeamId(null);
     $after = Role::create([
@@ -686,6 +731,7 @@ it('copia rol a company del perímetro con versionado de nombre', function () {
 
     $other = Company::factory()->create(['status' => CompanyStatus::Active]);
     $admin->companies()->attach($other->id);
+    enableModuleForCompany($other, 'sales');
 
     $role = Role::create([
         'name' => 'copied_ops',
@@ -693,7 +739,10 @@ it('copia rol a company del perímetro con versionado de nombre', function () {
         'universal' => false,
         'description' => 'Copy me',
     ]);
-    $role->givePermissionTo(Permission::findOrCreate('budgets.viewAny'));
+    $role->givePermissionTo([
+        Permission::findOrCreate('budgets.viewAny'),
+        Permission::findOrCreate('roles.viewAny'),
+    ]);
 
     $this->post(route('admin.roles.copy', $role), [
         'company_ids' => [$other->id],
@@ -707,7 +756,8 @@ it('copia rol a company del perímetro con versionado de nombre', function () {
 
     setPermissionsTeamId($other->id);
     $local->load('permissions');
-    expect($local->permissions->pluck('name')->all())->toContain('budgets.viewAny');
+    expect($local->permissions->pluck('name')->all())->toContain('budgets.viewAny')
+        ->and($local->permissions->pluck('name')->all())->not->toContain('roles.viewAny');
 
     // R-TEN-05: el rol local no aparece como plataforma / company A.
     setPermissionsTeamId(null);
@@ -723,6 +773,41 @@ it('copia rol a company del perímetro con versionado de nombre', function () {
         ->where('company_id', $other->id)
         ->where('name', 'copied_ops (2)')
         ->exists())->toBeTrue();
+});
+
+it('copy plataforma no asigna permisos fuera del catálogo destino', function () {
+    $admin = platformAdmin();
+
+    $other = Company::factory()->create(['status' => CompanyStatus::Active]);
+    $admin->companies()->attach($other->id);
+    app(EnsureCompanyDefaultRoles::class)->handle($other);
+    // Sin sales en destino → budgets fuera de catálogo.
+
+    $role = Role::create([
+        'name' => 'copy_filtered',
+        'guard_name' => 'web',
+        'universal' => false,
+    ]);
+    $role->syncPermissions([
+        Permission::findOrCreate('roles.viewAny'),
+        Permission::findOrCreate('budgets.viewAny'),
+    ]);
+
+    $this->post(route('admin.roles.copy', $role), [
+        'company_ids' => [$other->id],
+    ])->assertRedirect()->assertSessionHasNoErrors();
+
+    $local = Role::query()->withoutGlobalScopes()
+        ->where('company_id', $other->id)
+        ->where('name', 'copy_filtered')
+        ->firstOrFail();
+
+    setPermissionsTeamId($other->id);
+    $local->load('permissions');
+    $names = $local->permissions->pluck('name')->all();
+
+    expect($names)->not->toContain('roles.viewAny')
+        ->and($names)->not->toContain('budgets.viewAny');
 });
 
 it('rol universal no ofrece copy usable y rechaza endpoint', function () {

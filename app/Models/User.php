@@ -12,16 +12,17 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'surname', 'email', 'locale', 'password'])]
+#[Fillable(['name', 'surname', 'email', 'locale', 'password', 'is_admin', 'is_public', 'status'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements CanResetPasswordContract
 {
     /** @use HasFactory<UserFactory> */
-    use CanResetPassword, HasFactory, HasRoles, Notifiable;
+    use CanResetPassword, HasFactory, HasRoles, Notifiable, SoftDeletes;
 
     protected function casts(): array
     {
@@ -29,6 +30,8 @@ class User extends Authenticatable implements CanResetPasswordContract
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'status' => 'boolean',
+            'is_admin' => 'boolean',
+            'is_public' => 'boolean',
         ];
     }
 

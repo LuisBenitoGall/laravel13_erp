@@ -9,12 +9,12 @@ class UnitPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('units.viewAny');
+        return $user->can('units.view');
     }
 
     public function view(User $user, Unit $unit): bool
     {
-        return $user->can('units.view');
+        return $user->can('units.viewAny');
     }
 
     public function create(User $user): bool

@@ -59,7 +59,7 @@ it('login como manager entra al AppLayout con menú Basic usable', function () {
     app(EnableModuleForCompany::class)->handle($company, $module);
 
     setPermissionsTeamId($company->id);
-    $manager->givePermissionTo(['partners-core.access', 'demo-catalog.viewAny']);
+    $manager->givePermissionTo(['partners-core.access', 'demo-catalog.view']);
     app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
     $page = visit('/login');

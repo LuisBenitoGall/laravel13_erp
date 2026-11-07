@@ -10,12 +10,12 @@ class TownPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('countries.viewAny');
+        return $user->can('countries.view');
     }
 
     public function view(User $user, Town $town): bool
     {
-        return $user->can('countries.view');
+        return $user->can('countries.viewAny');
     }
 
     public function create(User $user): bool

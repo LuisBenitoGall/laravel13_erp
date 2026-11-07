@@ -23,7 +23,7 @@ export function Checkbox({
     return (
         <label
             htmlFor={id}
-            className={cn('inline-flex items-center gap-2 text-sm text-slate-700', className)}
+            className={cn('flex w-fit items-center gap-3 text-sm text-slate-700', className)}
         >
             <UiCheckbox
                 id={id}

@@ -54,28 +54,38 @@ function pathMatches(currentUrl: string, href: string): boolean {
     return target !== '/' && path.startsWith(`${target}/`);
 }
 
+function childrenOf(item: AsideNavItem): Array<{ slug: string; label: string; href: string }> {
+    return item.functionalities ?? [];
+}
+
 function isDirectLink(item: AsideNavItem): boolean {
-    if (item.href && item.functionalities.length === 0) {
+    const children = childrenOf(item);
+
+    if (item.href && children.length === 0) {
         return true;
     }
 
-    return item.functionalities.length === 1;
+    return children.length === 1;
 }
 
 function directHref(item: AsideNavItem): string {
-    if (item.href && item.functionalities.length === 0) {
+    const children = childrenOf(item);
+
+    if (item.href && children.length === 0) {
         return item.href;
     }
 
-    return item.functionalities[0]?.href ?? '#';
+    return children[0]?.href ?? '#';
 }
 
 function directLabel(item: AsideNavItem): string {
-    if (item.href && item.functionalities.length === 0) {
+    const children = childrenOf(item);
+
+    if (item.href && children.length === 0) {
         return item.label;
     }
 
-    const only = item.functionalities[0];
+    const only = children[0];
 
     return item.slug === 'dashboard' ? item.label : (only?.label ?? item.label);
 }
@@ -86,18 +96,20 @@ function activeGroupSlugs(menu: AsideNavItem[], currentUrl: string): Set<string>
             .filter(
                 (item) =>
                     !isDirectLink(item) &&
-                    item.functionalities.some((child) => pathMatches(currentUrl, child.href)),
+                    childrenOf(item).some((child) => pathMatches(currentUrl, child.href)),
             )
             .map((item) => item.slug),
     );
 }
 
 function itemIsActive(item: AsideNavItem, currentUrl: string): boolean {
-    if (item.href && item.functionalities.length === 0) {
+    const children = childrenOf(item);
+
+    if (item.href && children.length === 0) {
         return pathMatches(currentUrl, item.href);
     }
 
-    return item.functionalities.some((child) => pathMatches(currentUrl, child.href));
+    return children.some((child) => pathMatches(currentUrl, child.href));
 }
 
 function ExpandedNav({ menu }: { menu: AsideNavItem[] }) {
@@ -127,7 +139,7 @@ function ExpandedNav({ menu }: { menu: AsideNavItem[] }) {
 
     return (
         <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
-            {menu.map((item) => {
+            {(menu ?? []).map((item) => {
                 const Icon = resolveMenuIcon(item.icon);
 
                 if (isDirectLink(item)) {
@@ -169,7 +181,7 @@ function ExpandedNav({ menu }: { menu: AsideNavItem[] }) {
                         </button>
                         {expanded ? (
                             <ul className="mt-0.5 space-y-0.5 pb-1">
-                                {item.functionalities.map((child) => {
+                                {childrenOf(item).map((child) => {
                                     const active = pathMatches(currentUrl, child.href);
 
                                     return (
@@ -199,7 +211,7 @@ function RailNav({ menu }: { menu: AsideNavItem[] }) {
 
     return (
         <nav className="flex flex-1 flex-col items-center gap-1 overflow-y-auto px-1 py-2">
-            {menu.map((item) => {
+            {(menu ?? []).map((item) => {
                 const Icon = resolveMenuIcon(item.icon);
                 const active = itemIsActive(item, currentUrl);
 
@@ -247,7 +259,7 @@ function RailNav({ menu }: { menu: AsideNavItem[] }) {
                                 {item.label}
                             </p>
                             <ul className="space-y-0.5">
-                                {item.functionalities.map((child) => {
+                                {childrenOf(item).map((child) => {
                                     const childActive = pathMatches(currentUrl, child.href);
 
                                     return (

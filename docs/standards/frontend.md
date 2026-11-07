@@ -172,7 +172,7 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 | `Table/ServerTable` | Listados server-side (§3): header filters, `rowActions`, toolbar, export, i18n Tabulator; referencia = Admin Modules |
 | `Table/AdvancedSearchModal` | Modal búsqueda avanzada opt-in (`fields` o `children` render prop + `onApply(filters)`). `ServerTable`: `advancedFilters` + `advancedFilterMode` `merge` o `replace`; mismo query `filter` (table y Excel/PDF) |
 | `Table/formatters` | Formatters tipados: `money(dec)`, `date`, `number(dec)`, `boolean` (+ ampliar por dominio); con `valueKind`/`headerFilterKind` date|number → align right |
-| `Form/Field` + kit MVP | **Implementado** (`c2026-10-26-form-kit-mvp` + `c2026-11-02-admin-modules-create`): `Field`/`FormField`, `Input` (→ `ui/input` R-FE-08), `Textarea`, `NumberInput`, `Select` (filtro local; `onSearch` opcional), `DatePicker` (`date-fns` + input date), `Checkbox`, `Switch`, `LangTabs` (tabs = `supportedLocales`, children por locale), `ColorPicker` (input `type=color` + hex, sin dep nueva), `IconPicker` (Dialog + grid `ERP_ICON_NAMES`). Pendientes de kit: `Wysiwyg`, `Dropzone` |
+| `Form/Field` + kit MVP | **Implementado** (`c2026-10-26-form-kit-mvp` + `c2026-11-02-admin-modules-create`): `Field`/`FormField`, `Input` (→ `ui/input` R-FE-08), `Textarea`, `NumberInput`, `Select` (filtro local; `onSearch` opcional), `DatePicker` (`date-fns` + input date), `Checkbox`, `Switch`, `LangTabs` (tabs = `supportedLocales`, children por locale), `ColorPicker` (input `type=color` + hex, sin dep nueva), `IconPicker` (Dialog + grid `ERP_ICON_NAMES`). Pendientes de kit: `Wysiwyg`, `Dropzone`. **Grupo de booleanos** (`Switch`/`Checkbox` con label): preferir misma línea con `flex flex-row flex-wrap items-center gap-x-8 gap-y-3` (mín. `gap-x-6`); prohibido fila sin `gap` — quedan pegados |
 | `Form/FormActions` | Guardar/cancelar **dentro del form** — **pendiente** (≠ `ViewActionBar`) |
 | `Records/RecordEditLayout` | Esqueleto de Create/Edit: tabs, sidebar meta, zona de contenido — **pendiente** (cabecera de ficha → `RecordSummary`) |
 | `Records/RecordSummary` | Ficha edit/show (card blanca): `titleKey` + badge `identifier` + `fields[]` (`labelKey`/`value`/`tone`); helper `auditRecordSummaryFields` en `lib/recordSummary`. Opt-in por page (no AppLayout). Sin totales ni lápiz inline |
@@ -213,6 +213,10 @@ Convenciones de flujo:
 
 ## 6. Transversales de UX
 
+- **Booleanos en formulario** (`Form/Switch`, `Form/Checkbox` con label): si van varios
+  juntos, preferir misma línea con
+  `flex flex-row flex-wrap items-center gap-x-8 gap-y-3` (mín. `gap-x-6`). Prohibido
+  amontonarlos sin `gap` horizontal (quedan pegados control↔label del vecino).
 - **Flash/toasts**: props flash de Inertia → `sonner` (patrón único en AppLayout).
 - **Errores de validación**: siempre bajo el campo + resumen si el form es largo.
 - **Notificaciones realtime**: canal privado por usuario + empresa activa (Echo/Reverb).

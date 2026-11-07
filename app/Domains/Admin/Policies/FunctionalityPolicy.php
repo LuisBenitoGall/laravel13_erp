@@ -9,12 +9,12 @@ class FunctionalityPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('functionalities.viewAny');
+        return $user->can('functionalities.view');
     }
 
     public function view(User $user, Functionality $functionality): bool
     {
-        return $user->can('functionalities.view');
+        return $user->can('functionalities.viewAny');
     }
 
     public function create(User $user): bool

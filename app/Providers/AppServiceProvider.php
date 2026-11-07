@@ -72,6 +72,8 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('viewAnyAllUser', [AllUserPolicy::class, 'viewAny']);
         Gate::define('viewAnyCompanyUser', [CompanyUserPolicy::class, 'viewAny']);
+        Gate::define('viewCompanyUser', [CompanyUserPolicy::class, 'view']);
+        Gate::define('createCompanyUser', [CompanyUserPolicy::class, 'create']);
         Gate::define('updateCompanyUser', [CompanyUserPolicy::class, 'update']);
         Gate::define('deleteCompanyUser', [CompanyUserPolicy::class, 'delete']);
 

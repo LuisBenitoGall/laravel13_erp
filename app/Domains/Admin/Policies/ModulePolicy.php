@@ -9,12 +9,12 @@ class ModulePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('modules.viewAny');
+        return $user->can('modules.view');
     }
 
     public function view(User $user, Module $module): bool
     {
-        return $user->can('modules.view');
+        return $user->can('modules.viewAny');
     }
 
     public function create(User $user): bool

@@ -2,11 +2,14 @@
 
 namespace App\Domains\Admin\Http\Controllers;
 
+use App\Domains\Admin\Actions\CreateOrLinkCompanyUser;
 use App\Domains\Admin\Actions\DetachCompanyUser;
 use App\Domains\Admin\Actions\UpdateCompanyUserStatus;
 use App\Domains\Admin\Http\Requests\CompanyUserTableRequest;
+use App\Domains\Admin\Http\Requests\StoreCompanyUserRequest;
 use App\Domains\Admin\Http\Requests\UpdateCompanyUserStatusRequest;
 use App\Domains\Admin\Http\Resources\DirectoryUserResource;
+use App\Domains\Admin\Models\Role;
 use App\Domains\Partners\Models\Company;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -43,6 +46,44 @@ class CompanyUserController extends Controller
             ->json();
     }
 
+    public function create(): Response
+    {
+        $this->authorize('createCompanyUser');
+        $company = $this->currentCompany();
+
+        return Inertia::render('Admin/CompanyUsers/Create', [
+            'roleOptions' => $this->roleOptions($company, request()->user()),
+        ]);
+    }
+
+    public function store(StoreCompanyUserRequest $request, CreateOrLinkCompanyUser $action): RedirectResponse
+    {
+        $this->authorize('createCompanyUser');
+        $company = $this->currentCompany();
+
+        /** @var User $actor */
+        $actor = $request->user();
+
+        $result = $action->handle($company, $request->validated(), $actor);
+
+        return to_route('admin.company-users.edit', $result['user'])
+            ->with('success', __($result['flash_key']));
+    }
+
+    public function edit(User $user): Response
+    {
+        $this->authorize('viewCompanyUser', $user);
+
+        return Inertia::render('Admin/CompanyUsers/Edit', [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'surname' => $user->surname,
+                'email' => $user->email,
+            ],
+        ]);
+    }
+
     public function updateStatus(
         UpdateCompanyUserStatusRequest $request,
         User $user,
@@ -70,6 +111,55 @@ class CompanyUserController extends Controller
         $action->handle($company, $user);
 
         return back()->with('success', __('usuario_desvinculado_empresa'));
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    private function roleOptions(Company $company, ?User $actor): array
+    {
+        $names = Role::query()
+            ->forCompany($company->id)
+            ->orderBy('name')
+            ->pluck('name')
+            ->all();
+
+        $previousTeamId = getPermissionsTeamId();
+        setPermissionsTeamId(null);
+
+        try {
+            $universals = Role::query()
+                ->universalTemplates()
+                ->orderBy('name')
+                ->pluck('name')
+                ->all();
+
+            $actorIsSa = false;
+            if ($actor !== null) {
+                $actor->unsetRelation('roles');
+                $actor->unsetRelation('permissions');
+                $actorIsSa = $actor->hasRole(Role::SUPER_ADMIN);
+            }
+        } finally {
+            setPermissionsTeamId($previousTeamId);
+            if ($actor !== null) {
+                $actor->unsetRelation('roles');
+                $actor->unsetRelation('permissions');
+            }
+        }
+
+        $names = array_values(array_unique([...$names, ...$universals]));
+
+        if ($actorIsSa) {
+            $names[] = Role::SUPER_ADMIN;
+        }
+
+        sort($names);
+
+        return array_map(
+            fn (string $name): array => ['value' => $name, 'label' => $name],
+            $names,
+        );
     }
 
     private function currentCompany(): Company

@@ -172,11 +172,11 @@ it('SA ve Mis empresas bajo Module empresas', function () {
 });
 
 it('no-SA sin comodín configuracion no ve Configuración', function () {
-    Permission::findOrCreate('company-roles.viewAny');
+    Permission::findOrCreate('company-roles.view');
     Permission::findOrCreate('usuarios.access');
 
     $user = User::factory()->create();
-    $user->givePermissionTo(['company-roles.viewAny', 'usuarios.access']);
+    $user->givePermissionTo(['company-roles.view', 'usuarios.access']);
     withCurrentCompany($this->company);
 
     $slugs = collect(app(MenuBuilder::class)->forUser($user))->pluck('slug')->all();
@@ -191,8 +191,8 @@ it('Usuarios empresa apunta al Index ServerTable company-users', function () {
     setPermissionsTeamId($this->company->id);
     $user->givePermissionTo([
         Permission::findOrCreate('usuarios.access'),
-        Permission::findOrCreate('company-users.viewAny'),
-        Permission::findOrCreate('all-users.viewAny'),
+        Permission::findOrCreate('company-users.view'),
+        Permission::findOrCreate('all-users.view'),
     ]);
     withCurrentCompany($this->company);
 
@@ -208,12 +208,12 @@ it('Usuarios empresa apunta al Index ServerTable company-users', function () {
         ->and($allUsers['href'])->toBe(route('admin.all-users.index', absolute: false));
 });
 
-it('no-SA con usuarios.access y company-users.viewAny abre Index Usuarios empresa', function () {
+it('no-SA con usuarios.access y company-users.view abre Index Usuarios empresa', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
     $user->givePermissionTo([
         Permission::findOrCreate('usuarios.access'),
-        Permission::findOrCreate('company-users.viewAny'),
+        Permission::findOrCreate('company-users.view'),
     ]);
     setPermissionsTeamId(null);
     actingWithCompany($user, $this->company);
@@ -233,7 +233,7 @@ it('Mis módulos bajo Module cuenta', function () {
     $user = User::factory()->create();
     $user->givePermissionTo([
         Permission::findOrCreate('cuenta.access'),
-        Permission::findOrCreate('company-modules.viewAny'),
+        Permission::findOrCreate('company-modules.view'),
     ]);
     withCurrentCompany($this->company);
 

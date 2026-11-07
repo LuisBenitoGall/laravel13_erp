@@ -21,7 +21,7 @@ export function Switch({
     return (
         <label
             htmlFor={id}
-            className={cn('inline-flex items-center gap-3 text-sm leading-5 text-slate-700', className)}
+            className={cn('flex w-fit items-center gap-3 text-sm leading-5 text-slate-700', className)}
         >
             <UiSwitch
                 id={id}

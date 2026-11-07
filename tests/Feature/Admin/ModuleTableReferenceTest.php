@@ -62,7 +62,7 @@ it('acepta filtros whitelist name/status/level y ignora campos no whitelist', fu
         ->assertJsonPath('data.0.name', 'Beta Mod');
 });
 
-it('export xlsx respeta filtro y Policy viewAny', function () {
+it('export xlsx respeta filtro y Policy view (Spatie)', function () {
     Module::factory()->create([
         'name' => 'Exportable',
         'slug' => 'exportable-mod',
@@ -94,7 +94,7 @@ it('export xlsx respeta filtro y Policy viewAny', function () {
         ->assertForbidden();
 });
 
-it('export pdf respeta filtro y Policy viewAny', function () {
+it('export pdf respeta filtro y Policy view (Spatie)', function () {
     Module::factory()->create([
         'name' => 'Pdfable',
         'slug' => 'pdfable-mod',
@@ -528,7 +528,7 @@ function xlsxNames(mixed $response): array
     return $names;
 }
 
-it('rechaza export a no Super Admin sin permiso modules.viewAny', function () {
+it('rechaza export a no Super Admin sin permiso modules.view', function () {
     Role::findOrCreate(Role::GUEST);
     $user = User::factory()->create();
     actingWithCompany($user, $this->company);

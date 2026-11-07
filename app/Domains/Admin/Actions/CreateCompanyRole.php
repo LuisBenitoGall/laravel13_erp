@@ -3,7 +3,7 @@
 namespace App\Domains\Admin\Actions;
 
 use App\Domains\Admin\Models\Role;
-use App\Domains\Admin\Support\CompanyRolePermissionCatalog;
+use App\Domains\Admin\Support\AssertsCompanyRoleTenantPerimeter;
 use App\Domains\Partners\Models\Company;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -11,16 +11,21 @@ use Spatie\Permission\PermissionRegistrar;
 
 class CreateCompanyRole
 {
+    use AssertsCompanyRoleTenantPerimeter;
+
     public function __construct(
-        private readonly CompanyRolePermissionCatalog $catalog,
         private readonly SyncCompanyRolePermissions $syncPermissions,
     ) {}
 
     /**
-     * @param  array{name: string, description?: string|null, permissions?: list<string>}  $data
+     * Alta por metadatos: name + description. Sin matriz; permisos en Edit.
+     *
+     * @param  array{name: string, description?: string|null}  $data
      */
     public function handle(Company $company, array $data): Role
     {
+        $this->assertCompanyIsCurrent($company);
+
         $name = $data['name'];
 
         if (in_array($name, [Role::SUPER_ADMIN, Role::MANAGER, Role::GUEST], true)) {
@@ -49,12 +54,7 @@ class CreateCompanyRole
                     'description' => $data['description'] ?? null,
                 ]);
 
-                $permissions = $this->catalog->filterPermissionNames(
-                    $company,
-                    $data['permissions'] ?? [],
-                );
-
-                $this->syncPermissions->handle($role, $permissions);
+                $this->syncPermissions->handle($role, []);
 
                 $fresh = $role->fresh(['permissions']);
 

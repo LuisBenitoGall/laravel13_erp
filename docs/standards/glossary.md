@@ -53,6 +53,7 @@
 | UTE | `JointVenture` | UTE | UI muestra "UTE" |
 | Contacto | `Contact` | Contact | |
 | Apellidos | `surname` | surname | Campo de `User`; UI «Apellidos»; obligatorio en registro (columna nullable en BD) |
+| Perfil público | `is_public` | — | Flag de `User`; visible en directorio «Todos los usuarios» solo si true; default true en Create company-users |
 | NIF (histórico) | `CompanyIdentifier` + `NifResolver` | ídem | Se porta tal cual |
 | Producto / Artículo | `Product` | Product | UI: "artículo" |
 | Tarifa | `Rate` | Rate | 5 tarifas venta + tipológicas A/B/C |

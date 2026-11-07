@@ -14,7 +14,20 @@ class CompanyUserPolicy
     public function viewAny(User $user): bool
     {
         return $this->belongsToCurrentCompany($user)
+            && $user->can('company-users.view');
+    }
+
+    public function view(User $user, User $member): bool
+    {
+        return $this->belongsToCurrentCompany($user)
+            && $this->memberBelongsToCurrentCompany($member)
             && $user->can('company-users.viewAny');
+    }
+
+    public function create(User $user): bool
+    {
+        return $this->belongsToCurrentCompany($user)
+            && $user->can('company-users.create');
     }
 
     public function update(User $user, User $member): bool

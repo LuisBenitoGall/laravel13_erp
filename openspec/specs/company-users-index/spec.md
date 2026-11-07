@@ -1,7 +1,8 @@
 ## Purpose
 
 Index ServerTable «Usuarios empresa»: users vinculados en `user_companies` a la
-company de sesión, con acciones estándar parciales y Crear como máscara.
+company de sesión, con acciones estándar (status, detach, Edit stub) y CTA
+Crear hacia Create real.
 
 ## Requirements
 
@@ -9,8 +10,10 @@ company de sesión, con acciones estándar parciales y Crear como máscara.
 El sistema SHALL listar en ServerTable los users presentes en `user_companies`
 para la company de sesión. SHALL ofrecer acciones de fila activar/desactivar
 (status del user), eliminar (quitar vínculo a la company de sesión) y editar
-como máscara (sin formulario completo). SHALL mostrar control Crear usuario
-como máscara (sin alta real).
+navegando al Edit stub del usuario (cabecera mínima; formulario completo
+diferido). SHALL mostrar control Crear usuario que navega al Create real
+(`company-users.create`). El acceso al Index/table SHALL exigir
+`company-users.view` (no `company-users.viewAny`).
 
 #### Scenario: Filas = user_companies de sesión
 - **WHEN** el usuario abre Usuarios empresa con company de sesión S
@@ -20,13 +23,13 @@ como máscara (sin alta real).
 - **WHEN** el usuario tiene sesión en company A
 - **THEN** no ve en Usuarios empresa los users vinculados solo a company B
 
-#### Scenario: Crear es máscara
-- **WHEN** el usuario pulsa Crear usuario
-- **THEN** no completa un alta real de usuario
+#### Scenario: Crear navega a Create real
+- **WHEN** el usuario autorizado pulsa Crear usuario
+- **THEN** navega al formulario Create real (ya no es máscara de alta)
 
-#### Scenario: Editar es máscara
+#### Scenario: Editar navega a Edit stub
 - **WHEN** el usuario usa la acción Editar en una fila
-- **THEN** no completa un formulario de edición real (máscara / stub)
+- **THEN** navega al Edit stub del usuario (cabecera; sin formulario completo)
 
 #### Scenario: Activar o desactivar
 - **WHEN** el usuario autorizado conmuta el status de un user de la tabla
@@ -37,7 +40,7 @@ como máscara (sin alta real).
 - **THEN** se elimina el vínculo `user_companies` con la company de sesión y el
   User global no se borra por esa acción
 
-#### Scenario: Sin permiso viewAny
-- **WHEN** un usuario sin `company-users.viewAny` y sin Super Admin fuerza el
+#### Scenario: Sin permiso view
+- **WHEN** un usuario sin `company-users.view` y sin Super Admin fuerza el
   Index o el endpoint `table` de Usuarios empresa
 - **THEN** recibe 403
