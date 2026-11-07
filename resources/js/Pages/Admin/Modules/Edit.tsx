@@ -1,6 +1,6 @@
 import { router, useForm, usePage } from '@inertiajs/react';
 import { Pencil, Plus } from 'lucide-react';
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ColorPicker, Field, IconPicker, Input, LangTabs, Switch, Textarea } from '@/Components/Form';
@@ -76,15 +76,18 @@ export default function Edit({ module }: { module: ModuleRecord }) {
     const page = usePage<I18nSharedProps>();
     const { supportedLocales, defaultLocale } = page.props;
     const locales = useMemo(() => supportedLocales, [supportedLocales]);
-    const [tab, setTab] = useState<EditTab>(() => tabFromPageUrl(page.url));
+    const urlTab = tabFromPageUrl(page.url);
+    const [tab, setTab] = useState<EditTab>(urlTab);
+    const [prevPageUrl, setPrevPageUrl] = useState(page.url);
     const [tableKey, setTableKey] = useState(0);
     const [createOpen, setCreateOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
 
-    useEffect(() => {
-        setTab(tabFromPageUrl(page.url));
-    }, [page.url]);
+    if (page.url !== prevPageUrl) {
+        setPrevPageUrl(page.url);
+        setTab(urlTab);
+    }
 
     function selectTab(next: EditTab) {
         setTab(next);

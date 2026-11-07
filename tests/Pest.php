@@ -9,7 +9,13 @@ use App\Support\Tenancy\CurrentCompany;
 use Tests\TestCase;
 
 pest()->extend(TestCase::class)
-    ->in('Feature', 'Architecture', 'Unit', 'Browser');
+    ->beforeEach(function () {
+        $this->withoutVite();
+    })
+    ->in('Feature', 'Architecture', 'Unit');
+
+pest()->extend(TestCase::class)
+    ->in('Browser');
 
 /**
  * Fija el tenant activo del test (CurrentCompany singleton).
