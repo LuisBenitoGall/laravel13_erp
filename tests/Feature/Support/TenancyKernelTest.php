@@ -8,13 +8,21 @@ use Illuminate\Support\Facades\Schema;
 use Tests\Fixtures\TenantProbe;
 
 beforeEach(function () {
-    Schema::create('users', function (Blueprint $table) {
-        $table->id();
-        $table->string('name');
-        $table->string('email')->unique();
-        $table->string('password');
-        $table->timestamps();
-    });
+    // Feature tests already migrate `users` via RefreshDatabase. Creating it
+    // again fails with "table already exists". The stub is only for an isolated run.
+    $this->ownsUsersTable = ! Schema::hasTable('users');
+
+    if ($this->ownsUsersTable) {
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->timestamps();
+        });
+    }
+
+    Schema::dropIfExists('tenant_probes');
 
     Schema::create('tenant_probes', function (Blueprint $table) {
         $table->id();
@@ -28,7 +36,11 @@ beforeEach(function () {
 
 afterEach(function () {
     Schema::dropIfExists('tenant_probes');
-    Schema::dropIfExists('users');
+
+    if ($this->ownsUsersTable) {
+        Schema::dropIfExists('users');
+    }
+
     app(CurrentCompany::class)->set(null);
 });
 
