@@ -50,6 +50,15 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Package default is resources/js/pages. This app resolves pages from
+        // resources/js/Pages (resources/js/app.tsx). Linux does not equate them,
+        // so assertInertia cannot see the component files in CI.
+        config([
+            'inertia.pages.paths' => [
+                resource_path('js/Pages'),
+            ],
+        ]);
+
         Gate::policy(Module::class, ModulePolicy::class);
         Gate::policy(Country::class, CountryPolicy::class);
         Gate::policy(Currency::class, CurrencyPolicy::class);

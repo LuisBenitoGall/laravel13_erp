@@ -73,7 +73,6 @@ export function createDateRangeHeaderFilter(params: DateRangeEditorParams) {
         onRendered: EmptyCallback,
         success: (value: DateRangeFilterValue | '') => boolean,
         cancel: (value?: unknown) => void,
-        _editorParams: unknown,
     ): HTMLElement {
         let committed = readInitial(cell);
         const pattern = dateFormatForLocale(params.locale);
