@@ -179,7 +179,8 @@ it('Create y Edit están cableados sin máscaras de Index', function () {
     expect(Route::has('admin.company-users.store'))->toBeTrue()
         ->and(Route::has('admin.company-users.create'))->toBeTrue()
         ->and(Route::has('admin.company-users.edit'))->toBeTrue()
-        ->and(Route::has('admin.company-users.update'))->toBeFalse();
+        ->and(Route::has('admin.company-users.update'))->toBeTrue()
+        ->and(Route::has('admin.company-users.password'))->toBeTrue();
 });
 
 it('manager recibe all-users.view tras sync Basic', function () {

@@ -5,11 +5,16 @@ namespace App\Domains\Admin\Http\Controllers;
 use App\Domains\Admin\Actions\CreateOrLinkCompanyUser;
 use App\Domains\Admin\Actions\DetachCompanyUser;
 use App\Domains\Admin\Actions\UpdateCompanyUserStatus;
+use App\Domains\Admin\Actions\UpdateOwnPassword;
+use App\Domains\Admin\Actions\UpdateUserProfile;
 use App\Domains\Admin\Http\Requests\CompanyUserTableRequest;
 use App\Domains\Admin\Http\Requests\StoreCompanyUserRequest;
 use App\Domains\Admin\Http\Requests\UpdateCompanyUserStatusRequest;
+use App\Domains\Admin\Http\Requests\UpdateOwnPasswordRequest;
+use App\Domains\Admin\Http\Requests\UpdateUserProfileRequest;
 use App\Domains\Admin\Http\Resources\DirectoryUserResource;
 use App\Domains\Admin\Models\Role;
+use App\Domains\Admin\Support\UserEditPageData;
 use App\Domains\Partners\Models\Company;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -70,18 +75,60 @@ class CompanyUserController extends Controller
             ->with('success', __($result['flash_key']));
     }
 
-    public function edit(User $user): Response
+    public function edit(User $user, UserEditPageData $pageData): Response
     {
-        $this->authorize('viewCompanyUser', $user);
+        $this->authorize('updateCompanyUser', $user);
+        $company = $this->currentCompany();
+        // Perímetro tras Gate::before: SA no ve/edita users fuera de CurrentCompany.
+        abort_unless(
+            $user->companies()->where('companies.id', $company->id)->exists(),
+            403,
+        );
 
-        return Inertia::render('Admin/CompanyUsers/Edit', [
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'surname' => $user->surname,
-                'email' => $user->email,
-            ],
-        ]);
+        /** @var User $actor */
+        $actor = request()->user();
+
+        return Inertia::render(
+            'Users/Edit',
+            $pageData->build($user, $actor, 'company', $company),
+        );
+    }
+
+    public function update(
+        UpdateUserProfileRequest $request,
+        User $user,
+        UpdateUserProfile $action,
+    ): RedirectResponse {
+        $this->authorize('updateCompanyUser', $user);
+        $company = $this->currentCompany();
+        abort_unless(
+            $user->companies()->where('companies.id', $company->id)->exists(),
+            403,
+        );
+
+        /** @var User $actor */
+        $actor = $request->user();
+
+        $action->handle($actor, $user, $request->validated(), $company);
+
+        return back()->with('success', __('perfil_actualizado'));
+    }
+
+    public function updatePassword(
+        UpdateOwnPasswordRequest $request,
+        User $user,
+        UpdateOwnPassword $action,
+    ): RedirectResponse {
+        /** @var User $actor */
+        $actor = $request->user();
+
+        // Assert self antes de cualquier Gate (SA no bypassa cambio ajeno).
+        abort_unless($actor->id === $user->id, 403);
+        $this->authorize('updateCompanyUser', $user);
+
+        $action->handle($actor, $user, $request->validated());
+
+        return back()->with('success', __('contrasena_actualizada'));
     }
 
     public function updateStatus(

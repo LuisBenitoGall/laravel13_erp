@@ -149,8 +149,9 @@ it('alta nueva con credenciales genera password y redirige a Edit stub', functio
     $this->get(route('admin.company-users.edit', $user))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
-            ->component('Admin/CompanyUsers/Edit')
-            ->where('user.email', 'ana@example.test'));
+            ->component('Users/Edit')
+            ->where('user.email', 'ana@example.test')
+            ->where('context', 'company'));
 });
 
 it('alta nueva sin credenciales deja password null', function () {

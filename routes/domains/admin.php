@@ -147,6 +147,9 @@ Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('admin')->name
     Route::get('company-users/create', [CompanyUserController::class, 'create'])->name('company-users.create');
     Route::post('company-users', [CompanyUserController::class, 'store'])->name('company-users.store');
     Route::get('company-users/{user}/edit', [CompanyUserController::class, 'edit'])->name('company-users.edit');
+    Route::put('company-users/{user}', [CompanyUserController::class, 'update'])->name('company-users.update');
+    Route::put('company-users/{user}/password', [CompanyUserController::class, 'updatePassword'])
+        ->name('company-users.password');
     Route::patch('company-users/{user}/status', [CompanyUserController::class, 'updateStatus'])
         ->name('company-users.status');
     Route::get('company-users', [CompanyUserController::class, 'index'])->name('company-users.index');

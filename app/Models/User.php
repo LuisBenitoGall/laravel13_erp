@@ -17,7 +17,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'surname', 'email', 'locale', 'password', 'is_admin', 'is_public', 'status'])]
+#[Fillable(['name', 'surname', 'email', 'locale', 'password', 'is_admin', 'is_public', 'status', 'nif', 'birth_date'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements CanResetPasswordContract
 {
@@ -29,6 +29,7 @@ class User extends Authenticatable implements CanResetPasswordContract
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'birth_date' => 'date',
             'status' => 'boolean',
             'is_admin' => 'boolean',
             'is_public' => 'boolean',

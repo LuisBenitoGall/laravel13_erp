@@ -39,15 +39,17 @@ it('perfil requiere autenticación', function () {
     $this->get(route('profile.show'))->assertRedirect(route('login'));
 });
 
-it('usuario con company ve perfil placeholder', function () {
+it('usuario con company ve ficha Users/Edit en profile', function () {
     actingWithCompany($this->user, $this->company);
 
     $this->get(route('profile.show'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
-            ->component('Profile/Show')
-            ->where('profile.name', 'Ada Lovelace')
-            ->where('profile.email', 'ada@example.com'));
+            ->component('Users/Edit')
+            ->where('context', 'profile')
+            ->where('user.name', 'Ada Lovelace')
+            ->where('user.email', 'ada@example.com')
+            ->where('can.change_password', true));
 });
 
 it('dashboard con AppLayout no incluye title en shared props de chrome', function () {

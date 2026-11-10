@@ -48,9 +48,11 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Dashboard');
     })->middleware('company')->name('dashboard');
 
-    Route::get('profile', [ProfileController::class, 'show'])
-        ->middleware('company')
-        ->name('profile.show');
+    Route::middleware('company')->group(function () {
+        Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
+        Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    });
 });
 
 Route::get('/', function () {

@@ -174,8 +174,9 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 | `Table/formatters` | Formatters tipados: `money(dec)`, `date`, `number(dec)`, `boolean` (+ ampliar por dominio); con `valueKind`/`headerFilterKind` date|number → align right |
 | `Form/Field` + kit MVP | **Implementado** (`c2026-10-26-form-kit-mvp` + `c2026-11-02-admin-modules-create`): `Field`/`FormField`, `Input` (→ `ui/input` R-FE-08), `Textarea`, `NumberInput`, `Select` (filtro local; `onSearch` opcional), `DatePicker` (`date-fns` + input date), `Checkbox`, `Switch`, `LangTabs` (tabs = `supportedLocales`, children por locale), `ColorPicker` (input `type=color` + hex, sin dep nueva), `IconPicker` (Dialog + grid `ERP_ICON_NAMES`). Pendientes de kit: `Wysiwyg`, `Dropzone`. **Grupo de booleanos** (`Switch`/`Checkbox` con label): preferir misma línea con `flex flex-row flex-wrap items-center gap-x-8 gap-y-3` (mín. `gap-x-6`); prohibido fila sin `gap` — quedan pegados |
 | `Form/FormActions` | Guardar/cancelar **dentro del form** — **pendiente** (≠ `ViewActionBar`) |
-| `Records/RecordEditLayout` | Esqueleto de Create/Edit: tabs, sidebar meta, zona de contenido — **pendiente** (cabecera de ficha → `RecordSummary`) |
+| `Records/RecordEditLayout` | Esqueleto Edit: slot `summary` (p. ej. `RecordSummary`) + tablist registrable `{ id, labelKey, visible?, panel }` + panel activo; controlado u uncontrolled. Primera referencia: `Users/Edit` |
 | `Records/RecordSummary` | Ficha edit/show (card blanca): `titleKey` + badge `identifier` + `fields[]` (`labelKey`/`value`/`tone`); helper `auditRecordSummaryFields` en `lib/recordSummary`. Opt-in por page (no AppLayout). Sin totales ni lápiz inline |
+| `Users/UserProfileReadout` | Resumen RO reutilizable (avatar placeholder, datos personales, listas emails/tels vacías OK); columna izq. del tab Perfil en `Users/Edit` |
 | `Records/ActionBar` | Ciclo de vida de **documento** (confirmar, facturar…) — ≠ chrome de vista |
 | `ViewActionBar` | Chrome bloque 3: CTAs + delete; Volver solo si `showBack` (Index → `false` salvo excepción) |
 | `Records/Tabs` | Tabs con lazy load (deferred props / partial reload) |

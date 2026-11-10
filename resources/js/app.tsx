@@ -10,8 +10,15 @@ import i18n, { bootstrapI18n } from './i18n';
 createInertiaApp({
     resolve: (name) => {
         const pages = import.meta.glob<ResolvedComponent>('./Pages/**/*.tsx', { eager: true });
+        const path = `./Pages/${name}.tsx`;
+        const page = pages[path];
 
-        return pages[`./Pages/${name}.tsx`];
+        if (!page) {
+            const available = Object.keys(pages).sort().join(', ');
+            throw new Error(`Inertia page not found: ${path}. Available: ${available}`);
+        }
+
+        return page;
     },
     setup({ el, App, props }) {
         bootstrapI18n(
