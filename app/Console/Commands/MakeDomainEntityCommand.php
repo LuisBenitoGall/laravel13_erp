@@ -225,11 +225,28 @@ class MakeDomainEntityCommand extends Command
             return;
         }
 
+        $moduleClass = 'App\\Domains\\Admin\\Models\\Module';
+        $moduleSlug = Str::snake($domain);
+        $module = class_exists($moduleClass)
+            ? $moduleClass::query()->where('slug', $moduleSlug)->first()
+            : null;
+
+        if ($module === null) {
+            $this->warn("No Module with slug [{$moduleSlug}] — skipping auto-provision (R-AUT-07).");
+
+            return;
+        }
+
         $slug = Str::snake(Str::pluralStudly($entity));
 
         $functionalityClass::query()->firstOrCreate(
             ['slug' => $slug],
-            ['name' => $entity, 'label' => ['es' => $entity, 'en' => $entity], 'status' => 'active'],
+            [
+                'module_id' => $module->id,
+                'name' => $entity,
+                'label' => ['es' => $entity, 'en' => $entity],
+                'status' => 'active',
+            ],
         );
 
         foreach (['viewAny', 'view', 'create', 'update', 'delete'] as $ability) {

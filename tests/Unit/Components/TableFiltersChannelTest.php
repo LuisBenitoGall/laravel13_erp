@@ -9,7 +9,8 @@ function tableFilterChannelUrls(): array
 {
     $result = Process::path(base_path())->run([
         'node',
-        '--experimental-strip-types',
+        '--import',
+        './tests/js/register-strip-types.mjs',
         'tests/js/printTableFilterPayload.ts',
     ]);
 

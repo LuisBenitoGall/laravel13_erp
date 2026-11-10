@@ -86,7 +86,7 @@ export type RowAction<T = Record<string, unknown>> = {
     variant?: 'default' | 'danger';
 };
 
-function actionIconHtml(action: RowAction): string {
+function actionIconHtml<T>(action: RowAction<T>): string {
     if (action.icon) {
         return renderToStaticMarkup(
             createElement(action.icon, { size: 14, strokeWidth: 2, 'aria-hidden': true }),
