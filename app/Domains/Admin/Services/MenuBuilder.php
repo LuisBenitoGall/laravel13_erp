@@ -224,7 +224,7 @@ class MenuBuilder
             'company-roles' => route('company.roles.index', absolute: false),
             'company-users' => route('admin.company-users.index', absolute: false),
             'all-users' => route('admin.all-users.index', absolute: false),
-            'profile' => route('profile.show', absolute: false),
+            'profile' => route('account.show', absolute: false),
             default => '#',
         };
     }

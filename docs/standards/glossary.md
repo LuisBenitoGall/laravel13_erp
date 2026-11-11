@@ -52,6 +52,11 @@
 | Obra | `Worksite` | Obra | Decisión de naming 2026-07-14 |
 | UTE | `JointVenture` | UTE | UI muestra "UTE" |
 | Contacto | `Contact` | Contact | |
+| Teléfono | `Phone` | Phone | Tabla polimórfica `phones` (`phoneable`); UI ficha User en tab contactos |
+| Imagen de usuario | `UserImage` | — | `user_images`; `featured` = avatar; `public` solo con `User.is_public` |
+| Documento de usuario | `UserDoc` | — | `user_docs`; personal del User (no company); disco privado; share = change futuro |
+| Vínculo user–empresa | `UserCompany` / `user_companies` | — | Membresía/acceso ERP; `position`/`department` nullable en pivot; ≠ Empleo |
+| Empleo | TBD | — | Entidad futura RRHH; puede coexistir o no con `UserCompany`; fuera de tab Empresas |
 | Apellidos | `surname` | surname | Campo de `User`; UI «Apellidos»; obligatorio en registro (columna nullable en BD) |
 | Perfil público | `is_public` | — | Flag de `User`; visible en directorio «Todos los usuarios» solo si true; default true en Create company-users |
 | NIF (histórico) | `CompanyIdentifier` + `NifResolver` | ídem | Se porta tal cual |

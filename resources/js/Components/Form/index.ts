@@ -9,3 +9,4 @@ export { Switch, type FormSwitchProps } from './Switch';
 export { LangTabs, type LangTabsProps } from './LangTabs';
 export { ColorPicker, type ColorPickerProps } from './ColorPicker';
 export { IconPicker, type IconPickerProps } from './IconPicker';
+export { Dropzone, type DropzoneProps } from './Dropzone';

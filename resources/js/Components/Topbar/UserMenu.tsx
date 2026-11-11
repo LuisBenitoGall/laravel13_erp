@@ -27,9 +27,11 @@ function initialsFromName(name: string): string {
 export default function UserMenu({
     name,
     email,
+    avatarUrl = null,
 }: {
     name: string;
     email: string;
+    avatarUrl?: string | null;
 }) {
     const { t } = useTranslation();
     const initials = initialsFromName(name);
@@ -41,11 +43,15 @@ export default function UserMenu({
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    className="rounded-full bg-teal-700 text-xs font-semibold text-white hover:bg-teal-800 hover:text-white"
+                    className="overflow-hidden rounded-full bg-teal-700 p-0 text-xs font-semibold text-white hover:bg-teal-800 hover:text-white"
                     aria-label={t('menu_usuario')}
                     title={email}
                 >
-                    {initials}
+                    {avatarUrl ? (
+                        <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                        initials
+                    )}
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

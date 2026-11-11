@@ -15,6 +15,11 @@ use App\Domains\Admin\Http\Controllers\PlatformRoleController;
 use App\Domains\Admin\Http\Controllers\ProvinceController;
 use App\Domains\Admin\Http\Controllers\TownController;
 use App\Domains\Admin\Http\Controllers\UnitController;
+use App\Domains\Admin\Http\Controllers\UserCompanyController;
+use App\Domains\Admin\Http\Controllers\UserDocController;
+use App\Domains\Admin\Http\Controllers\UserEmailController;
+use App\Domains\Admin\Http\Controllers\UserImageController;
+use App\Domains\Admin\Http\Controllers\UserPhoneController;
 use App\Domains\Admin\Http\Controllers\VatTypeController;
 use App\Domains\Banks\Http\Controllers\BankController;
 use Illuminate\Support\Facades\Route;
@@ -150,6 +155,38 @@ Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('admin')->name
     Route::put('company-users/{user}', [CompanyUserController::class, 'update'])->name('company-users.update');
     Route::put('company-users/{user}/password', [CompanyUserController::class, 'updatePassword'])
         ->name('company-users.password');
+    Route::post('company-users/{user}/emails', [UserEmailController::class, 'storeForCompanyUser'])
+        ->name('company-users.emails.store');
+    Route::delete('company-users/{user}/emails/{userEmail}', [UserEmailController::class, 'destroyForCompanyUser'])
+        ->name('company-users.emails.destroy');
+    Route::post('company-users/{user}/phones', [UserPhoneController::class, 'storeForCompanyUser'])
+        ->name('company-users.phones.store');
+    Route::put('company-users/{user}/phones/{phone}', [UserPhoneController::class, 'updateForCompanyUser'])
+        ->name('company-users.phones.update');
+    Route::delete('company-users/{user}/phones/{phone}', [UserPhoneController::class, 'destroyForCompanyUser'])
+        ->name('company-users.phones.destroy');
+    Route::post('company-users/{user}/phones/{phone}/mark-primary', [UserPhoneController::class, 'markPrimaryForCompanyUser'])
+        ->name('company-users.phones.mark-primary');
+    Route::post('company-users/{user}/images', [UserImageController::class, 'storeForCompanyUser'])
+        ->name('company-users.images.store');
+    Route::delete('company-users/{user}/images/{userImage}', [UserImageController::class, 'destroyForCompanyUser'])
+        ->name('company-users.images.destroy');
+    Route::post('company-users/{user}/images/{userImage}/mark-featured', [UserImageController::class, 'markFeaturedForCompanyUser'])
+        ->name('company-users.images.mark-featured');
+    Route::patch('company-users/{user}/images/{userImage}/public', [UserImageController::class, 'updatePublicForCompanyUser'])
+        ->name('company-users.images.public');
+    Route::post('company-users/{user}/docs', [UserDocController::class, 'storeForCompanyUser'])
+        ->name('company-users.docs.store');
+    Route::get('company-users/{user}/docs/{userDoc}/download', [UserDocController::class, 'downloadForCompanyUser'])
+        ->name('company-users.docs.download');
+    Route::delete('company-users/{user}/docs/{userDoc}', [UserDocController::class, 'destroyForCompanyUser'])
+        ->name('company-users.docs.destroy');
+    Route::get('company-users/{user}/companies/table', [UserCompanyController::class, 'tableForCompanyUser'])
+        ->name('company-users.companies.table');
+    Route::put('company-users/{user}/companies/{userCompany}', [UserCompanyController::class, 'updateForCompanyUser'])
+        ->name('company-users.companies.update');
+    Route::delete('company-users/{user}/companies/{userCompany}', [UserCompanyController::class, 'destroyForCompanyUser'])
+        ->name('company-users.companies.destroy');
     Route::patch('company-users/{user}/status', [CompanyUserController::class, 'updateStatus'])
         ->name('company-users.status');
     Route::get('company-users', [CompanyUserController::class, 'index'])->name('company-users.index');

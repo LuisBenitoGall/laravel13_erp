@@ -1,5 +1,5 @@
 import { FormEvent, useMemo, useState } from 'react';
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
 import { Checkbox, DatePicker, Field, Input, Switch } from '@/Components/Form';
@@ -10,6 +10,29 @@ import { Button } from '@/Components/ui/button';
 import AppLayout from '@/Layouts/AppLayout';
 import { formatDate } from '@/lib/format';
 import { auditRecordSummaryFields } from '@/lib/recordSummary';
+import ContactsEmailsPanel, { type UserEmailItem } from '@/Pages/Users/components/ContactsEmailsPanel';
+import { type UserPhoneItem } from '@/Pages/Users/components/ContactsPhonesPanel';
+import UserCompaniesPanel from '@/Pages/Users/components/UserCompaniesPanel';
+import UserDocsPanel, { type UserDocItem } from '@/Pages/Users/components/UserDocsPanel';
+import UserImagesPanel, { type UserImageItem } from '@/Pages/Users/components/UserImagesPanel';
+
+const EDIT_TABS = [
+    'profile',
+    'password',
+    'contacts',
+    'images',
+    'docs',
+    'companies',
+] as const;
+
+type EditTabId = (typeof EDIT_TABS)[number];
+
+function tabFromPageUrl(url: string): EditTabId {
+    const query = url.includes('?') ? url.slice(url.indexOf('?')) : '';
+    const value = new URLSearchParams(query).get('tab');
+
+    return EDIT_TABS.includes(value as EditTabId) ? (value as EditTabId) : 'profile';
+}
 
 type Contact = { value: string; label: string | null };
 
@@ -30,24 +53,58 @@ type Props = {
     context: 'profile' | 'company';
     user: EditUser;
     company_role: string | null;
-    emails: Contact[];
-    phones: Contact[];
+    emails: Array<UserEmailItem & Contact>;
+    phones: Array<UserPhoneItem & Contact>;
+    images: UserImageItem[];
+    avatar_url: string | null;
+    docs: UserDocItem[];
     can: {
         update_profile: boolean;
         change_password: boolean;
         change_visibility_flags: boolean;
+        manage_emails: boolean;
+        manage_phones: boolean;
+        manage_images: boolean;
+        manage_docs: boolean;
+        manage_companies: boolean;
     };
 };
 
-export default function Edit({ context, user, company_role, emails, phones, can }: Props) {
+export default function Edit({
+    context,
+    user,
+    company_role,
+    emails,
+    phones,
+    images,
+    avatar_url,
+    docs,
+    can,
+}: Props) {
     const { t, i18n } = useTranslation();
-    const [tab, setTab] = useState('profile');
+    const page = usePage();
+    const urlTab = tabFromPageUrl(page.url);
+    const [tab, setTab] = useState<string>(urlTab);
+    const [prevPageUrl, setPrevPageUrl] = useState(page.url);
 
+    if (page.url !== prevPageUrl) {
+        setPrevPageUrl(page.url);
+        setTab(urlTab);
+    }
+
+    const basePath =
+        context === 'profile' ? '/profile' : `/admin/company-users/${user.id}/edit`;
     const profileUrl =
         context === 'profile' ? '/profile' : `/admin/company-users/${user.id}`;
     const passwordUrl =
         context === 'profile' ? '/profile/password' : `/admin/company-users/${user.id}/password`;
     const backHref = context === 'profile' ? undefined : '/admin/company-users';
+
+    function selectTab(next: string) {
+        setTab(next);
+        const href = next === 'profile' ? basePath : `${basePath}?tab=${next}`;
+        window.history.replaceState(window.history.state, '', href);
+    }
 
     const profileForm = useForm({
         name: user.name,
@@ -111,6 +168,7 @@ export default function Edit({ context, user, company_role, emails, phones, can 
                         }}
                         emails={emails}
                         phones={phones}
+                        avatarUrl={avatar_url}
                         birthDateFormatted={birthFormatted}
                     />
 
@@ -274,18 +332,126 @@ export default function Edit({ context, user, company_role, emails, phones, can 
             id: 'contacts',
             labelKey: 'emails_y_telefonos',
             panel: (
-                <p className="rounded-xl border border-dashed border-slate-200 bg-white p-6 text-sm text-slate-500">
-                    {t('pestana_vacia_proximamente')}
-                </p>
+                <ContactsEmailsPanel
+                    emails={emails}
+                    phones={phones}
+                    canManage={can.manage_emails && can.manage_phones}
+                    storeUrl={
+                        context === 'profile'
+                            ? '/profile/emails'
+                            : `/admin/company-users/${user.id}/emails`
+                    }
+                    destroyUrl={(id) =>
+                        context === 'profile'
+                            ? `/profile/emails/${id}`
+                            : `/admin/company-users/${user.id}/emails/${id}`
+                    }
+                    phonesStoreUrl={
+                        context === 'profile'
+                            ? '/profile/phones'
+                            : `/admin/company-users/${user.id}/phones`
+                    }
+                    phonesUpdateUrl={(id) =>
+                        context === 'profile'
+                            ? `/profile/phones/${id}`
+                            : `/admin/company-users/${user.id}/phones/${id}`
+                    }
+                    phonesDestroyUrl={(id) =>
+                        context === 'profile'
+                            ? `/profile/phones/${id}`
+                            : `/admin/company-users/${user.id}/phones/${id}`
+                    }
+                    phonesMarkPrimaryUrl={(id) =>
+                        context === 'profile'
+                            ? `/profile/phones/${id}/mark-primary`
+                            : `/admin/company-users/${user.id}/phones/${id}/mark-primary`
+                    }
+                />
+            ),
+        },
+        {
+            id: 'images',
+            labelKey: 'imagenes',
+            panel: (
+                <div className="rounded-xl border border-slate-200 bg-white p-5">
+                    <UserImagesPanel
+                        images={images}
+                        canManage={can.manage_images}
+                        storeUrl={
+                            context === 'profile'
+                                ? '/profile/images'
+                                : `/admin/company-users/${user.id}/images`
+                        }
+                        destroyUrl={(id) =>
+                            context === 'profile'
+                                ? `/profile/images/${id}`
+                                : `/admin/company-users/${user.id}/images/${id}`
+                        }
+                        markFeaturedUrl={(id) =>
+                            context === 'profile'
+                                ? `/profile/images/${id}/mark-featured`
+                                : `/admin/company-users/${user.id}/images/${id}/mark-featured`
+                        }
+                        updatePublicUrl={(id) =>
+                            context === 'profile'
+                                ? `/profile/images/${id}/public`
+                                : `/admin/company-users/${user.id}/images/${id}/public`
+                        }
+                    />
+                </div>
+            ),
+        },
+        {
+            id: 'docs',
+            labelKey: 'documentos',
+            panel: (
+                <div className="rounded-xl border border-slate-200 bg-white p-5">
+                    <UserDocsPanel
+                        docs={docs}
+                        canManage={can.manage_docs}
+                        storeUrl={
+                            context === 'profile'
+                                ? '/profile/docs'
+                                : `/admin/company-users/${user.id}/docs`
+                        }
+                        downloadUrl={(id) =>
+                            context === 'profile'
+                                ? `/profile/docs/${id}/download`
+                                : `/admin/company-users/${user.id}/docs/${id}/download`
+                        }
+                        destroyUrl={(id) =>
+                            context === 'profile'
+                                ? `/profile/docs/${id}`
+                                : `/admin/company-users/${user.id}/docs/${id}`
+                        }
+                    />
+                </div>
             ),
         },
         {
             id: 'companies',
             labelKey: 'empresas',
             panel: (
-                <p className="rounded-xl border border-dashed border-slate-200 bg-white p-6 text-sm text-slate-500">
-                    {t('pestana_vacia_proximamente')}
-                </p>
+                <div className="rounded-xl border border-slate-200 bg-white p-5">
+                    <UserCompaniesPanel
+                        canManage={can.manage_companies}
+                        tableEndpoint={
+                            context === 'profile'
+                                ? '/profile/companies/table'
+                                : `/admin/company-users/${user.id}/companies/table`
+                        }
+                        updateUrl={(id) =>
+                            context === 'profile'
+                                ? `/profile/companies/${id}`
+                                : `/admin/company-users/${user.id}/companies/${id}`
+                        }
+                        destroyUrl={(id) =>
+                            context === 'profile'
+                                ? `/profile/companies/${id}`
+                                : `/admin/company-users/${user.id}/companies/${id}`
+                        }
+                    />
+                </div>
             ),
         },
     ];
@@ -295,7 +461,7 @@ export default function Edit({ context, user, company_role, emails, phones, can 
             breadcrumb={
                 context === 'profile'
                     ? {
-                          optionKey: 'mi_cuenta',
+                          optionKey: 'perfil',
                           suboptionKey: 'dashboard',
                           optionHref: '/profile',
                       }
@@ -320,7 +486,7 @@ export default function Edit({ context, user, company_role, emails, phones, can 
                 }
                 tabs={tabs}
                 activeTab={tab}
-                onTabChange={setTab}
+                onTabChange={selectTab}
             />
         </AppLayout>
     );

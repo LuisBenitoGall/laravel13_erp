@@ -30,11 +30,12 @@ Reglas:
   compra / 2 totales-contabilidad). Fechas UI: mapa `DATE_FORMATS` en `lib/format.ts`
   (`es`/`ca` → `dd/mm/yyyy`, `en` → `yyyy/mm/dd`; ampliar al añadir locale). Prohibido
   `toFixed`/`toLocaleString` sueltos. En ServerTable, fechas y valores numéricos
-  alineados a la derecha: `headerFilterKind: 'date'|'number'` o
-  `valueKind: 'date'|'number'` (ServerTable aplica `hozAlign: 'right'` si no hay
-  override). Header filter `date` = **un control** en cabecera que abre panel
-  Desde/Hasta etiquetado (no dos datepickers apilados en la fila);
-  `date_between` + ISO `yyyy-MM-dd` en `filter[]`; resumen UI según locale.
+  **siempre** con cabecera centrada y valor a la derecha: declarar
+  `headerFilterKind: 'date'|'number'` o `valueKind: 'date'|'number'` (ServerTable
+  fuerza `headerHozAlign: 'center'` + `hozAlign: 'right'`). Header filter `date` =
+  **un control** en cabecera que abre panel Desde/Hasta etiquetado (no dos
+  datepickers apilados en la fila); `date_between` + ISO `yyyy-MM-dd` en
+  `filter[]`; resumen UI según locale.
 - **R-FE-05** Toda cadena visible con i18n (`t('nombre')` / `__('guardar')`); cero
   literales. Claves en **castellano snake_case** (`^[a-z0-9_]+$`), sin puntos ni inglés
   jerárquico: genéricos reutilizables (`nombre`, `email`, `crear`); específicas solo si
@@ -171,12 +172,12 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 |---|---|
 | `Table/ServerTable` | Listados server-side (§3): header filters, `rowActions`, toolbar, export, i18n Tabulator; referencia = Admin Modules |
 | `Table/AdvancedSearchModal` | Modal búsqueda avanzada opt-in (`fields` o `children` render prop + `onApply(filters)`). `ServerTable`: `advancedFilters` + `advancedFilterMode` `merge` o `replace`; mismo query `filter` (table y Excel/PDF) |
-| `Table/formatters` | Formatters tipados: `money(dec)`, `date`, `number(dec)`, `boolean` (+ ampliar por dominio); con `valueKind`/`headerFilterKind` date|number → align right |
-| `Form/Field` + kit MVP | **Implementado** (`c2026-10-26-form-kit-mvp` + `c2026-11-02-admin-modules-create`): `Field`/`FormField`, `Input` (→ `ui/input` R-FE-08), `Textarea`, `NumberInput`, `Select` (filtro local; `onSearch` opcional), `DatePicker` (`date-fns` + input date), `Checkbox`, `Switch`, `LangTabs` (tabs = `supportedLocales`, children por locale), `ColorPicker` (input `type=color` + hex, sin dep nueva), `IconPicker` (Dialog + grid `ERP_ICON_NAMES`). Pendientes de kit: `Wysiwyg`, `Dropzone`. **Grupo de booleanos** (`Switch`/`Checkbox` con label): preferir misma línea con `flex flex-row flex-wrap items-center gap-x-8 gap-y-3` (mín. `gap-x-6`); prohibido fila sin `gap` — quedan pegados |
+| `Table/formatters` | Formatters tipados: `money(dec)`, `date`, `number(dec)`, `boolean` (+ ampliar por dominio); con `valueKind`/`headerFilterKind` date|number → header center + value right |
+| `Form/Field` + kit MVP | **Implementado** (`c2026-10-26-form-kit-mvp` + `c2026-11-02-admin-modules-create` + `c2026-11-11-user-images`): `Field`/`FormField`, `Input` (→ `ui/input` R-FE-08), `Textarea`, `NumberInput`, `Select` (filtro local; `onSearch` opcional), `DatePicker` (`date-fns` + input date), `Checkbox`, `Switch`, `LangTabs` (tabs = `supportedLocales`, children por locale), `ColorPicker` (input `type=color` + hex, sin dep nueva), `IconPicker` (Dialog + grid `ERP_ICON_NAMES`), `Dropzone` (`react-dropzone`; props `accept`/`maxSize`/`maxFiles`/`multiple`/`onFiles`; errores cliente vía toast). Pendiente de kit: `Wysiwyg`. **Grupo de booleanos** (`Switch`/`Checkbox` con label): preferir misma línea con `flex flex-row flex-wrap items-center gap-x-8 gap-y-3` (mín. `gap-x-6`); prohibido fila sin `gap` — quedan pegados |
 | `Form/FormActions` | Guardar/cancelar **dentro del form** — **pendiente** (≠ `ViewActionBar`) |
 | `Records/RecordEditLayout` | Esqueleto Edit: slot `summary` (p. ej. `RecordSummary`) + tablist registrable `{ id, labelKey, visible?, panel }` + panel activo; controlado u uncontrolled. Primera referencia: `Users/Edit` |
 | `Records/RecordSummary` | Ficha edit/show (card blanca): `titleKey` + badge `identifier` + `fields[]` (`labelKey`/`value`/`tone`); helper `auditRecordSummaryFields` en `lib/recordSummary`. Opt-in por page (no AppLayout). Sin totales ni lápiz inline |
-| `Users/UserProfileReadout` | Resumen RO reutilizable (avatar placeholder, datos personales, listas emails/tels vacías OK); columna izq. del tab Perfil en `Users/Edit` |
+| `Users/UserProfileReadout` | Resumen RO reutilizable (avatar featured o placeholder, datos personales, listas emails/tels vacías OK); columna izq. del tab Perfil en `Users/Edit` |
 | `Records/ActionBar` | Ciclo de vida de **documento** (confirmar, facturar…) — ≠ chrome de vista |
 | `ViewActionBar` | Chrome bloque 3: CTAs + delete; Volver solo si `showBack` (Index → `false` salvo excepción) |
 | `Records/Tabs` | Tabs con lazy load (deferred props / partial reload) |

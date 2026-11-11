@@ -43,7 +43,18 @@ function normalizePath(value: string): string {
     return path || '/';
 }
 
+/** Ficha self `/profile*`: ningún ítem del lateral debe marcarse activo. */
+function isUserProfilePath(currentUrl: string): boolean {
+    const path = normalizePath(currentUrl);
+
+    return path === '/profile' || path.startsWith('/profile/');
+}
+
 function pathMatches(currentUrl: string, href: string): boolean {
+    if (isUserProfilePath(currentUrl)) {
+        return false;
+    }
+
     const path = normalizePath(currentUrl);
     const target = normalizePath(href);
 

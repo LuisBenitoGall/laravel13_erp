@@ -11,7 +11,7 @@ import ViewActionBar, { type ViewAction } from '@/Components/ViewActionBar';
 import { readAsideCollapsed, writeAsideCollapsed } from '@/lib/asideStorage';
 
 type SharedProps = {
-    auth: { user: { id: number; name: string; email: string } | null };
+    auth: { user: { id: number; name: string; email: string; avatar_url?: string | null } | null };
     menu: AsideNavItem[];
     flash: { success?: string | null; error?: string | null };
     branding: { logo_url: string };
@@ -192,7 +192,11 @@ export default function AppLayout({
                         tenantId={tenant.id}
                         tenantName={tenant.name}
                         companies={available_companies}
-                        user={{ name: user.name, email: user.email }}
+                        user={{
+                            name: user.name,
+                            email: user.email,
+                            avatar_url: user.avatar_url ?? null,
+                        }}
                     />
                 ) : null}
                 <main className="flex-1 px-6 pb-6 pt-3">

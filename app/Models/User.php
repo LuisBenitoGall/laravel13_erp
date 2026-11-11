@@ -12,6 +12,9 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -39,7 +42,45 @@ class User extends Authenticatable implements CanResetPasswordContract
     /** @return BelongsToMany<Company, $this> */
     public function companies(): BelongsToMany
     {
-        return $this->belongsToMany(Company::class, 'user_companies')->withTimestamps();
+        return $this->belongsToMany(Company::class, 'user_companies')
+            ->withPivot(['id', 'position', 'department'])
+            ->withTimestamps();
+    }
+
+    /** @return HasMany<UserCompany, $this> */
+    public function companyMemberships(): HasMany
+    {
+        return $this->hasMany(UserCompany::class);
+    }
+
+    /** @return HasMany<UserEmail, $this> */
+    public function emails(): HasMany
+    {
+        return $this->hasMany(UserEmail::class);
+    }
+
+    /** @return MorphMany<Phone, $this> */
+    public function phones(): MorphMany
+    {
+        return $this->morphMany(Phone::class, 'phoneable');
+    }
+
+    /** @return HasMany<UserImage, $this> */
+    public function images(): HasMany
+    {
+        return $this->hasMany(UserImage::class);
+    }
+
+    /** @return HasMany<UserDoc, $this> */
+    public function docs(): HasMany
+    {
+        return $this->hasMany(UserDoc::class);
+    }
+
+    /** @return HasOne<UserImage, $this> */
+    public function featuredImage(): HasOne
+    {
+        return $this->hasOne(UserImage::class)->where('featured', 1);
     }
 
     /** @return Collection<int, Company> */

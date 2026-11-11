@@ -1,5 +1,11 @@
 <?php
 
+use App\Domains\Admin\Http\Controllers\UserCompanyController;
+use App\Domains\Admin\Http\Controllers\UserDocController;
+use App\Domains\Admin\Http\Controllers\UserEmailController;
+use App\Domains\Admin\Http\Controllers\UserImageController;
+use App\Domains\Admin\Http\Controllers\UserPhoneController;
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\OnboardCompanyController;
@@ -48,10 +54,46 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Dashboard');
     })->middleware('company')->name('dashboard');
 
+    Route::get('account', [AccountController::class, 'show'])
+        ->middleware('company')
+        ->name('account.show');
+
     Route::middleware('company')->group(function () {
         Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
         Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+        Route::post('profile/emails', [UserEmailController::class, 'storeForProfile'])
+            ->name('profile.emails.store');
+        Route::delete('profile/emails/{userEmail}', [UserEmailController::class, 'destroyForProfile'])
+            ->name('profile.emails.destroy');
+        Route::post('profile/phones', [UserPhoneController::class, 'storeForProfile'])
+            ->name('profile.phones.store');
+        Route::put('profile/phones/{phone}', [UserPhoneController::class, 'updateForProfile'])
+            ->name('profile.phones.update');
+        Route::delete('profile/phones/{phone}', [UserPhoneController::class, 'destroyForProfile'])
+            ->name('profile.phones.destroy');
+        Route::post('profile/phones/{phone}/mark-primary', [UserPhoneController::class, 'markPrimaryForProfile'])
+            ->name('profile.phones.mark-primary');
+        Route::post('profile/images', [UserImageController::class, 'storeForProfile'])
+            ->name('profile.images.store');
+        Route::delete('profile/images/{userImage}', [UserImageController::class, 'destroyForProfile'])
+            ->name('profile.images.destroy');
+        Route::post('profile/images/{userImage}/mark-featured', [UserImageController::class, 'markFeaturedForProfile'])
+            ->name('profile.images.mark-featured');
+        Route::patch('profile/images/{userImage}/public', [UserImageController::class, 'updatePublicForProfile'])
+            ->name('profile.images.public');
+        Route::post('profile/docs', [UserDocController::class, 'storeForProfile'])
+            ->name('profile.docs.store');
+        Route::get('profile/docs/{userDoc}/download', [UserDocController::class, 'downloadForProfile'])
+            ->name('profile.docs.download');
+        Route::delete('profile/docs/{userDoc}', [UserDocController::class, 'destroyForProfile'])
+            ->name('profile.docs.destroy');
+        Route::get('profile/companies/table', [UserCompanyController::class, 'tableForProfile'])
+            ->name('profile.companies.table');
+        Route::put('profile/companies/{userCompany}', [UserCompanyController::class, 'updateForProfile'])
+            ->name('profile.companies.update');
+        Route::delete('profile/companies/{userCompany}', [UserCompanyController::class, 'destroyForProfile'])
+            ->name('profile.companies.destroy');
     });
 });
 

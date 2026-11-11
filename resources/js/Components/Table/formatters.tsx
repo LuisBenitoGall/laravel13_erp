@@ -5,7 +5,7 @@ import { formatDate } from '@/lib/format';
 /**
  * Formatters tipados del catálogo — ampliar según entidades.
  * Fechas/importes: declarar `headerFilterKind: 'date'|'number'` o
- * `valueKind: 'date'|'number'` en la ColumnDef para alineación a la derecha.
+ * `valueKind: 'date'|'number'` en la ColumnDef (cabecera centrada, valor a la derecha).
  */
 export const fmt = {
     money:

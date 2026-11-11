@@ -59,9 +59,9 @@ export type ColumnDef = ColumnDefinition & {
     headerFilterKind?: 'string' | 'select' | 'date' | 'number';
     headerFilterValues?: Record<string, string>;
     /**
-     * Tipo semántico del valor. Fechas y números se alinean a la derecha
-     * (hozAlign) si la columna no declara `hozAlign` explícito.
-     * `headerFilterKind: 'date'|'number'` implica el valueKind correspondiente.
+     * Tipo semántico del valor. Fechas y números: cabecera centrada + valor
+     * a la derecha (siempre). `headerFilterKind: 'date'|'number'` implica el
+     * valueKind correspondiente.
      */
     valueKind?: 'string' | 'date' | 'number';
 };
@@ -325,9 +325,9 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                 visible: !hiddenColumns.includes(field),
             };
 
-            if (col.hozAlign === undefined && isRightAlignedValue(col)) {
+            if (isRightAlignedValue(col)) {
                 definition.hozAlign = 'right';
-                definition.headerHozAlign = col.headerHozAlign ?? 'right';
+                definition.headerHozAlign = 'center';
             }
 
             if (kind === 'string') {

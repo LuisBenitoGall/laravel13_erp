@@ -25,7 +25,7 @@ export default function AppTopbar({
     tenantId: number | null;
     tenantName: string | null;
     companies: CompanyOption[];
-    user: { name: string; email: string };
+    user: { name: string; email: string; avatar_url?: string | null };
 }) {
     const { t } = useTranslation();
 
@@ -59,7 +59,11 @@ export default function AppTopbar({
                     tenantName={tenantName}
                     companies={companies}
                 />
-                <UserMenu name={user.name} email={user.email} />
+                <UserMenu
+                    name={user.name}
+                    email={user.email}
+                    avatarUrl={user.avatar_url ?? null}
+                />
             </div>
         </header>
     );

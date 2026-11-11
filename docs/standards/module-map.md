@@ -18,7 +18,7 @@ Capa 1 — Maestros        Partners · Catalog · Admin · Banks (+ Support sin 
 
 | Dominio | Propósito | Entidades núcleo (v1 de referencia) | Fase |
 |---|---|---|---|
-| **Admin** | Usuarios, roles/permisos, módulos por empresa, configuración, series y patrones de numeración, menú, catálogos globales (países, monedas, unidades, tipos de IVA, grupos contables PGC…) | User, Role, Module, Functionality, CompanyModules, Country, Currency, Unit, VatType, AccountingAccountType, `*Pattern`, InvoiceSerie | 0–1 |
+| **Admin** | Usuarios, roles/permisos, módulos por empresa, configuración, series y patrones de numeración, menú, catálogos globales (países, monedas, unidades, tipos de IVA, grupos contables PGC…) | User, UserCompany (pivot), UserEmail, UserImage, UserDoc, Phone (morph), Role, Module, Functionality, CompanyModules, Country, Currency, Unit, VatType, AccountingAccountType, `*Pattern`, InvoiceSerie | 0–1 |
 | **Banks** | Catálogo global de bancos (SWIFT/LEI/códigos EU); UI Configuración vía Functionality `banks` | Bank | 0–1 |
 | **Platform** | Consola del operador SaaS: tenants, planes, uso, soporte, onboarding | Tenant/Subscription, Plan | 0 |
 | **Partners** | Empresas (tenant y tercero), clientes↔proveedores, obras, contactos, NIF histórico | Company, CustomerProviders, Worksite (Obra), Contact, CompanyIdentifier | 1 |

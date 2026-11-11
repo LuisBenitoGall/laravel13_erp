@@ -1,7 +1,9 @@
 ## Purpose
 
 Ficha Edit unificada de User (perfil, contraseña self-only, tabs extensibles),
-servida desde Mi cuenta y desde Usuarios empresa, con resumen RO reutilizable.
+servida desde `/profile` (self, avatar) y desde Usuarios empresa, con resumen
+RO reutilizable. Mi cuenta del menú es cuenta SaaS company (placeholder), no
+esta ficha.
 
 ## Requirements
 
@@ -10,8 +12,9 @@ El sistema SHALL exponer una vista Edit de usuario compartida por `/profile` y
 por el Edit de Usuarios empresa, con ActionBar, RecordSummary (alta, última
 actualización, y rol de la company de sesión en solo lectura cuando el
 contexto sea company-users) y tabs extensibles. Tabs: Perfil (usable),
-Contraseña (solo self), Emails y teléfonos (vacío), Empresas (vacío). Submit
-SHALL ser por tab.
+Contraseña (solo self), Emails y teléfonos (columnas emails y teléfonos
+operables), Imágenes (usable), Documentos (usable), Empresas (usable:
+ServerTable de vínculos). Submit SHALL ser por tab donde aplique formulario.
 
 #### Scenario: Misma página en dos rutas
 - **WHEN** el actor abre `/profile` o el Edit de un user desde Usuarios empresa
@@ -19,18 +22,18 @@ SHALL ser por tab.
 
 #### Scenario: Tabs vacíos presentes
 - **WHEN** se abre la ficha
-- **THEN** existen las pestañas Emails y teléfonos y Empresas sin CRUD aún
+- **THEN** Emails y teléfonos, Imágenes, Documentos y Empresas son usables
 
 ### Requirement: Tab Perfil con resumen RO y formulario
 El tab Perfil SHALL mostrar dos columnas: izquierda un componente reutilizable
-de resumen solo lectura (avatar placeholder, datos personales, emails y
-teléfonos); derecha el formulario con name, surname, email principal,
-`is_public`, fecha de nacimiento, nif y `status` (sin `is_admin`). Un submit
-del tab SHALL persistir esos campos según authz.
+de resumen solo lectura (avatar = featured del user o placeholder, datos
+personales, emails y teléfonos); derecha el formulario con name, surname,
+email principal, `is_public`, fecha de nacimiento, nif y `status` (sin
+`is_admin`). Un submit del tab SHALL persistir esos campos según authz.
 
 #### Scenario: Layout dos columnas
 - **WHEN** el actor abre el tab Perfil
-- **THEN** ve resumen RO a la izquierda (con avatar placeholder) y el
+- **THEN** ve resumen RO a la izquierda (avatar featured o placeholder) y el
   formulario a la derecha
 
 #### Scenario: Guardar perfil
@@ -83,3 +86,13 @@ Abrir y guardar el Perfil de un user ajeno desde Usuarios empresa SHALL exigir
 #### Scenario: Update ajeno fuera de perímetro
 - **WHEN** el user no está vinculado a la company de sesión
 - **THEN** la operación se rechaza
+
+### Requirement: Breadcrumb de ficha self no es Mi cuenta de menú
+Cuando el contexto es profile (ficha del propio user), el breadcrumb SHALL
+NOT presentarse como el ítem de menú «Mi cuenta» del Module cuenta. SHALL
+usar etiquetas de perfil/edición de usuario alineadas al acceso vía avatar.
+
+#### Scenario: Breadcrumb self
+- **WHEN** el actor abre `/profile`
+- **THEN** el breadcrumb no usa el label de menú Mi cuenta (cuenta SaaS) como
+  option de navegación de menú Cuenta

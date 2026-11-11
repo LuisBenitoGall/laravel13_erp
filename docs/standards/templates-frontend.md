@@ -107,7 +107,9 @@ mismo `filter`.
 
 Kit MVP (`Components/Form`): `Field`, `FormField` (RHF), `Input`, `Textarea`,
 `NumberInput`, `Select` (filtro local; `onSearch` opcional), `DatePicker`, `Checkbox`,
-`Switch`. Referencia real migrada: `Partners/Companies/components/CompanyForm.tsx`.
+`Switch`, `Dropzone` (`accept`/`maxSize`/`maxFiles`/`onFiles`). Referencia real
+migrada: `Partners/Companies/components/CompanyForm.tsx`; Dropzone:
+`Users/components/UserImagesPanel.tsx`.
 
 ```tsx
 // Ejemplo mínimo Inertia useForm + kit (espejo FormRequest en servidor)

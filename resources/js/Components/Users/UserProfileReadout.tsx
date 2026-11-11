@@ -1,11 +1,14 @@
 import { UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import { formatPhoneDisplay } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 export type UserProfileReadoutContact = {
-    value: string;
+    value?: string;
     label?: string | null;
+    email?: string;
+    description?: string | null;
 };
 
 export type UserProfileReadoutUser = {
@@ -22,6 +25,7 @@ export type UserProfileReadoutProps = {
     user: UserProfileReadoutUser;
     emails?: UserProfileReadoutContact[];
     phones?: UserProfileReadoutContact[];
+    avatarUrl?: string | null;
     birthDateFormatted?: string | null;
     className?: string;
 };
@@ -30,6 +34,7 @@ export default function UserProfileReadout({
     user,
     emails = [],
     phones = [],
+    avatarUrl = null,
     birthDateFormatted,
     className,
 }: UserProfileReadoutProps) {
@@ -42,12 +47,20 @@ export default function UserProfileReadout({
             data-testid="user-profile-readout"
         >
             <div className="flex flex-col items-center gap-3 border-b border-slate-200 pb-5 text-center">
-                <div
-                    className="flex h-20 w-20 items-center justify-center rounded-full bg-slate-200 text-slate-500"
-                    aria-hidden
-                >
-                    <UserRound className="h-10 w-10" />
-                </div>
+                {avatarUrl ? (
+                    <img
+                        src={avatarUrl}
+                        alt=""
+                        className="h-20 w-20 rounded-full object-cover"
+                    />
+                ) : (
+                    <div
+                        className="flex h-20 w-20 items-center justify-center rounded-full bg-slate-200 text-slate-500"
+                        aria-hidden
+                    >
+                        <UserRound className="h-10 w-10" />
+                    </div>
+                )}
                 <div>
                     <p className="text-base font-semibold text-slate-900">{fullName || t('usuario')}</p>
                     {user.email ? <p className="mt-0.5 text-sm text-slate-600">{user.email}</p> : null}
@@ -78,9 +91,16 @@ export default function UserProfileReadout({
                     <p className="mt-2 text-sm text-slate-500">{t('sin_emails')}</p>
                 ) : (
                     <ul className="mt-2 space-y-1 text-sm text-slate-800">
-                        {emails.map((item) => (
-                            <li key={item.value}>{item.label ? `${item.label}: ${item.value}` : item.value}</li>
-                        ))}
+                        {emails.map((item, index) => {
+                            const address = item.email ?? item.value ?? '';
+                            const note = item.description ?? item.label;
+
+                            return (
+                                <li key={`${address}-${index}`}>
+                                    {note ? `${note}: ${address}` : address}
+                                </li>
+                            );
+                        })}
                     </ul>
                 )}
             </section>
@@ -93,9 +113,15 @@ export default function UserProfileReadout({
                     <p className="mt-2 text-sm text-slate-500">{t('sin_telefonos')}</p>
                 ) : (
                     <ul className="mt-2 space-y-1 text-sm text-slate-800">
-                        {phones.map((item) => (
-                            <li key={item.value}>{item.label ? `${item.label}: ${item.value}` : item.value}</li>
-                        ))}
+                        {phones.map((item) => {
+                            const formatted = formatPhoneDisplay(item.value);
+
+                            return (
+                                <li key={item.value}>
+                                    {item.label ? `${item.label}: ${formatted}` : formatted}
+                                </li>
+                            );
+                        })}
                     </ul>
                 )}
             </section>
