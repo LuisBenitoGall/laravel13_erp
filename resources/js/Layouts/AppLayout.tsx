@@ -135,21 +135,21 @@ export default function AppLayout({
                 <div className={`border-b border-slate-200 ${railMode ? 'py-2' : ''}`}>
                     <div
                         className={`flex items-center justify-center ${
-                            railMode ? 'h-10 px-1' : 'h-14 px-4 justify-start'
+                            railMode ? 'h-10 px-1' : 'h-14 px-4'
                         }`}
                     >
                         {branding.logo_url ? (
                             <img
                                 src={branding.logo_url}
                                 alt={t('bienvenida_titulo')}
-                                className={`w-auto object-contain ${railMode ? 'h-7' : 'h-8 max-w-full'}`}
+                                className={`mx-auto w-auto object-contain ${railMode ? 'h-7' : 'h-8 max-w-full'}`}
                             />
                         ) : (
                             <span
                                 className={
                                     railMode
                                         ? 'flex h-8 w-8 items-center justify-center rounded bg-teal-700 text-xs font-bold text-white'
-                                        : 'text-sm font-semibold tracking-tight'
+                                        : 'text-center text-sm font-semibold tracking-tight'
                                 }
                             >
                                 {railMode ? erpInitial : t('bienvenida_titulo')}
@@ -157,22 +157,22 @@ export default function AppLayout({
                         )}
                     </div>
                     <div
-                        className={`flex items-center border-t border-slate-100 ${
-                            railMode ? 'h-10 justify-center px-1' : 'h-12 justify-start px-4'
+                        className={`flex items-center justify-center border-t border-slate-100 ${
+                            railMode ? 'h-12 px-1' : 'h-14 px-4'
                         }`}
                     >
                         {tenant.logo_url ? (
                             <img
                                 src={tenant.logo_url}
                                 alt={tenant.name ?? ''}
-                                className={`w-auto object-contain ${railMode ? 'h-6' : 'h-7 max-w-full'}`}
+                                className={`mx-auto w-auto object-contain ${railMode ? 'h-10' : 'h-11 max-w-full'}`}
                             />
                         ) : (
                             <span
                                 className={
                                     railMode
                                         ? 'flex h-7 w-7 items-center justify-center rounded bg-slate-200 text-[10px] font-semibold text-slate-700'
-                                        : 'truncate text-xs font-medium text-slate-600'
+                                        : 'truncate text-center text-xs font-medium text-slate-600'
                                 }
                                 title={tenant.name ?? undefined}
                             >

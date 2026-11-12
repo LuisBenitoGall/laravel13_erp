@@ -41,11 +41,9 @@ it('permite CRUD de Company al Super Admin con empresa de sesión', function () 
 
     $this->post(route('partners.companies.store'), [
         'name' => 'Acme',
-        'slug' => 'acme',
         'tradename' => 'Acme SL',
-        'nif' => 'B12345678',
+        'nif' => '12345678Z',
         'status' => CompanyStatus::Active->value,
-        'logo' => null,
     ])->assertRedirect();
 
     expect(Company::query()->where('slug', 'acme')->exists())->toBeTrue();

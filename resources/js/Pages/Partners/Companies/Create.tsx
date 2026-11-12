@@ -6,13 +6,13 @@ export default function Create() {
     return (
         <AppLayout
             breadcrumb={{
-                optionKey: 'empresas',
+                optionKey: 'mis_empresas',
                 suboptionKey: 'empresa_nueva',
                 optionHref: '/partners/companies',
             }}
             actions={[]}
         >
-            <CompanyForm submitUrl="/partners/companies" />
+            <CompanyForm mode="create" method="post" submitUrl="/partners/companies" />
         </AppLayout>
     );
 }

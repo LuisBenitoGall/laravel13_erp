@@ -5,9 +5,14 @@ namespace App\Domains\Partners\Http\Controllers;
 use App\Domains\Partners\Actions\CreateCompany;
 use App\Domains\Partners\Actions\DeleteCompany;
 use App\Domains\Partners\Actions\UpdateCompany;
+use App\Domains\Partners\Actions\UpdateCompanyStatus;
+use App\Domains\Partners\Actions\UploadCompanyLogo;
+use App\Domains\Partners\Enums\CompanyStatus;
 use App\Domains\Partners\Http\Requests\CompanyTableRequest;
 use App\Domains\Partners\Http\Requests\StoreCompanyRequest;
 use App\Domains\Partners\Http\Requests\UpdateCompanyRequest;
+use App\Domains\Partners\Http\Requests\UpdateCompanyStatusRequest;
+use App\Domains\Partners\Http\Requests\UploadCompanyLogoRequest;
 use App\Domains\Partners\Http\Resources\CompanyResource;
 use App\Domains\Partners\Models\Company;
 use App\Http\Controllers\Controller;
@@ -15,6 +20,7 @@ use App\Models\User;
 use App\Support\Table\TableBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\UploadedFile;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -37,7 +43,7 @@ class CompanyController extends Controller
         $user = $request->user();
 
         return $table->for(Company::query()->forUser($user))
-            ->searchable(['name', 'slug', 'nif', 'tradename'])
+            ->searchable(['name', 'nif', 'tradename'])
             ->request($request)
             ->through(CompanyResource::class)
             ->json();
@@ -65,7 +71,6 @@ class CompanyController extends Controller
 
         return Inertia::render('Partners/Companies/Edit', [
             'company' => CompanyResource::make($company)->resolve(),
-            'members_url' => route('partners.companies.members.index', $company, absolute: false),
         ]);
     }
 
@@ -76,6 +81,38 @@ class CompanyController extends Controller
         $action->handle($company, $request->validated());
 
         return back()->with('success', __('empresa_actualizada'));
+    }
+
+    public function uploadLogo(
+        UploadCompanyLogoRequest $request,
+        Company $company,
+        UploadCompanyLogo $action,
+    ): RedirectResponse {
+        $this->assertLinked($company);
+        $this->authorize('update', $company);
+
+        /** @var UploadedFile $file */
+        $file = $request->file('logo');
+        $action->handle($company, $file);
+
+        return back()->with('success', __('logo_actualizado'));
+    }
+
+    public function updateStatus(
+        UpdateCompanyStatusRequest $request,
+        Company $company,
+        UpdateCompanyStatus $action,
+    ): JsonResponse {
+        $this->assertLinked($company);
+        $this->authorize('update', $company);
+
+        /** @var string $statusValue */
+        $statusValue = $request->validated('status');
+        $company = $action->handle($company, CompanyStatus::from($statusValue));
+
+        return response()->json([
+            'status' => $company->status->value,
+        ]);
     }
 
     public function destroy(Company $company, DeleteCompany $action): RedirectResponse

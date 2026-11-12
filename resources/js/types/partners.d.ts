@@ -6,4 +6,7 @@ export type Company = {
     nif: string | null;
     status: string;
     logo: string | null;
+    logo_url?: string | null;
+    created_at?: string | null;
+    updated_at?: string | null;
 };

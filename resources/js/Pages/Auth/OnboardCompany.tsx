@@ -48,7 +48,7 @@ export default function OnboardCompany() {
 
                 <div className="space-y-1">
                     <label className="block text-sm font-medium" htmlFor="name">
-                        {t('nombre')}
+                        {t('razon_social')}
                     </label>
                     <Input
                         id="name"

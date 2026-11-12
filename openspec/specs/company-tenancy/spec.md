@@ -11,7 +11,9 @@ sin al menos una vinculación a empresa activa — **incluido Super Admin**. Sup
 bypasa permisos/módulos (Gate) y, en AdminOnly, el middleware de activación por company
 (véase menu-visibility), pero solo ve datos de las companies a las que está vinculado.
 SHALL aplicar ese perímetro también a los listados/tablas de `Company` (incluidas las
-vistas de operador).
+vistas de operador). El Index Mis Empresas SHALL consumir ese listado/table con el
+contrato ServerTable canónico (capability `mis-empresas-index`), incluyendo
+`created_at` como fecha de alta.
 
 #### Scenario: Login con una sola empresa
 - **WHEN** un usuario con acceso al ERP está vinculado a exactamente una empresa activa

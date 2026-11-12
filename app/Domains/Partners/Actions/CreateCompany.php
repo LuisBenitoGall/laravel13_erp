@@ -8,6 +8,7 @@ use App\Domains\Admin\Actions\SyncManagerPermissionsForCompany;
 use App\Domains\Partners\Enums\CompanyStatus;
 use App\Domains\Partners\Models\Company;
 use App\Models\User;
+use App\Support\Strings\UniqueSlug;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -23,6 +24,11 @@ class CreateCompany
     public function handle(array $data, User $creator): Company
     {
         return DB::transaction(function () use ($data, $creator) {
+            $data['slug'] = UniqueSlug::from(
+                (string) ($data['name'] ?? ''),
+                fn (string $slug): bool => Company::withTrashed()->where('slug', $slug)->exists(),
+            );
+
             $company = Company::query()->create($data);
 
             $this->ensureCompanyDefaultRoles->handle($company);

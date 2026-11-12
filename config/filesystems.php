@@ -41,7 +41,8 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            // Relative so logos work on Laragon vhost even if APP_URL is wrong.
+            'url' => '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

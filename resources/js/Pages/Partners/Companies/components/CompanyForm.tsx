@@ -3,37 +3,47 @@ import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Field, Input, Select } from '@/Components/Form';
+import { Button } from '@/Components/ui/button';
 
 type CompanyFormData = {
     name: string;
-    slug: string;
     tradename: string;
     nif: string;
     status: string;
-    logo: string;
 };
 
 type Props = {
+    mode?: 'create' | 'edit';
     initial?: Partial<CompanyFormData>;
     submitUrl: string;
     method?: 'post' | 'put';
 };
 
-export default function CompanyForm({ initial, submitUrl, method = 'post' }: Props) {
+export default function CompanyForm({
+    mode = 'edit',
+    initial,
+    submitUrl,
+    method = 'post',
+}: Props) {
     const { t } = useTranslation();
     const form = useForm<CompanyFormData>({
         name: initial?.name ?? '',
-        slug: initial?.slug ?? '',
         tradename: initial?.tradename ?? '',
         nif: initial?.nif ?? '',
         status: initial?.status ?? 'active',
-        logo: initial?.logo ?? '',
     });
 
     const onSubmit = (e: FormEvent) => {
         e.preventDefault();
+        const payload = {
+            name: form.data.name,
+            tradename: form.data.tradename || null,
+            nif: form.data.nif,
+            status: form.data.status,
+        };
+        form.transform(() => payload);
         if (method === 'put') {
-            form.put(submitUrl);
+            form.put(submitUrl, { preserveScroll: true });
         } else {
             form.post(submitUrl);
         }
@@ -45,37 +55,46 @@ export default function CompanyForm({ initial, submitUrl, method = 'post' }: Pro
         { value: 'closed', label: t('estado_cerrada') },
     ];
 
-    const fields: Array<{
-        field: keyof CompanyFormData;
-        label: string;
-        maxLength?: number;
-    }> = [
-        { field: 'name', label: t('nombre') },
-        { field: 'slug', label: t('slug'), maxLength: 64 },
-        { field: 'tradename', label: t('nombre_comercial') },
-        { field: 'nif', label: t('nif'), maxLength: 32 },
-        { field: 'logo', label: t('logo_url') },
-    ];
-
     return (
         <form
             onSubmit={onSubmit}
-            className="mx-auto max-w-xl space-y-4 rounded-lg border border-slate-200 bg-white p-6"
+            className="space-y-4 rounded-xl border border-slate-200 bg-white p-6"
+            data-mode={mode}
         >
-            {fields.map(({ field, label, maxLength }) => (
-                <Field key={field} label={label} htmlFor={field} error={form.errors[field]}>
-                    <Input
-                        id={field}
-                        value={form.data[field]}
-                        maxLength={maxLength}
-                        onChange={(e) => form.setData(field, e.target.value)}
-                    />
-                </Field>
-            ))}
+            <Field label={t('razon_social')} htmlFor="company-name" error={form.errors.name}>
+                <Input
+                    id="company-name"
+                    value={form.data.name}
+                    maxLength={255}
+                    onChange={(e) => form.setData('name', e.target.value)}
+                />
+            </Field>
 
-            <Field label={t('estado')} htmlFor="status" error={form.errors.status}>
+            <Field
+                label={t('nombre_comercial')}
+                htmlFor="company-tradename"
+                error={form.errors.tradename}
+            >
+                <Input
+                    id="company-tradename"
+                    value={form.data.tradename}
+                    maxLength={255}
+                    onChange={(e) => form.setData('tradename', e.target.value)}
+                />
+            </Field>
+
+            <Field label={t('nif')} htmlFor="company-nif" error={form.errors.nif}>
+                <Input
+                    id="company-nif"
+                    value={form.data.nif}
+                    maxLength={12}
+                    onChange={(e) => form.setData('nif', e.target.value)}
+                />
+            </Field>
+
+            <Field label={t('estado')} htmlFor="company-status" error={form.errors.status}>
                 <Select
-                    id="status"
+                    id="company-status"
                     options={statusOptions}
                     value={form.data.status}
                     onChange={(value) => form.setData('status', value)}
@@ -83,13 +102,9 @@ export default function CompanyForm({ initial, submitUrl, method = 'post' }: Pro
                 />
             </Field>
 
-            <button
-                type="submit"
-                disabled={form.processing}
-                className="rounded-md bg-teal-700 px-3 py-2 text-sm font-medium text-white hover:bg-teal-800"
-            >
+            <Button type="submit" disabled={form.processing}>
                 {t('guardar')}
-            </button>
+            </Button>
         </form>
     );
 }

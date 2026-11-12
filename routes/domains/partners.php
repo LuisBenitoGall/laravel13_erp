@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\Route;
 // CRUD companies / table: Module `empresas`.
 Route::middleware(['auth', 'company', 'module:empresas'])->prefix('partners')->name('partners.')->group(function () {
     Route::get('companies/table', [CompanyController::class, 'table'])->name('companies.table');
+    Route::patch('companies/{company}/status', [CompanyController::class, 'updateStatus'])
+        ->name('companies.status');
+    Route::post('companies/{company}/logo', [CompanyController::class, 'uploadLogo'])
+        ->name('companies.logo');
     Route::resource('companies', CompanyController::class)->except(['show']);
 });
 
