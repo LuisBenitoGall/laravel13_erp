@@ -118,6 +118,27 @@ it('regenera slug con sufijo si colisiona con otra company', function () {
         ->and($company->fresh()->slug)->not->toBe('twin-name');
 });
 
+it('ignora slug enviado por el cliente en Update', function () {
+    $company = Company::factory()->create([
+        'name' => 'Alpha Co',
+        'slug' => 'alpha-co',
+        'nif' => '12345678Z',
+        'status' => CompanyStatus::Active,
+    ]);
+    actingCompanyEditor($company);
+
+    $this->put(route('partners.companies.update', $company), [
+        'name' => 'Alpha Co',
+        'tradename' => null,
+        'nif' => '12345678Z',
+        'status' => CompanyStatus::Active->value,
+        'slug' => 'forced-by-client',
+    ])->assertRedirect();
+
+    expect($company->fresh()->slug)->toBe('alpha-co')
+        ->and($company->fresh()->slug)->not->toBe('forced-by-client');
+});
+
 it('rechaza update de company no vinculada', function () {
     $linked = Company::factory()->create(['status' => CompanyStatus::Active, 'nif' => '12345678Z']);
     $foreign = Company::factory()->create(['status' => CompanyStatus::Active, 'nif' => 'X1234567L']);
