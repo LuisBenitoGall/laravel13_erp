@@ -2,11 +2,11 @@
 
 namespace App\Domains\Admin\Actions;
 
+use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Module;
-use App\Domains\Partners\Enums\CompanyStatus;
-use App\Domains\Partners\Models\Company;
 use Illuminate\Support\Facades\DB;
 
 /** Al crear/activar un Module Basic, autoriza companies activas existentes. */

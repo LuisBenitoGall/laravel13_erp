@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Domains\Partners\Enums\CompanyStatus;
-use App\Domains\Partners\Models\Company;
+use App\Domains\Admin\Enums\CompanyStatus;
+use App\Domains\Admin\Models\Company;
 use Database\Factories\UserFactory;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;

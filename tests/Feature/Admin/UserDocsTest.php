@@ -2,14 +2,14 @@
 
 use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\CreateModule;
+use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Support\MenuCatalogCache;
 use App\Domains\Admin\Support\UserEditPageData;
-use App\Domains\Partners\Enums\CompanyStatus;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use App\Models\UserDoc;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -79,9 +79,9 @@ function actingDocManager(Company $company, bool $withUpdate = true): User
 }
 
 it('expone rutas profile y company-users docs', function () {
-    expect(Route::has('profile.docs.store'))->toBeTrue()
-        ->and(Route::has('profile.docs.download'))->toBeTrue()
-        ->and(Route::has('profile.docs.destroy'))->toBeTrue()
+    expect(Route::has('admin.profile.docs.store'))->toBeTrue()
+        ->and(Route::has('admin.profile.docs.download'))->toBeTrue()
+        ->and(Route::has('admin.profile.docs.destroy'))->toBeTrue()
         ->and(Route::has('admin.company-users.docs.store'))->toBeTrue()
         ->and(Route::has('admin.company-users.docs.download'))->toBeTrue()
         ->and(Route::has('admin.company-users.docs.destroy'))->toBeTrue();
@@ -91,7 +91,7 @@ it('self sube lista descarga y elimina doc en disco local', function () {
     $actor = actingDocManager($this->company);
     $file = UploadedFile::fake()->create('contrato.pdf', 100, 'application/pdf');
 
-    $this->post(route('profile.docs.store'), [
+    $this->post(route('admin.profile.docs.store'), [
         'docs' => [$file],
     ])->assertRedirect();
 
@@ -100,7 +100,7 @@ it('self sube lista descarga y elimina doc en disco local', function () {
         ->and($doc->original_name)->toBe('contrato.pdf')
         ->and(Storage::disk('local')->exists($doc->path))->toBeTrue();
 
-    $this->get(route('profile.show'))
+    $this->get(route('admin.profile.show'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Users/Edit')
@@ -108,11 +108,11 @@ it('self sube lista descarga y elimina doc en disco local', function () {
             ->where('docs.0.original_name', 'contrato.pdf')
             ->where('can.manage_docs', true));
 
-    $this->get(route('profile.docs.download', $doc))
+    $this->get(route('admin.profile.docs.download', $doc))
         ->assertOk();
 
     $path = $doc->path;
-    $this->delete(route('profile.docs.destroy', $doc))->assertRedirect();
+    $this->delete(route('admin.profile.docs.destroy', $doc))->assertRedirect();
     expect(UserDoc::query()->whereKey($doc->id)->exists())->toBeFalse()
         ->and(UserDoc::withTrashed()->whereKey($doc->id)->exists())->toBeTrue()
         ->and(Storage::disk('local')->exists($path))->toBeFalse();
@@ -121,11 +121,11 @@ it('self sube lista descarga y elimina doc en disco local', function () {
 it('rechaza formato peso y limite 30', function () {
     $actor = actingDocManager($this->company);
 
-    $this->post(route('profile.docs.store'), [
+    $this->post(route('admin.profile.docs.store'), [
         'docs' => [UploadedFile::fake()->image('photo.jpg')->size(50)],
     ])->assertInvalid(['docs.0']);
 
-    $this->post(route('profile.docs.store'), [
+    $this->post(route('admin.profile.docs.store'), [
         'docs' => [UploadedFile::fake()->create('big.pdf', 21000, 'application/pdf')],
     ])->assertInvalid(['docs.0']);
 
@@ -136,7 +136,7 @@ it('rechaza formato peso y limite 30', function () {
         ]);
     }
 
-    $this->post(route('profile.docs.store'), [
+    $this->post(route('admin.profile.docs.store'), [
         'docs' => [UploadedFile::fake()->create('overflow.pdf', 50, 'application/pdf')],
     ])->assertInvalid(['docs']);
 });

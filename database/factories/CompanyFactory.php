@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Domains\Partners\Enums\CompanyStatus;
-use App\Domains\Partners\Models\Company;
+use App\Domains\Admin\Enums\CompanyStatus;
+use App\Domains\Admin\Models\Company;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

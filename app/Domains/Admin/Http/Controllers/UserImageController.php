@@ -8,7 +8,7 @@ use App\Domains\Admin\Actions\UpdateUserImagePublic;
 use App\Domains\Admin\Actions\UploadUserImages;
 use App\Domains\Admin\Http\Requests\StoreUserImagesRequest;
 use App\Domains\Admin\Http\Requests\UpdateUserImagePublicRequest;
-use App\Domains\Partners\Models\Company;
+use App\Domains\Admin\Models\Company;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserImage;

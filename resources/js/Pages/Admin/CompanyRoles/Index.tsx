@@ -45,7 +45,7 @@ export default function Index() {
                 id: 'edit',
                 icon: Pencil,
                 labelKey: 'editar',
-                onClick: () => router.visit(`/company/roles/${row.id}/edit`),
+                onClick: () => router.visit(`/admin/company-roles/${row.id}/edit`),
             });
         }
 
@@ -56,7 +56,7 @@ export default function Index() {
                 variant: 'danger',
                 confirm: true,
                 onClick: (current) => {
-                    router.delete(`/company/roles/${current.id}`, {
+                    router.delete(`/admin/company-roles/${current.id}`, {
                         preserveScroll: true,
                         onError: (errors) => {
                             const message = Object.values(errors)[0];
@@ -77,22 +77,22 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'roles_de_empresa',
                 suboptionKey: 'dashboard',
-                optionHref: '/company/roles',
+                optionHref: '/admin/company-roles',
             }}
             showBack={false}
             actions={[
                 {
                     type: 'link',
                     labelKey: 'crear',
-                    href: '/company/roles/create',
+                    href: '/admin/company-roles/create',
                     icon: Plus,
                 },
             ]}
         >
             <ServerTable<CompanyRoleRow>
-                endpoint="/company/roles/table"
+                endpoint="/admin/company-roles/table"
                 columns={columns}
-                persistKey="company.roles"
+                persistKey="admin.company-roles"
                 exportable={false}
                 rowActions={rowActions}
             />

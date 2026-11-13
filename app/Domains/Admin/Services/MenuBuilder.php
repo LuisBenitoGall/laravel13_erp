@@ -210,7 +210,7 @@ class MenuBuilder
     {
         return match ($slug) {
             'modules' => route('admin.modules.index', absolute: false),
-            'companies' => route('partners.companies.index', absolute: false),
+            'companies' => route('admin.companies.index', absolute: false),
             'company-modules' => route('admin.company-modules.index', absolute: false),
             'company-module-authorizations' => route('admin.company-module-authorizations.index', absolute: false),
             'roles' => route('admin.roles.index', absolute: false),
@@ -221,7 +221,7 @@ class MenuBuilder
             'units' => route('admin.units.index', absolute: false),
             'vat-types' => route('admin.vat-types.index', absolute: false),
             'accounting-account-types' => route('admin.accounting-account-types.index', absolute: false),
-            'company-roles' => route('company.roles.index', absolute: false),
+            'company-roles' => route('admin.company-roles.index', absolute: false),
             'company-users' => route('admin.company-users.index', absolute: false),
             'all-users' => route('admin.all-users.index', absolute: false),
             'profile' => route('account.show', absolute: false),

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Domains\Partners\Models\Company;
+use App\Domains\Admin\Models\Company;
 use Database\Factories\UserCompanyFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

@@ -2,7 +2,7 @@
 
 namespace App\Domains\Admin\Actions;
 
-use App\Domains\Partners\Models\Company;
+use App\Domains\Admin\Models\Company;
 use App\Models\User;
 use App\Models\UserImage;
 use Illuminate\Support\Facades\DB;

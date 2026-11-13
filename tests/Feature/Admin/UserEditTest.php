@@ -3,14 +3,14 @@
 use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\CreateModule;
 use App\Domains\Admin\Actions\EnsureCompanyDefaultRoles;
+use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Support\MenuCatalogCache;
 use App\Domains\Admin\Support\UserProfileAuthorization;
-use App\Domains\Partners\Enums\CompanyStatus;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -84,7 +84,7 @@ it('profile y company-users.edit renderizan la misma página Users/Edit', functi
     $member = User::factory()->create(['name' => 'Member']);
     $this->company->users()->attach($member->id);
 
-    $this->get(route('profile.show'))
+    $this->get(route('admin.profile.show'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Users/Edit')
@@ -138,7 +138,7 @@ it('update ajeno fuera de perímetro responde 403', function () {
 it('self actualiza perfil incluyendo is_public y status', function () {
     $actor = actingEditor($this->company);
 
-    $this->put(route('profile.update'), [
+    $this->put(route('admin.profile.update'), [
         'name' => 'Ada',
         'surname' => 'Lovelace',
         'email' => 'ada-new@example.test',
@@ -189,7 +189,7 @@ it('self cambia contraseña; ajeno y SA no pueden cambiar la de otro', function 
     $member = User::factory()->create(['password' => Hash::make('password')]);
     $this->company->users()->attach($member->id);
 
-    $this->put(route('profile.password'), [
+    $this->put(route('admin.profile.password'), [
         'current_password' => 'password',
         'password' => 'new-password-123',
         'password_confirmation' => 'new-password-123',

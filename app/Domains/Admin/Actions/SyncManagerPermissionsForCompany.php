@@ -4,11 +4,11 @@ namespace App\Domains\Admin\Actions;
 
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\CompanyModuleAuthorization;
 use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
-use App\Domains\Partners\Models\Company;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 

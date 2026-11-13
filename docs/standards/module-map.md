@@ -2,6 +2,10 @@
 
 > Documento normativo **vivo**: se actualiza en el mismo PR que introduce o cambia una
 > dependencia entre dominios (playbook §8). Origen funcional: [../vision-v2.md](../vision-v2.md) §2 y §4.2.
+>
+> **Fase 0 (change `c2026-11-12-admin-sole-domain`):** el ERP funcional vive en un único
+> dominio PHP **Admin**. Company y Bank son entidades de Admin. Futuras entidades de
+> negocio nacen en Admin hasta que un change OpenSpec reabra dominios separados.
 
 ## 1. Dominios y capas
 
@@ -13,15 +17,13 @@ usa las inferiores); las dependencias hacia arriba u horizontales van SIEMPRE po
 Capa 4 — Extensiones     Portal · Projects · HR · Platform
 Capa 3 — Financiera      Invoicing · Treasury · Accounting · Tax
 Capa 2 — Operaciones     Sales · Purchasing · Inventory
-Capa 1 — Maestros        Partners · Catalog · Admin · Banks (+ Support sin dominio)
+Capa 1 — Maestros        Admin (+ Support sin dominio)
 ```
 
 | Dominio | Propósito | Entidades núcleo (v1 de referencia) | Fase |
 |---|---|---|---|
-| **Admin** | Usuarios, roles/permisos, módulos por empresa, configuración, series y patrones de numeración, menú, catálogos globales (países, monedas, unidades, tipos de IVA, grupos contables PGC…) | User, UserCompany (pivot), UserEmail, UserImage, UserDoc, Phone (morph), Role, Module, Functionality, CompanyModules, Country, Currency, Unit, VatType, AccountingAccountType, `*Pattern`, InvoiceSerie | 0–1 |
-| **Banks** | Catálogo global de bancos (SWIFT/LEI/códigos EU); UI Configuración vía Functionality `banks` | Bank | 0–1 |
+| **Admin** | Único dominio funcional Fase 0: usuarios, RBAC, módulos, menú, catálogos globales, **Company** (tenant), **Bank**, shell | User, UserCompany, UserEmail, UserImage, UserDoc, Phone, Role, Module, Functionality, CompanyModules, Company, Bank, Country, Currency, Unit, VatType, AccountingAccountType, `*Pattern`, InvoiceSerie | 0–1 |
 | **Platform** | Consola del operador SaaS: tenants, planes, uso, soporte, onboarding | Tenant/Subscription, Plan | 0 |
-| **Partners** | Empresas (tenant y tercero), clientes↔proveedores, obras, contactos, NIF histórico | Company, CustomerProviders, Worksite (Obra), Contact, CompanyIdentifier | 1 |
 | **Catalog** | Productos, precios versionados, tarifas (5 + A/B/C), familias/categorías/tags, catálogo proveedor (unidades de producto **leen** el maestro `Unit` de Admin) | Product, ProductPrices, Rate, Family, Category, ProductProviders | 1 |
 | **Inventory** | Multi-almacén, kardex, consolidado, reservas, lotes, nº serie, inventario | Store, Stock, StockTotal, StockReserve, Lot, SerialNumber | 2 |
 | **Sales** | Presupuesto → pedido → albarán (modelo `Order` unificado, lado venta), previsiones, equipos comerciales | Order, Item, OrderVersion, ItemRevision, DeliveryNote, OrderPrevisions | 2 |
@@ -42,42 +44,38 @@ documentos viven en **Admin** (configuración por empresa).
 **global**, sin `company_id`. `Module` es la unidad SaaS-activable (tres capas:
 catálogo Active/Inactive + elegibilidad `company_module_authorizations` +
 activación `company_modules`). `Functionality` es la unidad de permiso y de
-entrada de menú. Company (Partners) es el tenant. Detalle: [kernel.md](kernel.md)
+entrada de menú. **Company** (Admin) es el tenant. Detalle: [kernel.md](kernel.md)
 y [architecture.md](architecture.md) R-AUT-07/R-AUT-08.
+
+> Absorbed: `Partners` y `Banks` como dominios PHP separados — código y fichas en Admin
+> (`c2026-11-12-admin-sole-domain`).
 
 ## 2. Matriz de dependencias (quién usa a quién)
 
 `D` = dependencia directa permitida (lectura/Actions). `E` = solo por eventos.
 Fila = dominio que depende; columna = dominio del que depende.
 
-| ↓ usa → | Admin | Banks | Partners | Catalog | Inventory | Sales | Purchasing | Invoicing | Treasury | Accounting | Tax |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| **Admin** | — | | D⁵ | | | | | | | | |
-| **Banks** | D⁶ | — | | | | | | | | | |
-| **Partners** | D | | — | | | | | | | | |
-| **Catalog** | D | | D | — | | | | | | | |
-| **Inventory** | D | | D | D | — | | | | | | |
-| **Sales** | D | | D | D | D | — | | | | | |
-| **Purchasing** | D | | D | D | D | D¹ | — | | | | |
-| **Invoicing** | D | | D | D | E² | D | D | — | | | |
-| **Treasury** | D | D | D | | | | | D | — | | |
-| **Accounting** | D | | D | | | E³ | E³ | E³ | E³ | — | |
-| **Tax** | D | | D | | | | | D | | | — |
-| **Portal** | D | | D | D | D | D⁴ | | D | | | |
-| **Projects** | D | | D | D | D | D | D | D | | | |
-| **HR** | D | | D | | | | | | | | |
-| **Platform** | D | | D | | | | | | | | |
+| ↓ usa → | Admin | Catalog | Inventory | Sales | Purchasing | Invoicing | Treasury | Accounting | Tax |
+|---|---|---|---|---|---|---|---|---|---|
+| **Admin** | — | | | | | | | | |
+| **Catalog** | D | — | | | | | | | |
+| **Inventory** | D | D | — | | | | | | |
+| **Sales** | D | D | D | — | | | | | |
+| **Purchasing** | D | D | D | D¹ | — | | | | |
+| **Invoicing** | D | D | E² | D | D | — | | | |
+| **Treasury** | D | | | | | D | — | | |
+| **Accounting** | D | | | E³ | E³ | E³ | E³ | — | |
+| **Tax** | D | | | | | D | | | — |
+| **Portal** | D | D | D | D⁴ | | D | | | |
+| **Projects** | D | D | D | D | D | D | | | |
+| **HR** | D | | | | | | | | |
+| **Platform** | D | | | | | | | | |
 
 1. Compra desde venta (envío directo de fábrica) — comparte el modelo `Order`.
 2. Facturar albarán ajusta stock SOLO vía eventos/Actions de Inventory.
 3. **Toda la contabilidad se alimenta por eventos** (R-LED-02): ningún dominio llama a
    Accounting directamente para escribir; Accounting escucha.
-5. Admin lee `Partners\Company` para menú, `EnsureModuleIsActive`, autorizaciones y
-   pertenencia (change `c2026-10-09-company-tenancy-modules`). Company es el tenant;
-   no usa `BelongsToCompany`.
 4. El portal desemboca en el motor estándar de pedidos de Sales (borrador + notificación).
-6. Banks usa Functionality/menú del módulo SaaS `admin` (catálogo global; sin
-   `company_id`). Treasury/Partners leen Banks; escritura solo vía Actions de Banks.
 
 Una dependencia que no esté en esta matriz **no se puede introducir** sin actualizar este
 documento en el mismo PR y validar que no crea ciclos.

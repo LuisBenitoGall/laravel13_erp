@@ -1,13 +1,13 @@
 # Templates frontend
 
 > Código canónico comentado (React 19 + TS + Inertia). Misma entidad de ejemplo que
-> [templates-backend.md](templates-backend.md): **Worksite** (Partners).
+> [templates-backend.md](templates-backend.md): **Worksite** (Admin).
 > Contratos y catálogo: [frontend.md](frontend.md).
 
 ## 1. Tipos (espejo del Resource)
 
 ```ts
-// resources/js/types/partners.d.ts
+// resources/js/types/admin.d.ts
 // Espejo 1:1 de WorksiteResource. Si cambia el Resource, cambia esto en el mismo PR.
 
 export interface WorksiteRow {
@@ -108,7 +108,7 @@ mismo `filter`.
 Kit MVP (`Components/Form`): `Field`, `FormField` (RHF), `Input`, `Textarea`,
 `NumberInput`, `Select` (filtro local; `onSearch` opcional), `DatePicker`, `Checkbox`,
 `Switch`, `Dropzone` (`accept`/`maxSize`/`maxFiles`/`onFiles`). Referencia real
-migrada: `Partners/Companies/components/CompanyForm.tsx`; Dropzone:
+migrada: `Admin/Companies/components/CompanyForm.tsx`; Dropzone:
 `Users/components/UserImagesPanel.tsx`.
 
 ```tsx
@@ -200,12 +200,12 @@ function Example() {
 ```
 
 ```tsx
-// resources/js/Pages/Partners/Worksites/Edit.tsx  (Create.tsx es igual sin `worksite`)
+// resources/js/Pages/Admin/Worksites/Edit.tsx  (Create.tsx es igual sin `worksite`)
 import { useTranslation } from 'react-i18next'
 import AppLayout from '@/Layouts/AppLayout'
 import { RecordEditLayout } from '@/Components/Records/RecordEditLayout'
 import WorksiteForm from './components/WorksiteForm'
-import type { WorksiteFormOptions, WorksiteRow } from '@/types/partners'
+import type { WorksiteFormOptions, WorksiteRow } from '@/types/admin'
 
 export default function Edit({ worksite, options }: { worksite: WorksiteRow; options: WorksiteFormOptions }) {
   const { t } = useTranslation()
@@ -216,7 +216,7 @@ export default function Edit({ worksite, options }: { worksite: WorksiteRow; opt
         title={worksite.name}
         subtitle={worksite.code}
         status={{ value: worksite.status, label: worksite.status_label, map: 'worksite' }}
-        backHref={route('partners.worksites.index')}
+        backHref={route('admin.worksites.index')}
         tabs={[
           { key: 'general', label: t('general'), content: <WorksiteForm worksite={worksite} options={options} /> },
           // Tabs pesadas con lazy load vía partial reload (frontend.md §4 Records/Tabs)

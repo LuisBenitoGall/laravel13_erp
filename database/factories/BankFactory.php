@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Domains\Banks\Enums\BankStatus;
-use App\Domains\Banks\Models\Bank;
+use App\Domains\Admin\Enums\BankStatus;
+use App\Domains\Admin\Models\Bank;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

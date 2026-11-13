@@ -86,7 +86,7 @@
 | Funcionalidad | `Functionality` | Functionality | **No confundir con `Module`**: es la unidad de permiso y de entrada de submenú dentro de un módulo (R-AUT-07). Catálogo global también |
 | Permiso (Spatie) | `Permission` (Spatie; name `{functionalitySlug}.{acción}`) | Permission | Catálogo global guard `web`; canónicos 5+`{module}.access` vía CreateFunctionality; custom vía Admin Permissions; vínculo a Functionality por prefijo, sin FK |
 | País | `Country` | País | Catálogo global geografía (Admin); sin `company_id` |
-| Banco | `Bank` | Banco | Catálogo global dominio Banks (sin `company_id`); Functionality `banks` bajo menú Configuración |
+| Banco | `Bank` | Banco | Catálogo global Admin (sin `company_id`); Functionality `banks` bajo menú Configuración |
 | Unidad | `Unit` | Unidad | Catálogo global Admin (sin `company_id`); name único; symbol max 4; Functionality `units`; Catalog consume a futuro |
 | Tipo de IVA | `VatType` | Tipo de IVA | Catálogo global Admin por `Country` (sin `company_id`); `rate` + RE nullable; Functionality `vat-types`; Tax consume a futuro |
 | Grupo contable | `AccountingAccountType` | Grupo contable | Catálogo jerárquico PGC Admin (sin `company_id`/status); `autoreference`/`code`/`name`/`mode`; Functionality `accounting-account-types`; Accounting consume a futuro |
@@ -112,7 +112,7 @@
 1. **El código nunca mezcla**: si el glosario dice `Worksite`, no existe ningún `Obra` en
    código v2 (ni variables, ni rutas). Las **claves i18n** son índices UI en **castellano
    snake_case** (`obra`, `efecto`, `nombre`), no el schema jerárquico inglés
-   (`partners.worksites.*`); genéricos reutilizables; familias con prefijo `_`.
+   (`admin.worksites.*`); genéricos reutilizables; familias con prefijo `_`.
 2. La **UI siempre en español** (y ca/en) vía i18n: el usuario ve "Obra", "Efecto",
    "Remesa" — nunca los identificadores ingleses del dominio.
 3. Términos legales españoles sin traducción útil se conservan como identificador

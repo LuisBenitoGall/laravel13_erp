@@ -93,11 +93,11 @@ export default function Edit({
     }
 
     const basePath =
-        context === 'profile' ? '/profile' : `/admin/company-users/${user.id}/edit`;
+        context === 'profile' ? '/admin/profile' : `/admin/company-users/${user.id}/edit`;
     const profileUrl =
-        context === 'profile' ? '/profile' : `/admin/company-users/${user.id}`;
+        context === 'profile' ? '/admin/profile' : `/admin/company-users/${user.id}`;
     const passwordUrl =
-        context === 'profile' ? '/profile/password' : `/admin/company-users/${user.id}/password`;
+        context === 'profile' ? '/admin/profile/password' : `/admin/company-users/${user.id}/password`;
     const backHref = context === 'profile' ? undefined : '/admin/company-users';
 
     function selectTab(next: string) {
@@ -338,32 +338,32 @@ export default function Edit({
                     canManage={can.manage_emails && can.manage_phones}
                     storeUrl={
                         context === 'profile'
-                            ? '/profile/emails'
+                            ? '/admin/profile/emails'
                             : `/admin/company-users/${user.id}/emails`
                     }
                     destroyUrl={(id) =>
                         context === 'profile'
-                            ? `/profile/emails/${id}`
+                            ? `/admin/profile/emails/${id}`
                             : `/admin/company-users/${user.id}/emails/${id}`
                     }
                     phonesStoreUrl={
                         context === 'profile'
-                            ? '/profile/phones'
+                            ? '/admin/profile/phones'
                             : `/admin/company-users/${user.id}/phones`
                     }
                     phonesUpdateUrl={(id) =>
                         context === 'profile'
-                            ? `/profile/phones/${id}`
+                            ? `/admin/profile/phones/${id}`
                             : `/admin/company-users/${user.id}/phones/${id}`
                     }
                     phonesDestroyUrl={(id) =>
                         context === 'profile'
-                            ? `/profile/phones/${id}`
+                            ? `/admin/profile/phones/${id}`
                             : `/admin/company-users/${user.id}/phones/${id}`
                     }
                     phonesMarkPrimaryUrl={(id) =>
                         context === 'profile'
-                            ? `/profile/phones/${id}/mark-primary`
+                            ? `/admin/profile/phones/${id}/mark-primary`
                             : `/admin/company-users/${user.id}/phones/${id}/mark-primary`
                     }
                 />
@@ -379,22 +379,22 @@ export default function Edit({
                         canManage={can.manage_images}
                         storeUrl={
                             context === 'profile'
-                                ? '/profile/images'
+                                ? '/admin/profile/images'
                                 : `/admin/company-users/${user.id}/images`
                         }
                         destroyUrl={(id) =>
                             context === 'profile'
-                                ? `/profile/images/${id}`
+                                ? `/admin/profile/images/${id}`
                                 : `/admin/company-users/${user.id}/images/${id}`
                         }
                         markFeaturedUrl={(id) =>
                             context === 'profile'
-                                ? `/profile/images/${id}/mark-featured`
+                                ? `/admin/profile/images/${id}/mark-featured`
                                 : `/admin/company-users/${user.id}/images/${id}/mark-featured`
                         }
                         updatePublicUrl={(id) =>
                             context === 'profile'
-                                ? `/profile/images/${id}/public`
+                                ? `/admin/profile/images/${id}/public`
                                 : `/admin/company-users/${user.id}/images/${id}/public`
                         }
                     />
@@ -411,17 +411,17 @@ export default function Edit({
                         canManage={can.manage_docs}
                         storeUrl={
                             context === 'profile'
-                                ? '/profile/docs'
+                                ? '/admin/profile/docs'
                                 : `/admin/company-users/${user.id}/docs`
                         }
                         downloadUrl={(id) =>
                             context === 'profile'
-                                ? `/profile/docs/${id}/download`
+                                ? `/admin/profile/docs/${id}/download`
                                 : `/admin/company-users/${user.id}/docs/${id}/download`
                         }
                         destroyUrl={(id) =>
                             context === 'profile'
-                                ? `/profile/docs/${id}`
+                                ? `/admin/profile/docs/${id}`
                                 : `/admin/company-users/${user.id}/docs/${id}`
                         }
                     />
@@ -437,17 +437,17 @@ export default function Edit({
                         canManage={can.manage_companies}
                         tableEndpoint={
                             context === 'profile'
-                                ? '/profile/companies/table'
+                                ? '/admin/profile/companies/table'
                                 : `/admin/company-users/${user.id}/companies/table`
                         }
                         updateUrl={(id) =>
                             context === 'profile'
-                                ? `/profile/companies/${id}`
+                                ? `/admin/profile/companies/${id}`
                                 : `/admin/company-users/${user.id}/companies/${id}`
                         }
                         destroyUrl={(id) =>
                             context === 'profile'
-                                ? `/profile/companies/${id}`
+                                ? `/admin/profile/companies/${id}`
                                 : `/admin/company-users/${user.id}/companies/${id}`
                         }
                     />
@@ -463,7 +463,7 @@ export default function Edit({
                     ? {
                           optionKey: 'perfil',
                           suboptionKey: 'dashboard',
-                          optionHref: '/profile',
+                          optionHref: '/admin/profile',
                       }
                     : {
                           optionKey: 'usuarios_empresa',

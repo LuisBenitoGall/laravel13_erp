@@ -2,13 +2,13 @@
 
 use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\CreateModule;
+use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Support\MenuCatalogCache;
-use App\Domains\Partners\Enums\CompanyStatus;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use App\Models\UserImage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -78,10 +78,10 @@ function actingImageManager(Company $company, bool $withUpdate = true): User
 }
 
 it('expone rutas profile y company-users images', function () {
-    expect(Route::has('profile.images.store'))->toBeTrue()
-        ->and(Route::has('profile.images.destroy'))->toBeTrue()
-        ->and(Route::has('profile.images.mark-featured'))->toBeTrue()
-        ->and(Route::has('profile.images.public'))->toBeTrue()
+    expect(Route::has('admin.profile.images.store'))->toBeTrue()
+        ->and(Route::has('admin.profile.images.destroy'))->toBeTrue()
+        ->and(Route::has('admin.profile.images.mark-featured'))->toBeTrue()
+        ->and(Route::has('admin.profile.images.public'))->toBeTrue()
         ->and(Route::has('admin.company-users.images.store'))->toBeTrue()
         ->and(Route::has('admin.company-users.images.destroy'))->toBeTrue()
         ->and(Route::has('admin.company-users.images.mark-featured'))->toBeTrue()
@@ -92,7 +92,7 @@ it('self sube marca featured toggle public y elimina; avatar en props', function
     $actor = actingImageManager($this->company);
     $file = UploadedFile::fake()->image('avatar.jpg', 100, 100)->size(200);
 
-    $this->post(route('profile.images.store'), [
+    $this->post(route('admin.profile.images.store'), [
         'images' => [$file],
     ])->assertRedirect();
 
@@ -102,25 +102,25 @@ it('self sube marca featured toggle public y elimina; avatar en props', function
         ->and($image->public)->toBeFalse()
         ->and(Storage::disk('public')->exists($image->image))->toBeTrue();
 
-    $this->post(route('profile.images.mark-featured', $image))->assertRedirect();
+    $this->post(route('admin.profile.images.mark-featured', $image))->assertRedirect();
     expect($image->fresh()->featured)->toBeTrue();
 
     $second = UploadedFile::fake()->image('second.png', 80, 80)->size(100);
-    $this->post(route('profile.images.store'), ['images' => [$second]])->assertRedirect();
+    $this->post(route('admin.profile.images.store'), ['images' => [$second]])->assertRedirect();
     $other = UserImage::query()->where('user_id', $actor->id)->whereKeyNot($image->id)->firstOrFail();
 
-    $this->post(route('profile.images.mark-featured', $other))->assertRedirect();
+    $this->post(route('admin.profile.images.mark-featured', $other))->assertRedirect();
     expect($other->fresh()->featured)->toBeTrue()
         ->and($image->fresh()->featured)->toBeFalse();
 
-    $this->patch(route('profile.images.public', $other), ['public' => true])->assertRedirect();
+    $this->patch(route('admin.profile.images.public', $other), ['public' => true])->assertRedirect();
     expect($other->fresh()->public)->toBeTrue()
         ->and($other->fresh()->isPubliclyVisible($actor->fresh()))->toBeTrue();
 
     $actor->update(['is_public' => false]);
     expect($other->fresh()->isPubliclyVisible($actor->fresh()))->toBeFalse();
 
-    $this->get(route('profile.show'))
+    $this->get(route('admin.profile.show'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Users/Edit')
@@ -128,7 +128,7 @@ it('self sube marca featured toggle public y elimina; avatar en props', function
             ->where('avatar_url', $other->fresh()->url()));
 
     $path = $other->image;
-    $this->delete(route('profile.images.destroy', $other))->assertRedirect();
+    $this->delete(route('admin.profile.images.destroy', $other))->assertRedirect();
     expect(UserImage::query()->whereKey($other->id)->exists())->toBeFalse()
         ->and(UserImage::withTrashed()->whereKey($other->id)->exists())->toBeTrue()
         ->and(Storage::disk('public')->exists($path))->toBeFalse();
@@ -137,11 +137,11 @@ it('self sube marca featured toggle public y elimina; avatar en props', function
 it('rechaza formato peso y limite 20', function () {
     $actor = actingImageManager($this->company);
 
-    $this->post(route('profile.images.store'), [
+    $this->post(route('admin.profile.images.store'), [
         'images' => [UploadedFile::fake()->create('doc.pdf', 100, 'application/pdf')],
     ])->assertInvalid(['images.0']);
 
-    $this->post(route('profile.images.store'), [
+    $this->post(route('admin.profile.images.store'), [
         'images' => [UploadedFile::fake()->image('big.jpg')->size(2048)],
     ])->assertInvalid(['images.0']);
 
@@ -152,7 +152,7 @@ it('rechaza formato peso y limite 20', function () {
         ]);
     }
 
-    $this->post(route('profile.images.store'), [
+    $this->post(route('admin.profile.images.store'), [
         'images' => [UploadedFile::fake()->image('overflow.jpg')->size(100)],
     ])->assertInvalid(['images']);
 });
@@ -211,7 +211,7 @@ it('company-users: mutaciones con update; 403 sin update; perímetro SA', functi
 it('al borrar featured libera hueco y permite marcar otra', function () {
     $actor = actingImageManager($this->company);
 
-    $this->post(route('profile.images.store'), [
+    $this->post(route('admin.profile.images.store'), [
         'images' => [
             UploadedFile::fake()->image('a.jpg', 80, 80)->size(80),
             UploadedFile::fake()->image('b.jpg', 80, 80)->size(80),
@@ -224,17 +224,17 @@ it('al borrar featured libera hueco y permite marcar otra', function () {
     $featured = $images[0];
     $remaining = $images[1];
 
-    $this->post(route('profile.images.mark-featured', $featured))->assertRedirect();
+    $this->post(route('admin.profile.images.mark-featured', $featured))->assertRedirect();
     expect($featured->fresh()->featured)->toBeTrue();
 
-    $this->delete(route('profile.images.destroy', $featured))->assertRedirect();
+    $this->delete(route('admin.profile.images.destroy', $featured))->assertRedirect();
 
     $trashed = UserImage::withTrashed()->whereKey($featured->id)->firstOrFail();
     expect($trashed->trashed())->toBeTrue()
         ->and($trashed->featured)->toBeFalse()
         ->and(UserImage::query()->where('user_id', $actor->id)->where('featured', true)->exists())->toBeFalse();
 
-    $this->post(route('profile.images.mark-featured', $remaining))->assertRedirect();
+    $this->post(route('admin.profile.images.mark-featured', $remaining))->assertRedirect();
 
     expect($remaining->fresh()->featured)->toBeTrue()
         ->and(UserImage::query()->where('user_id', $actor->id)->where('featured', true)->count())->toBe(1)

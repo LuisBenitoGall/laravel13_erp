@@ -1,11 +1,11 @@
 <?php
 
+use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
-use App\Domains\Partners\Enums\CompanyStatus;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\PermissionRegistrar;
@@ -36,13 +36,13 @@ beforeEach(function () {
 });
 
 it('perfil requiere autenticación', function () {
-    $this->get(route('profile.show'))->assertRedirect(route('login'));
+    $this->get(route('admin.profile.show'))->assertRedirect(route('login'));
 });
 
 it('usuario con company ve ficha Users/Edit en profile', function () {
     actingWithCompany($this->user, $this->company);
 
-    $this->get(route('profile.show'))
+    $this->get(route('admin.profile.show'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Users/Edit')

@@ -18,7 +18,7 @@ Playwright TS. Dependencias solo en `docs/standards/libraries.md`.
 
 ## User / Company
 
-- Company (Partners) = único tenant organizativo; todas iguales; **sin**
+- Company (Admin) = único tenant organizativo; todas iguales; **sin**
   `BelongsToCompany`.
 - User puede existir sin empresa; **no entra al ERP** sin ≥1 company activa
   (`user_companies`).

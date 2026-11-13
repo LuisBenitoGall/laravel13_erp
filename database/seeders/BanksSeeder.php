@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Domains\Banks\Enums\BankStatus;
+use App\Domains\Admin\Enums\BankStatus;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 

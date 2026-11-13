@@ -4,11 +4,11 @@ namespace App\Domains\Admin\Http\Controllers;
 
 use App\Domains\Admin\Actions\AuthorizeModuleForCompany;
 use App\Domains\Admin\Actions\RevokeModuleAuthorizationForCompany;
+use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\CompanyModuleAuthorization;
 use App\Domains\Admin\Models\Module;
-use App\Domains\Partners\Enums\CompanyStatus;
-use App\Domains\Partners\Models\Company;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -70,7 +70,7 @@ class CompanyModuleAuthorizationController extends Controller
             'companies' => $companies,
             'selected_company_id' => $selected?->id,
             'modules' => $modules,
-            'tenants_url' => route('partners.companies.index', absolute: false),
+            'tenants_url' => route('admin.companies.index', absolute: false),
         ]);
     }
 

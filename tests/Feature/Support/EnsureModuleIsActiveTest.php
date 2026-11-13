@@ -16,7 +16,7 @@ it('permite el paso cuando el checker dice activo', function () {
     };
 
     $middleware = new EnsureModuleIsActive($checker);
-    $request = Request::create('/partners');
+    $request = Request::create('/admin');
 
     $response = $middleware->handle($request, fn () => new Response('ok'), 'partners');
 
@@ -33,7 +33,7 @@ it('aborta 403 cuando el módulo está inactivo', function () {
     };
 
     $middleware = new EnsureModuleIsActive($checker);
-    $request = Request::create('/partners');
+    $request = Request::create('/admin');
 
     $middleware->handle($request, fn () => new Response('ok'), 'partners');
 })->throws(HttpException::class);

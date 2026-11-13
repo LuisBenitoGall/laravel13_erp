@@ -52,22 +52,22 @@ Con `--global` activo, el generador omite:
   confirma que el dato se ve igual desde cualquier empresa (la inversa de la prueba
   habitual).
 
-### Salida (ejemplo `make:domain-entity Partners Worksite --status`)
+### Salida (ejemplo `make:domain-entity Admin Worksite --status`)
 
 ```
-app/Domains/Partners/Models/Worksite.php
-app/Domains/Partners/Enums/WorksiteStatus.php
-app/Domains/Partners/Policies/WorksitePolicy.php
-app/Domains/Partners/Actions/{CreateWorksite,UpdateWorksite,DeleteWorksite}.php
-app/Domains/Partners/Http/Requests/{StoreWorksiteRequest,UpdateWorksiteRequest,WorksiteTableRequest}.php
-app/Domains/Partners/Http/Resources/WorksiteResource.php
-app/Domains/Partners/Http/Controllers/WorksiteController.php
+app/Domains/Admin/Models/Worksite.php
+app/Domains/Admin/Enums/WorksiteStatus.php
+app/Domains/Admin/Policies/WorksitePolicy.php
+app/Domains/Admin/Actions/{CreateWorksite,UpdateWorksite,DeleteWorksite}.php
+app/Domains/Admin/Http/Requests/{StoreWorksiteRequest,UpdateWorksiteRequest,WorksiteTableRequest}.php
+app/Domains/Admin/Http/Resources/WorksiteResource.php
+app/Domains/Admin/Http/Controllers/WorksiteController.php
 database/migrations/<ts>_create_worksites_table.php
 database/factories/WorksiteFactory.php
-tests/Feature/Partners/WorksiteTest.php          # CRUD + permisos + aislamiento tenant
-resources/js/Pages/Partners/Worksites/{Index,Create,Edit}.tsx
-resources/js/Pages/Partners/Worksites/components/WorksiteForm.tsx
-resources/js/types/partners.d.ts                 # merge si ya existe
+tests/Feature/Admin/WorksiteTest.php          # CRUD + permisos + aislamiento tenant
+resources/js/Pages/Admin/Worksites/{Index,Create,Edit}.tsx
+resources/js/Pages/Admin/Worksites/components/WorksiteForm.tsx
+resources/js/types/admin.d.ts                 # merge si ya existe
 lang/es.json · lang/en.json                      # claves base de la entidad (merge)
 ```
 

@@ -1,7 +1,9 @@
-﻿# Módulo Admin — catálogo, RBAC y shell
+﻿# Módulo Admin — catálogo, RBAC, shell, Company y Bank
 
 > Ficha playbook §1. Incluye platform-roles, company-custom-roles, company-role-assignment,
-> form-kit, platform-console-mvp, shell-navigation y `c2026-10-28-shell-topbar`.
+> form-kit, platform-console-mvp, shell-navigation, `c2026-10-28-shell-topbar` y
+> **`c2026-11-12-admin-sole-domain`** (absorbe Partners/Banks: único dominio PHP Admin,
+> Functionalities bajo `/admin`).
 
 ## Propósito y alcance
 
@@ -11,12 +13,13 @@ permisos del manager; CRUD roles de plataforma y custom tenant; asignación User
 local; kit Form MVP; consola plataforma MVP (tenants perímetro); **shell**: Dashboard
 fijo, logos ERP+company, bloque Configuración SA (AdminOnly sin exigir
 authorized∩enabled), bypass `EnsureModuleIsActive` solo AdminOnly+SA (perímetro de
-datos intacto).
+datos intacto); **Company** (tenant / Mis Empresas); **Bank** (catálogo global).
 
 **No entra:** facturación SaaS (Cashier/Stripe/cuotas); ver todas las companies sin
-vínculo; invitar miembros no vinculados; engorde Company; Wysiwyg/Dropzone;
-menú/Index/CRUD genérico de Funcionalidades; soft delete de módulos shell
-(`configuracion` (+ Basics `dashboard`/`cuenta`/`usuarios`/`empresas`)).
+vínculo; invitar miembros no vinculados; engorde Company (CustomerProvider/obras…);
+Wysiwyg/Dropzone; menú/Index/CRUD genérico de Funcionalidades; soft delete de módulos
+shell (`configuracion` (+ Basics `dashboard`/`cuenta`/`usuarios`/`empresas`));
+`BankAccount` / sync SWIFT automático.
 
 ## Entidades / infra RBAC
 
@@ -31,20 +34,22 @@ menú/Index/CRUD genérico de Funcionalidades; soft delete de módulos shell
 | Index roles plataforma | ServerTable (name, description, universal, Acciones Edit + Delete confirm si `can_delete`); Super Admin fuera; CTA Crear → `/admin/roles/create`; Create = solo metadatos (name, description, universal; `permissions` prohibited); Edit ancho completo estilo v1 (anclas Module + cards Functionality; plegar/desplegar todos; `ScrollToTop`); matriz = canónicos + custom (`{functionality}.*`, sin `*.access`); permisos por toggle async (`patchJson`) + auto `{module}.access`; Guardar = solo descripción; CTA Copiar (≥2 companies Active, no universales; destinos perímetro sin sesión; permisos = intersección origen ∩ catálogo tenant destino; versionado nombre); plantillas `manager`/`guest` no borrables pero matriz editable; materialización locales siempre `universal=false`; manager local sigue por sync |
 | `AssignCompanyRole` | Cualquier rol local; un rol por company |
 | Functionality `roles` / `company-roles` | Plataforma / Module `usuarios` |
-| Create roles empresa | Metadatos name+description (`RoleMetadataFields` sin universal); sin matriz; authz `company-roles.create`; POST → `company_id` sesión + `universal=false` → redirect Edit; CTA Index → `/company/roles/create` |
+| Create roles empresa | Metadatos name+description (`RoleMetadataFields` sin universal); sin matriz; authz `company-roles.create`; POST → `company_id` sesión + `universal=false` → redirect Edit; CTA Index → `/admin/company-roles/create` |
 | Edit roles empresa | Espejo Edit plataforma: layout anclas/cards; name readonly; Guardar = solo descripción; matriz = catálogo autorizados∩activos∩¬AdminOnly (canónicos+custom); toggles async `patchJson` + `{module}.access`; `manager` local `permissions_readonly`; Index con `company-roles.view` (sin exigir manager; delete sí); sin copy tenant; `can_edit=!universal`; universales bloqueados en edit/toggle; Actions refuerzan perímetro CurrentCompany |
-| Consola plataforma | Partners Companies Index (CTA) + authorizations scoped |
+| Consola plataforma | Companies Index (CTA) + authorizations scoped |
 | Shell navegación | Dashboard + Configuración SA; seed ACME; post-login → dashboard |
-| Menú pilares | Empresas (Mis empresas), Usuarios (Usuarios empresa→`/admin/company-users` ServerTable `user_companies`×sesión; Todos los usuarios→`/admin/all-users` directorio `is_public=true` + máscara notificación; `company-users.*` / `all-users.view` (Index; `.viewAny` = detalle); Members legacy sigue para asignación de rol), Configuración SA (Módulos/Roles/Permisos/Países/Monedas/Bancos/Unidades/Tipos de IVA/Grupos contables; sin ítem genérico Funcionalidades). Bancos: dominio `Banks`, ficha `docs/modules/Banks.md` |
-| Cuenta vs ficha user | Module `cuenta`: Mi cuenta (slug Functionality `profile`) → `/account` placeholder SaaS company (próximamente; no ficha User); Mis módulos → company-modules. Ficha self `/profile*` solo desde avatar topbar; AsideNav sin highlight en `/profile*`; menú lateral sin href `/profile` |
+| Menú pilares | Empresas (Mis empresas → `/admin/companies`), Usuarios (Usuarios empresa→`/admin/company-users` ServerTable `user_companies`×sesión; Todos los usuarios→`/admin/all-users` directorio `is_public=true` + máscara notificación; `company-users.*` / `all-users.view` (Index; `.viewAny` = detalle); Members legacy sigue para asignación de rol), Configuración SA (Módulos/Roles/Permisos/Países/Monedas/Bancos/Unidades/Tipos de IVA/Grupos contables; sin ítem genérico Funcionalidades). Bancos: entidad Admin |
+| Cuenta vs ficha user | Module `cuenta`: Mi cuenta (slug Functionality `profile`) → `/account` placeholder SaaS company (próximamente; no ficha User); Mis módulos → company-modules. Ficha self `/admin/profile*` solo desde avatar topbar; AsideNav sin highlight en `/admin/profile*`; menú lateral sin href `/admin/profile` |
+| Company (Mis Empresas) | Tenant sin `BelongsToCompany`. Index ServerTable; Create name/tradename/nif/status; slug auto; Edit tabs Info/Imágenes; logo POST `admin.companies.logo`; rutas `/admin/companies`; al crear: roles manager/guest + vínculo creador |
+| Bank | Catálogo global (sin `company_id`); softDeletes; Functionality `banks` + Spatie `banks.*`; Index Configuración→Bancos; SWIFT pad 11; `eu_code` unique |
 | Index Usuarios empresa | ServerTable name/surname/email; toggle `users.status`; eliminar = detach `user_companies` (no borra User); CTA Crear → `/admin/company-users/create`; fila Edit → ficha `Users/Edit` |
 | Create Usuarios empresa | Alta/vínculo `CreateOrLinkCompanyUser`; email required; `is_admin=true`; `is_public` (default true); password solo si «enviar credenciales»; rol = universales ∪ locales (Super Admin solo si actor SA); mails = máscara flash; POST → Edit; authz `company-users.create` |
-| Edit User unificado | Misma página Inertia `Users/Edit` vía `/profile` (self, breadcrumb `perfil` ≠ menú Mi cuenta) y `/admin/company-users/{user}/edit` (ajeno); `RecordEditLayout` + `RecordSummary` + tabs Perfil/Contraseña/Emails-tels/Imágenes/Documentos/Empresas; `UserProfileReadout` RO; Contraseña solo self (ni SA); `is_public`/`status` vía `UserProfileAuthorization` (self o permiso TBD); authz ajeno `company-users.update` + perímetro |
-| User companies (membership) | Tab Empresas: ServerTable de `UserCompany` (todas las companies del user); cols nombre/posición/departamento/fecha alta; edit modal posición/departamento; delete = detach vínculo (no borra User/Company); última company OK; self detach de sesión → otra company (menor id) o logout; sin CTA alta; Policy viewAny/update/delete = self o `updateCompanyUser`; rutas `profile.companies.*` / `admin.company-users.companies.*`; ≠ Empleo |
-| User emails adicionales | Tab contactos: col. emails (`UserEmail` N/user; cards + modal alta; mailto/copiar/eliminar; sin edit); `user_emails.email` unique global; ≠ principal; Policy create/delete = self o `updateCompanyUser`; Action + perímetro company; rutas `profile.emails.*` / `admin.company-users.emails.*` |
-| User phones | Tab contactos col. teléfonos: tabla polimórfica `phones` (`Phone` morph; UI/API solo User); cards + modal alta/edición; tel/copy/WhatsApp/primario/edit/delete; badge verificación solo informativo; `country_id` null; unique owner+e164; Policy create/update/delete/markPrimary = self o `updateCompanyUser`; Actions + perímetro; rutas `profile.phones.*` / `admin.company-users.phones.*` |
-| User images | Tab Imágenes (tras emails/tels): `UserImage` + disco `public` `users/{id}/images/…`; Dropzone kit + grid/lightbox; featured=avatar readout/topbar; toggle `public` (visible público solo si `user.is_public`); límites 20/1MB jpg|png|gif|webp; Policy upload/delete/featured/public = self o `updateCompanyUser`; soft delete borra fichero; rutas `profile.images.*` / `admin.company-users.images.*` |
-| User docs | Tab Documentos (tras Imágenes): `UserDoc` personal (no company) + disco `local` privado `users/{id}/docs/…`; Dropzone pdf/doc/docx/xls/xlsx 20 MB; máx 30/user; listado download authz + delete; Policy upload/download/delete = self o `updateCompanyUser`; soft delete borra fichero; sin share; rutas `profile.docs.*` / `admin.company-users.docs.*`; ops PHP ≥20 MB |
+| Edit User unificado | Misma página Inertia `Users/Edit` vía `/admin/profile` (self, breadcrumb `perfil` ≠ menú Mi cuenta) y `/admin/company-users/{user}/edit` (ajeno); `RecordEditLayout` + `RecordSummary` + tabs Perfil/Contraseña/Emails-tels/Imágenes/Documentos/Empresas; `UserProfileReadout` RO; Contraseña solo self (ni SA); `is_public`/`status` vía `UserProfileAuthorization` (self o permiso TBD); authz ajeno `company-users.update` + perímetro |
+| User companies (membership) | Tab Empresas: ServerTable de `UserCompany` (todas las companies del user); cols nombre/posición/departamento/fecha alta; edit modal posición/departamento; delete = detach vínculo (no borra User/Company); última company OK; self detach de sesión → otra company (menor id) o logout; sin CTA alta; Policy viewAny/update/delete = self o `updateCompanyUser`; rutas `admin.profile.companies.*` / `admin.company-users.companies.*`; ≠ Empleo |
+| User emails adicionales | Tab contactos: col. emails (`UserEmail` N/user; cards + modal alta; mailto/copiar/eliminar; sin edit); `user_emails.email` unique global; ≠ principal; Policy create/delete = self o `updateCompanyUser`; Action + perímetro company; rutas `admin.profile.emails.*` / `admin.company-users.emails.*` |
+| User phones | Tab contactos col. teléfonos: tabla polimórfica `phones` (`Phone` morph; UI/API solo User); cards + modal alta/edición; tel/copy/WhatsApp/primario/edit/delete; badge verificación solo informativo; `country_id` null; unique owner+e164; Policy create/update/delete/markPrimary = self o `updateCompanyUser`; Actions + perímetro; rutas `admin.profile.phones.*` / `admin.company-users.phones.*` |
+| User images | Tab Imágenes (tras emails/tels): `UserImage` + disco `public` `users/{id}/images/…`; Dropzone kit + grid/lightbox; featured=avatar readout/topbar; toggle `public` (visible público solo si `user.is_public`); límites 20/1MB jpg|png|gif|webp; Policy upload/delete/featured/public = self o `updateCompanyUser`; soft delete borra fichero; rutas `admin.profile.images.*` / `admin.company-users.images.*` |
+| User docs | Tab Documentos (tras Imágenes): `UserDoc` personal (no company) + disco `local` privado `users/{id}/docs/…`; Dropzone pdf/doc/docx/xls/xlsx 20 MB; máx 30/user; listado download authz + delete; Policy upload/download/delete = self o `updateCompanyUser`; soft delete borra fichero; sin share; rutas `admin.profile.docs.*` / `admin.company-users.docs.*`; ops PHP ≥20 MB |
 | Index Todos los usuarios | ServerTable global filtrado `is_public=true`; sola acción máscara notificación; sin edit/toggle/delete |
 | Unidades (Unit) | Catálogo global plano (sin `company_id`); soft delete; status active/inactive; Index ServerTable (name, symbol; sin columna Estado) + Acciones toggle→Edit→Delete; modales Create/Edit; symbol max 4; name unique; Functionality `units` + `units.*`; Configuración→Unidades; `UnitsSeeder` datos v1 (IDs/status preservados; sin translations); Index no importa. V-07/V-08 sí; E2E N/A |
 | Tipos de IVA (VatType) | Catálogo global por Country (sin `company_id`); FK `country_id` required (selector todos los países); rate decimal(5,2); RE nullable; soft delete; Index plano con columna País+filtro, name, rate, RE; Acciones toggle→Edit→Delete; modales; Active-first+name; Functionality `vat-types` + `vat-types.*`; `VatTypesSeeder` → España id=66 (tras GeographySeeder); Index no importa. V-07/V-08 sí; E2E N/A |
@@ -110,7 +115,8 @@ local.
 
 ## Dependencias
 
-Admin → Partners (lectura `Company`). Sin cambio de module-map.
+Sin dependencia a otros dominios PHP en Fase 0: Company y Bank viven en Admin.
+Lecturas cross-domain futuras: ver `module-map.md`.
 
 
 ## Menú PDF (backlog)

@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Domains\Admin\Http\Requests;
+
+use App\Domains\Admin\Actions\EnsureCompanyDefaultRoles;
+use App\Domains\Admin\Models\Company;
+use App\Domains\Admin\Models\Role;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class AssignCompanyRoleRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        /** @var Company $company */
+        $company = $this->route('company');
+        $user = $this->user();
+
+        return $user !== null
+            && $company->isLinkedTo($user)
+            && $user->can('company-users.update');
+    }
+
+    /** @return array<string, mixed> */
+    public function rules(): array
+    {
+        /** @var Company $company */
+        $company = $this->route('company');
+
+        app(EnsureCompanyDefaultRoles::class)->handle($company);
+
+        $names = Role::query()
+            ->forCompany($company->id)
+            ->pluck('name')
+            ->all();
+
+        return [
+            'role' => ['required', 'string', Rule::in($names)],
+        ];
+    }
+}

@@ -1,18 +1,18 @@
 <?php
 
 use App\Domains\Admin\Actions\AuthorizeModuleForCompany;
+use App\Domains\Admin\Actions\CreateCompany;
 use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\DisableModuleForCompany;
 use App\Domains\Admin\Actions\EnableModuleForCompany;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\CompanyModule;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Services\CompanyModuleActivationChecker;
 use App\Domains\Admin\Services\MenuBuilder;
-use App\Domains\Partners\Actions\CreateCompany;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;

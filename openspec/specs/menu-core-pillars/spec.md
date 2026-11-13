@@ -5,8 +5,8 @@ Pilares de menú como Modules del catálogo: `empresas` (Mis empresas), `usuario
 `cuenta` (Mi cuenta = cuenta SaaS company / placeholder; Mis módulos),
 `dashboard` (hoja) y `configuracion` (SA AdminOnly: Módulos, Roles, Permisos,
 Países, Monedas, Bancos, Unidades, Tipos de IVA, Grupos contables,
-Autorizaciones). La ficha Edit del propio user (`/profile`) no es ítem de
-menú lateral (acceso vía avatar). Sin bloques sintéticos ni slugs
+Autorizaciones). La ficha Edit del propio user (`/admin/profile`) no es ítem
+de menú lateral (acceso vía avatar). Sin bloques sintéticos ni slugs
 `admin`/`workspace`.
 
 ## Requirements
@@ -24,8 +24,8 @@ independiente): la gestión de funcionalidades queda anclada a Module/Edit. Mis
 empresas SHALL seguir listando solo companies vinculadas; el cambio es de
 agrupación bajo Module real, no de perímetro. Configuración AdminOnly SHALL ser
 visible solo para Super Admin (o actor con capas+AND sobre `configuracion`).
-SHALL NOT enlazar la ficha Edit del propio user (`/profile`) desde el menú
-lateral.
+SHALL NOT enlazar la ficha Edit del propio user (`/admin/profile`) desde el
+menú lateral.
 
 #### Scenario: Mis empresas label
 - **WHEN** un usuario con companies vinculadas ve el menú
@@ -130,16 +130,25 @@ exigir la entrada Roles de empresa bajo Usuarios ni bajo Empresas.
 - **THEN** navega al Index ServerTable de Usuarios empresa (no al Members HTML
   legacy como destino de menú)
 
+### Requirement: Mis empresas apunta a /admin/companies
+El menú SHALL enlazar Mis empresas a la ruta Index bajo `/admin/companies`
+(`admin.companies.index`). SHALL NOT usar `partners.companies` ni
+`/partners/companies`.
+
+#### Scenario: Href Mis empresas
+- **WHEN** el menú construye el href de Mis empresas
+- **THEN** apunta a `/admin/companies` (ruta admin)
+
 ### Requirement: Cuenta con Mi cuenta y Mis módulos
 El sistema SHALL exponer bajo el Module `cuenta` las Functionalities de Mi
 cuenta (slug actual `profile`: destino placeholder cuenta SaaS company,
 próximamente) y `company-modules` (Mis módulos → Index company-modules
 existente). SHALL NOT rediseñar tiles de company-modules en este change. SHALL
-NOT usar Mi cuenta como enlace a la ficha Edit del propio user (`/profile`).
-La ficha self SHALL quedar fuera del menú lateral (acceso vía avatar). La
-visibilidad de menú de esas Functionalities SHALL exigir `cuenta.access` **y**
-el permiso Spatie `.view` de cada Functionality (`profile.view`,
-`company-modules.view`).
+NOT usar Mi cuenta como enlace a la ficha Edit del propio user
+(`/admin/profile`). La ficha self SHALL quedar fuera del menú lateral (acceso
+vía avatar). La visibilidad de menú de esas Functionalities SHALL exigir
+`cuenta.access` **y** el permiso Spatie `.view` de cada Functionality
+(`profile.view`, `company-modules.view`).
 
 #### Scenario: Mis módulos bajo cuenta
 - **WHEN** un usuario con `cuenta.access` y `company-modules.view` y capas
@@ -152,19 +161,19 @@ el permiso Spatie `.view` de cada Functionality (`profile.view`,
   navega a la ficha Edit del propio user
 
 ### Requirement: Profile ficha solo desde avatar; sin activo en lateral
-La ficha `/profile` SHALL ser accesible desde el menú del avatar del topbar.
-El menú lateral SHALL NOT incluir un href a `/profile`. Mientras la URL sea
-`/profile` o subruta de esa ficha self, el AsideNav SHALL NOT marcar ningún
-ítem como activo (`aria-current`).
+La ficha `/admin/profile` SHALL ser accesible desde el menú del avatar del
+topbar. El menú lateral SHALL NOT incluir un href a `/admin/profile`. Mientras
+la URL sea `/admin/profile` o subruta de esa ficha self, el AsideNav SHALL NOT
+marcar ningún ítem como activo (`aria-current`).
 
 #### Scenario: Avatar abre profile
 - **WHEN** el usuario elige Perfil en el desplegable del avatar
-- **THEN** navega a `/profile`
+- **THEN** navega a `/admin/profile`
 
 #### Scenario: Lateral sin href profile
 - **WHEN** se construye el menú lateral
-- **THEN** ningún ítem enlaza a `/profile`
+- **THEN** ningún ítem enlaza a `/admin/profile`
 
 #### Scenario: Profile sin highlight
-- **WHEN** el actor está en `/profile` (o subruta de la ficha self)
+- **WHEN** el actor está en `/admin/profile` (o subruta de la ficha self)
 - **THEN** ningún ítem del lateral tiene estado activo / `aria-current`

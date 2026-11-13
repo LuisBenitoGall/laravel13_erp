@@ -2,11 +2,11 @@
 
 namespace App\Domains\Admin\Actions;
 
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Support\AssertsCompanyRoleTenantPerimeter;
 use App\Domains\Admin\Support\CompanyRolePermissionCatalog;
-use App\Domains\Partners\Models\Company;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;

@@ -3,10 +3,10 @@
 use App\Domains\Admin\Actions\CreateModule;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Services\MenuBuilder;
 use App\Domains\Admin\Support\MenuCatalogCache;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;

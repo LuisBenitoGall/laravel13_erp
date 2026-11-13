@@ -22,7 +22,7 @@ identificadores en inglés según [glossary.md](glossary.md).
 
 ## 2. User y Company
 
-- **Company** (dominio Partners) es el único tipo de actor organizativo. Todas las
+- **Company** (dominio Admin) es el único tipo de actor organizativo. Todas las
   empresas son iguales (SaaS). Un autónomo es User + Company, no un tercer tipo.
   Company **es el tenant**: no lleva `BelongsToCompany`.
 - **User** puede existir **sin** empresa (contactos, leads…). **No entra al ERP**

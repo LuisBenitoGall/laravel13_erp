@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Domains\Admin\Models\AccountingAccountType;
+use App\Domains\Admin\Models\Bank;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Country;
 use App\Domains\Admin\Models\Currency;
 use App\Domains\Admin\Models\Functionality;
@@ -14,6 +16,8 @@ use App\Domains\Admin\Models\Unit;
 use App\Domains\Admin\Models\VatType;
 use App\Domains\Admin\Policies\AccountingAccountTypePolicy;
 use App\Domains\Admin\Policies\AllUserPolicy;
+use App\Domains\Admin\Policies\BankPolicy;
+use App\Domains\Admin\Policies\CompanyPolicy;
 use App\Domains\Admin\Policies\CompanyRolePolicy;
 use App\Domains\Admin\Policies\CompanyUserPolicy;
 use App\Domains\Admin\Policies\CountryPolicy;
@@ -32,10 +36,6 @@ use App\Domains\Admin\Policies\UserEmailPolicy;
 use App\Domains\Admin\Policies\UserImagePolicy;
 use App\Domains\Admin\Policies\VatTypePolicy;
 use App\Domains\Admin\Services\CompanyModuleActivationChecker;
-use App\Domains\Banks\Models\Bank;
-use App\Domains\Banks\Policies\BankPolicy;
-use App\Domains\Partners\Models\Company;
-use App\Domains\Partners\Policies\CompanyPolicy;
 use App\Models\Phone;
 use App\Models\UserCompany;
 use App\Models\UserDoc;

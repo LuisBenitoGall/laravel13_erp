@@ -7,7 +7,7 @@ use App\Domains\Admin\Actions\UpdateUserCompany;
 use App\Domains\Admin\Http\Requests\UpdateUserCompanyRequest;
 use App\Domains\Admin\Http\Requests\UserCompanyTableRequest;
 use App\Domains\Admin\Http\Resources\UserCompanyResource;
-use App\Domains\Partners\Models\Company;
+use App\Domains\Admin\Models\Company;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserCompany;
@@ -44,7 +44,7 @@ class UserCompanyController extends Controller
         $action->handle($userCompany, $request->validated());
 
         return redirect()
-            ->route('profile.show', ['tab' => 'companies'])
+            ->route('admin.profile.show', ['tab' => 'companies'])
             ->with('success', __('vinculo_empresa_actualizado'));
     }
 
@@ -63,7 +63,7 @@ class UserCompanyController extends Controller
             $userCompany,
             $actor,
             $action,
-            route('profile.show', ['tab' => 'companies']),
+            route('admin.profile.show', ['tab' => 'companies']),
         );
     }
 

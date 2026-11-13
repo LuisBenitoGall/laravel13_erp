@@ -3,13 +3,13 @@
 use App\Domains\Admin\Enums\CurrencyStatus;
 use App\Domains\Admin\Enums\GeographyStatus;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Country;
 use App\Domains\Admin\Models\Currency;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Province;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Models\Town;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Database\Seeders\AdminCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;

@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Domains\Admin\Actions\EnsureCompanyDefaultRoles;
 use App\Domains\Admin\Actions\SyncManagerPermissionsForCompany;
-use App\Domains\Partners\Models\Company;
+use App\Domains\Admin\Models\Company;
 use Illuminate\Console\Command;
 
 class MaterializeUniversalRolesCommand extends Command

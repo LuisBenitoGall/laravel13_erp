@@ -8,7 +8,7 @@ use App\Domains\Admin\Actions\MarkUserPhonePrimary;
 use App\Domains\Admin\Actions\UpdateUserPhone;
 use App\Domains\Admin\Http\Requests\StoreUserPhoneRequest;
 use App\Domains\Admin\Http\Requests\UpdateUserPhoneRequest;
-use App\Domains\Partners\Models\Company;
+use App\Domains\Admin\Models\Company;
 use App\Http\Controllers\Controller;
 use App\Models\Phone;
 use App\Models\User;

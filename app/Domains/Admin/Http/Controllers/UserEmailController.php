@@ -5,7 +5,7 @@ namespace App\Domains\Admin\Http\Controllers;
 use App\Domains\Admin\Actions\CreateUserEmail;
 use App\Domains\Admin\Actions\DeleteUserEmail;
 use App\Domains\Admin\Http\Requests\StoreUserEmailRequest;
-use App\Domains\Partners\Models\Company;
+use App\Domains\Admin\Models\Company;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserEmail;

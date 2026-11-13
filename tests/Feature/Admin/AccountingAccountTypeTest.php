@@ -1,8 +1,8 @@
 <?php
 
 use App\Domains\Admin\Models\AccountingAccountType;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Role;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Database\Seeders\AccountingAccountTypesSeeder;
 use Database\Seeders\AdminCatalogSeeder;

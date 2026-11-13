@@ -118,7 +118,7 @@ export default function CompanyRoleForm({ role, matrix }: Props) {
 
         try {
             const result = await patchJson<ToggleResponse>(
-                `/company/roles/${role.id}/permissions`,
+                `/admin/company-roles/${role.id}/permissions`,
                 {
                     permission: name,
                     enabled,
@@ -159,7 +159,7 @@ export default function CompanyRoleForm({ role, matrix }: Props) {
 
         try {
             const result = await patchJson<ToggleResponse>(
-                `/company/roles/${role.id}/functionalities`,
+                `/admin/company-roles/${role.id}/functionalities`,
                 {
                     functionality: fn.slug,
                     enabled,
@@ -189,7 +189,7 @@ export default function CompanyRoleForm({ role, matrix }: Props) {
     function submitDescription(e: FormEvent) {
         e.preventDefault();
         router.put(
-            `/company/roles/${role.id}`,
+            `/admin/company-roles/${role.id}`,
             { description: data.description },
             { preserveScroll: true },
         );
@@ -199,7 +199,7 @@ export default function CompanyRoleForm({ role, matrix }: Props) {
         if (role.protected_local) {
             return;
         }
-        destroy(`/company/roles/${role.id}`);
+        destroy(`/admin/company-roles/${role.id}`);
     }
 
     const viewActions = !role.protected_local
@@ -217,10 +217,10 @@ export default function CompanyRoleForm({ role, matrix }: Props) {
             breadcrumb={{
                 optionKey: 'roles_de_empresa',
                 suboptionKey: 'rol_empresa_editar',
-                optionHref: '/company/roles',
+                optionHref: '/admin/company-roles',
             }}
             actions={viewActions}
-            backHref="/company/roles"
+            backHref="/admin/company-roles"
         >
             <div className="space-y-6">
                 <form
@@ -247,7 +247,7 @@ export default function CompanyRoleForm({ role, matrix }: Props) {
                     </Field>
 
                     <div className="flex justify-end gap-2">
-                        <Button type="button" variant="secondary" onClick={() => router.visit('/company/roles')}>
+                        <Button type="button" variant="secondary" onClick={() => router.visit('/admin/company-roles')}>
                             {t('cancelar')}
                         </Button>
                         <Button type="submit" disabled={processing}>

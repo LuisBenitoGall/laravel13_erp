@@ -67,12 +67,12 @@ it('todo modelo de negocio en Domains usa BelongsToCompany', function () {
             'App\\Domains\\Admin\\Models\\VatType',
             // Catálogo global grupos contables PGC (--global; c2026-11-04-admin-accounting-account-types).
             'App\\Domains\\Admin\\Models\\AccountingAccountType',
-            // Catálogo global de bancos (--global; c2026-11-04-banks).
-            'App\\Domains\\Banks\\Models\\Bank',
+            // Catálogo global de bancos (--global; c2026-11-04-banks → Admin).
+            'App\\Domains\\Admin\\Models\\Bank',
             // Spatie Teams: plantillas `company_id` NULL + copias locales; no BelongsToCompany.
             'App\\Domains\\Admin\\Models\\Role',
             // Company ES el tenant (no un registro scoped a otro tenant).
-            'App\\Domains\\Partners\\Models\\Company',
+            'App\\Domains\\Admin\\Models\\Company',
         ];
 
         if (in_array($class, $ignored, true)) {

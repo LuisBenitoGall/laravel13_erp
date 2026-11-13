@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Domains\Partners\Actions\CreateCompany;
-use App\Domains\Partners\Enums\CompanyStatus;
-use App\Domains\Partners\Models\Company;
+use App\Domains\Admin\Actions\CreateCompany;
+use App\Domains\Admin\Enums\CompanyStatus;
+use App\Domains\Admin\Models\Company;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Onboarding\OnboardCompanyRequest;
 use App\Support\Auth\PostLoginRedirect;

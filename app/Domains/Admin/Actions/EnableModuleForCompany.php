@@ -3,10 +3,10 @@
 namespace App\Domains\Admin\Actions;
 
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\CompanyModule;
 use App\Domains\Admin\Models\CompanyModuleAuthorization;
 use App\Domains\Admin\Models\Module;
-use App\Domains\Partners\Models\Company;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 

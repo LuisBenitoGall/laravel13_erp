@@ -2,9 +2,9 @@
 
 namespace App\Domains\Admin\Actions;
 
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\CompanyModuleAuthorization;
 use App\Domains\Admin\Models\Module;
-use App\Domains\Partners\Models\Company;
 use Illuminate\Support\Facades\DB;
 
 class AuthorizeModuleForCompany

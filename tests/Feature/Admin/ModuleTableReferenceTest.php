@@ -3,9 +3,9 @@
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Http\Requests\ModuleTableRequest;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use App\Support\Table\TableBuilder;
 use App\Support\Table\TableRequest;
@@ -228,7 +228,7 @@ it('permite desactivar y reactivar módulos shell dashboard y configuracion', fu
 it('ningún Index ServerTable muestra columna slug', function () {
     $files = [
         resource_path('js/Pages/Admin/Modules/Index.tsx'),
-        resource_path('js/Pages/Partners/Companies/Index.tsx'),
+        resource_path('js/Pages/admin/companies/Index.tsx'),
     ];
 
     foreach ($files as $file) {

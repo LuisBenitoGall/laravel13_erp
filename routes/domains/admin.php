@@ -2,6 +2,9 @@
 
 use App\Domains\Admin\Http\Controllers\AccountingAccountTypeController;
 use App\Domains\Admin\Http\Controllers\AllUserController;
+use App\Domains\Admin\Http\Controllers\BankController;
+use App\Domains\Admin\Http\Controllers\CompanyController;
+use App\Domains\Admin\Http\Controllers\CompanyMemberController;
 use App\Domains\Admin\Http\Controllers\CompanyModuleAuthorizationController;
 use App\Domains\Admin\Http\Controllers\CompanyModuleController;
 use App\Domains\Admin\Http\Controllers\CompanyRoleController;
@@ -21,7 +24,7 @@ use App\Domains\Admin\Http\Controllers\UserEmailController;
 use App\Domains\Admin\Http\Controllers\UserImageController;
 use App\Domains\Admin\Http\Controllers\UserPhoneController;
 use App\Domains\Admin\Http\Controllers\VatTypeController;
-use App\Domains\Banks\Http\Controllers\BankController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 // El catálogo de módulos queda fuera de `module:configuracion`: si pasa a Inactive,
@@ -99,7 +102,7 @@ Route::middleware(['auth', 'company', 'module:configuracion'])->prefix('admin')-
     Route::patch('currencies/{currency}/status', [CurrencyController::class, 'updateStatus'])->name('currencies.status');
     Route::resource('currencies', CurrencyController::class)->only(['index', 'store', 'update', 'destroy']);
 
-    // Bancos globales (dominio Banks); permisos `banks.*`.
+    // Bancos globales (Admin); permisos `banks.*`.
     Route::get('banks/table', [BankController::class, 'table'])->name('banks.table');
     Route::patch('banks/{bank}/status', [BankController::class, 'updateStatus'])->name('banks.status');
     Route::resource('banks', BankController::class)->only(['index', 'store', 'update', 'destroy']);
@@ -133,15 +136,67 @@ Route::middleware(['auth', 'company', 'module:configuracion'])->prefix('admin')-
         ->name('company-module-authorizations.revoke');
 });
 
-Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('company')->name('company.')->group(function () {
-    Route::get('roles/table', [CompanyRoleController::class, 'table'])->name('roles.table');
-    Route::patch('roles/{companyRole}/permissions', [CompanyRoleController::class, 'togglePermission'])
-        ->name('roles.permissions.toggle');
-    Route::patch('roles/{companyRole}/functionalities', [CompanyRoleController::class, 'toggleFunctionality'])
-        ->name('roles.functionalities.toggle');
-    Route::resource('roles', CompanyRoleController::class)
+Route::middleware(['auth', 'company', 'module:empresas'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('companies/table', [CompanyController::class, 'table'])->name('companies.table');
+    Route::patch('companies/{company}/status', [CompanyController::class, 'updateStatus'])
+        ->name('companies.status');
+    Route::post('companies/{company}/logo', [CompanyController::class, 'uploadLogo'])
+        ->name('companies.logo');
+    Route::resource('companies', CompanyController::class)->except(['show']);
+});
+
+Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('companies/{company}/members', [CompanyMemberController::class, 'index'])
+        ->name('companies.members.index');
+    Route::put('companies/{company}/members/{user}/role', [CompanyMemberController::class, 'updateRole'])
+        ->name('companies.members.role');
+
+    Route::get('company-roles/table', [CompanyRoleController::class, 'table'])->name('company-roles.table');
+    Route::patch('company-roles/{companyRole}/permissions', [CompanyRoleController::class, 'togglePermission'])
+        ->name('company-roles.permissions.toggle');
+    Route::patch('company-roles/{companyRole}/functionalities', [CompanyRoleController::class, 'toggleFunctionality'])
+        ->name('company-roles.functionalities.toggle');
+    Route::resource('company-roles', CompanyRoleController::class)
         ->except(['show'])
-        ->parameters(['roles' => 'companyRole']);
+        ->parameters(['company-roles' => 'companyRole']);
+});
+
+Route::middleware(['auth', 'company'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('profile/emails', [UserEmailController::class, 'storeForProfile'])
+        ->name('profile.emails.store');
+    Route::delete('profile/emails/{userEmail}', [UserEmailController::class, 'destroyForProfile'])
+        ->name('profile.emails.destroy');
+    Route::post('profile/phones', [UserPhoneController::class, 'storeForProfile'])
+        ->name('profile.phones.store');
+    Route::put('profile/phones/{phone}', [UserPhoneController::class, 'updateForProfile'])
+        ->name('profile.phones.update');
+    Route::delete('profile/phones/{phone}', [UserPhoneController::class, 'destroyForProfile'])
+        ->name('profile.phones.destroy');
+    Route::post('profile/phones/{phone}/mark-primary', [UserPhoneController::class, 'markPrimaryForProfile'])
+        ->name('profile.phones.mark-primary');
+    Route::post('profile/images', [UserImageController::class, 'storeForProfile'])
+        ->name('profile.images.store');
+    Route::delete('profile/images/{userImage}', [UserImageController::class, 'destroyForProfile'])
+        ->name('profile.images.destroy');
+    Route::post('profile/images/{userImage}/mark-featured', [UserImageController::class, 'markFeaturedForProfile'])
+        ->name('profile.images.mark-featured');
+    Route::patch('profile/images/{userImage}/public', [UserImageController::class, 'updatePublicForProfile'])
+        ->name('profile.images.public');
+    Route::post('profile/docs', [UserDocController::class, 'storeForProfile'])
+        ->name('profile.docs.store');
+    Route::get('profile/docs/{userDoc}/download', [UserDocController::class, 'downloadForProfile'])
+        ->name('profile.docs.download');
+    Route::delete('profile/docs/{userDoc}', [UserDocController::class, 'destroyForProfile'])
+        ->name('profile.docs.destroy');
+    Route::get('profile/companies/table', [UserCompanyController::class, 'tableForProfile'])
+        ->name('profile.companies.table');
+    Route::put('profile/companies/{userCompany}', [UserCompanyController::class, 'updateForProfile'])
+        ->name('profile.companies.update');
+    Route::delete('profile/companies/{userCompany}', [UserCompanyController::class, 'destroyForProfile'])
+        ->name('profile.companies.destroy');
 });
 
 Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('admin')->name('admin.')->group(function () {

@@ -2,8 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Services\MenuBuilder;
-use App\Domains\Partners\Models\Company;
 use App\Support\I18n\LocaleResolver;
 use App\Support\I18n\TranslationDictionary;
 use App\Support\Tenancy\CurrentCompany;

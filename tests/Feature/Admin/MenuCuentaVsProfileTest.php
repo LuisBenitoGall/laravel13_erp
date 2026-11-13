@@ -2,14 +2,14 @@
 
 use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\CreateModule;
+use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Services\MenuBuilder;
 use App\Domains\Admin\Support\MenuCatalogCache;
-use App\Domains\Partners\Enums\CompanyStatus;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
@@ -57,9 +57,10 @@ beforeEach(function () {
     MenuCatalogCache::forget();
 });
 
-it('expone account.show y MenuBuilder profile no apunta a /profile', function () {
+it('expone account.show y MenuBuilder profile no apunta a /admin/profile', function () {
     expect(Route::has('account.show'))->toBeTrue()
-        ->and(Route::has('profile.show'))->toBeTrue();
+        ->and(Route::has('admin.profile.show'))->toBeTrue()
+        ->and(Route::has('profile.show'))->toBeFalse();
 
     $user = User::factory()->create();
     $user->givePermissionTo([
@@ -79,10 +80,10 @@ it('expone account.show y MenuBuilder profile no apunta a /profile', function ()
     expect($profileItem)->not->toBeNull()
         ->and($profileItem['label'])->toBe(__('mi_cuenta'))
         ->and($profileItem['href'])->toBe(route('account.show', absolute: false))
-        ->and($profileItem['href'])->not->toBe(route('profile.show', absolute: false))
+        ->and($profileItem['href'])->not->toBe(route('admin.profile.show', absolute: false))
         ->and($modulesItem['href'])->toBe(route('admin.company-modules.index', absolute: false))
-        ->and($hrefs)->not->toContain('/profile')
-        ->and($hrefs)->not->toContain(route('profile.show', absolute: false));
+        ->and($hrefs)->not->toContain('/admin/profile')
+        ->and($hrefs)->not->toContain(route('admin.profile.show', absolute: false));
 });
 
 it('GET /account muestra placeholder proximamente autorizado', function () {
@@ -95,14 +96,14 @@ it('GET /account muestra placeholder proximamente autorizado', function () {
             ->component('Account/ComingSoon'));
 });
 
-it('AsideNav fuerza sin activo en /profile y avatar sigue a /profile', function () {
+it('AsideNav fuerza sin activo en /admin/profile y avatar sigue a /admin/profile', function () {
     $aside = file_get_contents(resource_path('js/Components/AsideNav.tsx'));
     $menu = file_get_contents(resource_path('js/Components/Topbar/UserMenu.tsx'));
     $edit = file_get_contents(resource_path('js/Pages/Users/Edit.tsx'));
 
     expect($aside)->toContain('isUserProfilePath')
-        ->and($aside)->toContain('/profile/')
-        ->and($menu)->toContain('href="/profile"')
+        ->and($aside)->toContain('/admin/profile/')
+        ->and($menu)->toContain('href="/admin/profile"')
         ->and($menu)->toContain("t('perfil')")
         ->and($edit)->toContain("optionKey: 'perfil'")
         ->and($edit)->not->toMatch("/context === 'profile'\\s*\\?[\\s\\S]*optionKey: 'mi_cuenta'/");

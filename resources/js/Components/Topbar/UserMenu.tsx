@@ -56,7 +56,7 @@ export default function UserMenu({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                    <Link href="/profile" className="cursor-pointer">
+                    <Link href="/admin/profile" className="cursor-pointer">
                         {t('perfil')}
                     </Link>
                 </DropdownMenuItem>

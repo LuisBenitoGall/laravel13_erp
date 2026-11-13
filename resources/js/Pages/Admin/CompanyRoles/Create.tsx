@@ -15,7 +15,7 @@ export default function Create() {
 
     function submit(e: FormEvent) {
         e.preventDefault();
-        router.post('/company/roles', {
+        router.post('/admin/company-roles', {
             name: data.name,
             description: data.description,
         });
@@ -26,9 +26,9 @@ export default function Create() {
             breadcrumb={{
                 optionKey: 'roles_de_empresa',
                 suboptionKey: 'rol_empresa_crear',
-                optionHref: '/company/roles',
+                optionHref: '/admin/company-roles',
             }}
-            backHref="/company/roles"
+            backHref="/admin/company-roles"
         >
             <form
                 onSubmit={submit}
@@ -43,7 +43,7 @@ export default function Create() {
                 />
 
                 <div className="flex items-center justify-end gap-2">
-                    <Button type="button" variant="secondary" onClick={() => router.visit('/company/roles')}>
+                    <Button type="button" variant="secondary" onClick={() => router.visit('/admin/company-roles')}>
                         {t('cancelar')}
                     </Button>
                     <Button type="submit" disabled={processing}>

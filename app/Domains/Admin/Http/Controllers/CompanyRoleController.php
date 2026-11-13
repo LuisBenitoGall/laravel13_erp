@@ -13,9 +13,9 @@ use App\Domains\Admin\Http\Requests\ToggleCompanyRoleFunctionalityRequest;
 use App\Domains\Admin\Http\Requests\ToggleCompanyRolePermissionRequest;
 use App\Domains\Admin\Http\Requests\UpdateCompanyRoleRequest;
 use App\Domains\Admin\Http\Resources\CompanyRoleResource;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Support\CompanyRolePermissionCatalog;
-use App\Domains\Partners\Models\Company;
 use App\Http\Controllers\Controller;
 use App\Support\Table\TableBuilder;
 use App\Support\Tenancy\CurrentCompany;
@@ -59,7 +59,7 @@ class CompanyRoleController extends Controller
 
         $role = $action->handle($company, $request->validated());
 
-        return to_route('company.roles.edit', $role)
+        return to_route('admin.company-roles.edit', $role)
             ->with('success', __('rol_creado'));
     }
 
@@ -137,7 +137,7 @@ class CompanyRoleController extends Controller
 
         $action->handle($company, $companyRole);
 
-        return to_route('company.roles.index')
+        return to_route('admin.company-roles.index')
             ->with('success', __('rol_eliminado'));
     }
 

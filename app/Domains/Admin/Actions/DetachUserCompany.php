@@ -2,7 +2,7 @@
 
 namespace App\Domains\Admin\Actions;
 
-use App\Domains\Partners\Enums\CompanyStatus;
+use App\Domains\Admin\Enums\CompanyStatus;
 use App\Models\User;
 use App\Models\UserCompany;
 use App\Support\Tenancy\CurrentCompany;

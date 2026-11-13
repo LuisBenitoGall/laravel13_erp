@@ -2,7 +2,7 @@
 
 > Código canónico comentado. El generador `make:domain-entity` ([tooling.md](tooling.md))
 > produce estos esqueletos; este documento es su fuente de verdad. Entidad de ejemplo:
-> **Worksite** (obra) en el dominio **Partners**.
+> **Worksite** (obra) en el dominio **Admin**.
 > Reglas citadas: [architecture.md](architecture.md).
 
 ## 1. Migración
@@ -62,9 +62,9 @@ return new class extends Migration
 ## 2. Enum de estado
 
 ```php
-<?php // app/Domains/Partners/Enums/WorksiteStatus.php
+<?php // app/Domains/Admin/Enums/WorksiteStatus.php
 
-namespace App\Domains\Partners\Enums;
+namespace App\Domains\Admin\Enums;
 
 enum WorksiteStatus: string
 {
@@ -84,7 +84,7 @@ enum WorksiteStatus: string
 
     public function label(): string
     {
-        return __('partners.worksites.status.'.$this->value);
+        return __('admin.worksites.status.'.$this->value);
     }
 }
 ```
@@ -92,13 +92,13 @@ enum WorksiteStatus: string
 ## 3. Modelo
 
 ```php
-<?php // app/Domains/Partners/Models/Worksite.php
+<?php // app/Domains/Admin/Models/Worksite.php
 
-namespace App\Domains\Partners\Models;
+namespace App\Domains\Admin\Models;
 
 use App\Domains\Admin\Models\User;
 use App\Domains\Catalog\Models\Rate;
-use App\Domains\Partners\Enums\WorksiteStatus;
+use App\Domains\Admin\Enums\WorksiteStatus;
 use App\Support\Models\Concerns\Auditable;        // created_by / updated_by
 use App\Support\Models\Concerns\BelongsToCompany; // global scope tenant (R-TEN-02)
 use Illuminate\Database\Eloquent\Builder;
@@ -146,8 +146,8 @@ class Worksite extends Model
 
 namespace Database\Factories;
 
-use App\Domains\Partners\Enums\WorksiteStatus;
-use App\Domains\Partners\Models\{Company, Worksite};
+use App\Domains\Admin\Enums\WorksiteStatus;
+use App\Domains\Admin\Models\{Company, Worksite};
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class WorksiteFactory extends Factory
@@ -176,12 +176,12 @@ class WorksiteFactory extends Factory
 ## 5. Policy
 
 ```php
-<?php // app/Domains/Partners/Policies/WorksitePolicy.php
+<?php // app/Domains/Admin/Policies/WorksitePolicy.php
 
-namespace App\Domains\Partners\Policies;
+namespace App\Domains\Admin\Policies;
 
 use App\Domains\Admin\Models\User;
-use App\Domains\Partners\Models\Worksite;
+use App\Domains\Admin\Models\Worksite;
 
 class WorksitePolicy
 {
@@ -227,11 +227,11 @@ class WorksitePolicy
 ## 6. FormRequests
 
 ```php
-<?php // app/Domains/Partners/Http/Requests/StoreWorksiteRequest.php
+<?php // app/Domains/Admin/Http/Requests/StoreWorksiteRequest.php
 
-namespace App\Domains\Partners\Http\Requests;
+namespace App\Domains\Admin\Http\Requests;
 
-use App\Domains\Partners\Models\Worksite;
+use App\Domains\Admin\Models\Worksite;
 use App\Support\Tenancy\CurrentCompany;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -269,12 +269,12 @@ class StoreWorksiteRequest extends FormRequest
 ## 7. Action
 
 ```php
-<?php // app/Domains/Partners/Actions/CreateWorksite.php
+<?php // app/Domains/Admin/Actions/CreateWorksite.php
 
-namespace App\Domains\Partners\Actions;
+namespace App\Domains\Admin\Actions;
 
-use App\Domains\Partners\Events\WorksiteCreated;
-use App\Domains\Partners\Models\Worksite;
+use App\Domains\Admin\Events\WorksiteCreated;
+use App\Domains\Admin\Models\Worksite;
 use Illuminate\Support\Facades\DB;
 
 /** Un caso de uso = una Action (R-CAP-02). Único punto de escritura de la entidad. */
@@ -300,9 +300,9 @@ class CreateWorksite
 ## 8. TableRequest + Controller
 
 ```php
-<?php // app/Domains/Partners/Http/Requests/WorksiteTableRequest.php
+<?php // app/Domains/Admin/Http/Requests/WorksiteTableRequest.php
 
-namespace App\Domains\Partners\Http\Requests;
+namespace App\Domains\Admin\Http\Requests;
 
 use App\Support\Table\TableRequest;
 
@@ -315,14 +315,14 @@ class WorksiteTableRequest extends TableRequest
 ```
 
 ```php
-<?php // app/Domains/Partners/Http/Controllers/WorksiteController.php
+<?php // app/Domains/Admin/Http/Controllers/WorksiteController.php
 
-namespace App\Domains\Partners\Http\Controllers;
+namespace App\Domains\Admin\Http\Controllers;
 
-use App\Domains\Partners\Actions\{CreateWorksite, DeleteWorksite, UpdateWorksite};
-use App\Domains\Partners\Http\Requests\{StoreWorksiteRequest, UpdateWorksiteRequest, WorksiteTableRequest};
-use App\Domains\Partners\Http\Resources\WorksiteResource;
-use App\Domains\Partners\Models\Worksite;
+use App\Domains\Admin\Actions\{CreateWorksite, DeleteWorksite, UpdateWorksite};
+use App\Domains\Admin\Http\Requests\{StoreWorksiteRequest, UpdateWorksiteRequest, WorksiteTableRequest};
+use App\Domains\Admin\Http\Resources\WorksiteResource;
+use App\Domains\Admin\Models\Worksite;
 use App\Support\Table\TableBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -335,7 +335,7 @@ class WorksiteController
     {
         $this->authorize('viewAny', Worksite::class);
 
-        return Inertia::render('Partners/Worksites/Index');
+        return Inertia::render('Admin/Worksites/Index');
     }
 
     /** Endpoint del contrato Tabulator (frontend.md §3.1). */
@@ -360,7 +360,7 @@ class WorksiteController
     {
         $this->authorize('create', Worksite::class);
 
-        return Inertia::render('Partners/Worksites/Create', [
+        return Inertia::render('Admin/Worksites/Create', [
             'options' => WorksiteResource::formOptions(), // selects: clientes, tarifas...
         ]);
     }
@@ -370,15 +370,15 @@ class WorksiteController
         $worksite = $action->handle($request->validated());
 
         // Patrón de flujo: tras store → Edit con toast (frontend.md §5).
-        return to_route('partners.worksites.edit', $worksite)
-            ->with('success', __('partners.worksites.created'));
+        return to_route('admin.worksites.edit', $worksite)
+            ->with('success', __('admin.worksites.created'));
     }
 
     public function edit(Worksite $worksite): Response
     {
         $this->authorize('update', $worksite);
 
-        return Inertia::render('Partners/Worksites/Edit', [
+        return Inertia::render('Admin/Worksites/Edit', [
             'worksite' => WorksiteResource::make($worksite->load(['customer', 'rate'])),
             'options' => WorksiteResource::formOptions(),
         ]);
@@ -388,7 +388,7 @@ class WorksiteController
     {
         $action->handle($worksite, $request->validated());
 
-        return back()->with('success', __('partners.worksites.updated'));
+        return back()->with('success', __('admin.worksites.updated'));
     }
 
     public function destroy(Worksite $worksite, DeleteWorksite $action): RedirectResponse
@@ -396,8 +396,8 @@ class WorksiteController
         $this->authorize('delete', $worksite);
         $action->handle($worksite);
 
-        return to_route('partners.worksites.index')
-            ->with('success', __('partners.worksites.deleted'));
+        return to_route('admin.worksites.index')
+            ->with('success', __('admin.worksites.deleted'));
     }
 }
 ```
@@ -405,11 +405,11 @@ class WorksiteController
 ## 9. Resource
 
 ```php
-<?php // app/Domains/Partners/Http/Resources/WorksiteResource.php
+<?php // app/Domains/Admin/Http/Resources/WorksiteResource.php
 
-namespace App\Domains\Partners\Http\Resources;
+namespace App\Domains\Admin\Http\Resources;
 
-use App\Domains\Partners\Models\Worksite;
+use App\Domains\Admin\Models\Worksite;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /** @mixin Worksite — salida explícita, nunca el modelo crudo (R-CAP-05). */
@@ -441,13 +441,13 @@ class WorksiteResource extends JsonResource
 ## 10. Rutas
 
 ```php
-<?php // routes/domains/partners.php
+<?php // routes/domains/admin.php — añadir al grupo admin existente
 
-use App\Domains\Partners\Http\Controllers\WorksiteController;
+use App\Domains\Admin\Http\Controllers\WorksiteController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'current_company', 'module:partners'])
-    ->prefix('partners')->name('partners.')
+Route::middleware(['auth', 'company', 'module:empresas'])
+    ->prefix('admin')->name('admin.')
     ->group(function () {
         // El endpoint table SIEMPRE antes del resource, hermano del index (frontend.md §3.1).
         Route::get('worksites/table', [WorksiteController::class, 'table'])->name('worksites.table');
@@ -458,9 +458,9 @@ Route::middleware(['auth', 'current_company', 'module:partners'])
 ## 11. Tests (Pest)
 
 ```php
-<?php // tests/Feature/Partners/WorksiteTest.php
+<?php // tests/Feature/Admin/WorksiteTest.php
 
-use App\Domains\Partners\Models\{Company, Worksite};
+use App\Domains\Admin\Models\{Company, Worksite};
 use App\Domains\Admin\Models\User;
 
 use function Pest\Laravel\{actingAs, get, post};
@@ -476,13 +476,13 @@ beforeEach(function () {
 it('lists worksites of the current company', function () {
     Worksite::factory()->for($this->company)->count(3)->create();
 
-    get(route('partners.worksites.table'))
+    get(route('admin.worksites.table'))
         ->assertOk()
         ->assertJsonPath('total', 3);
 });
 
 it('creates a worksite', function () {
-    post(route('partners.worksites.store'), Worksite::factory()->raw())
+    post(route('admin.worksites.store'), Worksite::factory()->raw())
         ->assertRedirect();
 
     expect(Worksite::count())->toBe(1);
@@ -491,7 +491,7 @@ it('creates a worksite', function () {
 it('rejects users without permission', function () {
     $this->user->revokePermissionTo('worksites.create');
 
-    post(route('partners.worksites.store'), Worksite::factory()->raw())
+    post(route('admin.worksites.store'), Worksite::factory()->raw())
         ->assertForbidden();
 });
 
@@ -499,8 +499,8 @@ it('rejects users without permission', function () {
 it('never exposes worksites from another company', function () {
     $other = Worksite::factory()->create(); // otra empresa (factory crea la suya)
 
-    get(route('partners.worksites.table'))->assertJsonPath('total', 0);
-    get(route('partners.worksites.edit', $other))->assertNotFound(); // el global scope lo oculta
+    get(route('admin.worksites.table'))->assertJsonPath('total', 0);
+    get(route('admin.worksites.edit', $other))->assertNotFound(); // el global scope lo oculta
 });
 ```
 
@@ -528,7 +528,7 @@ módulo. No sustituye R-TEN-05 ni el Feature de autorización por permiso suelto
 use App\Domains\Admin\Actions\DisableModuleForCompany;
 use App\Domains\Admin\Actions\EnableModuleForCompany;
 use App\Domains\Admin\Models\Module;
-use App\Domains\Partners\Models\Company;
+use App\Domains\Admin\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\PermissionRegistrar;

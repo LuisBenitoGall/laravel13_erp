@@ -2,7 +2,7 @@
 
 namespace App\Domains\Admin\Support;
 
-use App\Domains\Partners\Models\Company;
+use App\Domains\Admin\Models\Company;
 use App\Models\Phone;
 use App\Models\User;
 use App\Models\UserCompany;

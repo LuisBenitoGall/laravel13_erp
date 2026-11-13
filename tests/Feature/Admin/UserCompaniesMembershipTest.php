@@ -2,13 +2,13 @@
 
 use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\CreateModule;
+use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Support\MenuCatalogCache;
-use App\Domains\Partners\Enums\CompanyStatus;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use App\Models\UserCompany;
 use App\Support\Tenancy\CurrentCompany;
@@ -102,9 +102,9 @@ it('pivot acepta position y department nullable', function () {
 });
 
 it('expone rutas profile y company-users companies', function () {
-    expect(Route::has('profile.companies.table'))->toBeTrue()
-        ->and(Route::has('profile.companies.update'))->toBeTrue()
-        ->and(Route::has('profile.companies.destroy'))->toBeTrue()
+    expect(Route::has('admin.profile.companies.table'))->toBeTrue()
+        ->and(Route::has('admin.profile.companies.update'))->toBeTrue()
+        ->and(Route::has('admin.profile.companies.destroy'))->toBeTrue()
         ->and(Route::has('admin.company-users.companies.table'))->toBeTrue()
         ->and(Route::has('admin.company-users.companies.update'))->toBeTrue()
         ->and(Route::has('admin.company-users.companies.destroy'))->toBeTrue();
@@ -117,7 +117,7 @@ it('self actualiza position y department del vinculo', function () {
         ->where('company_id', $this->company->id)
         ->firstOrFail();
 
-    $this->put(route('profile.companies.update', $membership), [
+    $this->put(route('admin.profile.companies.update', $membership), [
         'position' => 'CTO',
         'department' => 'Tech',
     ])->assertRedirect();
@@ -126,7 +126,7 @@ it('self actualiza position y department del vinculo', function () {
         ->and($membership->fresh()->department)->toBe('Tech')
         ->and($membership->fresh()->company_id)->toBe($this->company->id);
 
-    $this->put(route('profile.companies.update', $membership), [
+    $this->put(route('admin.profile.companies.update', $membership), [
         'position' => '  ',
         'department' => null,
     ])->assertRedirect();
@@ -139,21 +139,21 @@ it('search global y filtro de columna encuentran membership por nombre de empres
     $actor = actingMembershipManager($this->company);
     $actor->companies()->attach($this->other->id);
 
-    $this->getJson(route('profile.companies.table', [
+    $this->getJson(route('admin.profile.companies.table', [
         'filter' => [['field' => 'search', 'type' => 'like', 'value' => 'Alpha']],
     ]))
         ->assertOk()
         ->assertJsonPath('total', 1)
         ->assertJsonFragment(['company_name' => 'Alpha Co']);
 
-    $this->getJson(route('profile.companies.table', [
+    $this->getJson(route('admin.profile.companies.table', [
         'filter' => [['field' => 'search', 'type' => 'like', 'value' => 'Beta']],
     ]))
         ->assertOk()
         ->assertJsonPath('total', 1)
         ->assertJsonFragment(['company_name' => 'Beta Co']);
 
-    $this->getJson(route('profile.companies.table', [
+    $this->getJson(route('admin.profile.companies.table', [
         'filter' => [['field' => 'company_name', 'type' => 'like', 'value' => 'Alpha']],
     ]))
         ->assertOk()
@@ -168,7 +168,7 @@ it('self lista todas las memberships y detacha; ultima company hace logout', fun
         'department' => 'IT',
     ]);
 
-    $this->getJson(route('profile.companies.table'))
+    $this->getJson(route('admin.profile.companies.table'))
         ->assertOk()
         ->assertJsonPath('total', 2);
 
@@ -177,7 +177,7 @@ it('self lista todas las memberships y detacha; ultima company hace logout', fun
         ->where('company_id', $this->other->id)
         ->firstOrFail();
 
-    $this->delete(route('profile.companies.destroy', $otherMembership))
+    $this->delete(route('admin.profile.companies.destroy', $otherMembership))
         ->assertRedirect();
 
     expect($actor->companies()->count())->toBe(1)
@@ -189,7 +189,7 @@ it('self lista todas las memberships y detacha; ultima company hace logout', fun
         ->where('company_id', $this->company->id)
         ->firstOrFail();
 
-    $this->delete(route('profile.companies.destroy', $last))
+    $this->delete(route('admin.profile.companies.destroy', $last))
         ->assertRedirect(route('login'));
 
     $this->assertGuest();
@@ -213,7 +213,7 @@ it('self al detach de sesion con otra company cambia current_company_id al menor
         ->where('company_id', $sessionId)
         ->firstOrFail();
 
-    $this->delete(route('profile.companies.destroy', $sessionMembership))
+    $this->delete(route('admin.profile.companies.destroy', $sessionMembership))
         ->assertRedirect();
 
     expect(session('current_company_id'))->toBe($remainingId)

@@ -2,11 +2,11 @@
 
 use App\Domains\Admin\Actions\DisableModuleForCompany;
 use App\Domains\Admin\Enums\FunctionalityStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Support\CanonicalPermission;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Database\Seeders\AdminCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;

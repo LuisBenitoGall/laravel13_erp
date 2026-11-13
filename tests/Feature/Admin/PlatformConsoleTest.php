@@ -1,12 +1,12 @@
 <?php
 
+use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\CompanyModuleAuthorization;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
-use App\Domains\Partners\Enums\CompanyStatus;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\PermissionRegistrar;
@@ -53,7 +53,7 @@ beforeEach(function () {
 });
 
 it('SA table solo lista companies vinculadas', function () {
-    $response = $this->getJson(route('partners.companies.table'));
+    $response = $this->getJson(route('admin.companies.table'));
     $response->assertOk();
 
     $ids = collect($response->json('data'))->pluck('id')->all();
@@ -102,7 +102,7 @@ it('authorize en company vinculada sigue OK', function () {
 });
 
 it('edit de company no vinculada responde 403', function () {
-    $this->get(route('partners.companies.edit', $this->foreign))->assertForbidden();
+    $this->get(route('admin.companies.edit', $this->foreign))->assertForbidden();
 });
 
 it('query company_id ajena en authorizations responde 403', function () {

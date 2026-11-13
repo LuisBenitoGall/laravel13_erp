@@ -1,9 +1,9 @@
 <?php
 
 use App\Domains\Admin\Enums\UnitStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Models\Unit;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Database\Seeders\AdminCatalogSeeder;
 use Database\Seeders\UnitsSeeder;

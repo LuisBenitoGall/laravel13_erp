@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Role;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\PermissionRegistrar;

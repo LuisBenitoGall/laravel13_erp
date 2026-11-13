@@ -48,7 +48,7 @@ Reglas:
 ## 2. Comunicación entre dominios
 
 Es un monolito con **una sola base de datos**: las relaciones Eloquent cruzan dominios con
-normalidad (un `Order` de Sales pertenece a una `Company` de Partners). Lo que se regula es
+normalidad (un `Order` de Sales pertenece a una `Company` de Admin). Lo que se regula es
 la **escritura** y el **acoplamiento de lógica**:
 
 - **R-DOM-01 Lectura libre**: cualquier dominio puede leer modelos de otro vía relaciones o
@@ -101,7 +101,7 @@ empresa preferente.
 - **R-TEN-08** Un `User` puede existir sin empresa; **no entra al ERP** sin ≥1
   `Company` activa vinculada (`user_companies`). Post-login: 1 empresa → sesión
   automática; N empresas → selección bloqueante. Soft delete en `companies`; no
-  en `user_companies`. Company (Partners) **es** el tenant: no usa
+  en `user_companies`. Company (Admin) **es** el tenant: no usa
   `BelongsToCompany`.
 - **R-TEN-09** Super Admin (`Gate::before`, R-AUT-03) no amplía el perímetro de
   datos: solo companies a las que el usuario está vinculado. Prohibido un atajo

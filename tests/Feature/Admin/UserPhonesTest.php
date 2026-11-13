@@ -2,14 +2,14 @@
 
 use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\CreateModule;
+use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Enums\PhoneType;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Support\MenuCatalogCache;
-use App\Domains\Partners\Enums\CompanyStatus;
-use App\Domains\Partners\Models\Company;
 use App\Models\Phone;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -78,10 +78,10 @@ function actingPhoneManager(Company $company, bool $withUpdate = true): User
 }
 
 it('expone rutas profile y company-users phones', function () {
-    expect(Route::has('profile.phones.store'))->toBeTrue()
-        ->and(Route::has('profile.phones.update'))->toBeTrue()
-        ->and(Route::has('profile.phones.destroy'))->toBeTrue()
-        ->and(Route::has('profile.phones.mark-primary'))->toBeTrue()
+    expect(Route::has('admin.profile.phones.store'))->toBeTrue()
+        ->and(Route::has('admin.profile.phones.update'))->toBeTrue()
+        ->and(Route::has('admin.profile.phones.destroy'))->toBeTrue()
+        ->and(Route::has('admin.profile.phones.mark-primary'))->toBeTrue()
         ->and(Route::has('admin.company-users.phones.store'))->toBeTrue()
         ->and(Route::has('admin.company-users.phones.update'))->toBeTrue()
         ->and(Route::has('admin.company-users.phones.destroy'))->toBeTrue()
@@ -91,7 +91,7 @@ it('expone rutas profile y company-users phones', function () {
 it('self crea edita elimina y marca primario en profile; country_id null', function () {
     $actor = actingPhoneManager($this->company);
 
-    $this->post(route('profile.phones.store'), [
+    $this->post(route('admin.profile.phones.store'), [
         'e164' => '+34600111222',
         'ext' => null,
         'type' => PhoneType::Mobile->value,
@@ -118,11 +118,11 @@ it('self crea edita elimina y marca primario en profile; country_id null', funct
         'is_primary' => false,
     ]);
 
-    $this->post(route('profile.phones.mark-primary', $other))->assertRedirect();
+    $this->post(route('admin.profile.phones.mark-primary', $other))->assertRedirect();
     expect($other->fresh()->is_primary)->toBeTrue()
         ->and($phone->fresh()->is_primary)->toBeFalse();
 
-    $this->put(route('profile.phones.update', $phone), [
+    $this->put(route('admin.profile.phones.update', $phone), [
         'e164' => '+34600111222',
         'ext' => '12',
         'type' => PhoneType::Other->value,
@@ -138,14 +138,14 @@ it('self crea edita elimina y marca primario en profile; country_id null', funct
         ->and($other->fresh()->is_primary)->toBeFalse()
         ->and($phone->fresh()->country_id)->toBeNull();
 
-    $this->get(route('profile.show'))
+    $this->get(route('admin.profile.show'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Users/Edit')
             ->has('phones', 2)
             ->where('phones.0.is_primary', true));
 
-    $this->delete(route('profile.phones.destroy', $phone))->assertRedirect();
+    $this->delete(route('admin.profile.phones.destroy', $phone))->assertRedirect();
     expect(Phone::query()->whereKey($phone->id)->exists())->toBeFalse()
         ->and(Phone::withTrashed()->whereKey($phone->id)->exists())->toBeTrue();
 });
@@ -158,7 +158,7 @@ it('rechaza e164 duplicado activo y permite recrear tras soft delete', function 
         'e164' => '+34600999888',
     ]);
 
-    $this->post(route('profile.phones.store'), [
+    $this->post(route('admin.profile.phones.store'), [
         'e164' => '+34600999888',
         'type' => PhoneType::Mobile->value,
     ])->assertInvalid(['e164']);
@@ -166,7 +166,7 @@ it('rechaza e164 duplicado activo y permite recrear tras soft delete', function 
     $existing = Phone::query()->where('e164', '+34600999888')->firstOrFail();
     $existing->delete();
 
-    $this->post(route('profile.phones.store'), [
+    $this->post(route('admin.profile.phones.store'), [
         'e164' => '+34600999888',
         'type' => PhoneType::Mobile->value,
         'is_primary' => false,

@@ -5,7 +5,7 @@ namespace App\Domains\Admin\Http\Controllers;
 use App\Domains\Admin\Actions\DeleteUserDoc;
 use App\Domains\Admin\Actions\UploadUserDocs;
 use App\Domains\Admin\Http\Requests\StoreUserDocsRequest;
-use App\Domains\Partners\Models\Company;
+use App\Domains\Admin\Models\Company;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserDoc;

@@ -2,14 +2,14 @@
 
 use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\CreateModule;
+use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Services\MenuBuilder;
 use App\Domains\Admin\Support\MenuCatalogCache;
-use App\Domains\Partners\Enums\CompanyStatus;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
@@ -167,7 +167,7 @@ it('SA ve Mis empresas bajo Module empresas', function () {
 
     expect($empresas)->not->toBeNull()
         ->and($companies['label'])->toBe(__('mis_empresas'))
-        ->and($companies['href'])->toBe(route('partners.companies.index', absolute: false))
+        ->and($companies['href'])->toBe(route('admin.companies.index', absolute: false))
         ->and(collect($configSlugs)->pluck('slug')->all())->not->toContain('companies');
 });
 
@@ -226,7 +226,7 @@ it('SA abre Members de su company vinculada', function () {
     $sa->assignRole(Role::SUPER_ADMIN);
     actingWithCompany($sa, $this->company);
 
-    $this->get(route('partners.companies.members.index', $this->company))->assertOk();
+    $this->get(route('admin.companies.members.index', $this->company))->assertOk();
 });
 
 it('Mis módulos bajo Module cuenta', function () {

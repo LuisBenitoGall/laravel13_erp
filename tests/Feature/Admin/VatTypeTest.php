@@ -1,10 +1,10 @@
 <?php
 
 use App\Domains\Admin\Enums\VatTypeStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Country;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Models\VatType;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use Database\Seeders\AdminCatalogSeeder;
 use Database\Seeders\VatTypesSeeder;

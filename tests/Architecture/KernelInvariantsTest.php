@@ -1,11 +1,11 @@
 <?php
 
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\CompanyModule;
 use App\Domains\Admin\Models\CompanyModuleAuthorization;
 use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use App\Support\Models\Concerns\BelongsToCompany;
 use App\Support\Tenancy\CurrentCompany;

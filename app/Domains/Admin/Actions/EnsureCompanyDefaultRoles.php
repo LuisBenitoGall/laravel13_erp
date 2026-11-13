@@ -2,8 +2,8 @@
 
 namespace App\Domains\Admin\Actions;
 
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Role;
-use App\Domains\Partners\Models\Company;
 use Spatie\Permission\Contracts\Role as RoleContract;
 use Spatie\Permission\PermissionRegistrar;
 

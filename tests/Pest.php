@@ -2,8 +2,8 @@
 
 use App\Domains\Admin\Actions\AuthorizeModuleForCompany;
 use App\Domains\Admin\Actions\EnableModuleForCompany;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Module;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use App\Support\Tenancy\CurrentCompany;
 use Tests\TestCase;

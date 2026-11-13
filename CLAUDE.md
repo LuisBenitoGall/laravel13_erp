@@ -64,7 +64,7 @@ nunca inferir) y no ejecutar nada del change mientras se redacta.
 
 ## Estado actual
 
-Fase 0 en curso: kernel de tenancy (Company en Partners, User↔Company, tres capas
+Fase 0 en curso: kernel de tenancy (Company en Admin, User↔Company, tres capas
 de módulos, menú endurecido), catálogo Admin, tooling, Pest browser, Laravel Boost
 MCP. Harness de agentes: `docs/standards/kernel.md` + `.cursor/rules/01-kernel.mdc` +
 `.cursor/rules/laravel-boost.mdc`. UI = Inertia v3 + React 19 (no Livewire).

@@ -2,7 +2,6 @@
 
 namespace App\Domains\Admin\Models;
 
-use App\Domains\Partners\Models\Company;
 use App\Support\Models\Concerns\Auditable;
 use App\Support\Models\Concerns\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;

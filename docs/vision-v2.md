@@ -210,13 +210,15 @@ app/
     Accounting/     (plan contable, ledger, asientos, amortizaciones)
     Inventory/      (stock, almacenes, reservas, movimientos, inventario)
     Catalog/        (productos, precios, tarifas, familias/categorías)
-    Partners/       (empresas, clientes/proveedores, obras, contactos)
+    Partners/       (absorbido en Admin — Fase 0; clientes/proveedores, obras, contactos futuros)
     Tax/            (IVA, ámbitos, SII / VERI*FACTU)
     HR/             (empleados, horarios, calendarios)
     Projects/       (proyectos, órdenes de trabajo, tareas)
     Portal/         (tienda, carrito, acceso clientes)
-    Admin/          (usuarios, roles, módulos, configuración)
+    Admin/          (usuarios, roles, módulos, configuración; Company y Bank en Fase 0)
   → cada dominio: Models, Actions, Services, Http (Controllers/Requests), Policies, Events
+  → Hoy (Fase 0): Partners y Banks como dominios PHP están absorbidos en Admin;
+    Company/Bank viven bajo Admin/ hasta un change OpenSpec que reabra dominio separado.
 ```
 
 Decisiones clave:

@@ -12,9 +12,9 @@ use App\Domains\Admin\Actions\SyncManagerPermissionsForCompany;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use App\Support\Tenancy\CurrentCompany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -115,7 +115,7 @@ function companyGuest(): User
 it('permite CRUD de rol custom al manager', function () {
     companyManager();
 
-    $this->post(route('company.roles.store'), [
+    $this->post(route('admin.company-roles.store'), [
         'name' => 'vendedor',
         'description' => 'Ventas',
     ])->assertRedirect();
@@ -126,7 +126,7 @@ it('permite CRUD de rol custom al manager', function () {
         ->and((int) $role->company_id)->toBe((int) $this->company->id)
         ->and($role->permissions)->toHaveCount(0);
 
-    $this->put(route('company.roles.update', $role), [
+    $this->put(route('admin.company-roles.update', $role), [
         'description' => 'Ventas 2',
         'permissions' => ['budgets.viewAny'],
         'name' => 'hacked',
@@ -137,7 +137,7 @@ it('permite CRUD de rol custom al manager', function () {
         ->and($role->name)->toBe('vendedor')
         ->and($role->permissions)->toHaveCount(0);
 
-    $this->patchJson(route('company.roles.permissions.toggle', $role), [
+    $this->patchJson(route('admin.company-roles.permissions.toggle', $role), [
         'permission' => 'budgets.viewAny',
         'enabled' => true,
     ])->assertOk();
@@ -146,19 +146,19 @@ it('permite CRUD de rol custom al manager', function () {
     expect($role->permissions->pluck('name')->all())
         ->toContain('budgets.viewAny', 'sales.access');
 
-    $this->delete(route('company.roles.destroy', $role))->assertRedirect(route('company.roles.index'));
+    $this->delete(route('admin.company-roles.destroy', $role))->assertRedirect(route('admin.company-roles.index'));
     expect(Role::query()->forCompany($this->company->id)->where('name', 'vendedor')->exists())->toBeFalse();
 });
 
 it('rechaza nombre reservado y validación de create', function () {
     companyManager();
 
-    $this->post(route('company.roles.store'), [
+    $this->post(route('admin.company-roles.store'), [
         'name' => 'manager',
         'permissions' => [],
     ])->assertSessionHasErrors('name');
 
-    $this->post(route('company.roles.store'), [
+    $this->post(route('admin.company-roles.store'), [
         'name' => '',
     ])->assertSessionHasErrors('name');
 });
@@ -175,8 +175,8 @@ it('Index/table con company-roles.view sin ser manager', function () {
     $user->unsetRelation('roles');
     $user->unsetRelation('permissions');
 
-    $this->get(route('company.roles.index'))->assertOk();
-    $this->get(route('company.roles.table'))->assertOk();
+    $this->get(route('admin.company-roles.index'))->assertOk();
+    $this->get(route('admin.company-roles.table'))->assertOk();
 });
 
 it('Index sin company-roles.view responde 403', function () {
@@ -188,9 +188,9 @@ it('Index sin company-roles.view responde 403', function () {
     $user->unsetRelation('roles');
     $user->unsetRelation('permissions');
 
-    $this->get(route('company.roles.index'))->assertForbidden();
-    $this->get(route('company.roles.table'))->assertForbidden();
-    $this->post(route('company.roles.store'), [
+    $this->get(route('admin.company-roles.index'))->assertForbidden();
+    $this->get(route('admin.company-roles.table'))->assertForbidden();
+    $this->post(route('admin.company-roles.store'), [
         'name' => 'x',
     ])->assertForbidden();
 });
@@ -198,7 +198,7 @@ it('Index sin company-roles.view responde 403', function () {
 it('guest sin company-roles.view no abre Index', function () {
     companyGuest();
 
-    $this->get(route('company.roles.index'))->assertForbidden();
+    $this->get(route('admin.company-roles.index'))->assertForbidden();
 });
 
 it('no permite borrar manager ni guest locales', function () {
@@ -207,8 +207,8 @@ it('no permite borrar manager ni guest locales', function () {
     $manager = Role::query()->forCompany($this->company->id)->where('name', Role::MANAGER)->firstOrFail();
     $guest = Role::query()->forCompany($this->company->id)->where('name', Role::GUEST)->firstOrFail();
 
-    $this->delete(route('company.roles.destroy', $manager))->assertForbidden();
-    $this->delete(route('company.roles.destroy', $guest))->assertForbidden();
+    $this->delete(route('admin.company-roles.destroy', $manager))->assertForbidden();
+    $this->delete(route('admin.company-roles.destroy', $guest))->assertForbidden();
 });
 
 it('guarda description del manager local y rechaza toggles de permisos', function () {
@@ -217,7 +217,7 @@ it('guarda description del manager local y rechaza toggles de permisos', functio
     $manager = Role::query()->forCompany($this->company->id)->where('name', Role::MANAGER)->firstOrFail();
     $beforePerms = $manager->permissions->pluck('name')->sort()->values()->all();
 
-    $this->put(route('company.roles.update', $manager), [
+    $this->put(route('admin.company-roles.update', $manager), [
         'description' => 'Manager desc',
         'permissions' => ['budgets.viewAny'],
     ])->assertRedirect();
@@ -226,7 +226,7 @@ it('guarda description del manager local y rechaza toggles de permisos', functio
     expect($manager->description)->toBe('Manager desc')
         ->and($manager->permissions->pluck('name')->sort()->values()->all())->toBe($beforePerms);
 
-    $this->patchJson(route('company.roles.permissions.toggle', $manager), [
+    $this->patchJson(route('admin.company-roles.permissions.toggle', $manager), [
         'permission' => 'budgets.viewAny',
         'enabled' => true,
     ])->assertInvalid(['role']);
@@ -240,7 +240,7 @@ it('permite editar permisos de guest local vía toggle', function () {
 
     $guest = Role::query()->forCompany($this->company->id)->where('name', Role::GUEST)->firstOrFail();
 
-    $this->patchJson(route('company.roles.permissions.toggle', $guest), [
+    $this->patchJson(route('admin.company-roles.permissions.toggle', $guest), [
         'permission' => 'budgets.viewAny',
         'enabled' => true,
     ])->assertOk();
@@ -253,7 +253,7 @@ it('permite editar permisos de guest local vía toggle', function () {
 it('rechaza borrar custom con usuarios asignados', function () {
     companyManager();
 
-    $this->post(route('company.roles.store'), [
+    $this->post(route('admin.company-roles.store'), [
         'name' => 'with_users',
         'permissions' => [],
     ])->assertRedirect();
@@ -265,7 +265,7 @@ it('rechaza borrar custom con usuarios asignados', function () {
     setPermissionsTeamId($this->company->id);
     $other->assignRole($role);
 
-    $this->delete(route('company.roles.destroy', $role))->assertSessionHasErrors('role');
+    $this->delete(route('admin.company-roles.destroy', $role))->assertSessionHasErrors('role');
     expect(Role::query()->whereKey($role->id)->exists())->toBeTrue();
 });
 
@@ -285,17 +285,17 @@ it('aisla roles entre companies (R-TEN-05)', function () {
 
     companyManager();
 
-    $this->get(route('company.roles.edit', $foreign))->assertNotFound();
-    $this->put(route('company.roles.update', $foreign), [
+    $this->get(route('admin.company-roles.edit', $foreign))->assertNotFound();
+    $this->put(route('admin.company-roles.update', $foreign), [
         'description' => 'hack',
     ])->assertNotFound();
-    $this->delete(route('company.roles.destroy', $foreign))->assertNotFound();
+    $this->delete(route('admin.company-roles.destroy', $foreign))->assertNotFound();
 });
 
 it('Create solo metadatos sin matriz ni universal; POST local y redirect Edit', function () {
     companyManager();
 
-    $this->get(route('company.roles.create'))
+    $this->get(route('admin.company-roles.create'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Admin/CompanyRoles/Create')
@@ -310,7 +310,7 @@ it('Create solo metadatos sin matriz ni universal; POST local y redirect Edit', 
         ->and($source)->not->toContain('rol_universal')
         ->and($source)->not->toContain('CompanyRoleForm');
 
-    $response = $this->post(route('company.roles.store'), [
+    $response = $this->post(route('admin.company-roles.store'), [
         'name' => 'metadata_ops',
         'description' => 'Solo metadatos',
         'universal' => true,
@@ -318,7 +318,7 @@ it('Create solo metadatos sin matriz ni universal; POST local y redirect Edit', 
     ]);
 
     $role = Role::query()->forCompany($this->company->id)->where('name', 'metadata_ops')->firstOrFail();
-    $response->assertRedirect(route('company.roles.edit', $role));
+    $response->assertRedirect(route('admin.company-roles.edit', $role));
 
     expect($role->universal)->toBeFalse()
         ->and((int) $role->company_id)->toBe((int) $this->company->id)
@@ -331,9 +331,9 @@ it('Index cumple contrato ServerTable y CTA Crear', function () {
 
     $source = file_get_contents(resource_path('js/Pages/Admin/CompanyRoles/Index.tsx'));
 
-    expect($source)->toContain("href: '/company/roles/create'")
+    expect($source)->toContain("href: '/admin/company-roles/create'")
         ->and($source)->toContain("labelKey: 'crear'")
-        ->and($source)->toContain('persistKey="company.roles"')
+        ->and($source)->toContain('persistKey="admin.company-roles"')
         ->and($source)->toContain('exportable={false}')
         ->and($source)->toContain('rowActions')
         ->and($source)->toContain("headerFilterKind: 'string'")
@@ -341,11 +341,11 @@ it('Index cumple contrato ServerTable y CTA Crear', function () {
         ->and($source)->not->toContain("from 'tabulator-tables'")
         ->and($source)->not->toContain("field: 'id'");
 
-    $this->get(route('company.roles.table'))
+    $this->get(route('admin.company-roles.table'))
         ->assertOk()
         ->assertJsonStructure(['data', 'last_page', 'total']);
 
-    $row = collect($this->get(route('company.roles.table'))->json('data'))
+    $row = collect($this->get(route('admin.company-roles.table'))->json('data'))
         ->firstWhere('name', Role::MANAGER);
 
     expect($row)->not->toBeNull()
@@ -359,7 +359,7 @@ it('Index cumple contrato ServerTable y CTA Crear', function () {
 it('Edit resuelve {companyRole} con sesión aunque CurrentCompany no esté pre-seteado', function () {
     companyManager();
 
-    $this->post(route('company.roles.store'), [
+    $this->post(route('admin.company-roles.store'), [
         'name' => 'bind_session_only',
         'description' => 'Regresión binding',
     ])->assertRedirect();
@@ -369,7 +369,7 @@ it('Edit resuelve {companyRole} con sesión aunque CurrentCompany no esté pre-s
     // Simula request HTTP real: el singleton aún no tiene tenant; lo fija el middleware.
     app(CurrentCompany::class)->set(null);
 
-    $this->get(route('company.roles.edit', $role))
+    $this->get(route('admin.company-roles.edit', $role))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Admin/CompanyRoles/Edit')
@@ -389,28 +389,28 @@ it('sin ser manager Create→Edit es usable con create+update', function () {
     $user->unsetRelation('roles');
     $user->unsetRelation('permissions');
 
-    $this->get(route('company.roles.create'))->assertOk();
+    $this->get(route('admin.company-roles.create'))->assertOk();
 
-    $response = $this->post(route('company.roles.store'), [
+    $response = $this->post(route('admin.company-roles.store'), [
         'name' => 'no_manager_custom',
         'description' => 'Con permiso create',
     ]);
 
     $role = Role::query()->forCompany($this->company->id)->where('name', 'no_manager_custom')->firstOrFail();
-    $response->assertRedirect(route('company.roles.edit', $role));
+    $response->assertRedirect(route('admin.company-roles.edit', $role));
 
-    $this->get(route('company.roles.edit', $role))
+    $this->get(route('admin.company-roles.edit', $role))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Admin/CompanyRoles/Edit')
             ->where('role.name', 'no_manager_custom')
             ->has('matrix'));
 
-    $this->put(route('company.roles.update', $role), [
+    $this->put(route('admin.company-roles.update', $role), [
         'description' => 'Editado sin ser manager',
     ])->assertRedirect();
 
-    $this->patchJson(route('company.roles.permissions.toggle', $role), [
+    $this->patchJson(route('admin.company-roles.permissions.toggle', $role), [
         'permission' => 'budgets.viewAny',
         'enabled' => true,
     ])->assertOk();
@@ -433,22 +433,22 @@ it('solo company-roles.create sin update no abre Edit', function () {
     $user->unsetRelation('roles');
     $user->unsetRelation('permissions');
 
-    $response = $this->post(route('company.roles.store'), [
+    $response = $this->post(route('admin.company-roles.store'), [
         'name' => 'create_only_role',
     ]);
 
     $role = Role::query()->forCompany($this->company->id)->where('name', 'create_only_role')->firstOrFail();
-    $response->assertRedirect(route('company.roles.edit', $role));
+    $response->assertRedirect(route('admin.company-roles.edit', $role));
 
-    $this->get(route('company.roles.edit', $role))->assertForbidden();
+    $this->get(route('admin.company-roles.edit', $role))->assertForbidden();
 });
 
 it('403 Create/store sin company-roles.create', function () {
     $user = User::factory()->create();
     actingWithCompany($user, $this->company);
 
-    $this->get(route('company.roles.create'))->assertForbidden();
-    $this->post(route('company.roles.store'), [
+    $this->get(route('admin.company-roles.create'))->assertForbidden();
+    $this->post(route('admin.company-roles.store'), [
         'name' => 'blocked',
     ])->assertForbidden();
 });
@@ -456,13 +456,13 @@ it('403 Create/store sin company-roles.create', function () {
 it('matriz Edit no incluye AdminOnly ni módulos apagados o no autorizados', function () {
     companyManager();
 
-    $this->post(route('company.roles.store'), [
+    $this->post(route('admin.company-roles.store'), [
         'name' => 'matriz_edit',
     ])->assertRedirect();
 
     $role = Role::query()->forCompany($this->company->id)->where('name', 'matriz_edit')->firstOrFail();
 
-    $this->get(route('company.roles.edit', $role))
+    $this->get(route('admin.company-roles.edit', $role))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Admin/CompanyRoles/Edit')
@@ -477,7 +477,7 @@ it('matriz Edit no incluye AdminOnly ni módulos apagados o no autorizados', fun
 
     app(DisableModuleForCompany::class)->handle($this->company, $this->sales);
 
-    $this->get(route('company.roles.edit', $role))
+    $this->get(route('admin.company-roles.edit', $role))
         ->assertInertia(fn ($page) => $page
             ->where('matrix', function ($matrix) {
                 return ! collect($matrix)->pluck('slug')->contains('sales');
@@ -487,18 +487,18 @@ it('matriz Edit no incluye AdminOnly ni módulos apagados o no autorizados', fun
 it('rechaza toggle de permisos fuera de catálogo (AdminOnly / inexistente)', function () {
     companyManager();
 
-    $this->post(route('company.roles.store'), [
+    $this->post(route('admin.company-roles.store'), [
         'name' => 'filtrado',
     ])->assertRedirect();
 
     $role = Role::query()->forCompany($this->company->id)->where('name', 'filtrado')->firstOrFail();
 
-    $this->patchJson(route('company.roles.permissions.toggle', $role), [
+    $this->patchJson(route('admin.company-roles.permissions.toggle', $role), [
         'permission' => 'roles.viewAny',
         'enabled' => true,
     ])->assertInvalid(['permission']);
 
-    $this->patchJson(route('company.roles.permissions.toggle', $role), [
+    $this->patchJson(route('admin.company-roles.permissions.toggle', $role), [
         'permission' => 'no.existe',
         'enabled' => true,
     ])->assertInvalid(['permission']);
@@ -513,13 +513,13 @@ it('toggle concede access y Functionality completa; custom entra en catálogo', 
     $custom = 'budgets.exportar';
     Permission::findOrCreate($custom);
 
-    $this->post(route('company.roles.store'), [
+    $this->post(route('admin.company-roles.store'), [
         'name' => 'toggle_ops',
     ])->assertRedirect();
 
     $role = Role::query()->forCompany($this->company->id)->where('name', 'toggle_ops')->firstOrFail();
 
-    $this->get(route('company.roles.edit', $role))
+    $this->get(route('admin.company-roles.edit', $role))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Admin/CompanyRoles/Edit')
@@ -542,7 +542,7 @@ it('toggle concede access y Functionality completa; custom entra en catálogo', 
                     && ! in_array('sales.access', $names, true);
             }));
 
-    $this->patchJson(route('company.roles.permissions.toggle', $role), [
+    $this->patchJson(route('admin.company-roles.permissions.toggle', $role), [
         'permission' => 'budgets.viewAny',
         'enabled' => true,
     ])->assertOk()
@@ -550,7 +550,7 @@ it('toggle concede access y Functionality completa; custom entra en catálogo', 
             && in_array('sales.access', $names, true)
             && ! in_array('budgets.create', $names, true));
 
-    $this->patchJson(route('company.roles.permissions.toggle', $role), [
+    $this->patchJson(route('admin.company-roles.permissions.toggle', $role), [
         'permission' => 'budgets.viewAny',
         'enabled' => false,
     ])->assertOk();
@@ -559,7 +559,7 @@ it('toggle concede access y Functionality completa; custom entra en catálogo', 
     expect($role->permissions->pluck('name')->all())->not->toContain('budgets.viewAny')
         ->and($role->permissions->pluck('name')->all())->not->toContain('sales.access');
 
-    $this->patchJson(route('company.roles.functionalities.toggle', $role), [
+    $this->patchJson(route('admin.company-roles.functionalities.toggle', $role), [
         'functionality' => 'budgets',
         'enabled' => true,
     ])->assertOk();
@@ -573,7 +573,7 @@ it('sin superficie copy tenant (ruta/UI/Action)', function () {
     companyManager();
 
     expect(collect(Route::getRoutes())->contains(
-        fn ($route) => $route->getName() === 'company.roles.copy',
+        fn ($route) => $route->getName() === 'admin.company-roles.copy',
     ))->toBeFalse();
 
     expect(class_exists(CopyCompanyRoleToCompanies::class))->toBeFalse();
@@ -594,11 +594,11 @@ it('rechaza edit/toggle de rol universal por URL', function () {
         'universal' => true,
     ]);
 
-    $this->get(route('company.roles.edit', $universal))->assertNotFound();
-    $this->put(route('company.roles.update', $universal), [
+    $this->get(route('admin.company-roles.edit', $universal))->assertNotFound();
+    $this->put(route('admin.company-roles.update', $universal), [
         'description' => 'x',
     ])->assertNotFound();
-    $this->patchJson(route('company.roles.permissions.toggle', $universal), [
+    $this->patchJson(route('admin.company-roles.permissions.toggle', $universal), [
         'permission' => 'budgets.viewAny',
         'enabled' => true,
     ])->assertNotFound();
@@ -608,7 +608,7 @@ it('Edit UI usa patchJson y layout plataforma sin mención universal ni copy', f
     $source = file_get_contents(resource_path('js/Pages/Admin/CompanyRoles/components/CompanyRoleForm.tsx'));
 
     expect($source)->toContain('patchJson')
-        ->and($source)->toContain('/company/roles/')
+        ->and($source)->toContain('/admin/company-roles/')
         ->and($source)->toContain('permissions')
         ->and($source)->toContain('functionalities')
         ->and($source)->toContain('ScrollToTop')
@@ -621,11 +621,11 @@ it('bloquea rutas si usuarios no está activo (V-21)', function () {
     companyManager();
     app(DisableModuleForCompany::class)->handle($this->company, $this->usuarios);
 
-    $this->get(route('company.roles.index'))->assertForbidden();
+    $this->get(route('admin.company-roles.index'))->assertForbidden();
 });
 
 it('permite acceso con capas y permiso (V-21)', function () {
     companyManager();
 
-    $this->get(route('company.roles.index'))->assertOk();
+    $this->get(route('admin.company-roles.index'))->assertOk();
 });

@@ -2,13 +2,13 @@
 
 use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\CreateModule;
+use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Support\MenuCatalogCache;
-use App\Domains\Partners\Enums\CompanyStatus;
-use App\Domains\Partners\Models\Company;
 use App\Models\User;
 use App\Models\UserEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -77,8 +77,8 @@ function actingEmailManager(Company $company, bool $withUpdate = true): User
 }
 
 it('expone rutas profile y company-users emails; stub Http eliminado', function () {
-    expect(Route::has('profile.emails.store'))->toBeTrue()
-        ->and(Route::has('profile.emails.destroy'))->toBeTrue()
+    expect(Route::has('admin.profile.emails.store'))->toBeTrue()
+        ->and(Route::has('admin.profile.emails.destroy'))->toBeTrue()
         ->and(Route::has('admin.company-users.emails.store'))->toBeTrue()
         ->and(Route::has('admin.company-users.emails.destroy'))->toBeTrue()
         ->and(file_exists(app_path('Http/Controllers/UserEmailController.php')))->toBeFalse();
@@ -96,7 +96,7 @@ it('permite N emails del mismo user tras migración', function () {
 it('self crea y elimina email adicional en profile', function () {
     $actor = actingEmailManager($this->company);
 
-    $this->post(route('profile.emails.store'), [
+    $this->post(route('admin.profile.emails.store'), [
         'email' => 'extra@example.test',
         'description' => 'Personal',
     ])->assertRedirect();
@@ -106,14 +106,14 @@ it('self crea y elimina email adicional en profile', function () {
         ->and($email->user_id)->toBe($actor->id)
         ->and($email->description)->toBe('Personal');
 
-    $this->get(route('profile.show'))
+    $this->get(route('admin.profile.show'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Users/Edit')
             ->has('emails', 1)
             ->where('emails.0.email', 'extra@example.test'));
 
-    $this->delete(route('profile.emails.destroy', $email))->assertRedirect();
+    $this->delete(route('admin.profile.emails.destroy', $email))->assertRedirect();
     expect(UserEmail::query()->whereKey($email->id)->exists())->toBeFalse();
 });
 
@@ -121,11 +121,11 @@ it('rechaza duplicado e igual al principal', function () {
     $actor = actingEmailManager($this->company);
     UserEmail::factory()->create(['user_id' => $actor->id, 'email' => 'taken@example.test']);
 
-    $this->post(route('profile.emails.store'), [
+    $this->post(route('admin.profile.emails.store'), [
         'email' => 'taken@example.test',
     ])->assertInvalid(['email']);
 
-    $this->post(route('profile.emails.store'), [
+    $this->post(route('admin.profile.emails.store'), [
         'email' => $actor->email,
     ])->assertInvalid(['email']);
 });
