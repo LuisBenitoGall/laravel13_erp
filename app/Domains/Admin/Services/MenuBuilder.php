@@ -115,6 +115,11 @@ class MenuBuilder
         $items = [];
 
         foreach ($functionalities as $functionality) {
+            // Permisos de tab (sin entrada lateral): p. ej. company-sectors.
+            if ($this->hrefFor($functionality['slug']) === '#') {
+                continue;
+            }
+
             if ($isSa || $user->can($functionality['slug'].'.view')) {
                 $items[] = $this->functionalityItem($functionality);
             }
@@ -219,6 +224,7 @@ class MenuBuilder
             'currencies' => route('admin.currencies.index', absolute: false),
             'banks' => route('admin.banks.index', absolute: false),
             'units' => route('admin.units.index', absolute: false),
+            'sectors' => route('admin.sectors.index', absolute: false),
             'vat-types' => route('admin.vat-types.index', absolute: false),
             'accounting-account-types' => route('admin.accounting-account-types.index', absolute: false),
             'company-roles' => route('admin.company-roles.index', absolute: false),

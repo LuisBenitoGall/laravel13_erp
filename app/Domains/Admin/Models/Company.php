@@ -9,11 +9,14 @@ use Database\Factories\CompanyFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 /**
- * Tenant organizativo (Partners). Excepción R-TEN-01: es el tenant, no un hijo scoped.
+ * Tenant organizativo (Admin). Excepción R-TEN-01: es el tenant, no un hijo scoped.
  *
  * @property int $id
  * @property string $name
@@ -22,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $nif
  * @property CompanyStatus $status
  * @property string|null $logo
+ * @property int|null $parent_id
  */
 class Company extends Model
 {
@@ -35,6 +39,7 @@ class Company extends Model
         'nif',
         'status',
         'logo',
+        'parent_id',
     ];
 
     protected function casts(): array
@@ -44,12 +49,30 @@ class Company extends Model
         ];
     }
 
+    /** @return BelongsTo<Company, $this> */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    /** @return HasMany<Company, $this> */
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id');
+    }
+
     /** @return BelongsToMany<User, $this> */
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_companies')
             ->withPivot(['id', 'position', 'department'])
             ->withTimestamps();
+    }
+
+    /** @return BelongsToMany<Sector, $this> */
+    public function sectors(): BelongsToMany
+    {
+        return $this->belongsToMany(Sector::class);
     }
 
     /**
@@ -73,6 +96,72 @@ class Company extends Model
     public function isActive(): bool
     {
         return $this->status === CompanyStatus::Active;
+    }
+
+    /**
+     * Ancestros desde el padre inmediato hasta la raíz (sin incluir $this).
+     *
+     * @return Collection<int, Company>
+     */
+    public function ancestors(): Collection
+    {
+        $ancestors = collect();
+        $current = $this->parent;
+
+        while ($current !== null) {
+            $ancestors->push($current);
+            $current = $current->parent;
+        }
+
+        return $ancestors;
+    }
+
+    public function isDescendantOf(Company $other): bool
+    {
+        if ($this->is($other)) {
+            return false;
+        }
+
+        $current = $this->parent;
+
+        while ($current !== null) {
+            if ($current->is($other)) {
+                return true;
+            }
+
+            $current = $current->parent;
+        }
+
+        return false;
+    }
+
+    public function isAncestorOf(Company $other): bool
+    {
+        return $other->isDescendantOf($this);
+    }
+
+    /** ¿Asignar $candidate como padre de $this crearía un ciclo? */
+    public function wouldCycleWithParent(?Company $candidate): bool
+    {
+        if ($candidate === null) {
+            return false;
+        }
+
+        if ($candidate->is($this)) {
+            return true;
+        }
+
+        return $candidate->isDescendantOf($this);
+    }
+
+    /** ¿Asignar $this como padre de $child crearía un ciclo? */
+    public function wouldCycleWithChild(Company $child): bool
+    {
+        if ($child->is($this)) {
+            return true;
+        }
+
+        return $this->isDescendantOf($child);
     }
 
     protected static function newFactory(): CompanyFactory

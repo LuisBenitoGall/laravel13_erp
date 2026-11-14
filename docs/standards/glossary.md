@@ -46,7 +46,7 @@
 
 | Español | Código v2 | v1 | Notas |
 |---|---|---|---|
-| Empresa | `Company` | Company | Tenant Y tercero a la vez (vision §4.5) |
+| Empresa | `Company` | Company | Tenant Y tercero a la vez (vision §4.5); jerarquía opcional `parent_id` (Admin) |
 | Cliente / Proveedor | `Customer` / `Provider` | customer/provider | Roles de la relación `CustomerProvider` |
 | Relación cliente-proveedor | `CustomerProvider` | CustomerProviders | Singular en v2 |
 | Obra | `Worksite` | Obra | Decisión de naming 2026-07-14 |
@@ -88,6 +88,7 @@
 | País | `Country` | País | Catálogo global geografía (Admin); sin `company_id` |
 | Banco | `Bank` | Banco | Catálogo global Admin (sin `company_id`); Functionality `banks` bajo menú Configuración |
 | Unidad | `Unit` | Unidad | Catálogo global Admin (sin `company_id`); name único; symbol max 4; Functionality `units`; Catalog consume a futuro |
+| Sector | `Sector` | Sector | Catálogo global Admin (sin `company_id`); name traducible JSON; Functionality `sectors`; N:N Company↔Sector |
 | Tipo de IVA | `VatType` | Tipo de IVA | Catálogo global Admin por `Country` (sin `company_id`); `rate` + RE nullable; Functionality `vat-types`; Tax consume a futuro |
 | Grupo contable | `AccountingAccountType` | Grupo contable | Catálogo jerárquico PGC Admin (sin `company_id`/status); `autoreference`/`code`/`name`/`mode`; Functionality `accounting-account-types`; Accounting consume a futuro |
 | Moneda | `Currency` | Moneda | Catálogo global Admin (sin `company_id`); `code` ISO 4217 y `number` inmutables tras el alta; Functionality `currencies` |

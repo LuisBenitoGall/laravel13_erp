@@ -10,17 +10,26 @@ import { auditRecordSummaryFields } from '@/lib/recordSummary';
 import type { Company } from '@/types/admin';
 
 import CompanyForm from './components/CompanyForm';
+import CompanyHierarchyPanel, {
+    type HierarchyCompanyOption,
+} from './components/CompanyHierarchyPanel';
 import CompanyLogoPanel from './components/CompanyLogoPanel';
 import CompanyProfileReadout from './components/CompanyProfileReadout';
+import CompanySectorsPanel, { type SectorOption } from './components/CompanySectorsPanel';
 
-const EDIT_TABS = ['info', 'images'] as const;
-type EditTabId = (typeof EDIT_TABS)[number];
+const BASE_EDIT_TABS = ['info', 'images', 'hierarchy', 'sectors'] as const;
+type EditTabId = (typeof BASE_EDIT_TABS)[number];
 
-function tabFromPageUrl(url: string): EditTabId {
+type CompanyEditCan = {
+    view_company_sectors?: boolean;
+    update_company_sectors?: boolean;
+};
+
+function tabFromPageUrl(url: string, allowed: readonly EditTabId[]): EditTabId {
     const query = url.includes('?') ? url.slice(url.indexOf('?')) : '';
     const value = new URLSearchParams(query).get('tab');
 
-    return EDIT_TABS.includes(value as EditTabId) ? (value as EditTabId) : 'info';
+    return allowed.includes(value as EditTabId) ? (value as EditTabId) : 'info';
 }
 
 type EditCompany = Company & {
@@ -29,10 +38,42 @@ type EditCompany = Company & {
     updated_at?: string | null;
 };
 
-export default function Edit({ company }: { company: EditCompany }) {
+type Props = {
+    company: EditCompany;
+    parent: HierarchyCompanyOption | null;
+    children: HierarchyCompanyOption[];
+    hierarchy_options: {
+        parents: HierarchyCompanyOption[];
+        children: HierarchyCompanyOption[];
+    };
+    sectors: SectorOption[];
+    sector_options: SectorOption[];
+    can?: CompanyEditCan;
+};
+
+export default function Edit({
+    company,
+    parent,
+    children,
+    hierarchy_options,
+    sectors,
+    sector_options,
+    can,
+}: Props) {
     const { t, i18n } = useTranslation();
     const page = usePage();
-    const urlTab = tabFromPageUrl(page.url);
+    const canViewSectors = Boolean(can?.view_company_sectors);
+    const canUpdateSectors = Boolean(can?.update_company_sectors);
+
+    const allowedTabs = useMemo(
+        () =>
+            BASE_EDIT_TABS.filter(
+                (id) => id !== 'sectors' || canViewSectors,
+            ) as EditTabId[],
+        [canViewSectors],
+    );
+
+    const urlTab = tabFromPageUrl(page.url, allowedTabs);
     const [tab, setTab] = useState<string>(urlTab);
     const [prevPageUrl, setPrevPageUrl] = useState(page.url);
 
@@ -41,6 +82,7 @@ export default function Edit({ company }: { company: EditCompany }) {
         setTab(urlTab);
     }
 
+    const activeTab = allowedTabs.includes(tab as EditTabId) ? tab : 'info';
     const basePath = `/admin/companies/${company.id}/edit`;
 
     function selectTab(next: string) {
@@ -97,6 +139,34 @@ export default function Edit({ company }: { company: EditCompany }) {
                 />
             ),
         },
+        {
+            id: 'hierarchy',
+            labelKey: 'jerarquia',
+            panel: (
+                <CompanyHierarchyPanel
+                    companyId={company.id}
+                    parent={parent}
+                    children={children}
+                    hierarchyOptions={hierarchy_options}
+                />
+            ),
+        },
+        ...(canViewSectors
+            ? [
+                  {
+                      id: 'sectors',
+                      labelKey: 'sectores',
+                      panel: (
+                          <CompanySectorsPanel
+                              companyId={company.id}
+                              sectors={sectors}
+                              sectorOptions={sector_options}
+                              canUpdate={canUpdateSectors}
+                          />
+                      ),
+                  },
+              ]
+            : []),
     ];
 
     return (
@@ -120,7 +190,7 @@ export default function Edit({ company }: { company: EditCompany }) {
                     />
                 }
                 tabs={tabs}
-                activeTab={tab}
+                activeTab={activeTab}
                 onTabChange={selectTab}
             />
         </AppLayout>

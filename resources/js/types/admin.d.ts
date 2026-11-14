@@ -50,6 +50,14 @@ export interface UnitRow {
     status: string;
 }
 
+export interface SectorRow {
+    id: number;
+    name: string;
+    names: Record<string, string>;
+    slug: string;
+    status: string;
+}
+
 export interface VatTypeCountryOption {
     id: number;
     name: string;

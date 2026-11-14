@@ -31,11 +31,12 @@ class RealignMenuCatalog
             'currencies',
             'banks',
             'units',
+            'sectors',
             'vat-types',
             'accounting-account-types',
             'company-module-authorizations',
         ],
-        'empresas' => ['companies'],
+        'empresas' => ['companies', 'company-sectors'],
         'usuarios' => ['company-users', 'all-users', 'company-roles'],
         'cuenta' => ['company-modules', 'profile'],
     ];

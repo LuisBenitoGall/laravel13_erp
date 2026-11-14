@@ -16,6 +16,7 @@ use App\Domains\Admin\Http\Controllers\ModuleController;
 use App\Domains\Admin\Http\Controllers\PermissionController;
 use App\Domains\Admin\Http\Controllers\PlatformRoleController;
 use App\Domains\Admin\Http\Controllers\ProvinceController;
+use App\Domains\Admin\Http\Controllers\SectorController;
 use App\Domains\Admin\Http\Controllers\TownController;
 use App\Domains\Admin\Http\Controllers\UnitController;
 use App\Domains\Admin\Http\Controllers\UserCompanyController;
@@ -112,6 +113,11 @@ Route::middleware(['auth', 'company', 'module:configuracion'])->prefix('admin')-
     Route::patch('units/{unit}/status', [UnitController::class, 'updateStatus'])->name('units.status');
     Route::resource('units', UnitController::class)->only(['index', 'store', 'update', 'destroy']);
 
+    // Sectores globales (catálogo plano traducibles); permisos `sectors.*`.
+    Route::get('sectors/table', [SectorController::class, 'table'])->name('sectors.table');
+    Route::patch('sectors/{sector}/status', [SectorController::class, 'updateStatus'])->name('sectors.status');
+    Route::resource('sectors', SectorController::class)->only(['index', 'store', 'update', 'destroy']);
+
     // Tipos de IVA globales por país; permisos `vat-types.*`.
     Route::get('vat-types/table', [VatTypeController::class, 'table'])->name('vat-types.table');
     Route::patch('vat-types/{vatType}/status', [VatTypeController::class, 'updateStatus'])->name('vat-types.status');
@@ -142,6 +148,14 @@ Route::middleware(['auth', 'company', 'module:empresas'])->prefix('admin')->name
         ->name('companies.status');
     Route::post('companies/{company}/logo', [CompanyController::class, 'uploadLogo'])
         ->name('companies.logo');
+    Route::put('companies/{company}/parent', [CompanyController::class, 'updateParent'])
+        ->name('companies.parent');
+    Route::post('companies/{company}/children', [CompanyController::class, 'attachChild'])
+        ->name('companies.children.attach');
+    Route::delete('companies/{company}/children/{child}', [CompanyController::class, 'detachChild'])
+        ->name('companies.children.detach');
+    Route::put('companies/{company}/sectors', [CompanyController::class, 'syncSectors'])
+        ->name('companies.sectors.sync');
     Route::resource('companies', CompanyController::class)->except(['show']);
 });
 

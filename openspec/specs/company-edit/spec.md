@@ -1,7 +1,8 @@
 ## Purpose
 
-Ficha Edit de Company: layout con tabs Info e Imágenes, formulario Info
-alineado al Create (NIF), logo único por upload, sin Miembros en esta UI.
+Ficha Edit de Company: layout con tabs Info, Imágenes y Jerarquía;
+formulario Info alineado al Create (NIF), logo único por upload, sin
+Miembros en esta UI.
 
 ## Requirements
 
@@ -9,8 +10,10 @@ alineado al Create (NIF), logo único por upload, sin Miembros en esta UI.
 El Edit de Company SHALL usar layout con tabs al estilo ficha User
 (`RecordEditLayout`). Tab Info: readout a la izquierda (logo rectangular
 centrado V+H + info de la empresa) y formulario a la derecha. Tab
-Imágenes: gestión del único logo. SHALL NOT mostrar link ni tab de
-Miembros en este Edit.
+Imágenes: gestión del único logo. Tab jerarquía: padre e hijos (ver
+capability `company-hierarchy`). SHALL NOT mostrar link ni tab de
+Miembros en este Edit. SHALL NOT poner controles de jerarquía en el
+Create.
 
 #### Scenario: Tabs Info e Imágenes
 - **WHEN** un actor autorizado abre el Edit de una company
@@ -21,6 +24,10 @@ Miembros en este Edit.
 - **THEN** el bloque izquierdo muestra el logo (rectangular, centrado
   vertical y horizontal) y la info de la empresa; a la derecha el
   formulario editable
+
+#### Scenario: Tabs Info, Imágenes y jerarquía
+- **WHEN** un actor abre el Edit tras este change
+- **THEN** ve los tabs de Info e Imágenes y el nuevo tab de jerarquía
 
 ### Requirement: Formulario Info de Company
 El tab Info SHALL pedir name, tradename, nif y status. NIF SHALL estar
@@ -73,3 +80,33 @@ El Edit de Company SHALL vivir bajo `/admin/companies/{id}/edit` (rutas
 #### Scenario: URL Edit
 - **WHEN** un actor autorizado abre el Edit de una company
 - **THEN** la URL está bajo `/admin/companies/.../edit`
+
+### Requirement: Atribución de sectores en Edit Company
+El Edit de Company SHALL permitir atribuir cero o más sectores Active del
+catálogo global. SHALL NOT exigir sectores en Create. Authz del sync:
+`company-sectors.update` + perímetro de vínculo (ver capability
+`company-sectors-tab`).
+
+#### Scenario: Guardar sectores
+- **WHEN** el actor autorizado con `company-sectors.update` selecciona
+  sectores y guarda en Edit
+- **THEN** la company queda vinculada a esos sectores (N:N)
+
+#### Scenario: Create sin UI de sectores
+- **WHEN** un actor abre el Create de Company
+- **THEN** no se exige ni se muestra la atribución de sectores como
+  requisito del alta mínima
+
+### Requirement: Tab Sectores fuera de Info
+El Edit de Company SHALL exponer la atribución de sectores en un tab
+dedicado `sectors`, no dentro del tab Info. Create SHALL permanecer sin
+atribución de sectores.
+
+#### Scenario: Tabs incluyen Sectores
+- **WHEN** un actor con `company-sectors.view` abre el Edit
+- **THEN** existen tabs Info, Imágenes, Jerarquía y Sectores (según
+  permisos de cada uno)
+
+#### Scenario: Info sin panel sectores
+- **WHEN** se renderiza el tab Info
+- **THEN** no incluye el panel de checkboxes de sectores

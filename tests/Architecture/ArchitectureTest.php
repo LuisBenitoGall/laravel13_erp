@@ -63,6 +63,8 @@ it('todo modelo de negocio en Domains usa BelongsToCompany', function () {
             'App\\Domains\\Admin\\Models\\Currency',
             // Catálogo global de unidades (--global; c2026-11-04-admin-units).
             'App\\Domains\\Admin\\Models\\Unit',
+            // Catálogo global de sectores (--global; c2026-11-13-admin-sectors-catalog).
+            'App\\Domains\\Admin\\Models\\Sector',
             // Catálogo global de tipos de IVA (--global; c2026-11-04-admin-vat-types).
             'App\\Domains\\Admin\\Models\\VatType',
             // Catálogo global grupos contables PGC (--global; c2026-11-04-admin-accounting-account-types).
