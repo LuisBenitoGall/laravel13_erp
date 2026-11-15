@@ -124,6 +124,22 @@ export type Company = {
     updated_at?: string | null;
 };
 
+export type WorkplaceRow = {
+    id: number;
+    name: string;
+    slug: string;
+    address: string | null;
+    cp: string | null;
+    town_id: number | null;
+    town_name?: string | null;
+    province_id?: number | null;
+    country_id?: number | null;
+    featured: boolean;
+    status: string;
+    created_at?: string | null;
+    updated_at?: string | null;
+};
+
 export interface BankRow {
     id: number;
     name: string;

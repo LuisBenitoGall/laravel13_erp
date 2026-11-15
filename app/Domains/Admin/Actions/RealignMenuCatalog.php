@@ -36,7 +36,7 @@ class RealignMenuCatalog
             'accounting-account-types',
             'company-module-authorizations',
         ],
-        'empresas' => ['companies', 'company-directory', 'company-sectors'],
+        'empresas' => ['companies', 'company-directory', 'workplaces', 'company-sectors'],
         'usuarios' => ['company-users', 'all-users', 'company-roles'],
         'cuenta' => ['company-modules', 'profile'],
     ];
@@ -54,6 +54,7 @@ class RealignMenuCatalog
             $modules = $this->ensureModules();
             $this->ensureProfile($modules['cuenta']);
             $this->ensureAllUsers($modules['usuarios']);
+            $this->ensureWorkplaces($modules['empresas']);
             $this->reassignFunctionalities($modules);
             $this->migrateAccessPermissions();
             $this->retireLegacyModules($modules);
@@ -227,6 +228,41 @@ class RealignMenuCatalog
                 'es' => 'Todos los usuarios',
                 'en' => 'All users',
                 'ca' => 'Tots els usuaris',
+            ],
+            'status' => FunctionalityStatus::Active->value,
+        ]);
+    }
+
+    private function ensureWorkplaces(Module $empresas): void
+    {
+        $existing = Functionality::withTrashed()->where('slug', 'workplaces')->first();
+
+        if ($existing !== null) {
+            if ($existing->trashed()) {
+                $existing->restore();
+            }
+
+            $existing->forceFill([
+                'module_id' => $empresas->id,
+                'label' => [
+                    'es' => 'Centros de trabajo',
+                    'en' => 'Workplaces',
+                    'ca' => 'Centres de treball',
+                ],
+                'status' => FunctionalityStatus::Active,
+            ])->save();
+
+            return;
+        }
+
+        $this->createFunctionality->handle([
+            'module_id' => $empresas->id,
+            'name' => 'Workplaces',
+            'slug' => 'workplaces',
+            'label' => [
+                'es' => 'Centros de trabajo',
+                'en' => 'Workplaces',
+                'ca' => 'Centres de treball',
             ],
             'status' => FunctionalityStatus::Active->value,
         ]);

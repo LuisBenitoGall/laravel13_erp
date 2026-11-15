@@ -2,7 +2,7 @@ import { FormEvent } from 'react';
 import { router, useForm } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
-import { Checkbox, Field, Input, Select, Switch } from '@/Components/Form';
+import { Checkbox, Field, FormActions, Input, Select, Switch } from '@/Components/Form';
 import { Button } from '@/Components/ui/button';
 import AppLayout from '@/Layouts/AppLayout';
 
@@ -116,7 +116,7 @@ export default function Create({ roleOptions }: Props) {
                     />
                 </div>
 
-                <div className="flex items-center justify-end gap-2">
+                <FormActions>
                     <Button
                         type="button"
                         variant="secondary"
@@ -127,7 +127,7 @@ export default function Create({ roleOptions }: Props) {
                     <Button type="submit" disabled={processing}>
                         {t('guardar')}
                     </Button>
-                </div>
+                </FormActions>
             </form>
         </AppLayout>
     );

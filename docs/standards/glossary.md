@@ -52,7 +52,9 @@
 | Directorio | `company-directory` | Directorio | Descubrimiento de companies Active+NIF+≥1 sector (Module `empresas`); ≠ Mis empresas |
 | Cliente / Proveedor | `Customer` / `Provider` | customer/provider | Roles de la relación `CustomerProvider` |
 | Relación cliente-proveedor | `CustomerProvider` | CustomerProviders | Singular en v2 |
-| Obra | `Worksite` | Obra | Decisión de naming 2026-07-14 |
+| Centro de trabajo | `Workplace` | Workplace | Sede/dirección operativa de la company (`BelongsToCompany`); ≠ Obra (`Worksite`) ni `Workspace` |
+| Principal (centro) | `featured` | — | Flag `Workplace.featured`; UI «Principal»; ≤1/company; dirección default facturación/pedidos (consumo = changes futuros) |
+| Obra | `Worksite` | Obra | Decisión de naming 2026-07-14; ≠ Centro de trabajo (`Workplace`) |
 | UTE | `JointVenture` | UTE | UI muestra "UTE" |
 | Contacto | `Contact` | Contact | |
 | Teléfono | `Phone` | Phone | Tabla polimórfica `phones` (`phoneable`); UI ficha User en tab contactos |

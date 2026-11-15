@@ -51,6 +51,11 @@ Reglas:
   se pasa `maxLength` explícito **y** el FormRequest declara el mismo `max:*`. Controles
   no texto (`checkbox`, `radio`, `hidden`, `file`, `submit`, `button`) no usan este
   Input. **Textarea / Wysiwyg quedan fuera** de R-FE-08 (límites propios cuando existan).
+- **R-FE-09** Acciones **dentro del form** (Guardar, Cancelar, …): siempre alineadas a la
+  **derecha** vía `Form/FormActions` (`justify-end`). Orden habitual: Cancelar (secondary)
+  → Guardar (primary). Prohibido mezclar formularios con acciones a la izquierda y otros
+  a la derecha. `DialogFooter` ya alinea a la derecha; en páginas Create/Edit usar
+  `FormActions`. ≠ `ViewActionBar` (chrome Volver/CTAs de página).
 
 ## 2. Design system
 
@@ -174,7 +179,7 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 | `Table/AdvancedSearchModal` | Modal búsqueda avanzada opt-in (`fields` o `children` render prop + `onApply(filters)`). `ServerTable`: `advancedFilters` + `advancedFilterMode` `merge` o `replace`; mismo query `filter` (table y Excel/PDF) |
 | `Table/formatters` | Formatters tipados: `money(dec)`, `date`, `number(dec)`, `boolean` (+ ampliar por dominio); con `valueKind`/`headerFilterKind` date|number → header center + value right |
 | `Form/Field` + kit MVP | **Implementado** (`c2026-10-26-form-kit-mvp` + `c2026-11-02-admin-modules-create` + `c2026-11-11-user-images` + `c2026-11-15-company-excerpt-description`): `Field`/`FormField`, `Input` (→ `ui/input` R-FE-08), `Textarea`, `Wysiwyg` (`@tiptap/react` + StarterKit; controlado `value`/`onChange` HTML; toolbar negrita/cursiva/h2/h3/listas), `NumberInput`, `Select` (filtro local; `onSearch` opcional), `DatePicker` (`date-fns` + input date), `Checkbox`, `Switch`, `LangTabs` (tabs = `supportedLocales`, children por locale), `ColorPicker` (input `type=color` + hex, sin dep nueva), `IconPicker` (Dialog + grid `ERP_ICON_NAMES`), `Dropzone` (`react-dropzone`; props `accept`/`maxSize`/`maxFiles`/`multiple`/`onFiles`; errores cliente vía toast). **Grupo de booleanos** (`Switch`/`Checkbox` con label): preferir misma línea con `flex flex-row flex-wrap items-center gap-x-8 gap-y-3` (mín. `gap-x-6`); prohibido fila sin `gap` — quedan pegados |
-| `Form/FormActions` | Guardar/cancelar **dentro del form** — **pendiente** (≠ `ViewActionBar`) |
+| `Form/FormActions` | Guardar/cancelar **dentro del form** (R-FE-09: siempre `justify-end`; Cancelar→Guardar). ≠ `ViewActionBar` |
 | `Records/RecordEditLayout` | Esqueleto Edit: slot `summary` (p. ej. `RecordSummary`) + tablist registrable `{ id, labelKey, visible?, panel }` + panel activo; controlado u uncontrolled. Primera referencia: `Users/Edit` |
 | `Records/RecordSummary` | Ficha edit/show (card blanca): `titleKey` + badge `identifier` + `fields[]` (`labelKey`/`value`/`tone`); helper `auditRecordSummaryFields` en `lib/recordSummary`. Opt-in por page (no AppLayout). Sin totales ni lápiz inline |
 | `Users/UserProfileReadout` | Resumen RO reutilizable (avatar featured o placeholder, datos personales, listas emails/tels vacías OK); columna izq. del tab Perfil en `Users/Edit` |

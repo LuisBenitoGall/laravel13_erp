@@ -13,7 +13,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/Components/ui/dialog';
-import { Field, Input, Textarea } from '@/Components/Form';
+import { Field, FormActions, Input, Textarea } from '@/Components/Form';
 import ScrollToTop from '@/Components/Navigation/ScrollToTop';
 import AppLayout from '@/Layouts/AppLayout';
 import { patchJson } from '@/lib/http';
@@ -306,14 +306,14 @@ export default function RoleForm({
                         <p className="text-sm text-slate-500">{t('rol_universal_sin_admin_only')}</p>
                     ) : null}
 
-                    <div className="flex justify-end gap-2">
+                    <FormActions>
                         <Button type="button" variant="secondary" onClick={() => router.visit('/admin/roles')}>
                             {t('cancelar')}
                         </Button>
                         <Button type="submit" disabled={processing}>
                             {t('guardar')}
                         </Button>
-                    </div>
+                    </FormActions>
                 </form>
 
                 {permissionsReadonly ? (

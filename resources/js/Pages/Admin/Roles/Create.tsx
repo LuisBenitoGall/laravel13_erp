@@ -2,6 +2,7 @@ import { FormEvent } from 'react';
 import { router, useForm } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
+import { FormActions } from '@/Components/Form';
 import { Button } from '@/Components/ui/button';
 import AppLayout from '@/Layouts/AppLayout';
 import RoleMetadataFields from './components/RoleMetadataFields';
@@ -44,14 +45,14 @@ export default function Create() {
                     onUniversalChange={(value) => setData('universal', value)}
                 />
 
-                <div className="flex items-center justify-end gap-2">
+                <FormActions>
                     <Button type="button" variant="secondary" onClick={() => router.visit('/admin/roles')}>
                         {t('cancelar')}
                     </Button>
                     <Button type="submit" disabled={processing}>
                         {t('guardar')}
                     </Button>
-                </div>
+                </FormActions>
             </form>
         </AppLayout>
     );

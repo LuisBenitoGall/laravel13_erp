@@ -2,7 +2,7 @@ import { FormEvent, useMemo, useState } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
-import { Checkbox, DatePicker, Field, Input, Switch } from '@/Components/Form';
+import { Checkbox, DatePicker, Field, FormActions, Input, Switch } from '@/Components/Form';
 import RecordEditLayout from '@/Components/Records/RecordEditLayout';
 import RecordSummary from '@/Components/Records/RecordSummary';
 import UserProfileReadout from '@/Components/Users/UserProfileReadout';
@@ -258,11 +258,11 @@ export default function Edit({
                             />
                         </div>
 
-                        <div className="flex justify-end gap-2">
+                        <FormActions>
                             <Button type="submit" disabled={profileForm.processing || !can.update_profile}>
                                 {t('guardar')}
                             </Button>
-                        </div>
+                        </FormActions>
                     </form>
                 </div>
             ),
@@ -320,11 +320,11 @@ export default function Edit({
                             autoComplete="new-password"
                         />
                     </Field>
-                    <div className="flex justify-end">
+                    <FormActions>
                         <Button type="submit" disabled={passwordForm.processing}>
                             {t('guardar')}
                         </Button>
-                    </div>
+                    </FormActions>
                 </form>
             ),
         },

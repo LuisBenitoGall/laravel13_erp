@@ -2,7 +2,7 @@ import { FormEvent, useMemo, useState } from 'react';
 import { router, useForm } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
-import { Field, Select } from '@/Components/Form';
+import { Field, FormActions, Select } from '@/Components/Form';
 import { Button } from '@/Components/ui/button';
 
 export type HierarchyCompanyOption = {
@@ -105,9 +105,11 @@ export default function CompanyHierarchyPanel({
                             placeholder={t('elegir')}
                         />
                     </Field>
-                    <Button type="submit" disabled={parentForm.processing}>
-                        {t('guardar')}
-                    </Button>
+                    <FormActions>
+                        <Button type="submit" disabled={parentForm.processing}>
+                            {t('guardar')}
+                        </Button>
+                    </FormActions>
                 </form>
             </section>
 

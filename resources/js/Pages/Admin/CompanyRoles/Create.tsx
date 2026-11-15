@@ -2,6 +2,7 @@ import { FormEvent } from 'react';
 import { router, useForm } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
+import { FormActions } from '@/Components/Form';
 import { Button } from '@/Components/ui/button';
 import AppLayout from '@/Layouts/AppLayout';
 import RoleMetadataFields from '@/Pages/Admin/Roles/components/RoleMetadataFields';
@@ -42,14 +43,14 @@ export default function Create() {
                     onDescriptionChange={(value) => setData('description', value)}
                 />
 
-                <div className="flex items-center justify-end gap-2">
+                <FormActions>
                     <Button type="button" variant="secondary" onClick={() => router.visit('/admin/company-roles')}>
                         {t('cancelar')}
                     </Button>
                     <Button type="submit" disabled={processing}>
                         {t('guardar')}
                     </Button>
-                </div>
+                </FormActions>
             </form>
         </AppLayout>
     );

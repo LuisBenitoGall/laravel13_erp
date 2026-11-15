@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/Components/ui/button';
 import { Checkbox } from '@/Components/ui/checkbox';
-import { Field, Input, Textarea } from '@/Components/Form';
+import { Field, FormActions, Input, Textarea } from '@/Components/Form';
 import ScrollToTop from '@/Components/Navigation/ScrollToTop';
 import AppLayout from '@/Layouts/AppLayout';
 import { patchJson } from '@/lib/http';
@@ -246,14 +246,14 @@ export default function CompanyRoleForm({ role, matrix }: Props) {
                         />
                     </Field>
 
-                    <div className="flex justify-end gap-2">
+                    <FormActions>
                         <Button type="button" variant="secondary" onClick={() => router.visit('/admin/company-roles')}>
                             {t('cancelar')}
                         </Button>
                         <Button type="submit" disabled={processing}>
                             {t('guardar')}
                         </Button>
-                    </div>
+                    </FormActions>
                 </form>
 
                 {permissionsReadonly ? (

@@ -1,11 +1,11 @@
 ## Purpose
 
 Pilares de menú como Modules del catálogo: `empresas` (Mis empresas +
-Directorio), `usuarios` (Usuarios empresa → Index ServerTable; Todos los
-usuarios; company-roles), `cuenta` (Mi cuenta = cuenta SaaS company /
-placeholder; Mis módulos), `dashboard` (hoja) y `configuracion` (SA AdminOnly:
-Módulos, Roles, Permisos, Países, Monedas, Bancos, Unidades, Tipos de IVA,
-Grupos contables, Autorizaciones). La ficha Edit del propio user
+Directorio + Centros de trabajo), `usuarios` (Usuarios empresa → Index
+ServerTable; Todos los usuarios; company-roles), `cuenta` (Mi cuenta = cuenta
+SaaS company / placeholder; Mis módulos), `dashboard` (hoja) y `configuracion`
+(SA AdminOnly: Módulos, Roles, Permisos, Países, Monedas, Bancos, Unidades,
+Tipos de IVA, Grupos contables, Autorizaciones). La ficha Edit del propio user
 (`/admin/profile`) no es ítem de menú lateral (acceso vía avatar). Sin bloques
 sintéticos ni slugs `admin`/`workspace`.
 
@@ -147,6 +147,16 @@ empresas, sin sustituir el Index de Mis empresas.
 #### Scenario: Dos entradas
 - **WHEN** el usuario ve el menú Empresas
 - **THEN** tiene Mis empresas y Directorio como entradas distintas
+
+### Requirement: Menú Empresas con Centros de trabajo
+El pilar `empresas` SHALL añadir el subítem Centros de trabajo
+(Functionality `workplaces` → `/admin/workplaces`) junto a Mis empresas y
+Directorio, sin sustituir esas entradas.
+
+#### Scenario: Entrada distinta
+- **WHEN** el usuario ve el menú Empresas
+- **THEN** tiene Centros de trabajo como entrada distinta de Mis empresas
+  y Directorio
 
 ### Requirement: Cuenta con Mi cuenta y Mis módulos
 El sistema SHALL exponer bajo el Module `cuenta` las Functionalities de Mi

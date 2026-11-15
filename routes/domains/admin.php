@@ -26,6 +26,7 @@ use App\Domains\Admin\Http\Controllers\UserEmailController;
 use App\Domains\Admin\Http\Controllers\UserImageController;
 use App\Domains\Admin\Http\Controllers\UserPhoneController;
 use App\Domains\Admin\Http\Controllers\VatTypeController;
+use App\Domains\Admin\Http\Controllers\WorkplaceController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -148,6 +149,17 @@ Route::middleware(['auth', 'company', 'module:empresas'])->prefix('admin')->name
         ->name('company-directory.index');
     Route::get('company-directory/{company}', [CompanyDirectoryController::class, 'show'])
         ->name('company-directory.show');
+
+    Route::get('workplaces/table', [WorkplaceController::class, 'table'])->name('workplaces.table');
+    Route::get('workplaces/geo/countries', [WorkplaceController::class, 'countryOptions'])
+        ->name('workplaces.geo.countries');
+    Route::get('workplaces/geo/countries/{country}/provinces', [WorkplaceController::class, 'provinceOptions'])
+        ->name('workplaces.geo.provinces');
+    Route::get('workplaces/geo/provinces/{province}/towns', [WorkplaceController::class, 'townOptions'])
+        ->name('workplaces.geo.towns');
+    Route::patch('workplaces/{workplace}/status', [WorkplaceController::class, 'updateStatus'])
+        ->name('workplaces.status');
+    Route::resource('workplaces', WorkplaceController::class)->except(['show']);
 
     Route::get('companies/table', [CompanyController::class, 'table'])->name('companies.table');
     Route::patch('companies/{company}/status', [CompanyController::class, 'updateStatus'])

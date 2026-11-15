@@ -3,7 +3,7 @@ import { Pencil, Plus } from 'lucide-react';
 import { FormEvent, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ColorPicker, Field, IconPicker, Input, LangTabs, Switch, Textarea } from '@/Components/Form';
+import { ColorPicker, Field, FormActions, IconPicker, Input, LangTabs, Switch, Textarea } from '@/Components/Form';
 import RecordSummary from '@/Components/Records/RecordSummary';
 import ServerTable, { type ColumnDef, type RowAction } from '@/Components/Table/ServerTable';
 import { Button } from '@/Components/ui/button';
@@ -396,9 +396,11 @@ export default function Edit({ module }: { module: ModuleRecord }) {
                                 </div>
                             )}
                         </LangTabs>
-                        <Button type="submit" disabled={processing}>
-                            {t('guardar')}
-                        </Button>
+                        <FormActions>
+                            <Button type="submit" disabled={processing}>
+                                {t('guardar')}
+                            </Button>
+                        </FormActions>
                     </form>
                 ) : (
                     <div className="mt-4">

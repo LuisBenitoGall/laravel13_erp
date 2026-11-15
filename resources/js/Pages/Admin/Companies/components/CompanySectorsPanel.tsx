@@ -2,7 +2,7 @@ import { useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Checkbox, Field } from '@/Components/Form';
+import { Checkbox, Field, FormActions } from '@/Components/Form';
 import { Button } from '@/Components/ui/button';
 
 export type SectorOption = {
@@ -85,9 +85,11 @@ export default function CompanySectorsPanel({
             </Field>
 
             {canUpdate ? (
-                <Button type="submit" disabled={form.processing}>
-                    {t('guardar')}
-                </Button>
+                <FormActions>
+                    <Button type="submit" disabled={form.processing}>
+                        {t('guardar')}
+                    </Button>
+                </FormActions>
             ) : null}
         </form>
     );

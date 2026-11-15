@@ -2,7 +2,7 @@ import { useForm, usePage } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Field, Input, LangTabs, Select, Textarea, Wysiwyg } from '@/Components/Form';
+import { Field, FormActions, Input, LangTabs, Select, Textarea, Wysiwyg } from '@/Components/Form';
 import { Button } from '@/Components/ui/button';
 
 type LocaleMap = Record<string, string>;
@@ -193,9 +193,11 @@ export default function CompanyForm({
                 </LangTabs>
             ) : null}
 
-            <Button type="submit" disabled={form.processing}>
-                {t('guardar')}
-            </Button>
+            <FormActions>
+                <Button type="submit" disabled={form.processing}>
+                    {t('guardar')}
+                </Button>
+            </FormActions>
         </form>
     );
 }

@@ -85,6 +85,7 @@ class AdminCatalogSeeder extends Seeder
                 ['module' => 'configuracion', 'name' => 'Accounting account types', 'slug' => 'accounting-account-types', 'label' => ['es' => 'Grupos contables', 'en' => 'Account groups', 'ca' => 'Grups comptables']],
                 ['module' => 'empresas', 'name' => 'Companies', 'slug' => 'companies', 'label' => ['es' => 'Mis empresas', 'en' => 'My companies', 'ca' => 'Les meves empreses']],
                 ['module' => 'empresas', 'name' => 'Company directory', 'slug' => 'company-directory', 'label' => ['es' => 'Directorio', 'en' => 'Directory', 'ca' => 'Directori']],
+                ['module' => 'empresas', 'name' => 'Workplaces', 'slug' => 'workplaces', 'label' => ['es' => 'Centros de trabajo', 'en' => 'Workplaces', 'ca' => 'Centres de treball']],
                 ['module' => 'empresas', 'name' => 'Company sectors', 'slug' => 'company-sectors', 'label' => ['es' => 'Sectores de empresa', 'en' => 'Company sectors', 'ca' => 'Sectors d\'empresa']],
                 ['module' => 'cuenta', 'name' => 'Company modules', 'slug' => 'company-modules', 'label' => ['es' => 'Mis módulos', 'en' => 'My modules', 'ca' => 'Els meus mòduls']],
                 ['module' => 'usuarios', 'name' => 'Company users', 'slug' => 'company-users', 'label' => ['es' => 'Usuarios empresa', 'en' => 'Company users', 'ca' => 'Usuaris empresa']],

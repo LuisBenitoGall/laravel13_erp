@@ -2,7 +2,7 @@ import { useForm, usePage } from '@inertiajs/react';
 import { FormEvent, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ColorPicker, Field, IconPicker, Input, LangTabs, Select, Switch, Textarea } from '@/Components/Form';
+import { ColorPicker, Field, FormActions, IconPicker, Input, LangTabs, Select, Switch, Textarea } from '@/Components/Form';
 import { Button } from '@/Components/ui/button';
 import { Label } from '@/Components/ui/label';
 import AppLayout from '@/Layouts/AppLayout';
@@ -145,9 +145,11 @@ export default function Create() {
                         </div>
                     )}
                 </LangTabs>
-                <Button type="submit" disabled={processing}>
-                    {t('guardar')}
-                </Button>
+                <FormActions>
+                    <Button type="submit" disabled={processing}>
+                        {t('guardar')}
+                    </Button>
+                </FormActions>
             </form>
         </AppLayout>
     );
