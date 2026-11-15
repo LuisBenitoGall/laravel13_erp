@@ -18,6 +18,7 @@ use App\Domains\Admin\Models\VatType;
 use App\Domains\Admin\Policies\AccountingAccountTypePolicy;
 use App\Domains\Admin\Policies\AllUserPolicy;
 use App\Domains\Admin\Policies\BankPolicy;
+use App\Domains\Admin\Policies\CompanyDirectoryPolicy;
 use App\Domains\Admin\Policies\CompanyPolicy;
 use App\Domains\Admin\Policies\CompanyRolePolicy;
 use App\Domains\Admin\Policies\CompanyUserPolicy;
@@ -98,6 +99,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('deleteCompanyRole', [CompanyRolePolicy::class, 'delete']);
 
         Gate::define('viewAnyAllUser', [AllUserPolicy::class, 'viewAny']);
+        Gate::define('viewAnyCompanyDirectory', [CompanyDirectoryPolicy::class, 'viewAny']);
+        Gate::define('viewCompanyDirectory', [CompanyDirectoryPolicy::class, 'view']);
         Gate::define('viewAnyCompanyUser', [CompanyUserPolicy::class, 'viewAny']);
         Gate::define('viewCompanyUser', [CompanyUserPolicy::class, 'view']);
         Gate::define('createCompanyUser', [CompanyUserPolicy::class, 'create']);

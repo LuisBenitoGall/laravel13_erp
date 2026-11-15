@@ -1,8 +1,7 @@
 ## Purpose
 
 Kit Form en `Components/Form`: Field + controles (Input, Textarea, NumberInput, Select,
-DatePicker, Checkbox, Switch, LangTabs, ColorPicker, IconPicker, Dropzone). Excluye
-Wysiwyg hasta su change.
+DatePicker, Checkbox, Switch, LangTabs, ColorPicker, IconPicker, Dropzone, Wysiwyg).
 
 ## Requirements
 
@@ -20,14 +19,27 @@ acoplarse a `UserImage`.
 - **WHEN** el usuario selecciona un fichero fuera de accept o maxSize
 - **THEN** se informa del error sin subir ese fichero
 
+### Requirement: Wysiwyg en el form-kit
+El sistema SHALL exponer `Form/Wysiwyg` reutilizable basado en
+`@tiptap/react`, controlado por valor HTML string, integrable con `Field`,
+con toolbar mínima de formato (negrita, cursiva, listas, headings). SHALL NOT
+acoplarse a Company.
+
+#### Scenario: Valor controlado
+- **WHEN** un consumidor pasa `value` HTML y `onChange`
+- **THEN** el editor refleja el valor y emite HTML al editar
+
+#### Scenario: Uso con Field
+- **WHEN** Wysiwyg se usa dentro de Field con error de validación
+- **THEN** label y error se muestran de forma homogénea al resto del kit
+
 ### Requirement: Kit Form MVP en Components/Form
 El sistema SHALL exponer componentes reutilizables `Form/Field`, `Input`, `Textarea`,
 `NumberInput`, `Select` (combobox con búsqueda sobre opciones locales), `DatePicker`,
-`Checkbox`, `Switch`, `LangTabs`, `ColorPicker`, `IconPicker` y `Dropzone`
-integrados con el kit (RHF/zod o espejo Inertia vía Field donde aplique), con
-label/error/help homogéneos vía `Field` cuando corresponda. SHALL NOT añadir
-Wysiwyg en este change. SHALL documentar uso en el template frontend y mantener
-al menos un formulario de referencia en el kit.
+`Checkbox`, `Switch`, `LangTabs`, `ColorPicker`, `IconPicker`, `Dropzone` y
+`Wysiwyg` integrados con el kit (RHF/zod o espejo Inertia vía Field donde aplique), con
+label/error/help homogéneos vía `Field` cuando corresponda. SHALL documentar uso en el
+template frontend y mantener al menos un formulario de referencia en el kit.
 
 #### Scenario: Field unifica label y error
 - **WHEN** un campo del kit se usa en un formulario RHF con error de validación
@@ -36,7 +48,7 @@ al menos un formulario de referencia en el kit.
 #### Scenario: Controles MVP disponibles
 - **WHEN** un desarrollador construye un formulario nuevo con el kit
 - **THEN** puede componer Field con Input, Textarea, NumberInput, Select, DatePicker,
-  Checkbox, Switch, LangTabs, ColorPicker, IconPicker y Dropzone sin inventar
+  Checkbox, Switch, LangTabs, ColorPicker, IconPicker, Dropzone y Wysiwyg sin inventar
   primitivas ad-hoc para esos tipos
 
 #### Scenario: Select filtra opciones locales
@@ -49,7 +61,7 @@ al menos un formulario de referencia en el kit.
 
 #### Scenario: Fuera de alcance explícito
 - **WHEN** se revisa el entregable de este change
-- **THEN** no se ha añadido Wysiwyg como parte del entregable
+- **THEN** Wysiwyg forma parte del kit Form (deja de estar excluido)
 
 #### Scenario: Formulario de referencia migrado
 - **WHEN** se completa el change

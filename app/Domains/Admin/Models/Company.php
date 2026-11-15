@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use Spatie\Translatable\HasTranslations;
 
 /**
  * Tenant organizativo (Admin). Excepción R-TEN-01: es el tenant, no un hijo scoped.
@@ -26,11 +27,19 @@ use Illuminate\Support\Collection;
  * @property CompanyStatus $status
  * @property string|null $logo
  * @property int|null $parent_id
+ * @property array<string, string|null>|string|null $excerpt
+ * @property array<string, string|null>|string|null $description
  */
 class Company extends Model
 {
     /** @use HasFactory<CompanyFactory> */
-    use Auditable, HasFactory, SoftDeletes;
+    use Auditable, HasFactory, HasTranslations, SoftDeletes;
+
+    /** @var list<string> */
+    public array $translatable = [
+        'excerpt',
+        'description',
+    ];
 
     protected $fillable = [
         'name',
@@ -40,6 +49,8 @@ class Company extends Model
         'status',
         'logo',
         'parent_id',
+        'excerpt',
+        'description',
     ];
 
     protected function casts(): array

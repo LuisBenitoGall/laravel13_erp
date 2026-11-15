@@ -118,6 +118,8 @@ export type Company = {
     status: string;
     logo: string | null;
     logo_url?: string | null;
+    excerpt?: Record<string, string | null>;
+    description?: Record<string, string | null>;
     created_at?: string | null;
     updated_at?: string | null;
 };

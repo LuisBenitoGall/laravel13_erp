@@ -4,6 +4,7 @@ use App\Domains\Admin\Http\Controllers\AccountingAccountTypeController;
 use App\Domains\Admin\Http\Controllers\AllUserController;
 use App\Domains\Admin\Http\Controllers\BankController;
 use App\Domains\Admin\Http\Controllers\CompanyController;
+use App\Domains\Admin\Http\Controllers\CompanyDirectoryController;
 use App\Domains\Admin\Http\Controllers\CompanyMemberController;
 use App\Domains\Admin\Http\Controllers\CompanyModuleAuthorizationController;
 use App\Domains\Admin\Http\Controllers\CompanyModuleController;
@@ -143,6 +144,11 @@ Route::middleware(['auth', 'company', 'module:configuracion'])->prefix('admin')-
 });
 
 Route::middleware(['auth', 'company', 'module:empresas'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('company-directory', [CompanyDirectoryController::class, 'index'])
+        ->name('company-directory.index');
+    Route::get('company-directory/{company}', [CompanyDirectoryController::class, 'show'])
+        ->name('company-directory.show');
+
     Route::get('companies/table', [CompanyController::class, 'table'])->name('companies.table');
     Route::patch('companies/{company}/status', [CompanyController::class, 'updateStatus'])
         ->name('companies.status');

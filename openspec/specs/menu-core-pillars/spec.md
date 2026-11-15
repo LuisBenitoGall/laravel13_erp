@@ -1,13 +1,13 @@
 ## Purpose
 
-Pilares de menú como Modules del catálogo: `empresas` (Mis empresas), `usuarios`
-(Usuarios empresa → Index ServerTable; Todos los usuarios; company-roles),
-`cuenta` (Mi cuenta = cuenta SaaS company / placeholder; Mis módulos),
-`dashboard` (hoja) y `configuracion` (SA AdminOnly: Módulos, Roles, Permisos,
-Países, Monedas, Bancos, Unidades, Tipos de IVA, Grupos contables,
-Autorizaciones). La ficha Edit del propio user (`/admin/profile`) no es ítem
-de menú lateral (acceso vía avatar). Sin bloques sintéticos ni slugs
-`admin`/`workspace`.
+Pilares de menú como Modules del catálogo: `empresas` (Mis empresas +
+Directorio), `usuarios` (Usuarios empresa → Index ServerTable; Todos los
+usuarios; company-roles), `cuenta` (Mi cuenta = cuenta SaaS company /
+placeholder; Mis módulos), `dashboard` (hoja) y `configuracion` (SA AdminOnly:
+Módulos, Roles, Permisos, Países, Monedas, Bancos, Unidades, Tipos de IVA,
+Grupos contables, Autorizaciones). La ficha Edit del propio user
+(`/admin/profile`) no es ítem de menú lateral (acceso vía avatar). Sin bloques
+sintéticos ni slugs `admin`/`workspace`.
 
 ## Requirements
 
@@ -138,6 +138,15 @@ El menú SHALL enlazar Mis empresas a la ruta Index bajo `/admin/companies`
 #### Scenario: Href Mis empresas
 - **WHEN** el menú construye el href de Mis empresas
 - **THEN** apunta a `/admin/companies` (ruta admin)
+
+### Requirement: Menú Empresas con Mis empresas y Directorio
+El pilar `empresas` (con Mis empresas) SHALL añadir el subítem Directorio
+(Functionality `company-directory` → `/admin/company-directory`) junto a Mis
+empresas, sin sustituir el Index de Mis empresas.
+
+#### Scenario: Dos entradas
+- **WHEN** el usuario ve el menú Empresas
+- **THEN** tiene Mis empresas y Directorio como entradas distintas
 
 ### Requirement: Cuenta con Mi cuenta y Mis módulos
 El sistema SHALL exponer bajo el Module `cuenta` las Functionalities de Mi

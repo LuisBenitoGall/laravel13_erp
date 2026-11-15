@@ -148,7 +148,75 @@ it('rechaza update de company no vinculada', function () {
         'name' => 'Hacked',
         'nif' => 'X1234567L',
         'status' => CompanyStatus::Active->value,
+        'excerpt' => ['es' => 'No debe guardar'],
+        'description' => ['es' => '<p>No debe guardar</p>'],
     ])->assertForbidden();
+
+    expect($foreign->fresh()->getTranslation('excerpt', 'es'))->toBeNull()
+        ->and($foreign->fresh()->getTranslation('description', 'es'))->toBeNull();
+});
+
+it('persiste excerpt y description multi-idioma y sanea HTML', function () {
+    $company = Company::factory()->create([
+        'name' => 'Texts Co',
+        'nif' => '12345678Z',
+        'status' => CompanyStatus::Active,
+    ]);
+    actingCompanyEditor($company);
+
+    $this->put(route('admin.companies.update', $company), [
+        'name' => 'Texts Co',
+        'tradename' => null,
+        'nif' => '12345678Z',
+        'status' => CompanyStatus::Active->value,
+        'excerpt' => [
+            'es' => 'Extracto corto ES',
+            'en' => 'Short excerpt EN',
+            'ca' => '',
+        ],
+        'description' => [
+            'es' => '<p onclick="alert(1)">Hola <strong onmouseover="x()">mundo</strong></p><script>alert(1)</script><a href="javascript:alert(1)" onclick="y()">x</a><a href="https://example.com" class="x" style="color:red">ok</a>',
+            'en' => '<p>Hello</p>',
+            'ca' => '<p></p>',
+        ],
+    ])->assertRedirect();
+
+    $company->refresh();
+    $descriptionEs = $company->getTranslation('description', 'es');
+
+    expect($company->getTranslation('excerpt', 'es'))->toBe('Extracto corto ES')
+        ->and($company->getTranslation('excerpt', 'en'))->toBe('Short excerpt EN')
+        ->and($descriptionEs)->toContain('<strong>mundo</strong>')
+        ->and($descriptionEs)->toContain('<p>Hola')
+        ->and($descriptionEs)->not->toContain('onclick')
+        ->and($descriptionEs)->not->toContain('onmouseover')
+        ->and($descriptionEs)->not->toContain('class=')
+        ->and($descriptionEs)->not->toContain('style=')
+        ->and($descriptionEs)->not->toContain('<script')
+        ->and($descriptionEs)->not->toContain('alert(1)')
+        ->and($descriptionEs)->toContain('href="https://example.com"')
+        ->and($descriptionEs)->not->toContain('javascript:')
+        ->and($company->getTranslation('description', 'en'))->toBe('<p>Hello</p>');
+});
+
+it('valida limites de excerpt y description por locale', function () {
+    $company = Company::factory()->create([
+        'name' => 'Limits Co',
+        'nif' => '12345678Z',
+        'status' => CompanyStatus::Active,
+    ]);
+    actingCompanyEditor($company);
+
+    $this->from(route('admin.companies.edit', $company))
+        ->put(route('admin.companies.update', $company), [
+            'name' => 'Limits Co',
+            'nif' => '12345678Z',
+            'status' => CompanyStatus::Active->value,
+            'excerpt' => ['es' => str_repeat('a', 1001)],
+            'description' => ['es' => str_repeat('b', 20001)],
+        ])
+        ->assertRedirect()
+        ->assertSessionHasErrors(['excerpt.es', 'description.es']);
 });
 
 it('sube logo y actualiza tenant.logo_url solo si es CurrentCompany', function () {

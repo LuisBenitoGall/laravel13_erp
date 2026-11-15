@@ -124,6 +124,8 @@ export default function Edit({
                             tradename: company.tradename ?? '',
                             nif: company.nif ?? '',
                             status: company.status,
+                            excerpt: company.excerpt,
+                            description: company.description,
                         }}
                     />
                 </div>

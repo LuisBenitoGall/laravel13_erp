@@ -47,6 +47,9 @@
 | Español | Código v2 | v1 | Notas |
 |---|---|---|---|
 | Empresa | `Company` | Company | Tenant Y tercero a la vez (vision §4.5); jerarquía opcional `parent_id` (Admin) |
+| Extracto (empresa) | `excerpt` | — | Texto breve multi-idioma (JSON Spatie); ≤1000/locale; Edit Info |
+| Descripción (empresa) | `description` | — | HTML rico multi-idioma (JSON Spatie + Wysiwyg); ≤20000/locale; Edit Info |
+| Directorio | `company-directory` | Directorio | Descubrimiento de companies Active+NIF+≥1 sector (Module `empresas`); ≠ Mis empresas |
 | Cliente / Proveedor | `Customer` / `Provider` | customer/provider | Roles de la relación `CustomerProvider` |
 | Relación cliente-proveedor | `CustomerProvider` | CustomerProviders | Singular en v2 |
 | Obra | `Worksite` | Obra | Decisión de naming 2026-07-14 |

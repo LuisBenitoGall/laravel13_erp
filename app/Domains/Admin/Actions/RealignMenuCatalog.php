@@ -36,7 +36,7 @@ class RealignMenuCatalog
             'accounting-account-types',
             'company-module-authorizations',
         ],
-        'empresas' => ['companies', 'company-sectors'],
+        'empresas' => ['companies', 'company-directory', 'company-sectors'],
         'usuarios' => ['company-users', 'all-users', 'company-roles'],
         'cuenta' => ['company-modules', 'profile'],
     ];

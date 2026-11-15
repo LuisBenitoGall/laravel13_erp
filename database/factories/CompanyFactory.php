@@ -33,4 +33,21 @@ class CompanyFactory extends Factory
             'status' => CompanyStatus::Draft,
         ]);
     }
+
+    /** Textos multi-idioma para tests de Edit Info. */
+    public function withTexts(): static
+    {
+        return $this->state(fn (): array => [
+            'excerpt' => [
+                'es' => 'Extracto ES',
+                'en' => 'Excerpt EN',
+                'ca' => 'Extracte CA',
+            ],
+            'description' => [
+                'es' => '<p>Descripción ES</p>',
+                'en' => '<p>Description EN</p>',
+                'ca' => '<p>Descripció CA</p>',
+            ],
+        ]);
+    }
 }

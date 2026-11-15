@@ -112,7 +112,7 @@ it('rechaza nif formato invalido y duplicado', function () {
         ->and(Company::query()->where('name', 'Dup Nif')->exists())->toBeFalse();
 });
 
-it('ignora slug y logo enviados por el cliente en Create', function () {
+it('ignora slug logo excerpt y description enviados por el cliente en Create', function () {
     $session = Company::factory()->create(['status' => CompanyStatus::Active, 'slug' => 'session-co']);
     actingCompanyCreator($session);
 
@@ -123,14 +123,18 @@ it('ignora slug y logo enviados por el cliente en Create', function () {
         'nif' => '12345678Z',
         'status' => CompanyStatus::Active->value,
         'logo' => 'http://evil.example/logo.png',
+        'excerpt' => ['es' => 'No debe persistir'],
+        'description' => ['es' => '<p>No debe persistir</p>'],
     ])->assertRedirect();
 
     $created = Company::query()->where('nif', '12345678Z')->firstOrFail();
     expect($created->slug)->toBe('client-slug-co')
-        ->and($created->logo)->toBeNull();
+        ->and($created->logo)->toBeNull()
+        ->and($created->getTranslation('excerpt', 'es'))->toBeNull()
+        ->and($created->getTranslation('description', 'es'))->toBeNull();
 });
 
-it('UI Create solo name tradename nif status sin slug ni logo', function () {
+it('UI Create solo name tradename nif status sin slug logo excerpt ni description', function () {
     $create = file_get_contents(resource_path('js/Pages/admin/companies/Create.tsx'));
     $form = file_get_contents(resource_path('js/Pages/admin/companies/components/CompanyForm.tsx'));
 
@@ -140,6 +144,9 @@ it('UI Create solo name tradename nif status sin slug ni logo', function () {
         ->and($form)->toContain("mode?: 'create' | 'edit'")
         ->and($form)->toContain('maxLength={12}')
         ->and($form)->toContain("from '@/Components/ui/button'")
+        ->and($form)->toContain("mode === 'edit'")
+        ->and($form)->toContain('Wysiwyg')
+        ->and($form)->toContain("t('extracto')")
         ->and($form)->not->toContain("t('slug')")
         ->and($form)->not->toContain("t('logo_url')");
 });

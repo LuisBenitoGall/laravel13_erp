@@ -158,6 +158,7 @@ class MenuBuilder
     {
         return match ($functionality['slug']) {
             'companies' => __('mis_empresas'),
+            'company-directory' => __('directorio'),
             'company-users' => __('usuarios_empresa'),
             'all-users' => __('todos_los_usuarios'),
             'company-modules' => __('mis_modulos'),
@@ -216,6 +217,7 @@ class MenuBuilder
         return match ($slug) {
             'modules' => route('admin.modules.index', absolute: false),
             'companies' => route('admin.companies.index', absolute: false),
+            'company-directory' => route('admin.company-directory.index', absolute: false),
             'company-modules' => route('admin.company-modules.index', absolute: false),
             'company-module-authorizations' => route('admin.company-module-authorizations.index', absolute: false),
             'roles' => route('admin.roles.index', absolute: false),
