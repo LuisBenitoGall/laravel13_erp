@@ -44,6 +44,11 @@ class StoreWorkplaceRequest extends FormRequest
             ],
             'featured' => ['sometimes', 'boolean'],
             'status' => ['required', Rule::enum(WorkplaceStatus::class)],
+            'return_to' => [
+                'nullable',
+                'string',
+                'regex:#^/admin/company-settings(?:\\?.*)?$#',
+            ],
         ];
     }
 }

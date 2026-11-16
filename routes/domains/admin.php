@@ -9,13 +9,17 @@ use App\Domains\Admin\Http\Controllers\CompanyMemberController;
 use App\Domains\Admin\Http\Controllers\CompanyModuleAuthorizationController;
 use App\Domains\Admin\Http\Controllers\CompanyModuleController;
 use App\Domains\Admin\Http\Controllers\CompanyRoleController;
+use App\Domains\Admin\Http\Controllers\CompanySettingsController;
 use App\Domains\Admin\Http\Controllers\CompanyUserController;
 use App\Domains\Admin\Http\Controllers\CountryController;
 use App\Domains\Admin\Http\Controllers\CurrencyController;
 use App\Domains\Admin\Http\Controllers\FunctionalityController;
 use App\Domains\Admin\Http\Controllers\ModuleController;
+use App\Domains\Admin\Http\Controllers\NoteController;
+use App\Domains\Admin\Http\Controllers\PaymentMethodController;
 use App\Domains\Admin\Http\Controllers\PermissionController;
 use App\Domains\Admin\Http\Controllers\PlatformRoleController;
+use App\Domains\Admin\Http\Controllers\PreferenceController;
 use App\Domains\Admin\Http\Controllers\ProvinceController;
 use App\Domains\Admin\Http\Controllers\SectorController;
 use App\Domains\Admin\Http\Controllers\TownController;
@@ -49,6 +53,15 @@ Route::middleware(['auth', 'company'])->prefix('admin')->name('admin.')->group(f
         ->name('functionalities.update');
     Route::delete('functionalities/{functionality}', [FunctionalityController::class, 'destroy'])
         ->name('functionalities.destroy');
+
+    // Favoritos personales (sin Functionality de menú; D4/D6).
+    Route::post('preferences', [PreferenceController::class, 'store'])->name('preferences.store');
+    Route::delete('preferences/{preference}', [PreferenceController::class, 'destroy'])
+        ->name('preferences.destroy');
+
+    // Notas internas personales (sin company_id; D2/D6).
+    Route::post('notes', [NoteController::class, 'store'])->name('notes.store');
+    Route::delete('notes/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
 });
 
 Route::middleware(['auth', 'company', 'module:cuenta'])->prefix('admin')->name('admin.')->group(function () {
@@ -120,6 +133,14 @@ Route::middleware(['auth', 'company', 'module:configuracion'])->prefix('admin')-
     Route::patch('sectors/{sector}/status', [SectorController::class, 'updateStatus'])->name('sectors.status');
     Route::resource('sectors', SectorController::class)->only(['index', 'store', 'update', 'destroy']);
 
+    // Métodos de pago globales (catálogo plano traducibles); permisos `payment-methods.*`.
+    Route::get('payment-methods/table', [PaymentMethodController::class, 'table'])->name('payment-methods.table');
+    Route::patch('payment-methods/{payment_method}/status', [PaymentMethodController::class, 'updateStatus'])
+        ->name('payment-methods.status');
+    Route::resource('payment-methods', PaymentMethodController::class)
+        ->parameters(['payment-methods' => 'payment_method'])
+        ->only(['index', 'store', 'update', 'destroy']);
+
     // Tipos de IVA globales por país; permisos `vat-types.*`.
     Route::get('vat-types/table', [VatTypeController::class, 'table'])->name('vat-types.table');
     Route::patch('vat-types/{vatType}/status', [VatTypeController::class, 'updateStatus'])->name('vat-types.status');
@@ -149,6 +170,11 @@ Route::middleware(['auth', 'company', 'module:empresas'])->prefix('admin')->name
         ->name('company-directory.index');
     Route::get('company-directory/{company}', [CompanyDirectoryController::class, 'show'])
         ->name('company-directory.show');
+
+    Route::get('company-settings', [CompanySettingsController::class, 'index'])
+        ->name('company-settings.index');
+    Route::post('company-settings/dismiss-modal', [CompanySettingsController::class, 'dismissModal'])
+        ->name('company-settings.dismiss-modal');
 
     Route::get('workplaces/table', [WorkplaceController::class, 'table'])->name('workplaces.table');
     Route::get('workplaces/geo/countries', [WorkplaceController::class, 'countryOptions'])

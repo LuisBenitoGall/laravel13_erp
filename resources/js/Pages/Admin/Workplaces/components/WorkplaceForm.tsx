@@ -23,6 +23,8 @@ type Props = {
     countries: GeoOption[];
     /** Create: true si no hay centros Active; false si ya hay ≥1 Active. */
     defaultFeatured?: boolean;
+    /** Tras crear, redirect al hub (p. ej. `/admin/company-settings`). */
+    returnTo?: string | null;
     initial?: Partial<{
         name: string;
         address: string | null;
@@ -53,6 +55,7 @@ export default function WorkplaceForm({
     method = 'post',
     countries,
     defaultFeatured = true,
+    returnTo = null,
     initial,
 }: Props) {
     const { t } = useTranslation();
@@ -149,6 +152,7 @@ export default function WorkplaceForm({
             town_id: form.data.town_id ? Number(form.data.town_id) : null,
             featured: form.data.featured,
             status: form.data.status,
+            ...(mode === 'create' && returnTo ? { return_to: returnTo } : {}),
         };
         form.transform(() => payload);
         if (method === 'put') {

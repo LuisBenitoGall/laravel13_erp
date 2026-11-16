@@ -22,6 +22,7 @@ use App\Support\Table\ActiveFirstOrder;
 use App\Support\Table\TableBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -51,7 +52,7 @@ class WorkplaceController extends Controller
             ->json();
     }
 
-    public function create(): InertiaResponse
+    public function create(Request $request): InertiaResponse
     {
         $this->authorize('create', Workplace::class);
 
@@ -60,15 +61,29 @@ class WorkplaceController extends Controller
             ->where('status', WorkplaceStatus::Active)
             ->exists();
 
+        $returnTo = $request->query('return_to');
+        $returnTo = is_string($returnTo) && preg_match('#^/admin/company-settings(?:\?.*)?$#', $returnTo)
+            ? $returnTo
+            : null;
+
         return Inertia::render('Admin/Workplaces/Create', [
             'countries' => $this->activeCountries(),
             'default_featured' => $defaultFeatured,
+            'return_to' => $returnTo,
         ]);
     }
 
     public function store(StoreWorkplaceRequest $request, CreateWorkplace $action): RedirectResponse
     {
-        $workplace = $action->handle($request->validated());
+        $payload = $request->safe()->except(['return_to']);
+        $workplace = $action->handle($payload);
+
+        $returnTo = $request->validated('return_to');
+        if (is_string($returnTo) && $returnTo !== '') {
+            return redirect()
+                ->to($returnTo)
+                ->with('success', __('centro_trabajo_creado'));
+        }
 
         return to_route('admin.workplaces.edit', $workplace)
             ->with('success', __('centro_trabajo_creado'));

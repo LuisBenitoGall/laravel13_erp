@@ -6,6 +6,7 @@ use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Models\CompanyModule;
 use App\Domains\Admin\Models\CompanyModuleAuthorization;
 use App\Domains\Admin\Support\MenuCatalogCache;
+use App\Domains\Admin\Support\MenuFunctionalityHref;
 use App\Models\User;
 use App\Support\Tenancy\CurrentCompany;
 
@@ -160,6 +161,8 @@ class MenuBuilder
             'companies' => __('mis_empresas'),
             'company-directory' => __('directorio'),
             'workplaces' => __('centros_de_trabajo'),
+            'company-settings' => __('configuracion_de_la_empresa'),
+            'payment-methods' => __('metodos_de_pago'),
             'company-users' => __('usuarios_empresa'),
             'all-users' => __('todos_los_usuarios'),
             'company-modules' => __('mis_modulos'),
@@ -215,27 +218,6 @@ class MenuBuilder
 
     private function hrefFor(string $slug): string
     {
-        return match ($slug) {
-            'modules' => route('admin.modules.index', absolute: false),
-            'companies' => route('admin.companies.index', absolute: false),
-            'company-directory' => route('admin.company-directory.index', absolute: false),
-            'workplaces' => route('admin.workplaces.index', absolute: false),
-            'company-modules' => route('admin.company-modules.index', absolute: false),
-            'company-module-authorizations' => route('admin.company-module-authorizations.index', absolute: false),
-            'roles' => route('admin.roles.index', absolute: false),
-            'permissions' => route('admin.permissions.index', absolute: false),
-            'countries' => route('admin.countries.index', absolute: false),
-            'currencies' => route('admin.currencies.index', absolute: false),
-            'banks' => route('admin.banks.index', absolute: false),
-            'units' => route('admin.units.index', absolute: false),
-            'sectors' => route('admin.sectors.index', absolute: false),
-            'vat-types' => route('admin.vat-types.index', absolute: false),
-            'accounting-account-types' => route('admin.accounting-account-types.index', absolute: false),
-            'company-roles' => route('admin.company-roles.index', absolute: false),
-            'company-users' => route('admin.company-users.index', absolute: false),
-            'all-users' => route('admin.all-users.index', absolute: false),
-            'profile' => route('account.show', absolute: false),
-            default => '#',
-        };
+        return MenuFunctionalityHref::for($slug);
     }
 }

@@ -54,6 +54,7 @@ beforeEach(function () {
         ['Currencies', 'currencies', ['es' => 'Monedas']],
         ['Banks', 'banks', ['es' => 'Bancos']],
         ['Units', 'units', ['es' => 'Unidades']],
+        ['Payment methods', 'payment-methods', ['es' => 'Métodos de pago']],
         ['VAT types', 'vat-types', ['es' => 'Tipos de IVA']],
         ['Accounting account types', 'accounting-account-types', ['es' => 'Grupos contables']],
         ['Module authorizations', 'company-module-authorizations', ['es' => 'Autorización de módulos']],
@@ -81,6 +82,14 @@ beforeEach(function () {
         'name' => 'Companies',
         'slug' => 'companies',
         'label' => ['es' => 'Mis empresas'],
+        'status' => FunctionalityStatus::Active->value,
+    ]);
+
+    app(CreateFunctionality::class)->handle([
+        'module_id' => $this->empresas->id,
+        'name' => 'Company settings',
+        'slug' => 'company-settings',
+        'label' => ['es' => 'Configuración de la empresa'],
         'status' => FunctionalityStatus::Active->value,
     ]);
 
@@ -151,7 +160,7 @@ it('SA ve Configuración como Module con catálogo', function () {
     $slugs = collect($config['functionalities'])->pluck('slug')->all();
 
     expect(collect($menu)->pluck('slug')->all())->toContain('configuracion')
-        ->and($slugs)->toContain('modules', 'roles', 'permissions', 'countries', 'currencies', 'banks', 'units', 'vat-types', 'accounting-account-types')
+        ->and($slugs)->toContain('modules', 'roles', 'permissions', 'countries', 'currencies', 'banks', 'units', 'payment-methods', 'vat-types', 'accounting-account-types')
         ->and($slugs)->not->toContain('companies', 'company-modules', 'functionalities');
 });
 
@@ -165,9 +174,13 @@ it('SA ve Mis empresas bajo Module empresas', function () {
     $companies = collect($empresas['functionalities'] ?? [])->firstWhere('slug', 'companies');
     $configSlugs = collect($menu)->firstWhere('slug', 'configuracion')['functionalities'];
 
+    $settings = collect($empresas['functionalities'] ?? [])->firstWhere('slug', 'company-settings');
+
     expect($empresas)->not->toBeNull()
         ->and($companies['label'])->toBe(__('mis_empresas'))
         ->and($companies['href'])->toBe(route('admin.companies.index', absolute: false))
+        ->and($settings)->not->toBeNull()
+        ->and($settings['href'])->toBe(route('admin.company-settings.index', absolute: false))
         ->and(collect($configSlugs)->pluck('slug')->all())->not->toContain('companies');
 });
 

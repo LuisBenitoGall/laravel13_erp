@@ -1,13 +1,14 @@
 ## Purpose
 
 Pilares de menú como Modules del catálogo: `empresas` (Mis empresas +
-Directorio + Centros de trabajo), `usuarios` (Usuarios empresa → Index
-ServerTable; Todos los usuarios; company-roles), `cuenta` (Mi cuenta = cuenta
-SaaS company / placeholder; Mis módulos), `dashboard` (hoja) y `configuracion`
-(SA AdminOnly: Módulos, Roles, Permisos, Países, Monedas, Bancos, Unidades,
-Tipos de IVA, Grupos contables, Autorizaciones). La ficha Edit del propio user
-(`/admin/profile`) no es ítem de menú lateral (acceso vía avatar). Sin bloques
-sintéticos ni slugs `admin`/`workspace`.
+Directorio + Centros de trabajo + Configuración de la empresa), `usuarios`
+(Usuarios empresa → Index ServerTable; Todos los usuarios; company-roles),
+`cuenta` (Mi cuenta = cuenta SaaS company / placeholder; Mis módulos),
+`dashboard` (hoja) y `configuracion` (SA AdminOnly: Módulos, Roles, Permisos,
+Países, Monedas, Bancos, Unidades, Tipos de IVA, Grupos contables, Métodos de
+pago, Autorizaciones). La ficha Edit del propio user (`/admin/profile`) no es
+ítem de menú lateral (acceso vía avatar). Sin bloques sintéticos ni slugs
+`admin`/`workspace`.
 
 ## Requirements
 
@@ -99,6 +100,15 @@ AccountingAccountType.
 - **WHEN** Super Admin abre Grupos contables desde Configuración
 - **THEN** navega al Index de accounting-account-types
 
+### Requirement: Ítem Métodos de pago en Configuración
+El sistema SHALL incluir bajo el Module `configuracion` un ítem Métodos
+de pago (Functionality `payment-methods`) que enlaza el Index del
+catálogo PaymentMethod Admin, sin sustituir los catálogos existentes.
+
+#### Scenario: SA abre Métodos de pago desde el menú
+- **WHEN** Super Admin abre Métodos de pago desde Configuración
+- **THEN** navega al Index de payment-methods
+
 ### Requirement: Ítem Permisos hacia catálogo de permisos
 El sistema SHALL incluir un ítem de menú Permisos distinto de Roles bajo el
 Module `configuracion`. Ese ítem SHALL enlazar el Index Admin del catálogo
@@ -157,6 +167,17 @@ Directorio, sin sustituir esas entradas.
 - **WHEN** el usuario ve el menú Empresas
 - **THEN** tiene Centros de trabajo como entrada distinta de Mis empresas
   y Directorio
+
+### Requirement: Menú Empresas con Configuración de la empresa
+El pilar `empresas` SHALL añadir el subítem Configuración de la empresa
+(Functionality `company-settings` → `/admin/company-settings`) junto a
+Mis empresas, Directorio y Centros de trabajo, sin sustituir esas
+entradas.
+
+#### Scenario: Entrada distinta
+- **WHEN** el usuario ve el menú Empresas
+- **THEN** tiene Configuración de la empresa como entrada distinta de
+  Mis empresas, Directorio y Centros de trabajo
 
 ### Requirement: Cuenta con Mi cuenta y Mis módulos
 El sistema SHALL exponer bajo el Module `cuenta` las Functionalities de Mi

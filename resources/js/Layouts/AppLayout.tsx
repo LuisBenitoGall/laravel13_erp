@@ -1,4 +1,4 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Toaster, toast } from 'sonner';
 import { type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -7,8 +7,26 @@ import AsideNav, { type AsideNavItem } from '@/Components/AsideNav';
 import NavOriginTracker from '@/Components/NavOriginTracker';
 import PageBreadcrumb, { type PageBreadcrumbData } from '@/Components/PageBreadcrumb';
 import AppTopbar from '@/Components/Topbar/AppTopbar';
+import { Button } from '@/Components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/Components/ui/dialog';
 import ViewActionBar, { type ViewAction } from '@/Components/ViewActionBar';
 import { readAsideCollapsed, writeAsideCollapsed } from '@/lib/asideStorage';
+
+type CompanySetupShared = {
+    incomplete: boolean;
+    show_modal: boolean;
+    hub_url: string;
+    wizard_url: string;
+    completed_steps: number;
+    total_steps: number;
+} | null;
 
 type SharedProps = {
     auth: { user: { id: number; name: string; email: string; avatar_url?: string | null } | null };
@@ -17,6 +35,7 @@ type SharedProps = {
     branding: { logo_url: string };
     tenant: { id: number | null; name: string | null; logo_url: string | null };
     available_companies: Array<{ id: number; name: string }>;
+    company_setup?: CompanySetupShared;
 };
 
 function readIsMobile(): boolean {
@@ -45,8 +64,16 @@ export default function AppLayout({
     children: ReactNode;
 }) {
     const { t } = useTranslation();
-    const { auth, menu, flash, branding, tenant, available_companies } =
+    const { auth, menu, flash, branding, tenant, available_companies, company_setup } =
         usePage<SharedProps>().props;
+
+    const [setupModalOpen, setSetupModalOpen] = useState(
+        () => Boolean(company_setup?.show_modal),
+    );
+
+    useEffect(() => {
+        setSetupModalOpen(Boolean(company_setup?.show_modal));
+    }, [company_setup?.show_modal]);
 
     const documentTitle =
         title ??
@@ -200,11 +227,67 @@ export default function AppLayout({
                     />
                 ) : null}
                 <main className="flex-1 px-6 pb-6 pt-3">
+                    {company_setup?.incomplete ? (
+                        <div
+                            className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+                            role="status"
+                        >
+                            <div>
+                                <p className="font-medium">{t('configuracion_empresa_incompleta')}</p>
+                                <p className="text-amber-900/80">
+                                    {t('configuracion_empresa_incompleta_ayuda')}
+                                </p>
+                            </div>
+                            <Button asChild size="sm" variant="outline">
+                                <Link href={company_setup.wizard_url}>
+                                    {t('ir_a_configuracion_empresa')}
+                                </Link>
+                            </Button>
+                        </div>
+                    ) : null}
                     {breadcrumb ? <PageBreadcrumb {...breadcrumb} /> : null}
                     <ViewActionBar actions={actions ?? []} showBack={showBack} backHref={backHref} />
                     {children}
                 </main>
             </div>
+
+            <Dialog open={setupModalOpen} onOpenChange={setSetupModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{t('completar_configuracion_empresa')}</DialogTitle>
+                        <DialogDescription>
+                            {t('configuracion_empresa_incompleta_ayuda')}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={() => {
+                                router.post(
+                                    '/admin/company-settings/dismiss-modal',
+                                    {},
+                                    {
+                                        preserveScroll: true,
+                                        onSuccess: () => setSetupModalOpen(false),
+                                    },
+                                );
+                            }}
+                        >
+                            {t('ahora_no')}
+                        </Button>
+                        <Button asChild>
+                            <Link
+                                href={company_setup?.wizard_url ?? '/admin/company-settings?wizard=1'}
+                                onClick={() => setSetupModalOpen(false)}
+                            >
+                                {t('ir_a_configuracion_empresa')}
+                            </Link>
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             <Toaster richColors position="top-right" />
         </div>
     );

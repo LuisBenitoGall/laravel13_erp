@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 
 import ChatStub from '@/Components/Topbar/ChatStub';
 import CompanySwitcher from '@/Components/Topbar/CompanySwitcher';
-import FavoritesStub from '@/Components/Topbar/FavoritesStub';
+import FavoritesPopover from '@/Components/Topbar/FavoritesPopover';
 import LocaleSwitcherCompact from '@/Components/Topbar/LocaleSwitcherCompact';
-import NotesStub from '@/Components/Topbar/NotesStub';
+import NotesModal from '@/Components/Topbar/NotesModal';
 import NotificationsPanel from '@/Components/Topbar/NotificationsPanel';
 import UserMenu from '@/Components/Topbar/UserMenu';
 import { Button } from '@/Components/ui/button';
@@ -51,9 +51,9 @@ export default function AppTopbar({
             <div className="flex min-w-0 items-center gap-1 sm:gap-2">
                 <LocaleSwitcherCompact />
                 <NotificationsPanel />
-                <NotesStub />
+                <NotesModal />
                 <ChatStub />
-                <FavoritesStub />
+                <FavoritesPopover />
                 <CompanySwitcher
                     tenantId={tenantId}
                     tenantName={tenantName}

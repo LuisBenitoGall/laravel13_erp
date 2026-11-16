@@ -7,9 +7,12 @@ type GeoOption = { id: number; name: string };
 type Props = {
     countries: GeoOption[];
     default_featured: boolean;
+    return_to?: string | null;
 };
 
-export default function Create({ countries, default_featured }: Props) {
+export default function Create({ countries, default_featured, return_to = null }: Props) {
+    const backHref = return_to || '/admin/workplaces';
+
     return (
         <AppLayout
             breadcrumb={{
@@ -17,7 +20,7 @@ export default function Create({ countries, default_featured }: Props) {
                 suboptionKey: 'nuevo_centro_trabajo',
                 optionHref: '/admin/workplaces',
             }}
-            backHref="/admin/workplaces"
+            backHref={backHref}
             actions={[]}
         >
             <WorkplaceForm
@@ -26,6 +29,7 @@ export default function Create({ countries, default_featured }: Props) {
                 submitUrl="/admin/workplaces"
                 countries={countries}
                 defaultFeatured={default_featured}
+                returnTo={return_to}
             />
         </AppLayout>
     );

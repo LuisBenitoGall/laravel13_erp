@@ -32,11 +32,12 @@ class RealignMenuCatalog
             'banks',
             'units',
             'sectors',
+            'payment-methods',
             'vat-types',
             'accounting-account-types',
             'company-module-authorizations',
         ],
-        'empresas' => ['companies', 'company-directory', 'workplaces', 'company-sectors'],
+        'empresas' => ['companies', 'company-directory', 'workplaces', 'company-settings', 'company-sectors'],
         'usuarios' => ['company-users', 'all-users', 'company-roles'],
         'cuenta' => ['company-modules', 'profile'],
     ];
@@ -55,6 +56,8 @@ class RealignMenuCatalog
             $this->ensureProfile($modules['cuenta']);
             $this->ensureAllUsers($modules['usuarios']);
             $this->ensureWorkplaces($modules['empresas']);
+            $this->ensureCompanySettings($modules['empresas']);
+            $this->ensurePaymentMethods($modules['configuracion']);
             $this->reassignFunctionalities($modules);
             $this->migrateAccessPermissions();
             $this->retireLegacyModules($modules);
@@ -263,6 +266,76 @@ class RealignMenuCatalog
                 'es' => 'Centros de trabajo',
                 'en' => 'Workplaces',
                 'ca' => 'Centres de treball',
+            ],
+            'status' => FunctionalityStatus::Active->value,
+        ]);
+    }
+
+    private function ensureCompanySettings(Module $empresas): void
+    {
+        $existing = Functionality::withTrashed()->where('slug', 'company-settings')->first();
+
+        if ($existing !== null) {
+            if ($existing->trashed()) {
+                $existing->restore();
+            }
+
+            $existing->forceFill([
+                'module_id' => $empresas->id,
+                'label' => [
+                    'es' => 'Configuración de la empresa',
+                    'en' => 'Company settings',
+                    'ca' => 'Configuració de l\'empresa',
+                ],
+                'status' => FunctionalityStatus::Active,
+            ])->save();
+
+            return;
+        }
+
+        $this->createFunctionality->handle([
+            'module_id' => $empresas->id,
+            'name' => 'Company settings',
+            'slug' => 'company-settings',
+            'label' => [
+                'es' => 'Configuración de la empresa',
+                'en' => 'Company settings',
+                'ca' => 'Configuració de l\'empresa',
+            ],
+            'status' => FunctionalityStatus::Active->value,
+        ]);
+    }
+
+    private function ensurePaymentMethods(Module $configuracion): void
+    {
+        $existing = Functionality::withTrashed()->where('slug', 'payment-methods')->first();
+
+        if ($existing !== null) {
+            if ($existing->trashed()) {
+                $existing->restore();
+            }
+
+            $existing->forceFill([
+                'module_id' => $configuracion->id,
+                'label' => [
+                    'es' => 'Métodos de pago',
+                    'en' => 'Payment methods',
+                    'ca' => 'Mètodes de pagament',
+                ],
+                'status' => FunctionalityStatus::Active,
+            ])->save();
+
+            return;
+        }
+
+        $this->createFunctionality->handle([
+            'module_id' => $configuracion->id,
+            'name' => 'Payment methods',
+            'slug' => 'payment-methods',
+            'label' => [
+                'es' => 'Métodos de pago',
+                'en' => 'Payment methods',
+                'ca' => 'Mètodes de pagament',
             ],
             'status' => FunctionalityStatus::Active->value,
         ]);

@@ -64,6 +64,8 @@ class OnboardCompanyController extends Controller
 
         $setCompanySession->handle($request, $request->user(), (int) $company->id);
 
+        $request->session()->put('company_setup.show_modal', true);
+
         return redirect()->intended($postLoginRedirect->route($request->user()));
     }
 }

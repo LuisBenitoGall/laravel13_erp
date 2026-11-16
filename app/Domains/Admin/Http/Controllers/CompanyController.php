@@ -30,6 +30,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Support\I18n\LocaleResolver;
 use App\Support\Table\TableBuilder;
+use App\Support\Tenancy\SetCompanySession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
@@ -69,9 +70,15 @@ class CompanyController extends Controller
         return Inertia::render('Admin/Companies/Create');
     }
 
-    public function store(StoreCompanyRequest $request, CreateCompany $action): RedirectResponse
-    {
+    public function store(
+        StoreCompanyRequest $request,
+        CreateCompany $action,
+        SetCompanySession $setCompanySession,
+    ): RedirectResponse {
         $company = $action->handle($request->validated(), $request->user());
+
+        $setCompanySession->handle($request, $request->user(), (int) $company->id);
+        $request->session()->put('company_setup.show_modal', true);
 
         return to_route('admin.companies.edit', $company)
             ->with('success', __('empresa_creada'));

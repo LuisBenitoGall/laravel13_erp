@@ -3,6 +3,8 @@
 namespace App\Http\Middleware;
 
 use App\Domains\Admin\Models\Company;
+use App\Domains\Admin\Models\Note;
+use App\Domains\Admin\Services\CompanySetupReadiness;
 use App\Domains\Admin\Services\MenuBuilder;
 use App\Support\I18n\LocaleResolver;
 use App\Support\I18n\TranslationDictionary;
@@ -40,6 +42,9 @@ class HandleInertiaRequests extends Middleware
                     'avatar_url' => $user->loadMissing('featuredImage')->featuredImage?->url(),
                 ] : null,
             ],
+            'notes_count' => fn () => $user
+                ? min(Note::query()->where('user_id', $user->id)->count(), Note::MAX_PER_USER)
+                : 0,
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
@@ -63,6 +68,25 @@ class HandleInertiaRequests extends Middleware
                     'name' => $c->name,
                 ])->values()->all()
                 : [],
+            'company_setup' => function () use ($request, $company) {
+                if ($company === null) {
+                    return null;
+                }
+
+                $evaluation = app(CompanySetupReadiness::class)->evaluate($company);
+                $hubUrl = route('admin.company-settings.index', absolute: false);
+
+                return [
+                    'incomplete' => ! $evaluation['complete'],
+                    'show_modal' => ! $evaluation['complete']
+                        && $request->session()->get('company_setup.show_modal') === true,
+                    'hub_url' => $hubUrl,
+                    'wizard_url' => $hubUrl.'?wizard=1',
+                    'completed_steps' => $evaluation['completed_steps'],
+                    'total_steps' => $evaluation['total_steps'],
+                    'steps' => $evaluation['steps'],
+                ];
+            },
             'locale' => App::getLocale(),
             'supportedLocales' => app(LocaleResolver::class)->supported(),
             'defaultLocale' => app(LocaleResolver::class)->default(),

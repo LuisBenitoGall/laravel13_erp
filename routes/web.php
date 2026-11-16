@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CompanySelectionController;
 use App\Http\Controllers\CompanySwitchController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LegalController;
 use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Route;
@@ -44,9 +45,9 @@ Route::middleware('auth')->group(function () {
         ->middleware('company')
         ->name('companies.switch');
 
-    Route::get('dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->middleware('company')->name('dashboard');
+    Route::get('dashboard', DashboardController::class)
+        ->middleware('company')
+        ->name('dashboard');
 
     Route::get('account', [AccountController::class, 'show'])
         ->middleware('company')

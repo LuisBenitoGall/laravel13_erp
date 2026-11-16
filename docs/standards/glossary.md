@@ -52,6 +52,9 @@
 | Directorio | `company-directory` | Directorio | Descubrimiento de companies Active+NIF+≥1 sector (Module `empresas`); ≠ Mis empresas |
 | Cliente / Proveedor | `Customer` / `Provider` | customer/provider | Roles de la relación `CustomerProvider` |
 | Relación cliente-proveedor | `CustomerProvider` | CustomerProviders | Singular en v2 |
+| Favorito (vista) | `Preference` | Favorito | Acceso rápido a un path del ERP (name+url); scope user+company de sesión; tope 20; CTA dashboard con color Module; ≠ favoritos de producto |
+| Nota interna | `Note` | Note | Post-it personal del user (`title`+`note`); **sin** `company_id`; tope 50/user; modal topbar + dashboard; ≠ Albarán (`DeliveryNote`) |
+| Configuración de la empresa | hub `company-settings` | Company settings | Hub/onboarding de la company en sesión (Functionality bajo `empresas`); readiness = nif+logo+≥1 workplace Active; ≠ Configuración SA |
 | Centro de trabajo | `Workplace` | Workplace | Sede/dirección operativa de la company (`BelongsToCompany`); ≠ Obra (`Worksite`) ni `Workspace` |
 | Principal (centro) | `featured` | — | Flag `Workplace.featured`; UI «Principal»; ≤1/company; dirección default facturación/pedidos (consumo = changes futuros) |
 | Obra | `Worksite` | Obra | Decisión de naming 2026-07-14; ≠ Centro de trabajo (`Workplace`) |
@@ -94,6 +97,7 @@
 | Banco | `Bank` | Banco | Catálogo global Admin (sin `company_id`); Functionality `banks` bajo menú Configuración |
 | Unidad | `Unit` | Unidad | Catálogo global Admin (sin `company_id`); name único; symbol max 4; Functionality `units`; Catalog consume a futuro |
 | Sector | `Sector` | Sector | Catálogo global Admin (sin `company_id`); name traducible JSON; Functionality `sectors`; N:N Company↔Sector |
+| Método de pago | `PaymentMethod` | Método de pago | Catálogo global Admin (sin `company_id`); name traducible JSON; Functionality `payment-methods`; selección por empresa más adelante |
 | Tipo de IVA | `VatType` | Tipo de IVA | Catálogo global Admin por `Country` (sin `company_id`); `rate` + RE nullable; Functionality `vat-types`; Tax consume a futuro |
 | Grupo contable | `AccountingAccountType` | Grupo contable | Catálogo jerárquico PGC Admin (sin `company_id`/status); `autoreference`/`code`/`name`/`mode`; Functionality `accounting-account-types`; Accounting consume a futuro |
 | Moneda | `Currency` | Moneda | Catálogo global Admin (sin `company_id`); `code` ISO 4217 y `number` inmutables tras el alta; Functionality `currencies` |
