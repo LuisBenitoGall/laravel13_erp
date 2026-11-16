@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Note;
 use App\Domains\Admin\Services\CompanySetupReadiness;
+use App\Domains\Admin\Services\HelpContentMap;
 use App\Domains\Admin\Services\MenuBuilder;
 use App\Support\I18n\LocaleResolver;
 use App\Support\I18n\TranslationDictionary;
@@ -45,6 +46,9 @@ class HandleInertiaRequests extends Middleware
             'notes_count' => fn () => $user
                 ? min(Note::query()->where('user_id', $user->id)->count(), Note::MAX_PER_USER)
                 : 0,
+            'help_tips' => fn () => $user
+                ? app(HelpContentMap::class)->forLocale(App::getLocale())
+                : [],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

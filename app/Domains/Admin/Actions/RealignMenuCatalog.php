@@ -33,6 +33,7 @@ class RealignMenuCatalog
             'units',
             'sectors',
             'payment-methods',
+            'contents',
             'vat-types',
             'accounting-account-types',
             'company-module-authorizations',
@@ -58,6 +59,7 @@ class RealignMenuCatalog
             $this->ensureWorkplaces($modules['empresas']);
             $this->ensureCompanySettings($modules['empresas']);
             $this->ensurePaymentMethods($modules['configuracion']);
+            $this->ensureContents($modules['configuracion']);
             $this->reassignFunctionalities($modules);
             $this->migrateAccessPermissions();
             $this->retireLegacyModules($modules);
@@ -336,6 +338,41 @@ class RealignMenuCatalog
                 'es' => 'Métodos de pago',
                 'en' => 'Payment methods',
                 'ca' => 'Mètodes de pagament',
+            ],
+            'status' => FunctionalityStatus::Active->value,
+        ]);
+    }
+
+    private function ensureContents(Module $configuracion): void
+    {
+        $existing = Functionality::withTrashed()->where('slug', 'contents')->first();
+
+        if ($existing !== null) {
+            if ($existing->trashed()) {
+                $existing->restore();
+            }
+
+            $existing->forceFill([
+                'module_id' => $configuracion->id,
+                'label' => [
+                    'es' => 'Contenidos',
+                    'en' => 'Contents',
+                    'ca' => 'Continguts',
+                ],
+                'status' => FunctionalityStatus::Active,
+            ])->save();
+
+            return;
+        }
+
+        $this->createFunctionality->handle([
+            'module_id' => $configuracion->id,
+            'name' => 'Contents',
+            'slug' => 'contents',
+            'label' => [
+                'es' => 'Contenidos',
+                'en' => 'Contents',
+                'ca' => 'Continguts',
             ],
             'status' => FunctionalityStatus::Active->value,
         ]);

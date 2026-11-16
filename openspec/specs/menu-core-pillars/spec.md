@@ -6,9 +6,9 @@ Directorio + Centros de trabajo + Configuración de la empresa), `usuarios`
 `cuenta` (Mi cuenta = cuenta SaaS company / placeholder; Mis módulos),
 `dashboard` (hoja) y `configuracion` (SA AdminOnly: Módulos, Roles, Permisos,
 Países, Monedas, Bancos, Unidades, Tipos de IVA, Grupos contables, Métodos de
-pago, Autorizaciones). La ficha Edit del propio user (`/admin/profile`) no es
-ítem de menú lateral (acceso vía avatar). Sin bloques sintéticos ni slugs
-`admin`/`workspace`.
+pago, Contenidos, Autorizaciones). La ficha Edit del propio user
+(`/admin/profile`) no es ítem de menú lateral (acceso vía avatar). Sin bloques
+sintéticos ni slugs `admin`/`workspace`.
 
 ## Requirements
 
@@ -108,6 +108,15 @@ catálogo PaymentMethod Admin, sin sustituir los catálogos existentes.
 #### Scenario: SA abre Métodos de pago desde el menú
 - **WHEN** Super Admin abre Métodos de pago desde Configuración
 - **THEN** navega al Index de payment-methods
+
+### Requirement: Ítem Contenidos en Configuración
+El sistema SHALL incluir bajo el Module `configuracion` un ítem
+Contenidos (Functionality `contents`) que enlaza el Index de Contents
+Admin, sin sustituir los catálogos existentes.
+
+#### Scenario: SA abre Contenidos desde el menú
+- **WHEN** Super Admin abre Contenidos desde Configuración
+- **THEN** navega al Index de contents
 
 ### Requirement: Ítem Permisos hacia catálogo de permisos
 El sistema SHALL incluir un ítem de menú Permisos distinto de Roles bajo el

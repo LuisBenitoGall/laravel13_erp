@@ -54,6 +54,10 @@
 | Relación cliente-proveedor | `CustomerProvider` | CustomerProviders | Singular en v2 |
 | Favorito (vista) | `Preference` | Favorito | Acceso rápido a un path del ERP (name+url); scope user+company de sesión; tope 20; CTA dashboard con color Module; ≠ favoritos de producto |
 | Nota interna | `Note` | Note | Post-it personal del user (`title`+`note`); **sin** `company_id`; tope 50/user; modal topbar + dashboard; ≠ Albarán (`DeliveryNote`) |
+| Contenido | `Content` | Content | Pieza CMS ligera Admin; kinds Help (UI «Información») y Article (UI «Contenido»); ancla `code`; `company_id` nullable (alta = null); ≠ `Note` ni WordPress |
+| Información (contenido) | `ContentKind::Help` | type=1 | Tip/ancla HelpTip; Create elige este tipo |
+| Contenido (kind) | `ContentKind::Article` | type=2 | Pieza editorial; Edit real = change futuro |
+| Ancla (contenido) | `code` | code | Identificador estable para `<HelpTip code>`; inmutable tras create |
 | Configuración de la empresa | hub `company-settings` | Company settings | Hub/onboarding de la company en sesión (Functionality bajo `empresas`); readiness = nif+logo+≥1 workplace Active; ≠ Configuración SA |
 | Centro de trabajo | `Workplace` | Workplace | Sede/dirección operativa de la company (`BelongsToCompany`); ≠ Obra (`Worksite`) ni `Workspace` |
 | Principal (centro) | `featured` | — | Flag `Workplace.featured`; UI «Principal»; ≤1/company; dirección default facturación/pedidos (consumo = changes futuros) |

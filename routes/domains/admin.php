@@ -11,6 +11,7 @@ use App\Domains\Admin\Http\Controllers\CompanyModuleController;
 use App\Domains\Admin\Http\Controllers\CompanyRoleController;
 use App\Domains\Admin\Http\Controllers\CompanySettingsController;
 use App\Domains\Admin\Http\Controllers\CompanyUserController;
+use App\Domains\Admin\Http\Controllers\ContentController;
 use App\Domains\Admin\Http\Controllers\CountryController;
 use App\Domains\Admin\Http\Controllers\CurrencyController;
 use App\Domains\Admin\Http\Controllers\FunctionalityController;
@@ -140,6 +141,11 @@ Route::middleware(['auth', 'company', 'module:configuracion'])->prefix('admin')-
     Route::resource('payment-methods', PaymentMethodController::class)
         ->parameters(['payment-methods' => 'payment_method'])
         ->only(['index', 'store', 'update', 'destroy']);
+
+    // Contenidos (Help/Article); permisos `contents.*`. Create mínimo; Edit placeholder.
+    Route::get('contents/table', [ContentController::class, 'table'])->name('contents.table');
+    Route::resource('contents', ContentController::class)
+        ->only(['index', 'create', 'store', 'edit', 'destroy']);
 
     // Tipos de IVA globales por país; permisos `vat-types.*`.
     Route::get('vat-types/table', [VatTypeController::class, 'table'])->name('vat-types.table');

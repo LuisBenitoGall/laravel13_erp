@@ -82,6 +82,7 @@ class AdminCatalogSeeder extends Seeder
                 ['module' => 'configuracion', 'name' => 'Units', 'slug' => 'units', 'label' => ['es' => 'Unidades', 'en' => 'Units', 'ca' => 'Unitats']],
                 ['module' => 'configuracion', 'name' => 'Sectors', 'slug' => 'sectors', 'label' => ['es' => 'Sectores', 'en' => 'Sectors', 'ca' => 'Sectors']],
                 ['module' => 'configuracion', 'name' => 'Payment methods', 'slug' => 'payment-methods', 'label' => ['es' => 'Métodos de pago', 'en' => 'Payment methods', 'ca' => 'Mètodes de pagament']],
+                ['module' => 'configuracion', 'name' => 'Contents', 'slug' => 'contents', 'label' => ['es' => 'Contenidos', 'en' => 'Contents', 'ca' => 'Continguts']],
                 ['module' => 'configuracion', 'name' => 'VAT types', 'slug' => 'vat-types', 'label' => ['es' => 'Tipos de IVA', 'en' => 'VAT types', 'ca' => 'Tipus d\'IVA']],
                 ['module' => 'configuracion', 'name' => 'Accounting account types', 'slug' => 'accounting-account-types', 'label' => ['es' => 'Grupos contables', 'en' => 'Account groups', 'ca' => 'Grups comptables']],
                 ['module' => 'empresas', 'name' => 'Companies', 'slug' => 'companies', 'label' => ['es' => 'Mis empresas', 'en' => 'My companies', 'ca' => 'Les meves empreses']],

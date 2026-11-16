@@ -21,6 +21,29 @@ final class AllowedHtmlSanitizer
         'noscript',
     ];
 
+    /**
+     * @param  array<string, mixed>  $map
+     * @return array<string, string|null>
+     */
+    public function sanitizeLocaleMap(array $map, bool $plain = false): array
+    {
+        $out = [];
+        foreach ($map as $locale => $value) {
+            $key = (string) $locale;
+            $string = is_string($value) ? $value : null;
+            if ($plain) {
+                $out[$key] = $string !== null ? trim(strip_tags($string)) : null;
+                if ($out[$key] === '') {
+                    $out[$key] = null;
+                }
+            } else {
+                $out[$key] = $this->sanitize($string);
+            }
+        }
+
+        return $out;
+    }
+
     public function sanitize(?string $html): ?string
     {
         if ($html === null) {

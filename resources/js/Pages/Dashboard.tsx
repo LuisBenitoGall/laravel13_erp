@@ -104,7 +104,7 @@ export default function Dashboard({ preferences = [], notes = [] }: Props) {
                 {preferences.length === 0 ? (
                     <p className="text-sm text-slate-500">{t('sin_favoritos')}</p>
                 ) : (
-                    <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         {preferences.map((preference) => {
                             const Icon = resolveMenuIcon(preference.icon);
                             const color = preference.color || '#64748b';
