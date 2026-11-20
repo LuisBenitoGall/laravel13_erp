@@ -1,4 +1,5 @@
 export { Field, FormField } from './Field';
+export { FormHelpScope, useFormHelpScope } from './FormHelpScope';
 export { FormActions, type FormActionsProps } from './FormActions';
 export { Input, type InputProps } from './Input';
 export { Textarea, type TextareaProps } from './Textarea';

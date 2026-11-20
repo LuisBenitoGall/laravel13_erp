@@ -15,19 +15,23 @@ class CreateContent
         private readonly HelpContentMap $helpContentMap,
     ) {}
 
-    /** @param  array{name: string, kind: string}  $data */
+    /**
+     * @param  array{name: string, kind: string, code?: string|null}  $data
+     */
     public function handle(array $data): Content
     {
         return DB::transaction(function () use ($data): Content {
             $name = (string) $data['name'];
             $kind = ContentKind::from((string) $data['kind']);
 
-            $code = UniqueSlug::from(
-                $name,
-                fn (string $candidate): bool => Content::withTrashed()
-                    ->where('code', $candidate)
-                    ->exists(),
-            );
+            $code = $kind === ContentKind::Help
+                ? (string) $data['code']
+                : UniqueSlug::from(
+                    $name,
+                    fn (string $candidate): bool => Content::withTrashed()
+                        ->where('code', $candidate)
+                        ->exists(),
+                );
 
             $content = Content::query()->create([
                 'name' => $name,
@@ -37,8 +41,8 @@ class CreateContent
                 'title' => [],
                 'excerpt' => [],
                 'content' => [],
-                'referrer' => null,
-                'video' => null,
+                'referrer' => [],
+                'video' => [],
                 'status' => ContentStatus::Inactive,
             ]);
 

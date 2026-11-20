@@ -1,0 +1,25 @@
+[
+    {
+        "code": "companies.nif",
+        "name": "companies nif",
+        "kind": "help",
+        "status": "active",
+        "title": {
+            "es": "NIF de la empresa",
+            "en": "Company tax ID",
+            "ca": "NIF de l'empresa"
+        },
+        "excerpt": {
+            "es": "Campo obligatorio. Un NIF por empresa. Los centros de trabajo y centros de coste quedan vinculados fiscalmente a este NIF.",
+            "en": "Required. One tax ID per company. Workplaces and cost centres are fiscally linked to this tax ID.",
+            "ca": "Camp obligatori. Un NIF per empresa. Els centres de treball i centres de cost queden vinculats fiscalment a aquest NIF."
+        },
+        "content": {
+            "es": "",
+            "en": "",
+            "ca": ""
+        },
+        "referrer": [],
+        "video": []
+    }
+]

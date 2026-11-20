@@ -23,8 +23,8 @@ use Spatie\Translatable\HasTranslations;
  * @property array<string, string>|string $title
  * @property array<string, string>|string $excerpt
  * @property array<string, string>|string $content
- * @property string|null $referrer
- * @property string|null $video
+ * @property list<string>|null $referrer
+ * @property list<string>|null $video
  * @property ContentStatus $status
  */
 class Content extends Model
@@ -53,6 +53,8 @@ class Content extends Model
         return [
             'kind' => ContentKind::class,
             'status' => ContentStatus::class,
+            'referrer' => 'array',
+            'video' => 'array',
         ];
     }
 

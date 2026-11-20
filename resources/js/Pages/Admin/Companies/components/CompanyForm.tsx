@@ -2,7 +2,16 @@ import { useForm, usePage } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Field, FormActions, Input, LangTabs, Select, Textarea, Wysiwyg } from '@/Components/Form';
+import {
+    Field,
+    FormActions,
+    FormHelpScope,
+    Input,
+    LangTabs,
+    Select,
+    Textarea,
+    Wysiwyg,
+} from '@/Components/Form';
 import { Button } from '@/Components/ui/button';
 
 type LocaleMap = Record<string, string>;
@@ -104,100 +113,102 @@ export default function CompanyForm({
     ];
 
     return (
-        <form
-            onSubmit={onSubmit}
-            className="space-y-4 rounded-xl border border-slate-200 bg-white p-6"
-            data-mode={mode}
-        >
-            <Field label={t('razon_social')} htmlFor="company-name" error={form.errors.name}>
-                <Input
-                    id="company-name"
-                    value={form.data.name}
-                    maxLength={255}
-                    onChange={(e) => form.setData('name', e.target.value)}
-                />
-            </Field>
-
-            <Field
-                label={t('nombre_comercial')}
-                htmlFor="company-tradename"
-                error={form.errors.tradename}
+        <FormHelpScope value="companies">
+            <form
+                onSubmit={onSubmit}
+                className="space-y-4 rounded-xl border border-slate-200 bg-white p-6"
+                data-mode={mode}
             >
-                <Input
-                    id="company-tradename"
-                    value={form.data.tradename}
-                    maxLength={255}
-                    onChange={(e) => form.setData('tradename', e.target.value)}
-                />
-            </Field>
+                <Field label={t('razon_social')} htmlFor="company-name" error={form.errors.name}>
+                    <Input
+                        id="company-name"
+                        value={form.data.name}
+                        maxLength={255}
+                        onChange={(e) => form.setData('name', e.target.value)}
+                    />
+                </Field>
 
-            <Field label={t('nif')} htmlFor="company-nif" error={form.errors.nif}>
-                <Input
-                    id="company-nif"
-                    value={form.data.nif}
-                    maxLength={12}
-                    onChange={(e) => form.setData('nif', e.target.value)}
-                />
-            </Field>
+                <Field
+                    label={t('nombre_comercial')}
+                    htmlFor="company-tradename"
+                    error={form.errors.tradename}
+                >
+                    <Input
+                        id="company-tradename"
+                        value={form.data.tradename}
+                        maxLength={255}
+                        onChange={(e) => form.setData('tradename', e.target.value)}
+                    />
+                </Field>
 
-            <Field label={t('estado')} htmlFor="company-status" error={form.errors.status}>
-                <Select
-                    id="company-status"
-                    options={statusOptions}
-                    value={form.data.status}
-                    onChange={(value) => form.setData('status', value)}
-                    placeholder={t('elegir')}
-                />
-            </Field>
+                <Field label={t('nif')} htmlFor="company-nif" error={form.errors.nif}>
+                    <Input
+                        id="company-nif"
+                        value={form.data.nif}
+                        maxLength={12}
+                        onChange={(e) => form.setData('nif', e.target.value)}
+                    />
+                </Field>
 
-            {mode === 'edit' ? (
-                <LangTabs locales={locales} invalidLocales={invalidLocales}>
-                    {(locale) => (
-                        <div className="space-y-4">
-                            <Field
-                                label={t('extracto')}
-                                htmlFor={`company-excerpt-${locale}`}
-                                error={form.errors[`excerpt.${locale}`]}
-                            >
-                                <Textarea
-                                    id={`company-excerpt-${locale}`}
-                                    value={form.data.excerpt[locale] ?? ''}
-                                    maxLength={1000}
-                                    rows={3}
-                                    onChange={(e) =>
-                                        form.setData('excerpt', {
-                                            ...form.data.excerpt,
-                                            [locale]: e.target.value,
-                                        })
-                                    }
-                                />
-                            </Field>
-                            <Field
-                                label={t('descripcion')}
-                                htmlFor={`company-description-${locale}`}
-                                error={form.errors[`description.${locale}`]}
-                            >
-                                <Wysiwyg
-                                    id={`company-description-${locale}`}
-                                    value={form.data.description[locale] ?? ''}
-                                    onChange={(html) =>
-                                        form.setData('description', {
-                                            ...form.data.description,
-                                            [locale]: html,
-                                        })
-                                    }
-                                />
-                            </Field>
-                        </div>
-                    )}
-                </LangTabs>
-            ) : null}
+                <Field label={t('estado')} htmlFor="company-status" error={form.errors.status}>
+                    <Select
+                        id="company-status"
+                        options={statusOptions}
+                        value={form.data.status}
+                        onChange={(value) => form.setData('status', value)}
+                        placeholder={t('elegir')}
+                    />
+                </Field>
 
-            <FormActions>
-                <Button type="submit" disabled={form.processing}>
-                    {t('guardar')}
-                </Button>
-            </FormActions>
-        </form>
+                {mode === 'edit' ? (
+                    <LangTabs locales={locales} invalidLocales={invalidLocales}>
+                        {(locale) => (
+                            <div className="space-y-4">
+                                <Field
+                                    label={t('extracto')}
+                                    htmlFor={`company-excerpt-${locale}`}
+                                    error={form.errors[`excerpt.${locale}`]}
+                                >
+                                    <Textarea
+                                        id={`company-excerpt-${locale}`}
+                                        value={form.data.excerpt[locale] ?? ''}
+                                        maxLength={1000}
+                                        rows={3}
+                                        onChange={(e) =>
+                                            form.setData('excerpt', {
+                                                ...form.data.excerpt,
+                                                [locale]: e.target.value,
+                                            })
+                                        }
+                                    />
+                                </Field>
+                                <Field
+                                    label={t('descripcion')}
+                                    htmlFor={`company-description-${locale}`}
+                                    error={form.errors[`description.${locale}`]}
+                                >
+                                    <Wysiwyg
+                                        id={`company-description-${locale}`}
+                                        value={form.data.description[locale] ?? ''}
+                                        onChange={(html) =>
+                                            form.setData('description', {
+                                                ...form.data.description,
+                                                [locale]: html,
+                                            })
+                                        }
+                                    />
+                                </Field>
+                            </div>
+                        )}
+                    </LangTabs>
+                ) : null}
+
+                <FormActions>
+                    <Button type="submit" disabled={form.processing}>
+                        {t('guardar')}
+                    </Button>
+                </FormActions>
+            </form>
+        </FormHelpScope>
     );
 }

@@ -203,6 +203,8 @@ return [
         'title' => 'título',
         'excerpt' => 'extracto',
         'content' => 'contenido',
+        'referrer' => 'enlace «leer más»',
+        'video' => 'vídeo',
         'status' => 'estado',
         'code' => 'código',
         'email' => 'email',

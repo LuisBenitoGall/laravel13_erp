@@ -1,10 +1,13 @@
+import Image from '@tiptap/extension-image';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { Bold, Heading2, Heading3, Italic, List, ListOrdered } from 'lucide-react';
-import { useEffect } from 'react';
+import { Bold, Heading2, Heading3, Image as ImageIcon, Italic, List, ListOrdered } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/lib/utils';
+
+import { GalleryInsertDialog, type GalleryPickerAsset } from './GalleryInsertDialog';
 
 export type WysiwygProps = {
     id?: string;
@@ -12,6 +15,7 @@ export type WysiwygProps = {
     onChange: (html: string) => void;
     disabled?: boolean;
     className?: string;
+    enableGalleryInsert?: boolean;
     'aria-invalid'?: boolean;
 };
 
@@ -21,15 +25,20 @@ export function Wysiwyg({
     onChange,
     disabled = false,
     className,
+    enableGalleryInsert = false,
     'aria-invalid': ariaInvalid,
 }: WysiwygProps) {
     const { t } = useTranslation();
     const html = value ?? '';
+    const [galleryOpen, setGalleryOpen] = useState(false);
 
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
                 heading: { levels: [2, 3] },
+            }),
+            Image.configure({
+                allowBase64: false,
             }),
         ],
         content: html,
@@ -48,6 +57,7 @@ export function Wysiwyg({
                     '[&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5',
                     '[&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5',
                     '[&_p]:my-1',
+                    '[&_img]:my-2 [&_img]:max-h-64 [&_img]:max-w-full [&_img]:rounded-md',
                 ),
                 'aria-invalid': ariaInvalid ? 'true' : 'false',
             },
@@ -72,6 +82,18 @@ export function Wysiwyg({
             editor.commands.setContent(html, { emitUpdate: false });
         }
     }, [html, editor]);
+
+    function insertGalleryAsset(asset: GalleryPickerAsset) {
+        if (!editor) {
+            return;
+        }
+
+        editor
+            .chain()
+            .focus()
+            .setImage({ src: asset.url, alt: asset.alt ?? '' })
+            .run();
+    }
 
     if (!editor) {
         return (
@@ -167,8 +189,27 @@ export function Wysiwyg({
                 >
                     <ListOrdered className="h-4 w-4" />
                 </button>
+                {enableGalleryInsert ? (
+                    <button
+                        type="button"
+                        className={btn(false)}
+                        disabled={disabled}
+                        aria-label={t('galeria_insertar')}
+                        data-testid="wysiwyg-gallery-insert"
+                        onClick={() => setGalleryOpen(true)}
+                    >
+                        <ImageIcon className="h-4 w-4" />
+                    </button>
+                ) : null}
             </div>
             <EditorContent editor={editor} />
+            {enableGalleryInsert ? (
+                <GalleryInsertDialog
+                    open={galleryOpen}
+                    onOpenChange={setGalleryOpen}
+                    onSelect={insertGalleryAsset}
+                />
+            ) : null}
         </div>
     );
 }

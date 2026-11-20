@@ -1,8 +1,13 @@
-import { Link } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Button } from '@/Components/ui/button';
+import RecordSummary from '@/Components/Records/RecordSummary';
 import AppLayout from '@/Layouts/AppLayout';
+import { formatDate } from '@/lib/format';
+import { auditRecordSummaryFields } from '@/lib/recordSummary';
+
+import ContentForm from './components/ContentForm';
 
 type ContentEditProps = {
     content: {
@@ -11,6 +16,13 @@ type ContentEditProps = {
         code: string;
         kind: string;
         status: string;
+        titles?: Record<string, string | null>;
+        excerpts?: Record<string, string | null>;
+        contents?: Record<string, string | null>;
+        referrer?: string[] | null;
+        video?: string[] | null;
+        created_at?: string | null;
+        updated_at?: string | null;
     };
 };
 
@@ -26,7 +38,21 @@ function kindLabel(kind: string, t: (key: string) => string): string {
 }
 
 export default function Edit({ content }: ContentEditProps) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+
+    const summaryFields = useMemo(
+        () => [
+            {
+                labelKey: 'tipo',
+                value: kindLabel(content.kind, t),
+            },
+            ...auditRecordSummaryFields({
+                created_at: formatDate(content.created_at ?? null, i18n.language) || undefined,
+                updated_at: formatDate(content.updated_at ?? null, i18n.language) || undefined,
+            }),
+        ],
+        [content.created_at, content.kind, content.updated_at, i18n.language, t],
+    );
 
     return (
         <AppLayout
@@ -36,30 +62,36 @@ export default function Edit({ content }: ContentEditProps) {
                 optionHref: '/admin/contents',
             }}
             backHref="/admin/contents"
-            actions={[]}
+            actions={[
+                {
+                    type: 'delete',
+                    confirmKey: 'contenido_confirmar_eliminar',
+                    onConfirm: () => {
+                        router.delete(`/admin/contents/${content.id}`);
+                    },
+                },
+            ]}
         >
-            <div className="w-full max-w-xl space-y-4 rounded-xl border border-slate-200 bg-white p-6">
-                <h1 className="text-lg font-semibold text-slate-900">{content.name}</h1>
-                <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-                    <div>
-                        <dt className="text-slate-500">{t('codigo')}</dt>
-                        <dd className="font-medium text-slate-900">{content.code}</dd>
-                    </div>
-                    <div>
-                        <dt className="text-slate-500">{t('tipo')}</dt>
-                        <dd className="font-medium text-slate-900">{kindLabel(content.kind, t)}</dd>
-                    </div>
-                    <div>
-                        <dt className="text-slate-500">{t('estado')}</dt>
-                        <dd className="font-medium text-slate-900">
-                            {content.status === 'active' ? t('activo') : t('inactivo')}
-                        </dd>
-                    </div>
-                </dl>
-                <p className="text-sm text-slate-600">{t('contenido_edicion_proximamente')}</p>
-                <Button type="button" variant="outline" asChild>
-                    <Link href="/admin/contents">{t('volver')}</Link>
-                </Button>
+            <div className="w-full space-y-4">
+                <RecordSummary
+                    titleKey="edicion_contenido"
+                    titleParams={{ name: content.name }}
+                    identifier={content.code}
+                    fields={summaryFields}
+                />
+                <ContentForm
+                    contentId={content.id}
+                    kind={content.kind}
+                    initial={{
+                        name: content.name,
+                        status: content.status,
+                        title: content.titles,
+                        excerpt: content.excerpts,
+                        content: content.contents,
+                        referrer: content.referrer,
+                        video: content.video,
+                    }}
+                />
             </div>
         </AppLayout>
     );

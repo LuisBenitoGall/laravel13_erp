@@ -17,8 +17,8 @@ return new class extends Migration
             $table->json('title');
             $table->json('excerpt');
             $table->json('content');
-            $table->string('referrer')->nullable();
-            $table->string('video')->nullable();
+            $table->json('referrer')->nullable();
+            $table->json('video')->nullable();
             $table->string('status', 32);
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Cache;
 /**
  * Mapa code → tip Help por locale (cache; invalidar en mutate).
  *
- * @phpstan-type HelpTip array{title: string, excerpt: string, content: string, referrer: string|null, video: string|null}
+ * @phpstan-type HelpTip array{title: string, excerpt: string, content: string, referrer: list<string>, video: list<string>}
  */
 class HelpContentMap
 {
@@ -63,9 +63,14 @@ class HelpContentMap
                 'title' => $this->translated($content, 'title', $locale, $default),
                 'excerpt' => $this->translated($content, 'excerpt', $locale, $default),
                 'content' => $this->translated($content, 'content', $locale, $default),
-                'referrer' => $content->referrer,
-                'video' => $content->video,
+                'referrer' => $this->stringList($content->referrer),
+                'video' => $this->stringList($content->video),
             ];
+        }
+
+        // Alias temporal (1 release): legacy helpCode `company-nif` → `companies.nif`.
+        if (isset($map['companies.nif']) && ! isset($map['company-nif'])) {
+            $map['company-nif'] = $map['companies.nif'];
         }
 
         return $map;
@@ -79,5 +84,22 @@ class HelpContentMap
         }
 
         return (string) $content->getTranslation($field, $default, false);
+    }
+
+    /** @return list<string> */
+    private function stringList(mixed $value): array
+    {
+        if (! is_array($value)) {
+            return [];
+        }
+
+        $out = [];
+        foreach ($value as $item) {
+            if (is_string($item) && trim($item) !== '') {
+                $out[] = trim($item);
+            }
+        }
+
+        return $out;
     }
 }

@@ -38,8 +38,9 @@ shell (`configuracion` (+ Basics `dashboard`/`cuenta`/`usuarios`/`empresas`));
 | Edit roles empresa | Espejo Edit plataforma: layout anclas/cards; name readonly; Guardar = solo descripción; matriz = catálogo autorizados∩activos∩¬AdminOnly (canónicos+custom); toggles async `patchJson` + `{module}.access`; `manager` local `permissions_readonly`; Index con `company-roles.view` (sin exigir manager; delete sí); sin copy tenant; `can_edit=!universal`; universales bloqueados en edit/toggle; Actions refuerzan perímetro CurrentCompany |
 | Consola plataforma | Companies Index (CTA) + authorizations scoped |
 | Shell navegación | Dashboard + Configuración SA; seed ACME; post-login → dashboard |
-| Menú pilares | Empresas (Mis empresas → `/admin/companies`; **Directorio** → `/admin/company-directory` grid+aside sectores OR, Active+NIF+≥1 sector, `company-directory.view`; excepción ServerTable; **Centros de trabajo** → `/admin/workplaces` ServerTable, Functionality `workplaces`; **Configuración de la empresa** → `/admin/company-settings` hub onboarding, Functionality `company-settings`), Usuarios (Usuarios empresa→`/admin/company-users` ServerTable `user_companies`×sesión; Todos los usuarios→`/admin/all-users` directorio `is_public=true` + máscara notificación; `company-users.*` / `all-users.view` (Index; `.viewAny` = detalle); Members legacy sigue para asignación de rol), Configuración SA (Módulos/Roles/Permisos/Países/Monedas/Bancos/Unidades/Sectores/Métodos de pago/Tipos de IVA/Grupos contables/**Contenidos**; sin ítem genérico Funcionalidades). Bancos: entidad Admin |
-| Contenidos (Content) | Kinds Help\|Article; Create name+kind → Inactive + `code`; Edit placeholder (Edit real = change futuro); `company_id` null al alta; Spatie cols preparadas; soft delete; **sin** BelongsToCompany; Functionality `contents` + `contents.*`; Index/Create/placeholder `/admin/contents`; HelpTip + cache mapa; galería/published_* = futuros. V-07/V-08 sí; R-TEN-05 N/A; E2E N/A |
+| Menú pilares | Empresas (Mis empresas → `/admin/companies`; **Directorio** → `/admin/company-directory` grid+aside sectores OR, Active+NIF+≥1 sector, `company-directory.view`; excepción ServerTable; **Centros de trabajo** → `/admin/workplaces` ServerTable, Functionality `workplaces`; **Configuración de la empresa** → `/admin/company-settings` hub onboarding, Functionality `company-settings`), Usuarios (Usuarios empresa→`/admin/company-users` ServerTable `user_companies`×sesión; Todos los usuarios→`/admin/all-users` directorio `is_public=true` + máscara notificación; `company-users.*` / `all-users.view` (Index; `.viewAny` = detalle); Members legacy sigue para asignación de rol), Configuración SA (Módulos/Roles/Permisos/Países/Monedas/Bancos/Unidades/Sectores/Métodos de pago/Tipos de IVA/Grupos contables/**Contenidos**/**Galería**; sin ítem genérico Funcionalidades). Bancos: entidad Admin |
+| Contenidos (Content) | Kinds Help\|Article; Create: name+kind; **Help exige `code` explícito** `{scope}.{field}` (sin slugify); Article → auto-slug; Inactive; Edit real (`RecordSummary`+form; kind/code inmutables; Eliminar); `company_id` null; soft delete; **sin** BelongsToCompany; `contents.*`; Index toggle→Edit→Delete; HelpTip + `FormHelpScope`/`Field` auto `{scope}.{field}` (NIF `companies.nif`); **Fase 2:** Wysiwyg Article inserta `<img>` desde Galería (`enableGalleryInsert`; no Help); **video opcional** en update (Help y Article; `[]` válido); fixture+seeder+`contents:export-help`; published_* = futuros. V-07/V-08 sí; R-TEN-05 N/A; E2E N/A |
+| Galería (MediaAsset) | Functionality `gallery` bajo `configuracion` (tras Contenidos); `/admin/gallery`; grid 6 cols (excepción ServerTable); Index carga completa (sin paginar; revisable); UI gated `can.create/update/delete`; multi-upload + name+alt+URL; crop/resize cliente (`react-easy-crop`, pan+zoom; ayuda + ratios) → **copia**; **Fase 2/2b:** `GET admin/gallery/picker` JSON (`q` name|alt, `page`/`per_page` 24–48, `{assets,meta}`) + selector Wysiwyg Article (debounce + infinite scroll); `company_id` nullable (altas/copias plataforma null; upload empresa bloqueado); soft delete (+ borra fichero); **sin** BelongsToCompany; `gallery.*`; ≠ UserImage; MediaPicker genérico = Fase 3. V-07/V-08/V-21 sí; R-TEN-05 sí (no-null); E2E N/A |
 | Cuenta vs ficha user | Module `cuenta`: Mi cuenta (slug Functionality `profile`) → `/account` placeholder SaaS company (próximamente; no ficha User); Mis módulos → company-modules. Ficha self `/admin/profile*` solo desde avatar topbar; AsideNav sin highlight en `/admin/profile*`; menú lateral sin href `/admin/profile` |
 | Company (Mis Empresas) | Tenant sin `BelongsToCompany`. Index ServerTable; Create name/tradename/nif/status (sin jerarquía ni sectores ni excerpt/description); slug auto; Edit tabs Info/Imágenes/**Jerarquía**/Sectores; tab Info = identidad + `excerpt`/`description` multi-idioma (`LangTabs`; Textarea ≤1000; `Form/Wysiwyg` TipTap; HTML allowlist al guardar); tab Sectores = N:N Active (`company-sectors.view` ver / `.update` sync; sin menú lateral); `parent_id` nullable (1 padre o ninguno, N niveles, anti-ciclo; solo vínculo `user_companies`); logo POST `admin.companies.logo`; rutas `/admin/companies`; al crear: roles manager/guest + vínculo creador |
 | Directorio empresas | Functionality `company-directory` bajo `empresas`; Index `/admin/company-directory` (aside sectores Active OR + grid cards; sort name/recientes; paginación; **sin** ServerTable); Show informativo sin CTA contactar/cliente-proveedor; universo Active+NIF+≥1 sector; Policy `viewAnyCompanyDirectory` ≠ `forUser` Mis empresas |
@@ -129,7 +130,44 @@ local.
 | V-08 | Sí | Configuración → Contenidos |
 | V-09 | No | Module `configuracion` existente |
 | R-TEN-05 | N/A | Alta `company_id` null; HelpTip no depende de company sesión |
-| E2E | N/A | `e2e.md` §4; Features Create/Index/placeholder/HelpTip |
+| E2E | N/A | `e2e.md` §4; Features Create/Index/Edit/HelpTip |
+
+## Vinculaciones — contents-video-optional (c2026-11-20-contents-video-optional)
+
+| Id | ¿Aplica? | Nota |
+|---|---|---|
+| V-01..V-20 | No | Solo validación Update; sin menú/permisos/módulo |
+| E2E | N/A | Feature HTTP |
+
+## Vinculaciones — admin-gallery (c2026-11-20-admin-gallery)
+
+| Id | ¿Aplica? | Nota |
+|---|---|---|
+| V-07 | Sí | Functionality `gallery` + Spatie `gallery.*` |
+| V-08 | Sí | Configuración → Galería (tras Contenidos) |
+| V-09 | No | Module `configuracion` existente |
+| V-21 | Sí | Rutas `/admin/gallery*` bajo configuracion |
+| R-TEN-05 | Sí | Activos con `company_id` set; altas Fase 1 solo null |
+| E2E | N/A | `e2e.md` §4; Feature HTTP |
+
+## Vinculaciones — admin-gallery-wysiwyg (c2026-11-20-admin-gallery-wysiwyg)
+
+| Id | ¿Aplica? | Nota |
+|---|---|---|
+| V-01..V-06 | No | Sin stock/ledger/numeración/doc |
+| V-07/V-08 | No | Sin Functionality/menú nuevos (reusa `gallery.*` / `contents.*`) |
+| V-09..V-20 | No | Sin módulo/seeder/policy nuevos |
+| V-21 | No | Ruta picker bajo `gallery` ya existente |
+| R-TEN-05 | Sí (picker JSON) | Aislamiento listado; Feature en GalleryTest |
+| E2E | N/A | design D7; Feature + unit sanitizer |
+
+## Vinculaciones — admin-gallery-picker-search (c2026-11-20-admin-gallery-picker-search)
+
+| Id | ¿Aplica? | Nota |
+|---|---|---|
+| V-01..V-20 | No | Sin menú/permisos/módulo/seeder nuevos (Fase 2b) |
+| R-TEN-05 | Sí (picker) | Perímetro sin cambio; Feature aislamiento + meta |
+| E2E | N/A | design D6; Feature + assert fuente modal |
 
 ## Dependencias
 

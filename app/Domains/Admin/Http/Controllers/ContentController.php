@@ -4,9 +4,13 @@ namespace App\Domains\Admin\Http\Controllers;
 
 use App\Domains\Admin\Actions\CreateContent;
 use App\Domains\Admin\Actions\DeleteContent;
+use App\Domains\Admin\Actions\ToggleContentStatus;
+use App\Domains\Admin\Actions\UpdateContent;
 use App\Domains\Admin\Enums\ContentStatus;
 use App\Domains\Admin\Http\Requests\ContentTableRequest;
 use App\Domains\Admin\Http\Requests\StoreContentRequest;
+use App\Domains\Admin\Http\Requests\ToggleContentStatusRequest;
+use App\Domains\Admin\Http\Requests\UpdateContentRequest;
 use App\Domains\Admin\Http\Resources\ContentResource;
 use App\Domains\Admin\Models\Content;
 use App\Http\Controllers\Controller;
@@ -66,6 +70,34 @@ class ContentController extends Controller
 
         return to_route('admin.contents.edit', $content)
             ->with('success', __('contenido_creado'));
+    }
+
+    public function update(
+        UpdateContentRequest $request,
+        Content $content,
+        UpdateContent $action,
+    ): RedirectResponse {
+        $action->handle($content, $request->validated());
+
+        return to_route('admin.contents.edit', $content)
+            ->with('success', __('contenido_actualizado'));
+    }
+
+    public function updateStatus(
+        ToggleContentStatusRequest $request,
+        Content $content,
+        ToggleContentStatus $action,
+    ): JsonResponse {
+        $status = $request->validated('status');
+
+        $content = $action->handle(
+            $content,
+            is_string($status) ? ContentStatus::from($status) : null,
+        );
+
+        return response()->json([
+            'status' => $content->status->value,
+        ]);
     }
 
     public function destroy(Content $content, DeleteContent $action): RedirectResponse

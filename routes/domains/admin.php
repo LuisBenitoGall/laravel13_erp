@@ -15,6 +15,7 @@ use App\Domains\Admin\Http\Controllers\ContentController;
 use App\Domains\Admin\Http\Controllers\CountryController;
 use App\Domains\Admin\Http\Controllers\CurrencyController;
 use App\Domains\Admin\Http\Controllers\FunctionalityController;
+use App\Domains\Admin\Http\Controllers\MediaAssetController;
 use App\Domains\Admin\Http\Controllers\ModuleController;
 use App\Domains\Admin\Http\Controllers\NoteController;
 use App\Domains\Admin\Http\Controllers\PaymentMethodController;
@@ -142,10 +143,21 @@ Route::middleware(['auth', 'company', 'module:configuracion'])->prefix('admin')-
         ->parameters(['payment-methods' => 'payment_method'])
         ->only(['index', 'store', 'update', 'destroy']);
 
-    // Contenidos (Help/Article); permisos `contents.*`. Create mínimo; Edit placeholder.
+    // Contenidos (Help/Article); permisos `contents.*`. Create mínimo; Edit real.
     Route::get('contents/table', [ContentController::class, 'table'])->name('contents.table');
+    Route::patch('contents/{content}/status', [ContentController::class, 'updateStatus'])
+        ->name('contents.status');
     Route::resource('contents', ContentController::class)
-        ->only(['index', 'create', 'store', 'edit', 'destroy']);
+        ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+
+    // Galería (MediaAsset); permisos `gallery.*`. Grid; altas/copias company_id null.
+    Route::get('gallery/picker', [MediaAssetController::class, 'picker'])
+        ->name('gallery.picker');
+    Route::post('gallery/{media_asset}/copies', [MediaAssetController::class, 'storeCopy'])
+        ->name('gallery.copies');
+    Route::resource('gallery', MediaAssetController::class)
+        ->parameters(['gallery' => 'media_asset'])
+        ->only(['index', 'store', 'update', 'destroy']);
 
     // Tipos de IVA globales por país; permisos `vat-types.*`.
     Route::get('vat-types/table', [VatTypeController::class, 'table'])->name('vat-types.table');

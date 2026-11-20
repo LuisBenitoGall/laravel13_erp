@@ -1,22 +1,50 @@
 ## Purpose
 
 Alta e Index de Contents (Información/Contenido) bajo Configuración,
-Edit placeholder tras Continuar, e infraestructura HelpTip/cache sin
-formulario de edición completo.
+redirect al Edit real tras Continuar, e infraestructura HelpTip/cache.
 
 ## Requirements
 
 ### Requirement: Create Content mínimo
-El sistema SHALL permitir crear un Content con solo nombre y tipo
+El sistema SHALL permitir crear un Content con nombre y tipo
 (Información | Contenido). SHALL NOT mostrar status en el Create.
-SHALL persistir status Inactive por defecto. SHALL generar `code`
-único. Tras guardar SHALL redirigir al Edit placeholder. SHALL
-persistir `company_id` null.
+SHALL persistir status Inactive por defecto. SHALL persistir
+`company_id` null. Tras guardar SHALL redirigir al Edit real.
+
+Cuando el tipo es Información (Help), el actor SHALL proporcionar un
+`code` explícito; el sistema SHALL persistirlo normalizado a
+minúsculas **sin** slugificar el nombre, validando formato
+(`a-z0-9` con segmentos separados por `.` o `-`) y unicidad (incl.
+soft-deleted). Cuando el tipo es Contenido (Article), el sistema SHALL
+generar `code` único a partir del nombre (comportamiento previo).
 
 #### Scenario: Alta Continuar
-- **WHEN** el actor completa nombre y tipo y continúa
-- **THEN** se crea el Content Inactive con company_id null y navega al
-  Edit placeholder
+- **WHEN** el actor completa nombre y tipo Contenido (Article) y continúa
+- **THEN** se crea el Content Inactive con company_id null, `code`
+  generado desde el nombre, y navega al Edit real
+
+#### Scenario: Alta Continuar Información con code
+- **WHEN** el actor completa nombre, tipo Información y code
+  `companies.name` (formato válido y libre) y continúa
+- **THEN** se crea el Content Inactive con `code` exactamente
+  `companies.name` y navega al Edit real
+
+#### Scenario: Información sin code
+- **WHEN** el actor elige Información y omite el code
+- **THEN** la validación rechaza el alta y no se crea el registro
+
+#### Scenario: Code duplicado o formato inválido
+- **WHEN** el code ya existe (incl. soft-deleted) o viola el formato
+- **THEN** la validación rechaza el alta
+
+### Requirement: Create UI muestra code solo para Información
+El Create SHALL mostrar el campo código únicamente cuando el tipo
+seleccionado es Información, con ayuda que indique la convención
+`{helpScope}.{fieldKey}` (ej. `companies.nif`).
+
+#### Scenario: Cambio de tipo a Artículo
+- **WHEN** el actor pasa de Información a Contenido en el Create
+- **THEN** el campo código deja de mostrarse y no es requerido
 
 ### Requirement: Index y menú Contenidos
 El sistema SHALL listar Contents en Index bajo Configuración
@@ -30,14 +58,6 @@ listado.
 #### Scenario: Soft delete desde Index
 - **WHEN** el actor elimina un Content desde el Index
 - **THEN** se aplica soft delete
-
-### Requirement: Edit placeholder
-Tras el Create, el sistema SHALL mostrar una página Edit placeholder
-(sin formulario de edición completo de este change).
-
-#### Scenario: Placeholder
-- **WHEN** el actor llega al Edit tras Continuar
-- **THEN** ve la página placeholder (no el Edit real por tipo)
 
 ### Requirement: HelpTip e infraestructura de resolución
 El sistema SHALL exponer un componente HelpTip por `code` y resolución

@@ -133,7 +133,9 @@ GET /sales/budgets/table?page=2&size=25&sort=[{"field":"date","dir":"desc"}]
 />
 ```
 
-Obligatorio en todo Index/CRUD salvo excepción escrita en el design del change:
+Obligatorio en todo Index/CRUD salvo excepción escrita en el design del change
+(excepciones vigentes: Directorio de empresas; **Galería** `/admin/gallery` =
+grid mediático 6 cols, sin ServerTable — `c2026-11-20-admin-gallery`):
 
 1. **Header filters** tipados por columna (`headerFilterKind`); serializan al canal
    `filter[]` (mismo que advanced search). Controles de filtro con borde suave
@@ -178,7 +180,9 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 | `Table/ServerTable` | Listados server-side (§3): header filters, `rowActions`, toolbar, export, i18n Tabulator; referencia = Admin Modules |
 | `Table/AdvancedSearchModal` | Modal búsqueda avanzada opt-in (`fields` o `children` render prop + `onApply(filters)`). `ServerTable`: `advancedFilters` + `advancedFilterMode` `merge` o `replace`; mismo query `filter` (table y Excel/PDF) |
 | `Table/formatters` | Formatters tipados: `money(dec)`, `date`, `number(dec)`, `boolean` (+ ampliar por dominio); con `valueKind`/`headerFilterKind` date|number → header center + value right |
-| `Form/Field` + kit MVP | **Implementado** (`c2026-10-26-form-kit-mvp` + `c2026-11-02-admin-modules-create` + `c2026-11-11-user-images` + `c2026-11-15-company-excerpt-description` + `c2026-11-16-contents-create`): `Field`/`FormField`, `Input` (→ `ui/input` R-FE-08), `Textarea`, `Wysiwyg` (`@tiptap/react` + StarterKit; controlado `value`/`onChange` HTML; toolbar negrita/cursiva/h2/h3/listas), `NumberInput`, `Select` (filtro local; `onSearch` opcional), `DatePicker` (`date-fns` + input date), `Checkbox`, `Switch`, `RadioGroup` (→ `ui/radio-group` Radix; `options` exclusivas; fila `gap-x-8`), `LangTabs` (tabs = `supportedLocales`, children por locale), `ColorPicker` (input `type=color` + hex, sin dep nueva), `IconPicker` (Dialog + grid `ERP_ICON_NAMES`), `Dropzone` (`react-dropzone`; props `accept`/`maxSize`/`maxFiles`/`multiple`/`onFiles`; errores cliente vía toast). **Grupo de booleanos / radios** (`Switch`/`Checkbox`/`RadioGroup` con label): preferir misma línea con `flex flex-row flex-wrap items-center gap-x-8 gap-y-3` (mín. `gap-x-6`); prohibido fila sin `gap` — quedan pegados |
+| `Form/Field` + kit MVP | **Implementado** (`…` + `c2026-11-20-helptip-company-nif` + `c2026-11-20-helptip-auto-code`): `Field`/`FormField` + kit (Input, Textarea, Wysiwyg, Select, Switch, RadioGroup, LangTabs, …). **HelpTip en campos:** envolver el form con `FormHelpScope value="{scope}"`; el Field deriva `code = {scope}.{fieldKey}` (`fieldKey` prop → `name` → último segmento de `htmlFor` tras `-`). Override: `helpCode` explícito. Hint textual `help` bajo el label es independiente. Icono solo si existe Help Active. **Grupo booleanos/radios:** `flex … gap-x-8` (mín. `gap-x-6`). |
+| `Form/FormHelpScope` | Context `value` = slug del form (ej. `companies`). Una vez por formulario; Fields hijos auto-derivan anclas. |
+| `HelpTip` | Icono info ámbar + Popover; lee `help_tips[code]` (Help Active globales). Null si code ausente/Inactive. Consumo: derive vía `FormHelpScope`+Field, `helpCode`, o `<HelpTip code="…" />` suelto. Ritual tip nuevo: Content Help Active con code `{scope}.{field}` (+ `contents:export-help`); sin PR front si Field ya tiene identidad |
 | `Form/FormActions` | Guardar/cancelar **dentro del form** (R-FE-09: siempre `justify-end`; Cancelar→Guardar). ≠ `ViewActionBar` |
 | `Records/RecordEditLayout` | Esqueleto Edit: slot `summary` (p. ej. `RecordSummary`) + tablist registrable `{ id, labelKey, visible?, panel }` + panel activo; controlado u uncontrolled. Primera referencia: `Users/Edit` |
 | `Records/RecordSummary` | Ficha edit/show (card blanca): `titleKey` + badge `identifier` + `fields[]` (`labelKey`/`value`/`tone`); helper `auditRecordSummaryFields` en `lib/recordSummary`. Opt-in por page (no AppLayout). Sin totales ni lápiz inline |

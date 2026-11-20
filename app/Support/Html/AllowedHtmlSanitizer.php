@@ -3,13 +3,13 @@
 namespace App\Support\Html;
 
 /**
- * Allowlist HTML alineada a TipTap StarterKit (p, br, strong, em, lists, h2/h3, a).
- * Sin dependencia Composer nueva. Ningún atributo arbitrario sobrevive;
- * solo `<a href>` con http(s)/mailto. Tags peligrosos se eliminan con su contenido.
+ * Allowlist HTML alineada a TipTap StarterKit + Image (p, br, strong, em, lists,
+ * h2/h3, a, img). Sin dependencia Composer nueva. Ningún atributo arbitrario
+ * sobrevive; solo `<a href>` seguro y `<img src alt>` seguros.
  */
 final class AllowedHtmlSanitizer
 {
-    private const ALLOWED_TAGS = '<p><br><strong><em><ul><ol><li><h2><h3><a>';
+    private const ALLOWED_TAGS = '<p><br><strong><em><ul><ol><li><h2><h3><a><img>';
 
     /** @var list<string> */
     private const DANGEROUS_TAGS = [
@@ -67,11 +67,16 @@ final class AllowedHtmlSanitizer
                     return $this->safeAnchorOpening($attrs);
                 }
 
+                if ($tag === 'img') {
+                    return $this->safeImageTag($attrs);
+                }
+
                 return '<'.$tag.'>';
             },
             $clean,
         ) ?? $clean;
 
+        $clean = preg_replace('/<\/img\s*>/i', '', $clean) ?? $clean;
         $clean = trim($clean);
 
         if ($clean === '' || $clean === '<p></p>' || $clean === '<p><br></p>') {
@@ -114,5 +119,44 @@ final class AllowedHtmlSanitizer
         $safe = htmlspecialchars($href, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
         return '<a href="'.$safe.'">';
+    }
+
+    private function safeImageTag(string $attrs): string
+    {
+        if (! preg_match('/src\s*=\s*(["\'])(.*?)\1/i', $attrs, $srcMatch)) {
+            return '';
+        }
+
+        $src = trim(html_entity_decode($srcMatch[2], ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        if (! $this->isSafeImageSrc($src)) {
+            return '';
+        }
+
+        $alt = '';
+        if (preg_match('/alt\s*=\s*(["\'])(.*?)\1/i', $attrs, $altMatch)) {
+            $alt = html_entity_decode($altMatch[2], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+
+        $safeSrc = htmlspecialchars($src, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $safeAlt = htmlspecialchars($alt, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        return '<img src="'.$safeSrc.'" alt="'.$safeAlt.'">';
+    }
+
+    private function isSafeImageSrc(string $src): bool
+    {
+        if ($src === '') {
+            return false;
+        }
+
+        if (preg_match('/^(javascript|data|vbscript|file):/i', $src) === 1) {
+            return false;
+        }
+
+        if (preg_match('/^https?:\/\//i', $src) === 1) {
+            return true;
+        }
+
+        return str_starts_with($src, '/') && ! str_starts_with($src, '//');
     }
 }

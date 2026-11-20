@@ -9,13 +9,25 @@ type HelpTipPayload = {
     title?: string;
     excerpt?: string;
     content?: string;
-    referrer?: string | null;
-    video?: string | null;
+    referrer?: string[] | string | null;
+    video?: string[] | string | null;
 };
 
 type SharedHelpProps = {
     help_tips?: Record<string, HelpTipPayload>;
 };
+
+function toList(value: string[] | string | null | undefined): string[] {
+    if (Array.isArray(value)) {
+        return value.filter((item): item is string => typeof item === 'string' && item.trim() !== '');
+    }
+
+    if (typeof value === 'string' && value.trim() !== '') {
+        return [value.trim()];
+    }
+
+    return [];
+}
 
 export default function HelpTip({ code }: { code: string }) {
     const { t } = useTranslation();
@@ -26,6 +38,9 @@ export default function HelpTip({ code }: { code: string }) {
         return null;
     }
 
+    const referrers = toList(tip.referrer);
+    const videos = toList(tip.video);
+
     return (
         <Popover>
             <PopoverTrigger asChild>
@@ -33,10 +48,11 @@ export default function HelpTip({ code }: { code: string }) {
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    className="text-slate-500 hover:text-slate-800"
+                    className="mt-0.5 shrink-0 rounded-full bg-amber-100 text-amber-800 hover:bg-amber-200 hover:text-amber-900"
                     aria-label={t('ayuda')}
+                    data-testid={`helptip-${code}`}
                 >
-                    <Info aria-hidden className="h-4 w-4" />
+                    <Info aria-hidden className="h-3.5 w-3.5" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent align="start" className="w-80 space-y-2 p-3">
@@ -46,15 +62,35 @@ export default function HelpTip({ code }: { code: string }) {
                 {tip.excerpt ? (
                     <p className="text-sm whitespace-pre-wrap text-slate-700">{tip.excerpt}</p>
                 ) : null}
-                {tip.referrer ? (
-                    <a
-                        href={tip.referrer}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-block text-sm text-sky-700 underline-offset-2 hover:underline"
-                    >
-                        {t('leer_mas')}
-                    </a>
+                {referrers.length > 0 ? (
+                    <div className="flex flex-col gap-1">
+                        {referrers.map((href, index) => (
+                            <a
+                                key={`${href}-${index}`}
+                                href={href}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-block text-sm text-sky-700 underline-offset-2 hover:underline"
+                            >
+                                {index === 0 ? t('leer_mas') : href}
+                            </a>
+                        ))}
+                    </div>
+                ) : null}
+                {videos.length > 0 ? (
+                    <div className="flex flex-col gap-1">
+                        {videos.map((href, index) => (
+                            <a
+                                key={`${href}-${index}`}
+                                href={href}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-block text-sm text-sky-700 underline-offset-2 hover:underline"
+                            >
+                                {index === 0 ? t('video_url') : href}
+                            </a>
+                        ))}
+                    </div>
                 ) : null}
             </PopoverContent>
         </Popover>

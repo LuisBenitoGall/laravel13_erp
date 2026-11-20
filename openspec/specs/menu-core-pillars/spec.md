@@ -6,7 +6,7 @@ Directorio + Centros de trabajo + Configuración de la empresa), `usuarios`
 `cuenta` (Mi cuenta = cuenta SaaS company / placeholder; Mis módulos),
 `dashboard` (hoja) y `configuracion` (SA AdminOnly: Módulos, Roles, Permisos,
 Países, Monedas, Bancos, Unidades, Tipos de IVA, Grupos contables, Métodos de
-pago, Contenidos, Autorizaciones). La ficha Edit del propio user
+pago, Contenidos, Galería, Autorizaciones). La ficha Edit del propio user
 (`/admin/profile`) no es ítem de menú lateral (acceso vía avatar). Sin bloques
 sintéticos ni slugs `admin`/`workspace`.
 
@@ -117,6 +117,15 @@ Admin, sin sustituir los catálogos existentes.
 #### Scenario: SA abre Contenidos desde el menú
 - **WHEN** Super Admin abre Contenidos desde Configuración
 - **THEN** navega al Index de contents
+
+### Requirement: Ítem Galería en Configuración
+El sistema SHALL incluir bajo el Module `configuracion` un ítem Galería
+(Functionality `gallery`), ordenado inmediatamente después de Contenidos,
+que enlaza el Index `/admin/gallery`.
+
+#### Scenario: SA abre Galería desde el menú
+- **WHEN** Super Admin abre Galería desde Configuración
+- **THEN** navega al Index de gallery
 
 ### Requirement: Ítem Permisos hacia catálogo de permisos
 El sistema SHALL incluir un ítem de menú Permisos distinto de Roles bajo el

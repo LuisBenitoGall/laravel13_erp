@@ -7,6 +7,7 @@ import type { CellComponent } from 'tabulator-tables';
 import HelpTip from '@/Components/HelpTip';
 import ServerTable, { type ColumnDef, type RowAction } from '@/Components/Table/ServerTable';
 import AppLayout from '@/Layouts/AppLayout';
+import { patchJson } from '@/lib/http';
 
 export type ContentRow = {
     id: number;
@@ -23,14 +24,6 @@ export default function Index() {
         () => ({
             help: t('contenido_tipo_informacion'),
             article: t('contenido_tipo_contenido'),
-        }),
-        [t],
-    );
-
-    const statusValues: Record<string, string> = useMemo(
-        () => ({
-            active: t('activo'),
-            inactive: t('inactivo'),
         }),
         [t],
     );
@@ -61,23 +54,25 @@ export default function Index() {
                     return kindValues[value] ?? value;
                 },
             },
-            {
-                title: t('estado'),
-                field: 'status',
-                width: 120,
-                headerFilterKind: 'select',
-                headerFilterValues: statusValues,
-                formatter: (cell: CellComponent) => {
-                    const value = String(cell.getValue() ?? '');
-
-                    return statusValues[value] ?? value;
-                },
-            },
         ],
-        [t, kindValues, statusValues],
+        [t, kindValues],
     );
 
     const rowActions = (row: ContentRow): Array<RowAction<ContentRow>> => [
+        {
+            id: 'toggle-status',
+            kind: 'toggle',
+            labelKey: row.status === 'active' ? 'desactivar' : 'activar',
+            checked: row.status === 'active',
+            onToggle: async (_row, checked) => {
+                const status = checked ? 'active' : 'inactive';
+                await patchJson<{ status: string }>(`/admin/contents/${row.id}/status`, {
+                    status,
+                });
+
+                return { status };
+            },
+        },
         {
             id: 'edit',
             icon: Pencil,

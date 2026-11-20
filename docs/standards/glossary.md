@@ -57,7 +57,7 @@
 | Contenido | `Content` | Content | Pieza CMS ligera Admin; kinds Help (UI «Información») y Article (UI «Contenido»); ancla `code`; `company_id` nullable (alta = null); ≠ `Note` ni WordPress |
 | Información (contenido) | `ContentKind::Help` | type=1 | Tip/ancla HelpTip; Create elige este tipo |
 | Contenido (kind) | `ContentKind::Article` | type=2 | Pieza editorial; Edit real = change futuro |
-| Ancla (contenido) | `code` | code | Identificador estable para `<HelpTip code>`; inmutable tras create |
+| Ancla (contenido) | `code` | code | Identificador estable HelpTip; convención `{helpScope}.{fieldKey}` (ej. `companies.nif`). Create Help: code **explícito** (sin slugify del nombre; admite `.` y `-`); Create Article: auto-slug desde nombre; inmutable en Edit; `helpCode` en Field = override del derive |
 | Configuración de la empresa | hub `company-settings` | Company settings | Hub/onboarding de la company en sesión (Functionality bajo `empresas`); readiness = nif+logo+≥1 workplace Active; ≠ Configuración SA |
 | Centro de trabajo | `Workplace` | Workplace | Sede/dirección operativa de la company (`BelongsToCompany`); ≠ Obra (`Worksite`) ni `Workspace` |
 | Principal (centro) | `featured` | — | Flag `Workplace.featured`; UI «Principal»; ≤1/company; dirección default facturación/pedidos (consumo = changes futuros) |
@@ -65,6 +65,7 @@
 | UTE | `JointVenture` | UTE | UI muestra "UTE" |
 | Contacto | `Contact` | Contact | |
 | Teléfono | `Phone` | Phone | Tabla polimórfica `phones` (`phoneable`); UI ficha User en tab contactos |
+| Galería (activo) | `MediaAsset` | Galería | Imagen reutilizable por URL; `media_assets`; `company_id` nullable; Functionality `gallery`; ≠ `UserImage` ni thumbs WP |
 | Imagen de usuario | `UserImage` | — | `user_images`; `featured` = avatar; `public` solo con `User.is_public` |
 | Documento de usuario | `UserDoc` | — | `user_docs`; personal del User (no company); disco privado; share = change futuro |
 | Vínculo user–empresa | `UserCompany` / `user_companies` | — | Membresía/acceso ERP; `position`/`department` nullable en pivot; ≠ Empleo |

@@ -34,6 +34,7 @@ class RealignMenuCatalog
             'sectors',
             'payment-methods',
             'contents',
+            'gallery',
             'vat-types',
             'accounting-account-types',
             'company-module-authorizations',
@@ -60,7 +61,9 @@ class RealignMenuCatalog
             $this->ensureCompanySettings($modules['empresas']);
             $this->ensurePaymentMethods($modules['configuracion']);
             $this->ensureContents($modules['configuracion']);
+            $this->ensureGallery($modules['configuracion']);
             $this->reassignFunctionalities($modules);
+            $this->applyConfiguracionFunctionalitySort();
             $this->migrateAccessPermissions();
             $this->retireLegacyModules($modules);
             $this->migrateCompanyLayers($modules);
@@ -376,6 +379,50 @@ class RealignMenuCatalog
             ],
             'status' => FunctionalityStatus::Active->value,
         ]);
+    }
+
+    private function ensureGallery(Module $configuracion): void
+    {
+        $existing = Functionality::withTrashed()->where('slug', 'gallery')->first();
+
+        if ($existing !== null) {
+            if ($existing->trashed()) {
+                $existing->restore();
+            }
+
+            $existing->forceFill([
+                'module_id' => $configuracion->id,
+                'label' => [
+                    'es' => 'Galería',
+                    'en' => 'Gallery',
+                    'ca' => 'Galeria',
+                ],
+                'status' => FunctionalityStatus::Active,
+            ])->save();
+
+            return;
+        }
+
+        $this->createFunctionality->handle([
+            'module_id' => $configuracion->id,
+            'name' => 'Gallery',
+            'slug' => 'gallery',
+            'label' => [
+                'es' => 'Galería',
+                'en' => 'Gallery',
+                'ca' => 'Galeria',
+            ],
+            'status' => FunctionalityStatus::Active->value,
+        ]);
+    }
+
+    private function applyConfiguracionFunctionalitySort(): void
+    {
+        foreach (self::FUNCTIONALITY_MAP['configuracion'] as $index => $slug) {
+            Functionality::withTrashed()
+                ->where('slug', $slug)
+                ->update(['sort' => ($index + 1) * 10]);
+        }
     }
 
     /**

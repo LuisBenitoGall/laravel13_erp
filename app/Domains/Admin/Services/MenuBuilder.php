@@ -164,6 +164,7 @@ class MenuBuilder
             'company-settings' => __('configuracion_de_la_empresa'),
             'payment-methods' => __('metodos_de_pago'),
             'contents' => __('contenidos'),
+            'gallery' => __('galeria'),
             'company-users' => __('usuarios_empresa'),
             'all-users' => __('todos_los_usuarios'),
             'company-modules' => __('mis_modulos'),

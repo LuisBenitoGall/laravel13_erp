@@ -72,13 +72,14 @@
 | `laravel-echo` + `pusher-js` | Cliente Reverb | — |
 | `i18next` + `react-i18next` | i18n en React (claves compartidas con `lang/*.json`) | R-TRV-05 |
 | `sonner` | Toasts (flash messages Inertia) | frontend.md §6 |
-| `@tiptap/react` + `@tiptap/starter-kit` (+ `@tiptap/pm` peer) | `Form/Wysiwyg` (HTML rico; allowlist al persistir) | frontend.md §2 |
+| `@tiptap/react` + `@tiptap/starter-kit` (+ `@tiptap/pm` peer) + `@tiptap/extension-image` | `Form/Wysiwyg` (HTML rico + nodos imagen; allowlist al persistir) | frontend.md §2 |
 
 ### Por módulo (se instalan cuando llegue el módulo)
 
 | Paquete | Módulo / uso |
 |---|---|
-| Dropzone (`react-dropzone`) | Adjuntos de documentos |
+| Dropzone (`react-dropzone`) | Adjuntos de documentos; Galería Admin (`MediaAsset`) upload |
+| `react-easy-crop` | Galería Admin (instalado): modal crop/resize → copia `MediaAsset` (Fase 1b) |
 | `@dnd-kit/core` | LineItemsEditor (reordenar líneas), kanban de tareas |
 | Gráficas (`recharts` propuesta) | Dashboard/KPIs (Fase 6) |
 

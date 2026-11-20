@@ -27,8 +27,8 @@ class ContentFactory extends Factory
             'title' => [],
             'excerpt' => [],
             'content' => [],
-            'referrer' => null,
-            'video' => null,
+            'referrer' => [],
+            'video' => [],
             'status' => ContentStatus::Inactive,
         ];
     }
