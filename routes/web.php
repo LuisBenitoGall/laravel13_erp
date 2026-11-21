@@ -49,9 +49,12 @@ Route::middleware('auth')->group(function () {
         ->middleware('company')
         ->name('dashboard');
 
-    Route::get('account', [AccountController::class, 'show'])
-        ->middleware('company')
-        ->name('account.show');
+    Route::middleware(['company', 'module:cuenta'])->group(function () {
+        Route::get('account', [AccountController::class, 'show'])->name('account.show');
+        Route::get('account/company-accounts/table', [AccountController::class, 'table'])
+            ->name('account.company-accounts.table');
+        Route::post('account/renew', [AccountController::class, 'renew'])->name('account.renew');
+    });
 });
 
 Route::get('/', function () {

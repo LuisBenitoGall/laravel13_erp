@@ -3,12 +3,12 @@
 Pilares de menú como Modules del catálogo: `empresas` (Mis empresas +
 Directorio + Centros de trabajo + Configuración de la empresa), `usuarios`
 (Usuarios empresa → Index ServerTable; Todos los usuarios; company-roles),
-`cuenta` (Mi cuenta = cuenta SaaS company / placeholder; Mis módulos),
+`cuenta` (Mi cuenta = histórico/renovación `company_accounts`; Mis módulos),
 `dashboard` (hoja) y `configuracion` (SA AdminOnly: Módulos, Roles, Permisos,
 Países, Monedas, Bancos, Unidades, Tipos de IVA, Grupos contables, Métodos de
-pago, Contenidos, Galería, Autorizaciones). La ficha Edit del propio user
-(`/admin/profile`) no es ítem de menú lateral (acceso vía avatar). Sin bloques
-sintéticos ni slugs `admin`/`workspace`.
+pago, Contenidos, Galería, Cuentas, Autorizaciones). La ficha Edit del propio
+user (`/admin/profile`) no es ítem de menú lateral (acceso vía avatar). Sin
+bloques sintéticos ni slugs `admin`/`workspace`.
 
 ## Requirements
 
@@ -16,7 +16,7 @@ sintéticos ni slugs `admin`/`workspace`.
 El sistema SHALL exponer en el menú los pilares como Modules del catálogo:
 `empresas` (con Mis empresas / `companies`), `usuarios` (con Usuarios empresa /
 `company-users` y Roles de empresa / `company-roles`), `cuenta` (Mi cuenta =
-cuenta SaaS company / placeholder; Mis módulos / `company-modules`), `dashboard`
+histórico/renovación `company_accounts`; Mis módulos / `company-modules`), `dashboard`
 (hoja) y `configuracion` solo vía Module AdminOnly (visible para Super Admin con
 excepción de capas), con subítems al menos Módulos, Roles, Permisos, Países,
 Monedas, Bancos, Unidades, Tipos de IVA, Grupos contables y Autorización de
@@ -127,6 +127,15 @@ que enlaza el Index `/admin/gallery`.
 - **WHEN** Super Admin abre Galería desde Configuración
 - **THEN** navega al Index de gallery
 
+### Requirement: Ítem Cuentas en Configuración
+El sistema SHALL incluir bajo el Module `configuracion` un ítem Cuentas
+(Functionality `accounts`), ordenado inmediatamente después de Galería,
+que enlaza el Index `/admin/accounts`.
+
+#### Scenario: SA abre Cuentas desde el menú
+- **WHEN** Super Admin abre Cuentas desde Configuración
+- **THEN** navega al Index de accounts
+
 ### Requirement: Ítem Permisos hacia catálogo de permisos
 El sistema SHALL incluir un ítem de menú Permisos distinto de Roles bajo el
 Module `configuracion`. Ese ítem SHALL enlazar el Index Admin del catálogo
@@ -199,14 +208,15 @@ entradas.
 
 ### Requirement: Cuenta con Mi cuenta y Mis módulos
 El sistema SHALL exponer bajo el Module `cuenta` las Functionalities de Mi
-cuenta (slug actual `profile`: destino placeholder cuenta SaaS company,
-próximamente) y `company-modules` (Mis módulos → Index company-modules
-existente). SHALL NOT rediseñar tiles de company-modules en este change. SHALL
-NOT usar Mi cuenta como enlace a la ficha Edit del propio user
-(`/admin/profile`). La ficha self SHALL quedar fuera del menú lateral (acceso
-vía avatar). La visibilidad de menú de esas Functionalities SHALL exigir
-`cuenta.access` **y** el permiso Spatie `.view` de cada Functionality
-(`profile.view`, `company-modules.view`).
+cuenta (slug actual `profile`: destino `/account` con histórico de
+`company_accounts` de la empresa en sesión y renovación) y
+`company-modules` (Mis módulos → Index company-modules existente). SHALL
+NOT rediseñar tiles de company-modules en este change. SHALL NOT usar Mi
+cuenta como enlace a la ficha Edit del propio user (`/admin/profile`). La
+ficha self SHALL quedar fuera del menú lateral (acceso vía avatar). La
+visibilidad de menú de esas Functionalities SHALL exigir `cuenta.access`
+**y** el permiso Spatie `.view` de cada Functionality (`profile.view`,
+`company-modules.view`).
 
 #### Scenario: Mis módulos bajo cuenta
 - **WHEN** un usuario con `cuenta.access` y `company-modules.view` y capas
@@ -215,8 +225,9 @@ vía avatar). La visibilidad de menú de esas Functionalities SHALL exigir
 
 #### Scenario: Mi cuenta bajo cuenta
 - **WHEN** un usuario con `cuenta.access` y `profile.view` obtiene el menú
-- **THEN** ve Mi cuenta bajo Cuenta como próximamente (cuenta company) y no
-  navega a la ficha Edit del propio user
+- **THEN** ve Mi cuenta bajo Cuenta, navega a `/account` (histórico /
+  renovación de la cuenta SaaS de la empresa) y no navega a la ficha Edit
+  del propio user
 
 ### Requirement: Profile ficha solo desde avatar; sin activo en lateral
 La ficha `/admin/profile` SHALL ser accesible desde el menú del avatar del

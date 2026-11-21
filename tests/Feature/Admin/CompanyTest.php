@@ -1,10 +1,13 @@
 <?php
 
 use App\Domains\Admin\Actions\CreateCompany;
+use App\Domains\Admin\Enums\AccountStatus;
 use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Account;
 use App\Domains\Admin\Models\Company;
+use App\Domains\Admin\Models\CompanyAccount;
 use App\Domains\Admin\Models\CompanyModuleAuthorization;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
@@ -17,6 +20,10 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     app()[PermissionRegistrar::class]->forgetCachedPermissions();
     setPermissionsTeamId(null);
+
+    if (! Account::query()->where('is_default', true)->exists()) {
+        Account::factory()->default()->create(['status' => AccountStatus::Active]);
+    }
 });
 
 it('es visible igual desde cualquier contexto de empresa (catálogo global)', function () {
@@ -95,4 +102,25 @@ it('al crear company activa autoriza Modules Basic', function () {
 
     expect($authorizedSlugs)->toContain('sales')
         ->and($authorizedSlugs)->not->toContain('premium');
+});
+
+it('al crear company deja un company_accounts Active con Account default', function () {
+    $creator = User::factory()->create();
+    $company = app(CreateCompany::class)->handle([
+        'name' => 'Accounted Co',
+        'slug' => 'accounted-co',
+        'tradename' => 'Accounted',
+        'nif' => null,
+        'status' => CompanyStatus::Active->value,
+        'logo' => null,
+    ], $creator);
+
+    $rows = CompanyAccount::query()
+        ->withoutGlobalScope('company')
+        ->where('company_id', $company->id)
+        ->get();
+
+    expect($rows)->toHaveCount(1)
+        ->and($rows->first()?->status->value)->toBe('active')
+        ->and($rows->first()?->account_id)->toBe(Account::query()->where('is_default', true)->value('id'));
 });

@@ -2,11 +2,12 @@
 
 use App\Domains\Admin\Actions\AuthorizeModuleForCompany;
 use App\Domains\Admin\Actions\CreateCompany;
-use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\DisableModuleForCompany;
 use App\Domains\Admin\Actions\EnableModuleForCompany;
+use App\Domains\Admin\Enums\AccountStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Account;
 use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\CompanyModule;
 use App\Domains\Admin\Models\Module;
@@ -23,6 +24,10 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     app()[PermissionRegistrar::class]->forgetCachedPermissions();
     setPermissionsTeamId(null);
+
+    if (! Account::query()->where('is_default', true)->exists()) {
+        Account::factory()->default()->create(['status' => AccountStatus::Active]);
+    }
 });
 
 it('bloquea Module global Inactive', function () {
@@ -103,26 +108,19 @@ it('menú muestra módulo autorizado y encendido con permiso AND', function () {
         'level' => ModuleLevel::Basic,
         'status' => ModuleStatus::Active,
     ]);
-    $module = Module::factory()->create([
+    // Module hoja (sin Functionalities): solo exige comodín `.access`.
+    Module::factory()->create([
         'slug' => 'tools',
         'level' => ModuleLevel::Basic,
         'status' => ModuleStatus::Active,
-    ]);
-    app(CreateFunctionality::class)->handle([
-        'module_id' => $module->id,
-        'name' => 'Tools list',
-        'slug' => 'tools-list',
-        'label' => ['es' => 'Herramientas', 'en' => 'Tools'],
-        'status' => 'active',
     ]);
     enableModuleForCompany($company, 'dashboard');
     enableModuleForCompany($company, 'tools');
 
     $user = User::factory()->create();
     Permission::findOrCreate('tools.access');
-    Permission::findOrCreate('tools-list.view');
     Permission::findOrCreate('dashboard.access');
-    $user->givePermissionTo(['tools.access', 'tools-list.view', 'dashboard.access']);
+    $user->givePermissionTo(['tools.access', 'dashboard.access']);
     withCurrentCompany($company);
 
     $menu = app(MenuBuilder::class)->forUser($user);

@@ -10,8 +10,10 @@ use App\Domains\Admin\Actions\EnableModuleForCompany;
 use App\Domains\Admin\Actions\EnsureCompanyDefaultRoles;
 use App\Domains\Admin\Actions\RealignMenuCatalog;
 use App\Domains\Admin\Actions\SyncManagerPermissionsForCompany;
+use App\Domains\Admin\Enums\AccountStatus;
 use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\FunctionalityStatus;
+use App\Domains\Admin\Models\Account;
 use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
@@ -83,6 +85,7 @@ class AdminCatalogSeeder extends Seeder
                 ['module' => 'configuracion', 'name' => 'Sectors', 'slug' => 'sectors', 'label' => ['es' => 'Sectores', 'en' => 'Sectors', 'ca' => 'Sectors']],
                 ['module' => 'configuracion', 'name' => 'Payment methods', 'slug' => 'payment-methods', 'label' => ['es' => 'Métodos de pago', 'en' => 'Payment methods', 'ca' => 'Mètodes de pagament']],
                 ['module' => 'configuracion', 'name' => 'Contents', 'slug' => 'contents', 'label' => ['es' => 'Contenidos', 'en' => 'Contents', 'ca' => 'Continguts']],
+                ['module' => 'configuracion', 'name' => 'Accounts', 'slug' => 'accounts', 'label' => ['es' => 'Cuentas', 'en' => 'Accounts', 'ca' => 'Comptes']],
                 ['module' => 'configuracion', 'name' => 'VAT types', 'slug' => 'vat-types', 'label' => ['es' => 'Tipos de IVA', 'en' => 'VAT types', 'ca' => 'Tipus d\'IVA']],
                 ['module' => 'configuracion', 'name' => 'Accounting account types', 'slug' => 'accounting-account-types', 'label' => ['es' => 'Grupos contables', 'en' => 'Account groups', 'ca' => 'Grups comptables']],
                 ['module' => 'empresas', 'name' => 'Companies', 'slug' => 'companies', 'label' => ['es' => 'Mis empresas', 'en' => 'My companies', 'ca' => 'Les meves empreses']],
@@ -120,6 +123,11 @@ class AdminCatalogSeeder extends Seeder
 
             // Re-run realign to reassign any leftovers + ensure profile.
             app(RealignMenuCatalog::class)->handle();
+
+            // CreateCompany exige Account default Active (catálogo SaaS).
+            if (! Account::query()->where('is_default', true)->where('status', AccountStatus::Active)->exists()) {
+                $this->call(AccountsSeeder::class);
+            }
 
             $company = Company::query()->where('slug', 'acme')->first()
                 ?? Company::query()->where('slug', 'demo')->first();

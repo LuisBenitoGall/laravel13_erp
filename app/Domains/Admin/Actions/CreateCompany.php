@@ -15,6 +15,7 @@ class CreateCompany
         private readonly EnsureCompanyDefaultRoles $ensureCompanyDefaultRoles,
         private readonly AuthorizeBasicModulesForCompany $authorizeBasicModulesForCompany,
         private readonly SyncManagerPermissionsForCompany $syncManagerPermissionsForCompany,
+        private readonly AssignDefaultCompanyAccount $assignDefaultCompanyAccount,
     ) {}
 
     /** @param  array<string, mixed>  $data */
@@ -51,6 +52,7 @@ class CreateCompany
             }
 
             $this->syncManagerPermissionsForCompany->handle($company);
+            $this->assignDefaultCompanyAccount->handle($company);
 
             return $company->refresh();
         });

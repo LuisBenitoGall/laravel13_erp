@@ -35,6 +35,7 @@ class RealignMenuCatalog
             'payment-methods',
             'contents',
             'gallery',
+            'accounts',
             'vat-types',
             'accounting-account-types',
             'company-module-authorizations',
@@ -62,6 +63,7 @@ class RealignMenuCatalog
             $this->ensurePaymentMethods($modules['configuracion']);
             $this->ensureContents($modules['configuracion']);
             $this->ensureGallery($modules['configuracion']);
+            $this->ensureAccounts($modules['configuracion']);
             $this->reassignFunctionalities($modules);
             $this->applyConfiguracionFunctionalitySort();
             $this->migrateAccessPermissions();
@@ -411,6 +413,41 @@ class RealignMenuCatalog
                 'es' => 'Galería',
                 'en' => 'Gallery',
                 'ca' => 'Galeria',
+            ],
+            'status' => FunctionalityStatus::Active->value,
+        ]);
+    }
+
+    private function ensureAccounts(Module $configuracion): void
+    {
+        $existing = Functionality::withTrashed()->where('slug', 'accounts')->first();
+
+        if ($existing !== null) {
+            if ($existing->trashed()) {
+                $existing->restore();
+            }
+
+            $existing->forceFill([
+                'module_id' => $configuracion->id,
+                'label' => [
+                    'es' => 'Cuentas',
+                    'en' => 'Accounts',
+                    'ca' => 'Comptes',
+                ],
+                'status' => FunctionalityStatus::Active,
+            ])->save();
+
+            return;
+        }
+
+        $this->createFunctionality->handle([
+            'module_id' => $configuracion->id,
+            'name' => 'Accounts',
+            'slug' => 'accounts',
+            'label' => [
+                'es' => 'Cuentas',
+                'en' => 'Accounts',
+                'ca' => 'Comptes',
             ],
             'status' => FunctionalityStatus::Active->value,
         ]);

@@ -50,6 +50,17 @@ export interface UnitRow {
     status: string;
 }
 
+export interface AccountRow {
+    id: number;
+    name: string;
+    slug: string | null;
+    description: string | null;
+    rate: string | number;
+    duration: number | null;
+    status: string;
+    is_default: boolean;
+}
+
 export interface SectorRow {
     id: number;
     name: string;

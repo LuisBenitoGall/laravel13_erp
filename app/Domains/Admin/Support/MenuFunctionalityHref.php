@@ -27,6 +27,7 @@ final class MenuFunctionalityHref
             'payment-methods' => route('admin.payment-methods.index', absolute: false),
             'contents' => route('admin.contents.index', absolute: false),
             'gallery' => route('admin.gallery.index', absolute: false),
+            'accounts' => route('admin.accounts.index', absolute: false),
             'vat-types' => route('admin.vat-types.index', absolute: false),
             'accounting-account-types' => route('admin.accounting-account-types.index', absolute: false),
             'company-roles' => route('admin.company-roles.index', absolute: false),

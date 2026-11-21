@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/lib/utils';
 
-import { GalleryInsertDialog, type GalleryPickerAsset } from './GalleryInsertDialog';
+import { MediaPicker, type MediaPickerAsset } from './MediaPicker';
 
 export type WysiwygProps = {
     id?: string;
@@ -83,7 +83,7 @@ export function Wysiwyg({
         }
     }, [html, editor]);
 
-    function insertGalleryAsset(asset: GalleryPickerAsset) {
+    function insertGalleryAsset(asset: MediaPickerAsset) {
         if (!editor) {
             return;
         }
@@ -204,7 +204,7 @@ export function Wysiwyg({
             </div>
             <EditorContent editor={editor} />
             {enableGalleryInsert ? (
-                <GalleryInsertDialog
+                <MediaPicker
                     open={galleryOpen}
                     onOpenChange={setGalleryOpen}
                     onSelect={insertGalleryAsset}

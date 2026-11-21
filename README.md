@@ -71,6 +71,16 @@ php artisan db:seed --class=BanksSeeder --force
 # El Index de Unidades nunca importa.
 php artisan db:seed --class=UnitsSeeder --force
 
+# Cuentas SaaS / plantillas (≥1 Active is_default). NO está en DatabaseSeeder.
+# El Index de Cuentas nunca importa. AdminCatalogSeeder lo invoca si falta default.
+php artisan db:seed --class=AccountsSeeder --force
+
+# Backfill company_accounts para companies Active sin fila (idempotente).
+php artisan company-accounts:backfill
+
+# Caducidad diaria (también en Schedule): Active con end_date pasada → Expired.
+php artisan company-accounts:expire
+
 # Tipos de IVA (v1 → España id=66). Requiere GeographySeeder antes. NO está en
 # DatabaseSeeder. El Index nunca importa.
 php artisan db:seed --class=VatTypesSeeder --force
@@ -90,6 +100,7 @@ Comandos sueltos (idempotentes o re-ejecutables según cada seeder):
 | `CurrenciesSeeder` | `php artisan db:seed --class=CurrenciesSeeder --force` | **Fuera** de `DatabaseSeeder`. Upsert por `id` desde `database/data/currencies/currencies.json`. Active: EUR, USD, GBP, CHF; resto Inactive. Símbolo null → mapa v1 (EUR/USD/AUD/CAD). Si falta el JSON avisa y se omite. No re-sembrar a la ligera si ya hay FKs consumidoras. |
 | `BanksSeeder` | `php artisan db:seed --class=BanksSeeder --force` | **Fuera** de `DatabaseSeeder`. Upsert por `id` desde `database/data/banks/banks.enriched.json`. Status del JSON (1→active). Si falta el JSON avisa y se omite. No re-sembrar a la ligera si ya hay FKs consumidoras. |
 | `UnitsSeeder` | `php artisan db:seed --class=UnitsSeeder --force` | **Fuera** de `DatabaseSeeder`. Upsert por `id` desde `database/data/units/units.json`. Status del JSON (1→active). Sin `translations`. Si falta el JSON avisa y se omite. |
+| `AccountsSeeder` | `php artisan db:seed --class=AccountsSeeder --force` | **Fuera** de `DatabaseSeeder`. Plantillas mínimas ids 1–2; garantiza exactamente una Active `is_default`. Index nunca importa. |
 | `VatTypesSeeder` | `php artisan db:seed --class=VatTypesSeeder --force` | **Fuera** de `DatabaseSeeder`. Upsert por `id` desde `database/data/vat-types/iva-types.json` con `country_id=66` (España). **Requiere** `GeographySeeder` previo. Si falta España, falla con error claro. |
 | `AccountingAccountTypesSeeder` | `php artisan db:seed --class=AccountingAccountTypesSeeder --force` | **Fuera** de `DatabaseSeeder`. PGC España portado de v1; nombres vía `lang/*/fiscal.php` con `App::setLocale('es')`. `delete()` + reset AUTO_INCREMENT + insert (entorno limpio). |
 

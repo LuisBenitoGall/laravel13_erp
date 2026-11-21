@@ -1,5 +1,6 @@
 <?php
 
+use App\Domains\Admin\Http\Controllers\AccountController;
 use App\Domains\Admin\Http\Controllers\AccountingAccountTypeController;
 use App\Domains\Admin\Http\Controllers\AllUserController;
 use App\Domains\Admin\Http\Controllers\BankController;
@@ -129,6 +130,12 @@ Route::middleware(['auth', 'company', 'module:configuracion'])->prefix('admin')-
     Route::get('units/table', [UnitController::class, 'table'])->name('units.table');
     Route::patch('units/{unit}/status', [UnitController::class, 'updateStatus'])->name('units.status');
     Route::resource('units', UnitController::class)->only(['index', 'store', 'update', 'destroy']);
+
+    // Cuentas SaaS globales (plantillas); permisos `accounts.*`. ≠ Module cuenta / AccountingAccount.
+    Route::get('accounts/table', [AccountController::class, 'table'])->name('accounts.table');
+    Route::get('accounts/renewal', [AccountController::class, 'renewal'])->name('accounts.renewal');
+    Route::patch('accounts/{account}/status', [AccountController::class, 'updateStatus'])->name('accounts.status');
+    Route::resource('accounts', AccountController::class)->only(['index', 'store', 'update', 'destroy']);
 
     // Sectores globales (catálogo plano traducibles); permisos `sectors.*`.
     Route::get('sectors/table', [SectorController::class, 'table'])->name('sectors.table');

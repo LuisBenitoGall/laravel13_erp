@@ -12,7 +12,7 @@ import {
 } from '@/Components/ui/dialog';
 import { cn } from '@/lib/utils';
 
-export type GalleryPickerAsset = {
+export type MediaPickerAsset = {
     id: number;
     name: string;
     alt: string;
@@ -26,14 +26,14 @@ type PickerMeta = {
     total: number;
 };
 
-type Props = {
+export type MediaPickerProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onSelect: (asset: GalleryPickerAsset) => void;
+    onSelect: (asset: MediaPickerAsset) => void;
 };
 
 type FetchResult = {
-    assets: GalleryPickerAsset[];
+    assets: MediaPickerAsset[];
     meta: PickerMeta;
 };
 
@@ -61,7 +61,7 @@ async function fetchPickerPage(
     }
 
     const payload = (await response.json()) as {
-        assets?: GalleryPickerAsset[];
+        assets?: MediaPickerAsset[];
         meta?: Partial<PickerMeta>;
     };
 
@@ -76,11 +76,11 @@ async function fetchPickerPage(
     };
 }
 
-export function GalleryInsertDialog({ open, onOpenChange, onSelect }: Props) {
+export function MediaPicker({ open, onOpenChange, onSelect }: MediaPickerProps) {
     const { t } = useTranslation();
     const [query, setQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
-    const [assets, setAssets] = useState<GalleryPickerAsset[]>([]);
+    const [assets, setAssets] = useState<MediaPickerAsset[]>([]);
     const [meta, setMeta] = useState<PickerMeta | null>(null);
     const [loading, setLoading] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
@@ -214,7 +214,7 @@ export function GalleryInsertDialog({ open, onOpenChange, onSelect }: Props) {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-2xl" data-testid="gallery-insert-dialog">
+            <DialogContent className="sm:max-w-2xl" data-testid="media-picker-dialog">
                 <DialogHeader>
                     <DialogTitle>{t('galeria_insertar_titulo')}</DialogTitle>
                 </DialogHeader>
@@ -225,7 +225,7 @@ export function GalleryInsertDialog({ open, onOpenChange, onSelect }: Props) {
                         onChange={(event) => setQuery(event.target.value)}
                         placeholder={t('galeria_insertar_buscar')}
                         aria-label={t('galeria_insertar_buscar')}
-                        data-testid="gallery-insert-search"
+                        data-testid="media-picker-search"
                         autoComplete="off"
                     />
 
@@ -245,7 +245,7 @@ export function GalleryInsertDialog({ open, onOpenChange, onSelect }: Props) {
                         <ul
                             ref={scrollRootRef}
                             className="grid max-h-80 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3 md:grid-cols-4"
-                            data-testid="gallery-insert-grid"
+                            data-testid="media-picker-grid"
                         >
                             {assets.map((asset) => (
                                 <li key={asset.id}>
@@ -257,7 +257,7 @@ export function GalleryInsertDialog({ open, onOpenChange, onSelect }: Props) {
                                                 ? 'border-teal-700 ring-2 ring-teal-700/40'
                                                 : 'border-slate-200 hover:border-slate-300',
                                         )}
-                                        data-testid={`gallery-insert-asset-${asset.id}`}
+                                        data-testid={`media-picker-asset-${asset.id}`}
                                         onClick={() => setSelectedId(asset.id)}
                                     >
                                         <div className="aspect-square bg-slate-100">
@@ -281,7 +281,7 @@ export function GalleryInsertDialog({ open, onOpenChange, onSelect }: Props) {
                                 ref={sentinelRef}
                                 className="col-span-full h-1 list-none"
                                 aria-hidden
-                                data-testid="gallery-insert-sentinel"
+                                data-testid="media-picker-sentinel"
                             />
                         </ul>
                     ) : null}
@@ -298,7 +298,7 @@ export function GalleryInsertDialog({ open, onOpenChange, onSelect }: Props) {
                     <Button
                         type="button"
                         disabled={selectedId === null}
-                        data-testid="gallery-insert-confirm"
+                        data-testid="media-picker-confirm"
                         onClick={confirm}
                     >
                         {t('galeria_insertar_confirmar')}

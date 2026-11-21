@@ -410,15 +410,18 @@ it('picker JSON aisla MediaAsset de company B (R-TEN-05)', function () {
         ->and($response->json('meta'))->toHaveKeys(['current_page', 'last_page', 'per_page', 'total']);
 });
 
-it('GalleryInsertDialog usa buscador debounce AbortController e infinite scroll', function () {
-    $source = (string) file_get_contents(resource_path('js/Components/Form/GalleryInsertDialog.tsx'));
+it('MediaPicker usa buscador debounce AbortController e infinite scroll', function () {
+    $source = (string) file_get_contents(resource_path('js/Components/Form/MediaPicker.tsx'));
+    $index = (string) file_get_contents(resource_path('js/Components/Form/index.ts'));
 
     expect($source)->toContain('galeria_insertar_buscar')
         ->and($source)->toContain('AbortController')
         ->and($source)->toContain('IntersectionObserver')
-        ->and($source)->toContain('gallery-insert-sentinel')
+        ->and($source)->toContain('media-picker-sentinel')
         ->and($source)->toContain("mode === 'replace'")
         ->and($source)->toContain("'append'")
         ->and($source)->toContain('window.setTimeout')
-        ->and($source)->toContain(', 300)');
+        ->and($source)->toContain(', 300)')
+        ->and($index)->toContain('MediaPicker')
+        ->and(file_exists(resource_path('js/Components/Form/GalleryInsertDialog.tsx')))->toBeFalse();
 });

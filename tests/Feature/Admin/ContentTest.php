@@ -161,7 +161,8 @@ it('Wysiwyg inserta galería solo con enableGalleryInsert; Article lo activa', f
     $form = (string) file_get_contents(resource_path('js/Pages/Admin/Contents/components/ContentForm.tsx'));
 
     expect($wysiwyg)->toContain('enableGalleryInsert')
-        ->and($wysiwyg)->toContain('GalleryInsertDialog')
+        ->and($wysiwyg)->toContain('MediaPicker')
+        ->and($wysiwyg)->not->toContain('GalleryInsertDialog')
         ->and($wysiwyg)->toContain('setImage')
         ->and($wysiwyg)->toContain('wysiwyg-gallery-insert')
         ->and($form)->toContain('enableGalleryInsert')

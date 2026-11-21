@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureCompanyAccountIsActive;
 use App\Http\Middleware\EnsureCompanySelected;
 use App\Http\Middleware\EnsureModuleIsActive;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -43,8 +44,13 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'current_company' => SetCurrentCompany::class,
-            'company' => EnsureCompanySelected::class,
             'module' => EnsureModuleIsActive::class,
+        ]);
+
+        // Empresa seleccionada + gate SaaS (whitelist renovación dentro del middleware).
+        $middleware->group('company', [
+            EnsureCompanySelected::class,
+            EnsureCompanyAccountIsActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

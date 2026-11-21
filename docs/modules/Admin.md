@@ -38,10 +38,11 @@ shell (`configuracion` (+ Basics `dashboard`/`cuenta`/`usuarios`/`empresas`));
 | Edit roles empresa | Espejo Edit plataforma: layout anclas/cards; name readonly; Guardar = solo descripción; matriz = catálogo autorizados∩activos∩¬AdminOnly (canónicos+custom); toggles async `patchJson` + `{module}.access`; `manager` local `permissions_readonly`; Index con `company-roles.view` (sin exigir manager; delete sí); sin copy tenant; `can_edit=!universal`; universales bloqueados en edit/toggle; Actions refuerzan perímetro CurrentCompany |
 | Consola plataforma | Companies Index (CTA) + authorizations scoped |
 | Shell navegación | Dashboard + Configuración SA; seed ACME; post-login → dashboard |
-| Menú pilares | Empresas (Mis empresas → `/admin/companies`; **Directorio** → `/admin/company-directory` grid+aside sectores OR, Active+NIF+≥1 sector, `company-directory.view`; excepción ServerTable; **Centros de trabajo** → `/admin/workplaces` ServerTable, Functionality `workplaces`; **Configuración de la empresa** → `/admin/company-settings` hub onboarding, Functionality `company-settings`), Usuarios (Usuarios empresa→`/admin/company-users` ServerTable `user_companies`×sesión; Todos los usuarios→`/admin/all-users` directorio `is_public=true` + máscara notificación; `company-users.*` / `all-users.view` (Index; `.viewAny` = detalle); Members legacy sigue para asignación de rol), Configuración SA (Módulos/Roles/Permisos/Países/Monedas/Bancos/Unidades/Sectores/Métodos de pago/Tipos de IVA/Grupos contables/**Contenidos**/**Galería**; sin ítem genérico Funcionalidades). Bancos: entidad Admin |
+| Menú pilares | Empresas (Mis empresas → `/admin/companies`; **Directorio** → `/admin/company-directory` grid+aside sectores OR, Active+NIF+≥1 sector, `company-directory.view`; excepción ServerTable; **Centros de trabajo** → `/admin/workplaces` ServerTable, Functionality `workplaces`; **Configuración de la empresa** → `/admin/company-settings` hub onboarding, Functionality `company-settings`), Usuarios (Usuarios empresa→`/admin/company-users` ServerTable `user_companies`×sesión; Todos los usuarios→`/admin/all-users` directorio `is_public=true` + máscara notificación; `company-users.*` / `all-users.view` (Index; `.viewAny` = detalle); Members legacy sigue para asignación de rol), Configuración SA (Módulos/Roles/Permisos/Países/Monedas/Bancos/Unidades/Sectores/Métodos de pago/Tipos de IVA/Grupos contables/**Contenidos**/**Galería**/**Cuentas**; sin ítem genérico Funcionalidades). Bancos: entidad Admin |
 | Contenidos (Content) | Kinds Help\|Article; Create: name+kind; **Help exige `code` explícito** `{scope}.{field}` (sin slugify); Article → auto-slug; Inactive; Edit real (`RecordSummary`+form; kind/code inmutables; Eliminar); `company_id` null; soft delete; **sin** BelongsToCompany; `contents.*`; Index toggle→Edit→Delete; HelpTip + `FormHelpScope`/`Field` auto `{scope}.{field}` (NIF `companies.nif`); **Fase 2:** Wysiwyg Article inserta `<img>` desde Galería (`enableGalleryInsert`; no Help); **video opcional** en update (Help y Article; `[]` válido); fixture+seeder+`contents:export-help`; published_* = futuros. V-07/V-08 sí; R-TEN-05 N/A; E2E N/A |
-| Galería (MediaAsset) | Functionality `gallery` bajo `configuracion` (tras Contenidos); `/admin/gallery`; grid 6 cols (excepción ServerTable); Index carga completa (sin paginar; revisable); UI gated `can.create/update/delete`; multi-upload + name+alt+URL; crop/resize cliente (`react-easy-crop`, pan+zoom; ayuda + ratios) → **copia**; **Fase 2/2b:** `GET admin/gallery/picker` JSON (`q` name|alt, `page`/`per_page` 24–48, `{assets,meta}`) + selector Wysiwyg Article (debounce + infinite scroll); `company_id` nullable (altas/copias plataforma null; upload empresa bloqueado); soft delete (+ borra fichero); **sin** BelongsToCompany; `gallery.*`; ≠ UserImage; MediaPicker genérico = Fase 3. V-07/V-08/V-21 sí; R-TEN-05 sí (no-null); E2E N/A |
-| Cuenta vs ficha user | Module `cuenta`: Mi cuenta (slug Functionality `profile`) → `/account` placeholder SaaS company (próximamente; no ficha User); Mis módulos → company-modules. Ficha self `/admin/profile*` solo desde avatar topbar; AsideNav sin highlight en `/admin/profile*`; menú lateral sin href `/admin/profile` |
+| Galería (MediaAsset) | Functionality `gallery` bajo `configuracion` (tras Contenidos); `/admin/gallery`; grid 6 cols (excepción ServerTable); Index carga completa (sin paginar; revisable); UI gated `can.create/update/delete`; multi-upload + name+alt+URL; crop/resize cliente (`react-easy-crop`, pan+zoom; ayuda + ratios) → **copia**; **Fase 2/2b/3:** `GET admin/gallery/picker` JSON (`q`/`page`/`per_page`, `{assets,meta}`) + `Form/MediaPicker` reutilizable; único consumidor actual = Wysiwyg Article (`enableGalleryInsert`); `company_id` nullable (altas/copias plataforma null; upload empresa bloqueado); soft delete (+ borra fichero); **sin** BelongsToCompany; `gallery.*`; ≠ UserImage. V-07/V-08/V-21 sí; R-TEN-05 sí (no-null); E2E N/A |
+| Cuenta vs ficha user | Module `cuenta`: Mi cuenta (slug Functionality `profile`) → `/account` histórico `company_accounts` + renovación (no ficha User); Mis módulos → company-modules. Ficha self `/admin/profile*` solo desde avatar topbar; AsideNav sin highlight en `/admin/profile*`; menú lateral sin href `/admin/profile` |
+| CompanyAccount | Vínculo SaaS Company↔Account; `BelongsToCompany`; status Pending/Active/Expired/Cancelled; ≤1 Active; alta vía `CreateCompany`→`AssignDefaultCompanyAccount`; renovación `RenewCompanyAccount` (`profile.update`); job `company-accounts:expire` diario; middleware gate 403+CTA; whitelist Mi cuenta/renew/select/logout; `admin.accounts.renewal` → redirect `/account`. V-16/V-18/V-20/V-21; R-TEN-05 sí; E2E N/A |
 | Company (Mis Empresas) | Tenant sin `BelongsToCompany`. Index ServerTable; Create name/tradename/nif/status (sin jerarquía ni sectores ni excerpt/description); slug auto; Edit tabs Info/Imágenes/**Jerarquía**/Sectores; tab Info = identidad + `excerpt`/`description` multi-idioma (`LangTabs`; Textarea ≤1000; `Form/Wysiwyg` TipTap; HTML allowlist al guardar); tab Sectores = N:N Active (`company-sectors.view` ver / `.update` sync; sin menú lateral); `parent_id` nullable (1 padre o ninguno, N niveles, anti-ciclo; solo vínculo `user_companies`); logo POST `admin.companies.logo`; rutas `/admin/companies`; al crear: roles manager/guest + vínculo creador |
 | Directorio empresas | Functionality `company-directory` bajo `empresas`; Index `/admin/company-directory` (aside sectores Active OR + grid cards; sort name/recientes; paginación; **sin** ServerTable); Show informativo sin CTA contactar/cliente-proveedor; universo Active+NIF+≥1 sector; Policy `viewAnyCompanyDirectory` ≠ `forUser` Mis empresas |
 | Workplace (Centros de trabajo) | `BelongsToCompany`; CRUD `/admin/workplaces` ServerTable + Create/Edit páginas; dirección embebida `address`/`cp`/`town_id` (cascada geo vía `workplaces/geo/*`; form lg: Dirección 75%+CP 25%; Estado 25%+Switch Principal; `FormActions` derecha R-FE-09; Volver→Index); `featured` UI **Principal** ≤1/company (primer create = featured; default facturación/pedidos futuros); status Active/Inactive; Functionality `workplaces` bajo `empresas`; ≠ Worksite/Workspace; V-07/V-08; R-TEN-05 |
@@ -59,6 +60,7 @@ shell (`configuracion` (+ Basics `dashboard`/`cuenta`/`usuarios`/`empresas`));
 | User docs | Tab Documentos (tras Imágenes): `UserDoc` personal (no company) + disco `local` privado `users/{id}/docs/…`; Dropzone pdf/doc/docx/xls/xlsx 20 MB; máx 30/user; listado download authz + delete; Policy upload/download/delete = self o `updateCompanyUser`; soft delete borra fichero; sin share; rutas `admin.profile.docs.*` / `admin.company-users.docs.*`; ops PHP ≥20 MB |
 | Index Todos los usuarios | ServerTable global filtrado `is_public=true`; sola acción máscara notificación; sin edit/toggle/delete |
 | Unidades (Unit) | Catálogo global plano (sin `company_id`); soft delete; status active/inactive; Index ServerTable (name, symbol; sin columna Estado) + Acciones toggle→Edit→Delete; modales Create/Edit; symbol max 4; name unique; Functionality `units` + `units.*`; Configuración→Unidades; `UnitsSeeder` datos v1 (IDs/status preservados; sin translations); Index no importa. V-07/V-08 sí; E2E N/A |
+| Cuentas SaaS (Account) | Catálogo global plano (sin `company_id`); soft delete; status active/inactive; name/slug/description/rate/duration/`is_default`; Index ServerTable (name, rate, duration, default; sin columna Estado) + Acciones toggle→Edit→Delete; modales Create/Edit; **una sola default**; delete de la default bloqueado; Functionality `accounts` + `accounts.*`; Configuración→Cuentas; `/admin/accounts/renewal` → redirect Mi cuenta; `AccountsSeeder` ≥1 Active default (`php artisan db:seed --class=AccountsSeeder`; no en DatabaseSeeder; Index no importa). ≠ Module `cuenta`, ≠ AccountingAccount. V-07/V-08/V-20/V-21 sí; R-TEN-05 N/A; E2E N/A |
 | Tipos de IVA (VatType) | Catálogo global por Country (sin `company_id`); FK `country_id` required (selector todos los países); rate decimal(5,2); RE nullable; soft delete; Index plano con columna País+filtro, name, rate, RE; Acciones toggle→Edit→Delete; modales; Active-first+name; Functionality `vat-types` + `vat-types.*`; `VatTypesSeeder` → España id=66 (tras GeographySeeder); Index no importa. V-07/V-08 sí; E2E N/A |
 | Grupos contables (AccountingAccountType) | Catálogo jerárquico PGC (sin `company_id`/status); autoreference/code/name/mode; soft delete; Index ServerTable (code, name, level); Create modal (raíz); Edit solo name (code inmutable); Delete bloqueado si hijos; Show árbol desde BD; Functionality `accounting-account-types`; `AccountingAccountTypesSeeder` + `lang/*/fiscal.php`; V-07/V-08 sí; E2E N/A |
 | Geografía (Países) | Catálogo global Country→Province→Town (sin `company_id`); soft delete; status active/inactive; Index drill v1+ServerTable; Functionality `countries`; cascada JSON; seeder datos v1 con IDs preservados; `flag` nullable; Indexes sin columna Estado (toggle en Acciones); drill Map/MapPin ≠ Pencil |
@@ -168,6 +170,42 @@ local.
 | V-01..V-20 | No | Sin menú/permisos/módulo/seeder nuevos (Fase 2b) |
 | R-TEN-05 | Sí (picker) | Perímetro sin cambio; Feature aislamiento + meta |
 | E2E | N/A | design D6; Feature + assert fuente modal |
+
+## Vinculaciones — admin-gallery-media-picker (c2026-11-21-admin-gallery-media-picker)
+
+| Id | ¿Aplica? | Nota |
+|---|---|---|
+| V-01..V-20 | No | Solo extracción front `Form/MediaPicker` (Fase 3 A) |
+| E2E | N/A | design D6; assert fuente + Features picker/Content |
+
+## Vinculaciones — admin-accounts (c2026-11-21-admin-accounts)
+
+| Id | ¿Aplica? | Nota |
+|---|---|---|
+| V-07 | Sí | Functionality `accounts` + Spatie `accounts.*` |
+| V-08 | Sí | Configuración → Cuentas (tras Galería) |
+| V-09 | No | Reusa Module `configuracion` |
+| V-12 | No | name/description string como Unit |
+| V-15 | No | Seeder mínimo (no dump v1 masivo) |
+| V-16 | No | Job caducidad = change siguiente |
+| V-18 | Sí | CreateCompany → AssignDefaultCompanyAccount |
+| V-20 | Sí | Auditable como Unit |
+| V-21 | Sí | Rutas `/admin/accounts*` bajo `module:configuracion` |
+| R-TEN-05 | N/A | Catálogo global; test visibilidad global |
+| E2E | N/A | design D8; Feature basta |
+
+## Vinculaciones — admin-company-accounts (c2026-11-21-admin-company-accounts)
+
+| Id | ¿Aplica? | Nota |
+|---|---|---|
+| V-07 | No | Reusa `profile.*` (GET view / POST renew update) |
+| V-08 | No | Misma entrada Mi cuenta |
+| V-16 | Sí | `company-accounts:expire` diario |
+| V-18 | Sí | `CreateCompany` → `AssignDefaultCompanyAccount` |
+| V-20 | Sí | Auditable CompanyAccount |
+| V-21 | Sí | `/account*` bajo `module:cuenta` |
+| R-TEN-05 | Sí | CompanyAccount tenant |
+| E2E | N/A | design D10; Feature gate + renew |
 
 ## Dependencias
 

@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Domains\Admin\Models\Account;
 use App\Domains\Admin\Models\AccountingAccountType;
 use App\Domains\Admin\Models\Bank;
 use App\Domains\Admin\Models\Company;
+use App\Domains\Admin\Models\CompanyAccount;
 use App\Domains\Admin\Models\Content;
 use App\Domains\Admin\Models\Country;
 use App\Domains\Admin\Models\Currency;
@@ -22,8 +24,10 @@ use App\Domains\Admin\Models\Unit;
 use App\Domains\Admin\Models\VatType;
 use App\Domains\Admin\Models\Workplace;
 use App\Domains\Admin\Policies\AccountingAccountTypePolicy;
+use App\Domains\Admin\Policies\AccountPolicy;
 use App\Domains\Admin\Policies\AllUserPolicy;
 use App\Domains\Admin\Policies\BankPolicy;
+use App\Domains\Admin\Policies\CompanyAccountPolicy;
 use App\Domains\Admin\Policies\CompanyDirectoryPolicy;
 use App\Domains\Admin\Policies\CompanyPolicy;
 use App\Domains\Admin\Policies\CompanyRolePolicy;
@@ -90,6 +94,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Currency::class, CurrencyPolicy::class);
         Gate::policy(Bank::class, BankPolicy::class);
         Gate::policy(Unit::class, UnitPolicy::class);
+        Gate::policy(Account::class, AccountPolicy::class);
+        Gate::policy(CompanyAccount::class, CompanyAccountPolicy::class);
         Gate::policy(Sector::class, SectorPolicy::class);
         Gate::policy(PaymentMethod::class, PaymentMethodPolicy::class);
         Gate::policy(VatType::class, VatTypePolicy::class);

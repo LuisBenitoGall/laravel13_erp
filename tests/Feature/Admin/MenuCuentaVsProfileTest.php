@@ -86,14 +86,21 @@ it('expone account.show y MenuBuilder profile no apunta a /admin/profile', funct
         ->and($hrefs)->not->toContain(route('admin.profile.show', absolute: false));
 });
 
-it('GET /account muestra placeholder proximamente autorizado', function () {
+it('GET /account muestra histórico y renovación (Mi cuenta)', function () {
     $user = User::factory()->create();
+    setPermissionsTeamId($this->company->id);
+    $user->givePermissionTo([
+        Permission::findOrCreate('cuenta.access'),
+        Permission::findOrCreate('profile.view'),
+    ]);
     actingWithCompany($user, $this->company);
 
     $this->get(route('account.show'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
-            ->component('Account/ComingSoon'));
+            ->component('Account/Show')
+            ->has('catalogAccounts')
+            ->has('current'));
 });
 
 it('AsideNav fuerza sin activo en /admin/profile y avatar sigue a /admin/profile', function () {

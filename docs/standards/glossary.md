@@ -36,6 +36,8 @@
 | Mandato (SEPA) | `Mandate` | mandato | FRST/RCUR |
 | Asiento contable | `Seat` | Seat | Se conserva (todo el diseño ledger de v1 gira en torno a él) |
 | Apunte (línea de asiento) | `SeatLine` | — | |
+| Cuenta (SaaS / plantilla) | `Account` | Account | Catálogo global Admin (sin `company_id`); Functionality `accounts`; ≠ Module `cuenta`, ≠ AccountingAccount |
+| Cuenta de empresa (SaaS) | `CompanyAccount` | company_accounts | Vínculo tenant↔Account; ≤1 Active; BelongsToCompany; renovación en Mi cuenta |
 | Cuenta contable | `AccountingAccount` | AccountingAccount | |
 | Plan contable | `ChartOfAccounts` | — | |
 | Amortización | `Amortization` | Amortization | |
@@ -66,6 +68,7 @@
 | Contacto | `Contact` | Contact | |
 | Teléfono | `Phone` | Phone | Tabla polimórfica `phones` (`phoneable`); UI ficha User en tab contactos |
 | Galería (activo) | `MediaAsset` | Galería | Imagen reutilizable por URL; `media_assets`; `company_id` nullable; Functionality `gallery`; ≠ `UserImage` ni thumbs WP |
+| Selector de Galería | `MediaPicker` | — | `Form/MediaPicker`; diálogo reutilizable (búsqueda + scroll infinito vía `admin.gallery.picker`); UI «Elegir imagen…»; ≠ Index Galería |
 | Imagen de usuario | `UserImage` | — | `user_images`; `featured` = avatar; `public` solo con `User.is_public` |
 | Documento de usuario | `UserDoc` | — | `user_docs`; personal del User (no company); disco privado; share = change futuro |
 | Vínculo user–empresa | `UserCompany` / `user_companies` | — | Membresía/acceso ERP; `position`/`department` nullable en pivot; ≠ Empleo |
