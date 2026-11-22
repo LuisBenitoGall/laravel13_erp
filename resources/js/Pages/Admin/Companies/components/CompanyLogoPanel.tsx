@@ -60,7 +60,7 @@ export default function CompanyLogoPanel({ companyId, logoUrl }: Props) {
                         id="company-logo"
                         type="file"
                         accept="image/*"
-                        className="block w-full text-sm text-slate-700 file:mr-3 file:rounded-md file:border-0 file:bg-teal-700 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-teal-800"
+                        className="block w-full text-sm text-slate-700 file:mr-3 file:rounded-md file:border-0 file:bg-brand file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-brand-hover"
                         onChange={onFileChange}
                     />
                 </Field>

@@ -50,11 +50,11 @@ mientras no se marque otra.
 - **WHEN** el actor intenta eliminar la Account marcada como default
 - **THEN** el sistema rechaza la eliminación
 
-### Requirement: Redirect renovación Admin a Mi cuenta
-El sistema SHALL redirigir `GET /admin/accounts/renewal` a Mi cuenta
-(`/account`), donde vive el histórico y la renovación real de
-`company_accounts`.
+### Requirement: Redirect renovación Admin a account-renew
+El sistema SHALL redirigir `GET /admin/accounts/renewal` a la ruta admin
+de renovación (`/admin/account-renew`), donde vive el grid de Accounts
+y el POST de renovación/upgrade de `company_accounts`.
 
 #### Scenario: Abrir renovación Admin
 - **WHEN** el actor autorizado abre la ruta Admin de renovación de cuenta
-- **THEN** es redirigido a `/account` (Mi cuenta)
+- **THEN** es redirigido a `/admin/account-renew`

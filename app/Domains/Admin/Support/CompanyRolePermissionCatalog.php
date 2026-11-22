@@ -161,7 +161,24 @@ class CompanyRolePermissionCatalog
             ->where('company_id', $company->id)
             ->pluck('module_id');
 
-        return $authorizedIds->intersect($enabledIds)->values()->all();
+        // Basic: autorizado basta. Optional: autorizado ∩ encendido. AdminOnly: fuera de matriz.
+        $modules = Module::query()
+            ->whereIn('id', $authorizedIds)
+            ->where('status', ModuleStatus::Active)
+            ->where('level', '!=', ModuleLevel::AdminOnly)
+            ->get(['id', 'level']);
+
+        return $modules
+            ->filter(function (Module $module) use ($enabledIds): bool {
+                if ($module->level === ModuleLevel::Basic) {
+                    return true;
+                }
+
+                return $enabledIds->contains($module->id);
+            })
+            ->pluck('id')
+            ->values()
+            ->all();
     }
 
     /**

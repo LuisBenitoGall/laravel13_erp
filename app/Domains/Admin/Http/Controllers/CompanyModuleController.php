@@ -4,6 +4,7 @@ namespace App\Domains\Admin\Http\Controllers;
 
 use App\Domains\Admin\Actions\DisableModuleForCompany;
 use App\Domains\Admin\Actions\EnableModuleForCompany;
+use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\CompanyModule;
@@ -40,6 +41,7 @@ class CompanyModuleController extends Controller
 
         $modules = Module::query()
             ->where('status', ModuleStatus::Active)
+            ->where('level', ModuleLevel::Optional)
             ->orderBy('slug')
             ->get()
             ->map(function (Module $module) use ($authorizedIds, $enabledIds) {
@@ -96,7 +98,12 @@ class CompanyModuleController extends Controller
         abort_unless($this->userCanManageCompanyModules(), 403);
 
         $company = Company::query()->findOrFail($currentCompany->id());
-        $action->handle($company, $module);
+
+        try {
+            $action->handle($company, $module);
+        } catch (RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         return back()->with('success', __('modulo_apagado'));
     }

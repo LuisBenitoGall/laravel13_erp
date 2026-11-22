@@ -3,7 +3,7 @@
 Pilares de menú como Modules del catálogo: `empresas` (Mis empresas +
 Directorio + Centros de trabajo + Configuración de la empresa), `usuarios`
 (Usuarios empresa → Index ServerTable; Todos los usuarios; company-roles),
-`cuenta` (Mi cuenta = histórico/renovación `company_accounts`; Mis módulos),
+`cuenta` (Mi cuenta = `/admin/account` + CTA renew; Mis módulos),
 `dashboard` (hoja) y `configuracion` (SA AdminOnly: Módulos, Roles, Permisos,
 Países, Monedas, Bancos, Unidades, Tipos de IVA, Grupos contables, Métodos de
 pago, Contenidos, Galería, Cuentas, Autorizaciones). La ficha Edit del propio
@@ -16,7 +16,7 @@ bloques sintéticos ni slugs `admin`/`workspace`.
 El sistema SHALL exponer en el menú los pilares como Modules del catálogo:
 `empresas` (con Mis empresas / `companies`), `usuarios` (con Usuarios empresa /
 `company-users` y Roles de empresa / `company-roles`), `cuenta` (Mi cuenta =
-histórico/renovación `company_accounts`; Mis módulos / `company-modules`), `dashboard`
+`/admin/account` + CTA renew; Mis módulos / `company-modules`), `dashboard`
 (hoja) y `configuracion` solo vía Module AdminOnly (visible para Super Admin con
 excepción de capas), con subítems al menos Módulos, Roles, Permisos, Países,
 Monedas, Bancos, Unidades, Tipos de IVA, Grupos contables y Autorización de
@@ -208,8 +208,8 @@ entradas.
 
 ### Requirement: Cuenta con Mi cuenta y Mis módulos
 El sistema SHALL exponer bajo el Module `cuenta` las Functionalities de Mi
-cuenta (slug actual `profile`: destino `/account` con histórico de
-`company_accounts` de la empresa en sesión y renovación) y
+cuenta (slug actual `profile`: destino `/admin/account` con histórico de
+`company_accounts` de la empresa en sesión y CTA a renovación/upgrade) y
 `company-modules` (Mis módulos → Index company-modules existente). SHALL
 NOT rediseñar tiles de company-modules en este change. SHALL NOT usar Mi
 cuenta como enlace a la ficha Edit del propio user (`/admin/profile`). La
@@ -225,9 +225,9 @@ visibilidad de menú de esas Functionalities SHALL exigir `cuenta.access`
 
 #### Scenario: Mi cuenta bajo cuenta
 - **WHEN** un usuario con `cuenta.access` y `profile.view` obtiene el menú
-- **THEN** ve Mi cuenta bajo Cuenta, navega a `/account` (histórico /
-  renovación de la cuenta SaaS de la empresa) y no navega a la ficha Edit
-  del propio user
+- **THEN** ve Mi cuenta bajo Cuenta, navega a `/admin/account` (histórico
+  de la cuenta SaaS de la empresa) y no navega a la ficha Edit del propio
+  user
 
 ### Requirement: Profile ficha solo desde avatar; sin activo en lateral
 La ficha `/admin/profile` SHALL ser accesible desde el menú del avatar del

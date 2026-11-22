@@ -60,7 +60,7 @@ export default function Index({
                     </select>
                 </div>
                 {tenants_url ? (
-                    <Link href={tenants_url} className="text-sm text-teal-700 hover:underline">
+                    <Link href={tenants_url} className="text-sm text-brand hover:underline">
                         {t('volver_a_tenants')}
                     </Link>
                 ) : null}
@@ -78,7 +78,7 @@ export default function Index({
                             className={`rounded-md px-3 py-1.5 text-sm font-medium text-white ${
                                 module.authorized
                                     ? 'bg-slate-700 hover:bg-slate-800'
-                                    : 'bg-teal-700 hover:bg-teal-800'
+                                    : 'bg-brand hover:bg-brand-hover'
                             }`}
                             onClick={() => {
                                 if (!selected_company_id) {

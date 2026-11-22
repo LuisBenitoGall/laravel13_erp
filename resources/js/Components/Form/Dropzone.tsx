@@ -83,7 +83,7 @@ export function Dropzone({
             {...getRootProps()}
             className={cn(
                 'flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center transition-colors',
-                isDragActive && 'border-teal-600 bg-teal-50',
+                isDragActive && 'border-brand bg-brand-muted',
                 disabled && 'cursor-not-allowed opacity-60',
                 className,
             )}

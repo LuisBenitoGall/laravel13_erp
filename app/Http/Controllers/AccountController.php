@@ -30,24 +30,13 @@ class AccountController extends Controller
             ->orderByDesc('start_date')
             ->first();
 
-        $catalog = Account::query()
-            ->where('status', AccountStatus::Active)
-            ->orderBy('name')
-            ->get(['id', 'name', 'rate', 'duration', 'is_default']);
-
-        return Inertia::render('Account/Show', [
+        return Inertia::render('Admin/Account/Show', [
             'current' => $active !== null
                 ? CompanyAccountResource::make($active)->resolve()
                 : null,
-            'catalogAccounts' => $catalog->map(fn (Account $account): array => [
-                'id' => $account->id,
-                'name' => $account->name,
-                'rate' => $account->rate,
-                'duration' => $account->duration,
-                'is_default' => $account->is_default,
-            ])->values()->all(),
             'canRenew' => request()->user()?->can('profile.update') === true,
             'companyId' => $currentCompany->id(),
+            'renewUrl' => route('admin.account.renew', absolute: false),
         ]);
     }
 
@@ -68,6 +57,32 @@ class AccountController extends Controller
             ->json();
     }
 
+    public function renewForm(): Response
+    {
+        $this->authorize('viewAny', CompanyAccount::class);
+
+        $catalog = Account::query()
+            ->where('status', AccountStatus::Active)
+            ->orderBy('name')
+            ->get(['id', 'name', 'rate', 'duration', 'is_default']);
+
+        $preferred = $catalog->firstWhere('is_default', true) ?? $catalog->first();
+        $defaultId = $preferred instanceof Account ? $preferred->id : null;
+
+        return Inertia::render('Admin/Account/Renew', [
+            'catalogAccounts' => $catalog->map(fn (Account $account): array => [
+                'id' => $account->id,
+                'name' => $account->name,
+                'rate' => $account->rate,
+                'duration' => $account->duration,
+                'is_default' => $account->is_default,
+            ])->values()->all(),
+            'defaultAccountId' => $defaultId,
+            'canRenew' => request()->user()?->can('profile.update') === true,
+            'historyUrl' => route('admin.account.show', absolute: false),
+        ]);
+    }
+
     public function renew(
         RenewCompanyAccountRequest $request,
         RenewCompanyAccount $action,
@@ -82,6 +97,8 @@ class AccountController extends Controller
 
         $action->handle($company, $request->account());
 
-        return back()->with('success', __('cuenta_empresa_renovada'));
+        return redirect()
+            ->route('admin.account.show')
+            ->with('success', __('cuenta_empresa_renovada'));
     }
 }

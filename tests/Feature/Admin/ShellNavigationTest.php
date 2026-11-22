@@ -168,6 +168,9 @@ it('dashboard y branding se comparten en Inertia', function () {
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('branding.logo_url')
+            ->has('branding.mark_url')
+            ->has('branding.name')
+            ->has('branding.colors.primary')
             ->has('tenant.logo_url')
             ->where('menu', fn ($menu) => collect($menu)->contains(
                 fn (array $item): bool => $item['slug'] === 'dashboard'

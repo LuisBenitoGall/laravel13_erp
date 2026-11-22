@@ -32,7 +32,12 @@ type SharedProps = {
     auth: { user: { id: number; name: string; email: string; avatar_url?: string | null } | null };
     menu: AsideNavItem[];
     flash: { success?: string | null; error?: string | null };
-    branding: { logo_url: string };
+    branding: {
+        name: string;
+        logo_url: string;
+        mark_url: string;
+        colors: { primary: string; secondary: string };
+    };
     tenant: { id: number | null; name: string | null; logo_url: string | null };
     available_companies: Array<{ id: number; name: string }>;
     company_setup?: CompanySetupShared;
@@ -133,7 +138,8 @@ export default function AppLayout({
     };
 
     const user = auth.user;
-    const erpInitial = (t('bienvenida_titulo') || 'ERP').slice(0, 1).toUpperCase();
+    const erpLogoSrc = railMode ? branding.mark_url : branding.logo_url;
+    const erpInitial = (branding.name || t('bienvenida_titulo') || 'ERP').slice(0, 1).toUpperCase();
     const companyInitial = (tenant.name ?? '?').slice(0, 1).toUpperCase();
 
     return (
@@ -165,21 +171,21 @@ export default function AppLayout({
                             railMode ? 'h-10 px-1' : 'h-14 px-4'
                         }`}
                     >
-                        {branding.logo_url ? (
+                        {erpLogoSrc ? (
                             <img
-                                src={branding.logo_url}
-                                alt={t('bienvenida_titulo')}
+                                src={erpLogoSrc}
+                                alt={branding.name || t('bienvenida_titulo')}
                                 className={`mx-auto w-auto object-contain ${railMode ? 'h-7' : 'h-8 max-w-full'}`}
                             />
                         ) : (
                             <span
                                 className={
                                     railMode
-                                        ? 'flex h-8 w-8 items-center justify-center rounded bg-teal-700 text-xs font-bold text-white'
+                                        ? 'flex h-8 w-8 items-center justify-center rounded bg-brand text-xs font-bold text-brand-foreground'
                                         : 'text-center text-sm font-semibold tracking-tight'
                                 }
                             >
-                                {railMode ? erpInitial : t('bienvenida_titulo')}
+                                {railMode ? erpInitial : branding.name || t('bienvenida_titulo')}
                             </span>
                         )}
                     </div>

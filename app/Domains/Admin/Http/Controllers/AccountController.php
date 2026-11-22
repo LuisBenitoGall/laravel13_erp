@@ -34,7 +34,7 @@ class AccountController extends Controller
     {
         $this->authorize('viewAny', Account::class);
 
-        return redirect()->route('account.show');
+        return redirect()->route('admin.account.renew');
     }
 
     public function table(AccountTableRequest $request, TableBuilder $table): JsonResponse

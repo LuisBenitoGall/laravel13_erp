@@ -34,6 +34,7 @@ use App\Domains\Admin\Http\Controllers\UserImageController;
 use App\Domains\Admin\Http\Controllers\UserPhoneController;
 use App\Domains\Admin\Http\Controllers\VatTypeController;
 use App\Domains\Admin\Http\Controllers\WorkplaceController;
+use App\Http\Controllers\AccountController as CompanyAccountPortalController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -71,6 +72,13 @@ Route::middleware(['auth', 'company', 'module:cuenta'])->prefix('admin')->name('
     Route::get('company-modules', [CompanyModuleController::class, 'index'])->name('company-modules.index');
     Route::post('company-modules/{module}/enable', [CompanyModuleController::class, 'enable'])->name('company-modules.enable');
     Route::post('company-modules/{module}/disable', [CompanyModuleController::class, 'disable'])->name('company-modules.disable');
+
+    // Mi cuenta SaaS (histórico + renovación). ≠ catálogo Configuración → Cuentas.
+    Route::get('account', [CompanyAccountPortalController::class, 'show'])->name('account.show');
+    Route::get('account/company-accounts/table', [CompanyAccountPortalController::class, 'table'])
+        ->name('account.company-accounts.table');
+    Route::get('account-renew', [CompanyAccountPortalController::class, 'renewForm'])->name('account.renew');
+    Route::post('account-renew', [CompanyAccountPortalController::class, 'renew'])->name('account.renew.store');
 });
 
 Route::middleware(['auth', 'company', 'module:configuracion'])->prefix('admin')->name('admin.')->group(function () {
@@ -284,11 +292,17 @@ Route::middleware(['auth', 'company'])->prefix('admin')->name('admin.')->group(f
 
 Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('all-users/table', [AllUserController::class, 'table'])->name('all-users.table');
+    Route::get('all-users/{user}/quick', [AllUserController::class, 'quick'])->name('all-users.quick');
     Route::get('all-users', [AllUserController::class, 'index'])->name('all-users.index');
 
     Route::get('company-users/table', [CompanyUserController::class, 'table'])->name('company-users.table');
     Route::get('company-users/create', [CompanyUserController::class, 'create'])->name('company-users.create');
+    Route::post('company-users/bulk-detach', [CompanyUserController::class, 'bulkDetach'])
+        ->name('company-users.bulk-detach');
+    Route::post('company-users/bulk-status', [CompanyUserController::class, 'bulkStatus'])
+        ->name('company-users.bulk-status');
     Route::post('company-users', [CompanyUserController::class, 'store'])->name('company-users.store');
+    Route::get('company-users/{user}/quick', [CompanyUserController::class, 'quick'])->name('company-users.quick');
     Route::get('company-users/{user}/edit', [CompanyUserController::class, 'edit'])->name('company-users.edit');
     Route::put('company-users/{user}', [CompanyUserController::class, 'update'])->name('company-users.update');
     Route::put('company-users/{user}/password', [CompanyUserController::class, 'updatePassword'])

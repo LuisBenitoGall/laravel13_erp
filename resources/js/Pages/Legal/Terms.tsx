@@ -13,7 +13,7 @@ export default function Terms() {
             </div>
             <h1 className="text-2xl font-semibold text-slate-900">{t('terminos_y_condiciones')}</h1>
             <p className="mt-4 text-sm text-slate-600">{t('terminos_cuerpo')}</p>
-            <Link href="/register" className="mt-6 inline-block text-sm text-teal-700 underline">
+            <Link href="/register" className="mt-6 inline-block text-sm text-brand underline">
                 {t('volver_al_registro')}
             </Link>
         </div>

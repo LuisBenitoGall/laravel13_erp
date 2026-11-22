@@ -128,7 +128,7 @@ export default function UserImagesPanel({
                             key={item.id}
                             className={cn(
                                 'group relative overflow-hidden rounded-lg border bg-slate-50/60',
-                                item.featured ? 'border-teal-600' : 'border-slate-200',
+                                item.featured ? 'border-brand' : 'border-slate-200',
                             )}
                             data-testid={`user-image-card-${item.id}`}
                         >
@@ -175,7 +175,7 @@ export default function UserImagesPanel({
                                                 onClick={() => togglePublic(item)}
                                             >
                                                 {item.public ? (
-                                                    <Eye className="h-4 w-4 text-teal-700" />
+                                                    <Eye className="h-4 w-4 text-brand" />
                                                 ) : (
                                                     <EyeOff className="h-4 w-4 text-slate-400" />
                                                 )}
@@ -194,7 +194,7 @@ export default function UserImagesPanel({
                                     ) : null}
                                 </div>
                                 {item.featured ? (
-                                    <span className="text-[10px] font-semibold uppercase tracking-wide text-teal-700">
+                                    <span className="text-[10px] font-semibold uppercase tracking-wide text-brand">
                                         {t('badge_featured')}
                                     </span>
                                 ) : null}

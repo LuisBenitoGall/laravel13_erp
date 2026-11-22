@@ -124,7 +124,7 @@ export default function UserDocsPanel({
                             >
                                 <div className="flex flex-1 flex-col gap-2 p-3">
                                     <div className="flex h-16 items-center justify-center rounded-md bg-white">
-                                        <FileText className="h-8 w-8 text-teal-700" aria-hidden />
+                                        <FileText className="h-8 w-8 text-brand" aria-hidden />
                                     </div>
                                     <div className="min-w-0">
                                         <p

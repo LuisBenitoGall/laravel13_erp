@@ -37,7 +37,7 @@ export default function Index({
             <p className="mb-4 text-sm text-slate-600">
                 {t('modulos_empresa_para', { name: company.name })}
             </p>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {modules.map((module) => {
                     const disabled = !module.authorized;
 
@@ -73,7 +73,7 @@ export default function Index({
                                     className={`rounded-md px-3 py-1.5 text-sm font-medium text-white ${
                                         module.enabled
                                             ? 'bg-slate-700 hover:bg-slate-800'
-                                            : 'bg-teal-700 hover:bg-teal-800'
+                                            : 'bg-brand hover:bg-brand-hover'
                                     }`}
                                     onClick={() =>
                                         router.post(

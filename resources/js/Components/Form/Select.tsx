@@ -59,7 +59,7 @@ export function Select({
                     disabled={disabled}
                     className={cn(
                         'flex h-10 w-full items-center justify-between rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-xs',
-                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700/30 focus-visible:border-teal-700',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30 focus-visible:border-brand',
                         'disabled:cursor-not-allowed disabled:opacity-50',
                         className,
                     )}
@@ -98,7 +98,7 @@ export function Select({
                                     aria-selected={option.value === value}
                                     className={cn(
                                         'flex w-full rounded px-2 py-1.5 text-left text-sm hover:bg-slate-100',
-                                        option.value === value && 'bg-teal-50 text-teal-900',
+                                        option.value === value && 'bg-brand-muted text-brand-ink',
                                     )}
                                     onClick={() => {
                                         onChange?.(option.value);

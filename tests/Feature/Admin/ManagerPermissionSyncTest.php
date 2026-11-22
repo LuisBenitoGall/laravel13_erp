@@ -8,10 +8,12 @@ use App\Domains\Admin\Actions\EnableModuleForCompany;
 use App\Domains\Admin\Actions\EnsureCompanyDefaultRoles;
 use App\Domains\Admin\Actions\RevokeModuleAuthorizationForCompany;
 use App\Domains\Admin\Actions\SyncManagerPermissionsForCompany;
+use App\Domains\Admin\Enums\AccountStatus;
 use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Account;
 use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
@@ -25,6 +27,10 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     app()[PermissionRegistrar::class]->forgetCachedPermissions();
     setPermissionsTeamId(null);
+
+    if (! Account::query()->where('is_default', true)->exists()) {
+        Account::factory()->default()->create(['status' => AccountStatus::Active]);
+    }
 
     $this->creator = User::factory()->create();
 });
@@ -121,15 +127,15 @@ it('AdminOnly no entra en el sync del manager', function () {
     expect($manager->hasPermissionTo('modules.viewAny'))->toBeFalse();
 });
 
-it('encender o apagar no cambia role_has_permissions del manager', function () {
-    Module::factory()->create([
-        'slug' => 'core',
-        'level' => ModuleLevel::Basic,
+it('encender o apagar Optional no cambia role_has_permissions del manager', function () {
+    $optional = Module::factory()->create([
+        'slug' => 'core-opt',
+        'level' => ModuleLevel::Optional,
         'status' => ModuleStatus::Active,
     ]);
 
     app(CreateFunctionality::class)->handle([
-        'module_id' => Module::query()->where('slug', 'core')->value('id'),
+        'module_id' => $optional->id,
         'name' => 'Core UI',
         'slug' => 'core-ui',
         'label' => ['es' => 'Core', 'en' => 'Core'],
@@ -145,15 +151,16 @@ it('encender o apagar no cambia role_has_permissions del manager', function () {
         'logo' => null,
     ], $this->creator);
 
-    $module = Module::query()->where('slug', 'core')->firstOrFail();
+    app(AuthorizeModuleForCompany::class)->handle($company, $optional);
+
     setPermissionsTeamId($company->id);
     $manager = Role::findByName('manager');
     $before = DB::table('role_has_permissions')->where('role_id', $manager->id)->pluck('permission_id')->sort()->values()->all();
 
-    app(EnableModuleForCompany::class)->handle($company, $module);
+    app(EnableModuleForCompany::class)->handle($company, $optional);
     $afterEnable = DB::table('role_has_permissions')->where('role_id', $manager->id)->pluck('permission_id')->sort()->values()->all();
 
-    app(DisableModuleForCompany::class)->handle($company, $module);
+    app(DisableModuleForCompany::class)->handle($company, $optional);
     $afterDisable = DB::table('role_has_permissions')->where('role_id', $manager->id)->pluck('permission_id')->sort()->values()->all();
 
     expect($afterEnable)->toBe($before)

@@ -46,15 +46,21 @@ class MenuBuilder
             ->where('company_id', $companyId)
             ->pluck('module_id');
 
-        $eligibleIds = $authorizedIds->intersect($enabledIds)->values();
         $isSa = $this->isSuperAdmin($user);
 
         $menu = [];
 
         foreach (MenuCatalogCache::modules() as $module) {
-            $isAdminOnly = $module['level'] === ModuleLevel::AdminOnly->value;
-            $layersOk = $eligibleIds->contains($module['id'])
-                || ($isSa && $isAdminOnly);
+            $authorized = $authorizedIds->contains($module['id']);
+            $enabled = $enabledIds->contains($module['id']);
+            $level = $module['level'];
+
+            $layersOk = match ($level) {
+                ModuleLevel::AdminOnly->value => $isSa,
+                ModuleLevel::Basic->value => $authorized,
+                ModuleLevel::Optional->value => $authorized && $enabled,
+                default => false,
+            };
 
             if (! $layersOk) {
                 continue;

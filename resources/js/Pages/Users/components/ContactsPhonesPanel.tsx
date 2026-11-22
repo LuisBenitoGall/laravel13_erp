@@ -182,7 +182,7 @@ export default function ContactsPhonesPanel({
                             key={item.id}
                             className={cn(
                                 'rounded-lg border bg-slate-50/60 p-3',
-                                item.is_primary ? 'border-teal-600' : 'border-slate-200',
+                                item.is_primary ? 'border-brand' : 'border-slate-200',
                             )}
                             data-testid={`user-phone-card-${item.id}`}
                         >
@@ -200,7 +200,7 @@ export default function ContactsPhonesPanel({
                                 </div>
                                 <div className="flex flex-wrap gap-1.5">
                                     {item.is_primary ? (
-                                        <span className="rounded-full bg-teal-100 px-2 py-0.5 text-xs font-medium text-teal-800">
+                                        <span className="rounded-full bg-brand-muted px-2 py-0.5 text-xs font-medium text-brand-ink">
                                             {t('badge_primario')}
                                         </span>
                                     ) : null}

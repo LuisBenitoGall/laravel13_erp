@@ -1,9 +1,7 @@
 <?php
 
-use App\Domains\Admin\Actions\DisableModuleForCompany;
 use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\MediaAsset;
-use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Services\MenuBuilder;
 use App\Models\User;
@@ -136,66 +134,34 @@ it('sin gallery.* las rutas responden 403', function () {
     $this->delete(route('admin.gallery.destroy', $asset))->assertForbidden();
 });
 
-it('aisla MediaAsset de company B (R-TEN-05)', function () {
-    $assetB = MediaAsset::factory()->forCompany($this->otherCompany)->create(['name' => 'B-only']);
+it('SA abre gallery AdminOnly con sesión en company A (R-TEN menú)', function () {
+    MediaAsset::factory()->forCompany($this->otherCompany)->create(['name' => 'B-only']);
 
-    $actorA = User::factory()->create();
-    $actorA->companies()->attach($this->company->id);
-    setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
-    $actorA->givePermissionTo([
-        'configuracion.access',
-        'gallery.view',
-        'gallery.viewAny',
-        'gallery.create',
-        'gallery.update',
-        'gallery.delete',
-    ]);
-    actingWithCompany($actorA, $this->company);
+    actingWithCompany($this->user, $this->company);
 
-    $this->get(route('admin.gallery.index'))
-        ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
-            ->where('assets', fn ($assets) => collect($assets)->pluck('name')->doesntContain('B-only')));
-
-    $this->put(route('admin.gallery.update', $assetB), [
-        'name' => 'Hacked',
-        'alt' => '',
-    ])->assertForbidden();
-
-    $this->delete(route('admin.gallery.destroy', $assetB))->assertForbidden();
-
-    expect($assetB->refresh()->name)->toBe('B-only');
+    $this->get(route('admin.gallery.index'))->assertOk();
 });
 
-it('bloquea Index si configuracion no está activo para no-SA (V-21)', function () {
+it('no-SA no abre gallery aunque tenga permisos (AdminOnly = SA)', function () {
     $actor = User::factory()->create();
     $actor->companies()->attach($this->company->id);
     setPermissionsTeamId($this->company->id);
     Permission::findOrCreate('configuracion.access');
     $actor->givePermissionTo(['configuracion.access', 'gallery.view']);
     actingWithCompany($actor, $this->company);
-
-    $module = Module::query()->where('slug', 'configuracion')->firstOrFail();
-    app(DisableModuleForCompany::class)->handle($this->company, $module);
 
     $this->get(route('admin.gallery.index'))->assertForbidden();
 });
 
-it('permite acceso con capas y permiso gallery (V-21)', function () {
-    $actor = User::factory()->create();
-    $actor->companies()->attach($this->company->id);
-    setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
-    $actor->givePermissionTo(['configuracion.access', 'gallery.view']);
-    actingWithCompany($actor, $this->company);
+it('SA abre gallery con can create/update/delete (V-21 AdminOnly)', function () {
+    actingWithCompany($this->user, $this->company);
 
     $this->get(route('admin.gallery.index'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
-            ->where('can.create', false)
-            ->where('can.update', false)
-            ->where('can.delete', false));
+            ->where('can.create', true)
+            ->where('can.update', true)
+            ->where('can.delete', true));
 });
 
 it('seeder y menú Galería tras Contenidos', function () {
@@ -388,25 +354,16 @@ it('picker JSON responde 403 sin gallery.view', function () {
     $this->getJson(route('admin.gallery.picker'))->assertForbidden();
 });
 
-it('picker JSON aisla MediaAsset de company B (R-TEN-05)', function () {
+it('picker JSON responde a SA con meta (R-TEN mutación cubierta aparte)', function () {
     MediaAsset::factory()->create(['name' => 'Platform']);
     MediaAsset::factory()->forCompany($this->otherCompany)->create(['name' => 'B-only']);
 
-    $actorA = User::factory()->create();
-    $actorA->companies()->attach($this->company->id);
-    setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
-    $actorA->givePermissionTo([
-        'configuracion.access',
-        'gallery.view',
-    ]);
-    actingWithCompany($actorA, $this->company);
+    actingWithCompany($this->user, $this->company);
 
     $response = $this->getJson(route('admin.gallery.picker'))->assertOk();
     $names = collect($response->json('assets'))->pluck('name');
 
     expect($names)->toContain('Platform')
-        ->and($names)->not->toContain('B-only')
         ->and($response->json('meta'))->toHaveKeys(['current_page', 'last_page', 'per_page', 'total']);
 });
 

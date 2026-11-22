@@ -111,14 +111,14 @@ export function Wysiwyg({
             'inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-600',
             'hover:bg-slate-100 hover:text-slate-900',
             'disabled:cursor-not-allowed disabled:opacity-50',
-            active && 'bg-teal-50 text-teal-800',
+            active && 'bg-brand-muted text-brand-ink',
         );
 
     return (
         <div
             className={cn(
                 'overflow-hidden rounded-md border border-slate-300 bg-white shadow-xs',
-                'focus-within:border-teal-700 focus-within:ring-2 focus-within:ring-teal-700/30',
+                'focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/30',
                 ariaInvalid && 'border-red-500',
                 disabled && 'opacity-50',
                 className,

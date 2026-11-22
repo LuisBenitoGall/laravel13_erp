@@ -144,20 +144,28 @@ grid mediático 6 cols, sin ServerTable — `c2026-11-20-admin-gallery`):
    Desde/Hasta; payload `type: date_between`, `value: { from, to }` ISO día.
 2. **Columna Acciones** vía `rowActions`: título centrado (i18n `acciones` → «Acciones»
    / mayúscula inicial en todos los labels de columna), iconos + tooltip i18n; botones
-   con fondo primario (`#0f766e`); Delete último si existe (rojo pastel `#fee2e2` /
+   con fondo primario de marca (`brand` / `#10A37F`); Delete último si existe (rojo pastel `#fee2e2` /
    `#b91c1c`). Si el Index declara toggle activo/inactivo: **primero a la izquierda**
    (`kind: 'toggle'`), misma altura que el botón icono (`--st-action-size`), persistencia
    async sin recarga (JSON + `row.update`). **El set
    de botones lo decide Luis** en cada Index futuro. **Prohibido** mostrar columna
    `slug` en listados ServerTable (sí en formularios). Referencia Modules: `name`,
    `color`, `icon`, `level`, `created_at`, `status` + Acciones (toggle + Edit).
-3. **Toolbar**: mostrar/ocultar columnas (checkboxes), page size, Excel/PDF si
-   `exportable`. Persistencia solo localStorage (no BD).
-4. **Pie**: a la izquierda `Total: {n}` i18n (`total_registros`, campo `total` del
+3. **Toolbar**: `[massActions?] [Mostrar/ocultar columnas] [page size] [export?]
+   [toolbarExtra]`. Persistencia solo localStorage (no BD).
+4. **Mass actions (opt-in)**: prop `massActions?: MassAction[]` — lista dinámica
+   declarada por el Index. Con lista no vacía: checkbox como **primera columna**
+   (no ocultable) + desplegable a la **izquierda** de «Mostrar/ocultar columnas»,
+   `disabled` si no hay filas marcadas. Selección = **página actual** (se limpia
+   al paginar/recargar datos). `confirm` reutiliza `ConfirmDialog` (mismo patrón
+   que delete de fila). Sin prop o `[]` → sin columna ni dropdown.
+   **Norma de agente:** al pedir mass actions en un Index, incluirlas y
+   **preguntar qué acciones** lleva el set (no inventar).
+5. **Pie**: a la izquierda `Total: {n}` i18n (`total_registros`, campo `total` del
    JSON remoto, respeta filtros); paginador a la derecha (misma franja). Sin opt-in.
-5. **i18n Tabulator** (paginador/textos) al locale de sesión; reactiva al cambio de idioma
+6. **i18n Tabulator** (paginador/textos) al locale de sesión; reactiva al cambio de idioma
    sin F5 (`ca` usa override de strings del proyecto).
-6. **AdvancedSearchModal** opt-in: primer CTA en `ViewActionBar` tras Volver cuando la
+7. **AdvancedSearchModal** opt-in: primer CTA en `ViewActionBar` tras Volver cuando la
    página lo active. Módulos: **sin** botón. Campos por `fields` o `children` (render
    prop `{ filters, setFilters }`). `onApply(filters)` entrega `[{ field, type, value }]`.
    La página guarda esa lista en `ServerTable` `advancedFilters` y declara
@@ -177,17 +185,20 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 
 | Componente | Propósito / contrato resumido |
 |---|---|
-| `Table/ServerTable` | Listados server-side (§3): header filters, `rowActions`, toolbar, export, i18n Tabulator; referencia = Admin Modules |
+| `Table/ServerTable` | Listados server-side (§3): header filters, `rowActions`, `massActions` opt-in, toolbar, export, i18n Tabulator; referencia = Admin Modules |
 | `Table/AdvancedSearchModal` | Modal búsqueda avanzada opt-in (`fields` o `children` render prop + `onApply(filters)`). `ServerTable`: `advancedFilters` + `advancedFilterMode` `merge` o `replace`; mismo query `filter` (table y Excel/PDF) |
 | `Table/formatters` | Formatters tipados: `money(dec)`, `date`, `number(dec)`, `boolean` (+ ampliar por dominio); con `valueKind`/`headerFilterKind` date|number → header center + value right |
 | `Form/Field` + kit MVP | **Implementado** (`…` + `c2026-11-20-helptip-company-nif` + `c2026-11-20-helptip-auto-code`): `Field`/`FormField` + kit (Input, Textarea, Wysiwyg, Select, Switch, RadioGroup, LangTabs, …). **HelpTip en campos:** envolver el form con `FormHelpScope value="{scope}"`; el Field deriva `code = {scope}.{fieldKey}` (`fieldKey` prop → `name` → último segmento de `htmlFor` tras `-`). Override: `helpCode` explícito. Hint textual `help` bajo el label es independiente. Icono solo si existe Help Active. **Grupo booleanos/radios:** `flex … gap-x-8` (mín. `gap-x-6`). |
 | `Form/MediaPicker` | Diálogo reutilizable de selección de `MediaAsset` (`open`/`onOpenChange`/`onSelect`; shape `{id,name,alt,url}`); búsqueda + infinite scroll vía `GET admin/gallery/picker`. Consumidor actual: `Form/Wysiwyg` con `enableGalleryInsert` (Article). Sin acoplarse a TipTap/Content. |
+| `Account/AccountCatalogGrid` | Grid de cards seleccionables de Accounts Active (`accounts`, `value`/`onChange`, `disabled?`). Consumidor actual: `Admin/Account/Renew`; previsto No Admin alta empresa. Sin cobro ni acoplamiento a TipTap. |
 | `Form/FormHelpScope` | Context `value` = slug del form (ej. `companies`). Una vez por formulario; Fields hijos auto-derivan anclas. |
 | `HelpTip` | Icono info ámbar + Popover; lee `help_tips[code]` (Help Active globales). Null si code ausente/Inactive. Consumo: derive vía `FormHelpScope`+Field, `helpCode`, o `<HelpTip code="…" />` suelto. Ritual tip nuevo: Content Help Active con code `{scope}.{field}` (+ `contents:export-help`); sin PR front si Field ya tiene identidad |
 | `Form/FormActions` | Guardar/cancelar **dentro del form** (R-FE-09: siempre `justify-end`; Cancelar→Guardar). ≠ `ViewActionBar` |
 | `Records/RecordEditLayout` | Esqueleto Edit: slot `summary` (p. ej. `RecordSummary`) + tablist registrable `{ id, labelKey, visible?, panel }` + panel activo; controlado u uncontrolled. Primera referencia: `Users/Edit` |
 | `Records/RecordSummary` | Ficha edit/show (card blanca): `titleKey` + badge `identifier` + `fields[]` (`labelKey`/`value`/`tone`); helper `auditRecordSummaryFields` en `lib/recordSummary`. Opt-in por page (no AppLayout). Sin totales ni lápiz inline |
-| `Users/UserProfileReadout` | Resumen RO reutilizable (avatar featured o placeholder, datos personales, listas emails/tels vacías OK); columna izq. del tab Perfil en `Users/Edit` |
+| `Users/UserProfileReadout` | Resumen RO reutilizable (avatar featured o placeholder, emails/tels/empresas; sin NIF/fecha/activo/público); columna izq. del tab Perfil y cuerpo de `UserQuickViewPanel` |
+| `Users/UserQuickViewPanel` | Sheet derecho con `UserProfileReadout`; cierre solo X (no overlay/Escape); `editHref` opcional; Indexes company-users / all-users |
+| `ui/sheet` | Primativa shadcn (Radix Dialog): panel lateral `side` top/bottom/left/right; overlay `pointer-events-none` por defecto en Content |
 | `Records/ActionBar` | Ciclo de vida de **documento** (confirmar, facturar…) — ≠ chrome de vista |
 | `ViewActionBar` | Chrome bloque 3: CTAs + delete; Volver solo si `showBack` (Index → `false` salvo excepción) |
 | `Records/Tabs` | Tabs con lazy load (deferred props / partial reload) |

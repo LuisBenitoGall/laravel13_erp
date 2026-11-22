@@ -6,6 +6,30 @@ export function xsrfToken(): string {
 }
 
 /**
+ * GET JSON same-origin (p. ej. vista rápida de listados).
+ */
+export async function getJson<TResponse = unknown>(
+    url: string,
+    init?: { signal?: AbortSignal },
+): Promise<TResponse> {
+    const response = await fetch(url, {
+        method: 'GET',
+        credentials: 'same-origin',
+        signal: init?.signal,
+        headers: {
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+    }
+
+    return (await response.json()) as TResponse;
+}
+
+/**
  * PATCH JSON same-origin (tabla Acciones async; excepción R-FE-03 junto al ajax Tabulator).
  */
 export async function patchJson<TResponse = unknown>(

@@ -254,7 +254,7 @@ export function MediaPicker({ open, onOpenChange, onSelect }: MediaPickerProps) 
                                         className={cn(
                                             'w-full overflow-hidden rounded-md border bg-slate-50 text-left',
                                             selectedId === asset.id
-                                                ? 'border-teal-700 ring-2 ring-teal-700/40'
+                                                ? 'border-brand ring-2 ring-brand/40'
                                                 : 'border-slate-200 hover:border-slate-300',
                                         )}
                                         data-testid={`media-picker-asset-${asset.id}`}

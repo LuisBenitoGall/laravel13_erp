@@ -2,6 +2,7 @@
 
 use App\Domains\Admin\Actions\AuthorizeModuleForCompany;
 use App\Domains\Admin\Actions\EnableModuleForCompany;
+use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Module;
 use App\Models\User;
@@ -44,13 +45,17 @@ function actingWithCompany(User $user, Company $company): void
 }
 
 /**
- * Autoriza y enciende un módulo (por slug) para la company.
+ * Autoriza un módulo para la company; si es Optional, también lo enciende.
+ * Basic/AdminOnly: solo autorización (Basic = siempre on; AdminOnly = SA).
  */
 function enableModuleForCompany(Company $company, string $moduleSlug = 'configuracion'): Module
 {
     $module = Module::query()->where('slug', $moduleSlug)->firstOrFail();
     app(AuthorizeModuleForCompany::class)->handle($company, $module);
-    app(EnableModuleForCompany::class)->handle($company, $module);
+
+    if ($module->level === ModuleLevel::Optional) {
+        app(EnableModuleForCompany::class)->handle($company, $module);
+    }
 
     return $module;
 }

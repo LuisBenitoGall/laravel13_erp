@@ -124,13 +124,14 @@ empresa preferente.
 - **R-AUT-04** **Prohibidos los middleware ad-hoc de autorización** por módulo (los ~100
   pares `*Get/*Post` de v1). Autorización = Policy (+ `authorize()` del FormRequest).
 - **R-AUT-05** El middleware `EnsureModuleIsActive:<módulo>` protege las rutas de cada
-  módulo activable. Exige la triple condición de R-AUT-08 (catálogo Active +
-  autorizado + encendido para la empresa de sesión), no solo un permiso Spatie.
+  módulo activable. Exige las condiciones de R-AUT-08 según `ModuleLevel` (Optional:
+  Active + autorizado + encendido; Basic: Active + autorizado; AdminOnly + SA:
+  excepción menú SA), no solo un permiso Spatie.
 - **R-AUT-06** El permiso que protege una ruta/acción coincide con el módulo real de la
   entidad (en v1 había facturas protegidas con `orders.edit`: prohibido).
 - **R-AUT-07** Catálogo `Module` / `Functionality` (Admin; excepción global de R-TEN-01, sin
   `company_id`): `Module` es la unidad SaaS-activable (tres capas, R-AUT-08:
-  catálogo + `company_module_authorizations` + `company_modules`, gate
+  catálogo + `company_module_authorizations` + `company_modules` solo Optional, gate
   `EnsureModuleIsActive`); `Functionality` es la unidad de permiso/menú dentro de un módulo
   (slug **inmutable** tras crearse — lo usan los nombres de permiso y las asignaciones de
   rol —, `label` editable, `status` activo/inactivo, reasignable de `module_id`). Al crear
@@ -138,24 +139,26 @@ empresa preferente.
   (nunca los 7 de v1 `index/create/show/search/edit/update/destroy`: `search` se absorbe en
   `viewAny`, `edit`+`update` se funden en `update`).
 - **R-AUT-08** Tres capas + un único mecanismo de menú (prohibido replicar
-  `basic-menu.json` / `secondary-menu.json` de v1). Un Module es usable en sesión
-  solo si se cumplen **las tres**:
+  `basic-menu.json` / `secondary-menu.json` de v1). Canónico detallado: `kernel.md` §5.
   1. **Catálogo global** (`modules.status` Active/Inactive). Inactive ⇒ invisible y
      bloqueo total de sus Functionalities en todas las empresas.
-  2. **Activación** (`company_modules`): la empresa enciende/apaga módulos a los que
-     tiene derecho (permiso `company-modules.*` o Super Admin). Encender/apagar **no**
-     altera los permisos del rol.
-  3. **Elegibilidad** (`company_module_authorizations`): Module Active ≠ la empresa
-     puede activarlo. Solo Super Admin marca autorizado sí/no. Encender un módulo no
-     autorizado debe fallar. `ModuleLevel`: `Basic` se autoriza por defecto al crear
-     company activa y al activar un Module Basic; `Optional` y `AdminOnly` requieren
-     Capa 3 (no auto-autorizar). No inventar restricciones extra de AdminOnly.
-  - Menú / acceso a Functionality: tras las 3 capas, el usuario ve/usa una
-    Functionality solo si tiene el comodín `<module-slug>.access` **y** el permiso
-    de dashboard `{functionality}.view` (Spatie). Policy Laravel: método
-    `viewAny()` → Spatie `.view`; método `view()` → Spatie `.viewAny` (detalle).
-    Module hoja (sin Functionalities): basta el comodín. El comodín **no implica**
-    todas las Functionalities.
+  2. **Elegibilidad** (`company_module_authorizations`): Module Active ≠ la empresa
+     puede usarlo / encenderlo. Solo Super Admin marca autorizado sí/no. Encender un
+     Optional no autorizado debe fallar. `ModuleLevel`: `Basic` se autoriza por defecto
+     al crear company activa y al activar un Module Basic; `Optional` y `AdminOnly`
+     requieren autorización explícita (no auto-autorizar). No inventar restricciones
+     extra de AdminOnly.
+  3. **Activación** (`company_modules`): **solo Modules Optional**. Mis módulos lista
+     únicamente Optional + Active global; Encender/Apagar (permiso `company-modules.*`
+     o Super Admin) rechaza Basic y AdminOnly y **no** altera los permisos del rol.
+     Basic Active y autorizados están **siempre disponibles** sin fila en
+     `company_modules` ni toggle. AdminOnly **no** se gestiona en Mis módulos.
+  - Menú / acceso: Optional = Active **y** autorizado **y** encendido; Basic = Active
+    **y** autorizado; AdminOnly + Super Admin = excepción SA. Después, comodín
+    `<module-slug>.access` **y** `{functionality}.view` (Spatie). Policy Laravel:
+    método `viewAny()` → Spatie `.view`; método `view()` → Spatie `.viewAny`
+    (detalle). Module hoja (sin Functionalities): basta el comodín. El comodín **no
+    implica** todas las Functionalities.
   - Excepción menú SA: Module `AdminOnly` Active puede mostrarse a Super Admin sin
     authorize/enable en company (perímetro de datos intacto).
 

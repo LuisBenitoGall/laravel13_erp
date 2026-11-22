@@ -49,6 +49,12 @@ type EditUser = {
     updated_at: string | null;
 };
 
+type LinkedCompany = {
+    id: number;
+    name: string;
+    href?: string | null;
+};
+
 type Props = {
     context: 'profile' | 'company';
     user: EditUser;
@@ -58,6 +64,7 @@ type Props = {
     images: UserImageItem[];
     avatar_url: string | null;
     docs: UserDocItem[];
+    companies: LinkedCompany[];
     can: {
         update_profile: boolean;
         change_password: boolean;
@@ -79,6 +86,7 @@ export default function Edit({
     images,
     avatar_url,
     docs,
+    companies,
     can,
 }: Props) {
     const { t, i18n } = useTranslation();
@@ -135,8 +143,6 @@ export default function Edit({
         return fields;
     }, [company_role, context, i18n.language, user.created_at, user.updated_at]);
 
-    const birthFormatted = formatDate(user.birth_date, i18n.language) || null;
-
     function submitProfile(e: FormEvent) {
         e.preventDefault();
         profileForm.put(profileUrl, { preserveScroll: true });
@@ -161,15 +167,11 @@ export default function Edit({
                             name: user.name,
                             surname: user.surname,
                             email: user.email,
-                            nif: user.nif,
-                            birth_date: user.birth_date,
-                            status: user.status,
-                            is_public: user.is_public,
                         }}
                         emails={emails}
                         phones={phones}
+                        companies={companies}
                         avatarUrl={avatar_url}
-                        birthDateFormatted={birthFormatted}
                     />
 
                     <form

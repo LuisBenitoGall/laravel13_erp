@@ -136,7 +136,7 @@ export default function Index({ company, workplaces, setup, wizard, can }: Props
                     <p className="mt-1 text-sm text-slate-600">{progressLabel}</p>
                     <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
                         <div
-                            className="h-full rounded-full bg-teal-700 transition-all"
+                            className="h-full rounded-full bg-brand transition-all"
                             style={{
                                 width: `${(setup.completed_steps / setup.total_steps) * 100}%`,
                             }}
@@ -147,7 +147,7 @@ export default function Index({ company, workplaces, setup, wizard, can }: Props
                             <li
                                 className={
                                     setup.steps.identity.done
-                                        ? 'font-medium text-teal-800'
+                                        ? 'font-medium text-brand-ink'
                                         : 'text-slate-700'
                                 }
                             >
@@ -157,7 +157,7 @@ export default function Index({ company, workplaces, setup, wizard, can }: Props
                             <li
                                 className={
                                     setup.steps.workplaces.done
-                                        ? 'font-medium text-teal-800'
+                                        ? 'font-medium text-brand-ink'
                                         : 'text-slate-700'
                                 }
                             >
@@ -181,7 +181,7 @@ export default function Index({ company, workplaces, setup, wizard, can }: Props
                             onClick={() => setTab(id)}
                             className={`rounded-md px-3 py-1.5 text-sm ${
                                 tab === id
-                                    ? 'bg-teal-700 text-white'
+                                    ? 'bg-brand text-white'
                                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                             }`}
                         >
@@ -261,7 +261,7 @@ export default function Index({ company, workplaces, setup, wizard, can }: Props
                 ) : (
                     <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
                         {setup.steps.workplaces.done ? (
-                            <p className="text-sm text-teal-800">{t('sede_completa')}</p>
+                            <p className="text-sm text-brand-ink">{t('sede_completa')}</p>
                         ) : (
                             <p className="text-sm text-amber-700">{t('sede_pendiente')}</p>
                         )}

@@ -134,7 +134,7 @@ it('backfill es idempotente sobre companies Active sin fila', function () {
     )->toBe(1);
 });
 
-it('dashboard responde 403 con CTA si la cuenta está caducada', function () {
+it('dashboard responde 403 con CTA a renovación admin si la cuenta está caducada', function () {
     $row = CompanyAccount::query()
         ->withoutGlobalScope('company')
         ->where('company_id', $this->company->id)
@@ -150,10 +150,10 @@ it('dashboard responde 403 con CTA si la cuenta está caducada', function () {
         ->assertForbidden()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Errors/CompanyAccountRequired')
-            ->where('renewUrl', route('account.show', absolute: false)));
+            ->where('renewUrl', route('admin.account.renew', absolute: false)));
 });
 
-it('Mi cuenta responde 200 con cuenta caducada (whitelist)', function () {
+it('histórico y renovación responden 200 con cuenta caducada (whitelist)', function () {
     $row = CompanyAccount::query()
         ->withoutGlobalScope('company')
         ->where('company_id', $this->company->id)
@@ -165,26 +165,29 @@ it('Mi cuenta responde 200 con cuenta caducada (whitelist)', function () {
         'end_date' => now()->subDay()->toDateString(),
     ])->save();
 
-    $this->get(route('account.show'))
+    $this->get(route('admin.account.show'))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page->component('Account/Show'));
+        ->assertInertia(fn (Assert $page) => $page->component('Admin/Account/Show'));
+
+    $this->get(route('admin.account.renew'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Admin/Account/Renew')
+            ->has('catalogAccounts'));
 });
 
 it('histórico table solo lista company_accounts de CurrentCompany', function () {
     $other = Company::factory()->create();
     $otherRow = CompanyAccount::query()->withoutGlobalScope('company')->where('company_id', $other->id)->firstOrFail();
 
-    $ids = collect($this->getJson(route('account.company-accounts.table'))->assertOk()->json('data'))
+    $ids = collect($this->getJson(route('admin.account.company-accounts.table'))->assertOk()->json('data'))
         ->pluck('id');
 
     expect($ids)->not->toContain($otherRow->id);
 });
 
-it('POST renew con profile.update deja ≤1 Active', function () {
+it('POST renew con profile.update deja ≤1 Active también con Active vigente (upgrade)', function () {
     $catalog = Account::factory()->create(['status' => AccountStatus::Active, 'name' => 'Renew Plan']);
-
-    $this->post(route('account.renew'), ['account_id' => $catalog->id])
-        ->assertRedirect();
 
     expect(
         CompanyAccount::query()
@@ -193,41 +196,61 @@ it('POST renew con profile.update deja ≤1 Active', function () {
             ->where('status', CompanyAccountStatus::Active)
             ->count(),
     )->toBe(1);
+
+    $this->post(route('admin.account.renew.store'), ['account_id' => $catalog->id])
+        ->assertRedirect(route('admin.account.show'));
+
+    expect(
+        CompanyAccount::query()
+            ->withoutGlobalScope('company')
+            ->where('company_id', $this->company->id)
+            ->where('status', CompanyAccountStatus::Active)
+            ->count(),
+    )->toBe(1)
+        ->and(
+            CompanyAccount::query()
+                ->withoutGlobalScope('company')
+                ->where('company_id', $this->company->id)
+                ->where('status', CompanyAccountStatus::Active)
+                ->value('account_id'),
+        )->toBe($catalog->id);
 });
 
-it('admin.accounts.renewal redirige a account.show', function () {
+it('admin.accounts.renewal redirige a admin.account.renew', function () {
     $this->get(route('admin.accounts.renewal'))
-        ->assertRedirect(route('account.show'));
+        ->assertRedirect(route('admin.account.renew'));
 });
 
-it('Index Account/Show usa ServerTable y R-FE-04 en fechas/precio', function () {
-    $source = (string) file_get_contents(resource_path('js/Pages/Account/Show.tsx'));
+it('Admin/Account/Show usa ServerTable R-FE-04 y CTA a renew con icon', function () {
+    $source = (string) file_get_contents(resource_path('js/Pages/Admin/Account/Show.tsx'));
 
-    expect($source)->toContain('persistKey="account.company-accounts"')
+    expect($source)->toContain('persistKey="admin.account.company-accounts"')
         ->and($source)->toContain("valueKind: 'date'")
         ->and($source)->toContain("valueKind: 'number'")
         ->and($source)->toContain('fmt.date')
-        ->and($source)->toContain('fmt.money');
+        ->and($source)->toContain('fmt.money')
+        ->and($source)->toContain('renovar_mejorar_cuenta')
+        ->and($source)->toContain('icon: RefreshCw');
 });
 
-it('Mi cuenta i18n de status CompanyAccount y sin stubs ComingSoon', function () {
-    $source = (string) file_get_contents(resource_path('js/Pages/Account/Show.tsx'));
+it('Renew usa AccountCatalogGrid y no quedan Pages/Account', function () {
+    $renew = (string) file_get_contents(resource_path('js/Pages/Admin/Account/Renew.tsx'));
+    $grid = (string) file_get_contents(resource_path('js/Components/Account/AccountCatalogGrid.tsx'));
 
-    expect($source)->toContain('estado_pendiente')
-        ->and($source)->toContain('estado_activa')
-        ->and($source)->toContain('estado_caducada')
-        ->and($source)->toContain('estado_cancelada')
-        ->and($source)->toContain('companyAccountStatusLabel')
+    expect($renew)->toContain('AccountCatalogGrid')
+        ->and($grid)->toContain('export function AccountCatalogGrid')
+        ->and(file_exists(resource_path('js/Pages/Account/Show.tsx')))->toBeFalse()
         ->and(file_exists(resource_path('js/Pages/Account/ComingSoon.tsx')))->toBeFalse()
         ->and(file_exists(resource_path('js/Pages/Admin/Accounts/RenewalComingSoon.tsx')))->toBeFalse();
 });
 
-it('sin profile.view no abre Mi cuenta', function () {
+it('sin profile.view no abre Mi cuenta ni renovación', function () {
     $actor = User::factory()->create();
     setPermissionsTeamId($this->company->id);
     Permission::findOrCreate('cuenta.access');
     $actor->givePermissionTo(['cuenta.access']);
     actingWithCompany($actor, $this->company);
 
-    $this->get(route('account.show'))->assertForbidden();
+    $this->get(route('admin.account.show'))->assertForbidden();
+    $this->get(route('admin.account.renew'))->assertForbidden();
 });

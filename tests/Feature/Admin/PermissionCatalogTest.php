@@ -1,10 +1,8 @@
 <?php
 
-use App\Domains\Admin\Actions\DisableModuleForCompany;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Functionality;
-use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Support\CanonicalPermission;
 use App\Models\User;
@@ -75,30 +73,16 @@ it('Index requiere permissions.view', function () {
     expect(Permission::query()->whereKey($permission->id)->exists())->toBeTrue();
 });
 
-it('bloquea permissions si configuracion no está activo para la company (V-21)', function () {
-    $module = Module::query()->where('slug', 'configuracion')->firstOrFail();
-    app(DisableModuleForCompany::class)->handle($this->company, $module);
-
-    $user = User::factory()->create();
-    setPermissionsTeamId($this->company->id);
-    $user->givePermissionTo('permissions.view');
-    actingWithCompany($user, $this->company);
-
-    $this->get(route('admin.permissions.index'))->assertForbidden();
-});
-
-it('permite Index con configuracion activo, comodín y permissions.view (AND)', function () {
+it('no-SA no abre permissions aunque tenga view+access (AdminOnly = SA)', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
     $user->givePermissionTo(['configuracion.access', 'permissions.view']);
     actingWithCompany($user, $this->company);
 
-    $this->get(route('admin.permissions.index'))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page->component('Admin/Permissions/Index'));
+    $this->get(route('admin.permissions.index'))->assertForbidden();
 });
 
-it('403 si solo view sin comodín configuracion.access (AND HTTP)', function () {
+it('403 si solo view sin comodín (AND HTTP; además AdminOnly bloquea no-SA)', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
     $user->givePermissionTo('permissions.view');

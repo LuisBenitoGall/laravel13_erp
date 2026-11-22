@@ -32,7 +32,7 @@ export default function Create() {
         name: '',
         label: emptyLocaleMap(locales),
         explanation: emptyLocaleMap(locales),
-        color: '#0f766e',
+        color: '#10A37F',
         icon: 'settings',
         level: 'basic',
         status: 'active',

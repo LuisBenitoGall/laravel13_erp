@@ -2,6 +2,7 @@
 
 namespace App\Domains\Admin\Actions;
 
+use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\CompanyModule;
@@ -15,6 +16,10 @@ class EnableModuleForCompany
     public function handle(Company $company, Module $module): CompanyModule
     {
         return DB::transaction(function () use ($company, $module) {
+            if ($module->level !== ModuleLevel::Optional) {
+                throw new RuntimeException('Only Optional modules can be enabled for a company.');
+            }
+
             if ($module->status !== ModuleStatus::Active) {
                 throw new RuntimeException('Cannot enable an inactive global module.');
             }

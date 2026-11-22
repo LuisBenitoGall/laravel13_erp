@@ -74,30 +74,38 @@ Al crear una Functionality se auto-provisionan esos 5 permisos (R-AUT-07).
 ## 5. Tres capas de módulos (R-AUT-08)
 
 Un solo mecanismo de menú/acceso (prohibido replicar `basic-menu.json` /
-`secondary-menu.json` de v1). Triple condición, **todas** obligatorias:
+`secondary-menu.json` de v1). Las capas son:
 
 1. **Catálogo global** (`modules.status`): Active / Inactive. Inactive ⇒ invisible y
    bloqueo total de sus Functionalities en **todas** las empresas.
-2. **Activación por empresa** (`company_modules`): la empresa enciende/apaga módulos
-   a los que tiene derecho (permiso `company-modules.*` o Super Admin). Soft delete.
-3. **Elegibilidad** (`company_module_authorizations`): Module Active ≠ la empresa
-   puede activarlo. Solo Super Admin marca autorizado sí/no. Soft delete.
+2. **Elegibilidad** (`company_module_authorizations`): Module Active ≠ la empresa
+   puede usarlo / encenderlo. Solo Super Admin marca autorizado sí/no. Soft delete.
    - `ModuleLevel::Basic`: se autoriza por defecto al crear company activa y al
      activar un Module Basic.
    - `ModuleLevel::Optional`: requiere autorización Super Admin.
    - `ModuleLevel::AdminOnly`: **mismo circuito que Optional** (no auto-autorizar).
      No inventar “solo ciertas companies” u otras restricciones extra.
+3. **Activación por empresa** (`company_modules`): **solo Modules Optional**.
+   Mis módulos (`/admin/company-modules`) lista únicamente Optional + Active global;
+   Encender/Apagar rechaza Basic y AdminOnly. Soft delete. Basic Active y
+   autorizados están **siempre disponibles** para menú/acceso de la company
+   **sin** fila en `company_modules` y **sin** toggle en Mis módulos. AdminOnly
+   **no** se gestiona en Mis módulos (disponibilidad Super Admin vía menú SA).
 
-`MenuBuilder` y acceso a Functionalities: Active **y** autorizado **y** encendido para
-la empresa de sesión; **después** modelo **AND** — hace falta el comodín
-`<module-slug>.access` **y** el permiso de dashboard `{functionality}.view`.
-Module hoja (sin Functionalities): basta el comodín. El comodín **ya no implica**
-todas las Functionalities del módulo. Super Admin: bypass Spatie intacto; perímetro
-company intacto. Excepción menú SA: Module `AdminOnly` Active (p. ej. `configuracion`)
-puede mostrarse a Super Admin sin authorize/enable en company.
+`MenuBuilder` y acceso a Functionalities:
 
-Encender/apagar (Capa 2) **no** altera los permisos del rol; autorizar/desautorizar
-(Capa 3) sí es el momento de sincronizar derecho a activar.
+- **Optional:** Active **y** autorizado **y** encendido.
+- **Basic:** Active **y** autorizado (sin exigir `company_modules`).
+- **AdminOnly + Super Admin:** excepción SA (sin authorize/enable en company).
+
+**Después** modelo **AND** Spatie: comodín `<module-slug>.access` **y** el permiso
+de dashboard `{functionality}.view`. Module hoja (sin Functionalities): basta el
+comodín. El comodín **ya no implica** todas las Functionalities del módulo. Super
+Admin: bypass Spatie intacto; perímetro company intacto. Mis módulos de SA = solo
+company de sesión vinculada (no selector de empresas ajenas).
+
+Encender/apagar Optional **no** altera los permisos del rol; autorizar/desautorizar
+sí es el momento de sincronizar derecho a activar/usar.
 
 ## 6. Referencia v1
 

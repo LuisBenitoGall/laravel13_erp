@@ -38,7 +38,7 @@ export function LangTabs({ locales, children, invalidLocales = [] }: LangTabsPro
                             className={cn(
                                 'border-b-2 px-3 py-2 text-sm',
                                 selected
-                                    ? 'border-teal-700 font-medium text-teal-800'
+                                    ? 'border-brand font-medium text-brand-ink'
                                     : 'border-transparent text-slate-600',
                                 invalid && 'text-red-600',
                             )}

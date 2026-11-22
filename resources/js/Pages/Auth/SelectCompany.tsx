@@ -49,7 +49,7 @@ export default function SelectCompany({ companies }: { companies: CompanyOption[
                     )}
                     <button
                         type="submit"
-                        className="w-full rounded-md bg-teal-700 px-3 py-2 text-sm font-medium text-white hover:bg-teal-800"
+                        className="w-full rounded-md bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-hover"
                         disabled={form.processing}
                     >
                         {t('continuar')}

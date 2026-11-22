@@ -43,7 +43,7 @@ export default function UserMenu({
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    className="overflow-hidden rounded-full bg-teal-700 p-0 text-xs font-semibold text-white hover:bg-teal-800 hover:text-white"
+                    className="overflow-hidden rounded-full bg-brand p-0 text-xs font-semibold text-white hover:bg-brand-hover hover:text-white"
                     aria-label={t('menu_usuario')}
                     title={email}
                 >

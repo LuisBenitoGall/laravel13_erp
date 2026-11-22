@@ -153,8 +153,8 @@
 }
 
 .tabulator-date-range-btn-primary {
-    border-color: #0f766e;
-    background: #0f766e;
+    border-color: #10A37F;
+    background: #10A37F;
     color: #fff;
 }
 
@@ -174,8 +174,8 @@
     align-items: center;
     justify-content: center;
     border-radius: 0.375rem;
-    border: 1px solid #0f766e;
-    background: #0f766e;
+    border: 1px solid #10A37F;
+    background: #10A37F;
     color: #fff;
     cursor: pointer;
     padding: 0;
@@ -237,8 +237,8 @@
 }
 
 .tabulator.tabulator-erp .tabulator-actions-toggle input[type='checkbox']:checked {
-    background: #0f766e;
-    border-color: #0f766e;
+    background: #10A37F;
+    border-color: #10A37F;
 }
 
 .tabulator.tabulator-erp .tabulator-actions-toggle input[type='checkbox']:checked::after {

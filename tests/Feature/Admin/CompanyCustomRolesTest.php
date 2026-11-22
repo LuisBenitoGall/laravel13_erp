@@ -5,9 +5,8 @@ use App\Domains\Admin\Actions\AuthorizeModuleForCompany;
 use App\Domains\Admin\Actions\CopyCompanyRoleToCompanies;
 use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\CreateModule;
-use App\Domains\Admin\Actions\DisableModuleForCompany;
-use App\Domains\Admin\Actions\EnableModuleForCompany;
 use App\Domains\Admin\Actions\EnsureCompanyDefaultRoles;
+use App\Domains\Admin\Actions\RevokeModuleAuthorizationForCompany;
 use App\Domains\Admin\Actions\SyncManagerPermissionsForCompany;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
@@ -85,10 +84,9 @@ beforeEach(function () {
     }
 
     app(EnsureCompanyDefaultRoles::class)->handle($this->company);
+    // Basic: solo autorizar (siempre on; Enable rechaza no-Optional).
     app(AuthorizeModuleForCompany::class)->handle($this->company, $this->usuarios);
-    app(EnableModuleForCompany::class)->handle($this->company, $this->usuarios);
     app(AuthorizeModuleForCompany::class)->handle($this->company, $this->sales);
-    app(EnableModuleForCompany::class)->handle($this->company, $this->sales);
     app(SyncManagerPermissionsForCompany::class)->handle($this->company);
 });
 
@@ -273,7 +271,6 @@ it('aisla roles entre companies (R-TEN-05)', function () {
     $otherCompany = Company::factory()->create();
     app(EnsureCompanyDefaultRoles::class)->handle($otherCompany);
     app(AuthorizeModuleForCompany::class)->handle($otherCompany, $this->usuarios);
-    app(EnableModuleForCompany::class)->handle($otherCompany, $this->usuarios);
     app(SyncManagerPermissionsForCompany::class)->handle($otherCompany);
 
     setPermissionsTeamId($otherCompany->id);
@@ -475,7 +472,8 @@ it('matriz Edit no incluye AdminOnly ni módulos apagados o no autorizados', fun
                     && in_array('usuarios', $slugs, true);
             }));
 
-    app(DisableModuleForCompany::class)->handle($this->company, $this->sales);
+    // Basic no se «apaga»: quitar elegibilidad = fuera de matriz.
+    app(RevokeModuleAuthorizationForCompany::class)->handle($this->company, $this->sales);
 
     $this->get(route('admin.company-roles.edit', $role))
         ->assertInertia(fn ($page) => $page
@@ -619,7 +617,8 @@ it('Edit UI usa patchJson y layout plataforma sin mención universal ni copy', f
 
 it('bloquea rutas si usuarios no está activo (V-21)', function () {
     companyManager();
-    app(DisableModuleForCompany::class)->handle($this->company, $this->usuarios);
+    // Basic siempre on si autorizado: revocar elegibilidad = capas KO.
+    app(RevokeModuleAuthorizationForCompany::class)->handle($this->company, $this->usuarios);
 
     $this->get(route('admin.company-roles.index'))->assertForbidden();
 });

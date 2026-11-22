@@ -48,6 +48,7 @@ final class UserEditPageData
      *         size_bytes: int,
      *         created_at: string|null
      *     }>,
+     *     companies: list<array{id: int, name: string, href: null}>,
      *     can: array{
      *         update_profile: bool,
      *         change_password: bool,
@@ -64,7 +65,7 @@ final class UserEditPageData
     {
         $isSelf = $actor->id === $user->id;
 
-        $user->loadMissing(['emails', 'phones', 'images', 'docs']);
+        $user->loadMissing(['emails', 'phones', 'images', 'docs', 'companies']);
 
         $featured = $user->images->firstWhere('featured', true);
 
@@ -143,6 +144,15 @@ final class UserEditPageData
                     'mime' => $doc->mime,
                     'size_bytes' => (int) $doc->size_bytes,
                     'created_at' => $doc->created_at?->toIso8601String(),
+                ])
+                ->all(),
+            'companies' => $user->companies
+                ->sortBy(fn (Company $linked): string => mb_strtolower($linked->name))
+                ->values()
+                ->map(fn (Company $linked): array => [
+                    'id' => $linked->id,
+                    'name' => $linked->name,
+                    'href' => null,
                 ])
                 ->all(),
             'can' => [

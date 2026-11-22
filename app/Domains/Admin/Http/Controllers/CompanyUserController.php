@@ -2,11 +2,15 @@
 
 namespace App\Domains\Admin\Http\Controllers;
 
+use App\Domains\Admin\Actions\BulkDetachCompanyUsers;
+use App\Domains\Admin\Actions\BulkUpdateCompanyUserStatus;
 use App\Domains\Admin\Actions\CreateOrLinkCompanyUser;
 use App\Domains\Admin\Actions\DetachCompanyUser;
 use App\Domains\Admin\Actions\UpdateCompanyUserStatus;
 use App\Domains\Admin\Actions\UpdateOwnPassword;
 use App\Domains\Admin\Actions\UpdateUserProfile;
+use App\Domains\Admin\Http\Requests\BulkDetachCompanyUsersRequest;
+use App\Domains\Admin\Http\Requests\BulkUpdateCompanyUserStatusRequest;
 use App\Domains\Admin\Http\Requests\CompanyUserTableRequest;
 use App\Domains\Admin\Http\Requests\StoreCompanyUserRequest;
 use App\Domains\Admin\Http\Requests\UpdateCompanyUserStatusRequest;
@@ -16,12 +20,14 @@ use App\Domains\Admin\Http\Resources\DirectoryUserResource;
 use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Support\UserEditPageData;
+use App\Domains\Admin\Support\UserQuickViewData;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Support\Table\TableBuilder;
 use App\Support\Tenancy\CurrentCompany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -73,6 +79,23 @@ class CompanyUserController extends Controller
 
         return to_route('admin.company-users.edit', $result['user'])
             ->with('success', __($result['flash_key']));
+    }
+
+    public function quick(User $user, UserQuickViewData $quickView): JsonResponse
+    {
+        $this->authorize('viewCompanyUser', $user);
+        $company = $this->currentCompany();
+        // Perímetro tras Gate::before: SA no ve users fuera de CurrentCompany.
+        abort_unless(
+            $user->companies()->where('companies.id', $company->id)->exists(),
+            403,
+        );
+
+        /** @var User $actor */
+        $actor = request()->user();
+        $canEdit = Gate::forUser($actor)->allows('updateCompanyUser', $user);
+
+        return response()->json($quickView->build($user, $canEdit));
     }
 
     public function edit(User $user, UserEditPageData $pageData): Response
@@ -158,6 +181,48 @@ class CompanyUserController extends Controller
         $action->handle($company, $user);
 
         return back()->with('success', __('usuario_desvinculado_empresa'));
+    }
+
+    public function bulkDetach(
+        BulkDetachCompanyUsersRequest $request,
+        BulkDetachCompanyUsers $action,
+    ): RedirectResponse {
+        /** @var list<int> $ids */
+        $ids = array_map('intval', $request->validated('ids'));
+        $company = $this->currentCompany();
+
+        // Misma Gate Policy que destroy: falla el lote entero si algún id no autoriza.
+        foreach ($ids as $id) {
+            $member = User::query()->findOrFail($id);
+            $this->authorize('deleteCompanyUser', $member);
+        }
+
+        $action->handle($company, $ids);
+
+        return back()->with('success', __('usuarios_desvinculados_empresa'));
+    }
+
+    public function bulkStatus(
+        BulkUpdateCompanyUserStatusRequest $request,
+        BulkUpdateCompanyUserStatus $action,
+    ): RedirectResponse {
+        /** @var list<int> $ids */
+        $ids = array_map('intval', $request->validated('ids'));
+        $status = (bool) $request->validated('status');
+        $company = $this->currentCompany();
+
+        // Misma Gate Policy que updateStatus: falla el lote entero si algún id no autoriza.
+        foreach ($ids as $id) {
+            $member = User::query()->findOrFail($id);
+            $this->authorize('updateCompanyUser', $member);
+        }
+
+        $action->handle($company, $ids, $status);
+
+        return back()->with(
+            'success',
+            __($status ? 'usuarios_activados' : 'usuarios_desactivados'),
+        );
     }
 
     /**

@@ -26,7 +26,7 @@ export default function ForgotPassword() {
                 </h1>
                 <p className="text-sm text-slate-600">{t('recuperar_contrasena_subtitulo')}</p>
 
-                {flash?.success && <p className="text-sm text-teal-700">{flash.success}</p>}
+                {flash?.success && <p className="text-sm text-brand">{flash.success}</p>}
 
                 <div className="space-y-1">
                     <label className="block text-sm font-medium" htmlFor="email">
@@ -44,13 +44,13 @@ export default function ForgotPassword() {
                 <button
                     type="submit"
                     disabled={processing}
-                    className="w-full rounded-md bg-teal-700 px-3 py-2 text-sm font-medium text-white hover:bg-teal-800 disabled:opacity-50"
+                    className="w-full rounded-md bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-hover disabled:opacity-50"
                 >
                     {t('enviar_enlace')}
                 </button>
 
                 <p className="text-center text-sm">
-                    <Link href="/login" className="text-teal-700 underline">
+                    <Link href="/login" className="text-brand underline">
                         {t('volver_al_login')}
                     </Link>
                 </p>

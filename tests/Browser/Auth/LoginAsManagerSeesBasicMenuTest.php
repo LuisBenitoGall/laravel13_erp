@@ -1,9 +1,9 @@
 <?php
 
+use App\Domains\Admin\Actions\AuthorizeModuleForCompany;
 use App\Domains\Admin\Actions\CreateCompany;
 use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\CreateModule;
-use App\Domains\Admin\Actions\EnableModuleForCompany;
 use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
@@ -56,7 +56,7 @@ it('login como manager entra al AppLayout con menú Basic usable', function () {
         'logo' => null,
     ], $manager);
 
-    app(EnableModuleForCompany::class)->handle($company, $module);
+    app(AuthorizeModuleForCompany::class)->handle($company, $module);
 
     setPermissionsTeamId($company->id);
     $manager->givePermissionTo(['partners-core.access', 'demo-catalog.view']);

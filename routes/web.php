@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\OnboardCompanyController;
@@ -49,12 +48,8 @@ Route::middleware('auth')->group(function () {
         ->middleware('company')
         ->name('dashboard');
 
-    Route::middleware(['company', 'module:cuenta'])->group(function () {
-        Route::get('account', [AccountController::class, 'show'])->name('account.show');
-        Route::get('account/company-accounts/table', [AccountController::class, 'table'])
-            ->name('account.company-accounts.table');
-        Route::post('account/renew', [AccountController::class, 'renew'])->name('account.renew');
-    });
+    // Bookmarks legacy /account → Mi cuenta admin.
+    Route::redirect('account', '/admin/account')->middleware('company');
 });
 
 Route::get('/', function () {

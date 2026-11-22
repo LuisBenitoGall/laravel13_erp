@@ -86,6 +86,21 @@ export type RowAction<T = Record<string, unknown>> = {
     variant?: 'default' | 'danger';
 };
 
+/** Acciones masivas opt-in (página actual). Ausente o [] → sin checkbox ni dropdown. */
+export type MassAction<T = Record<string, unknown>> = {
+    id: string;
+    labelKey: string;
+    confirm?: boolean | { titleKey?: string };
+    variant?: 'default' | 'danger';
+    onAction: (rows: T[]) => void | Promise<void>;
+};
+
+function rowIdOf(row: object): string {
+    const id = (row as { id?: unknown }).id;
+
+    return id === undefined || id === null ? '' : String(id);
+}
+
 function actionIconHtml<T>(action: RowAction<T>): string {
     if (action.icon) {
         return renderToStaticMarkup(
@@ -211,6 +226,11 @@ type ServerTableProps<T extends object> = {
     persistKey?: string;
     exportable?: boolean;
     rowActions?: (row: T) => Array<RowAction<T> | false | null | undefined>;
+    /**
+     * Opt-in: lista dinámica de acciones masivas (checkbox 1ª col + dropdown
+     * a la izquierda de «Mostrar/ocultar columnas»). Alcance = página actual.
+     */
+    massActions?: MassAction<T>[];
     /** Techo de controles en Acciones para el ancho (default 4 = Countries). */
     actionsColumnSlots?: number;
     pageSize?: number;
@@ -238,6 +258,7 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
     persistKey,
     exportable = false,
     rowActions,
+    massActions,
     actionsColumnSlots = ACTIONS_DEFAULT_SLOTS,
     pageSize: initialPageSize = 25,
     className,
@@ -256,6 +277,8 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
     const advancedFilterModeRef = useRef(advancedFilterMode);
     const skipAdvancedReload = useRef(true);
     const sortRef = useRef<Array<{ field: string; dir: string }>>([]);
+    const selectedIdsRef = useRef<Set<string>>(new Set());
+    const headerSelectRef = useRef<HTMLInputElement | null>(null);
 
     const persisted = useMemo(
         () => (persistKey ? readTableState(persistKey, userId) : null),
@@ -265,10 +288,54 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
     const [pageSize, setPageSize] = useState(persisted?.pageSize ?? initialPageSize);
     const [hiddenColumns, setHiddenColumns] = useState<string[]>(persisted?.hiddenColumns ?? []);
     const [columnsOpen, setColumnsOpen] = useState(false);
+    const [massOpen, setMassOpen] = useState(false);
+    const [selectedCount, setSelectedCount] = useState(0);
     const [pendingDelete, setPendingDelete] = useState<{
         titleKey: string;
+        confirmLabelKey: string;
+        destructive: boolean;
         onConfirm: () => void;
     } | null>(null);
+
+    const massActionsEnabled = Boolean(massActions && massActions.length > 0);
+
+    const clearSelection = useCallback(() => {
+        selectedIdsRef.current = new Set();
+        setSelectedCount(0);
+        if (headerSelectRef.current) {
+            headerSelectRef.current.checked = false;
+            headerSelectRef.current.indeterminate = false;
+        }
+        tableRef.current?.getRows('active').forEach((row) => {
+            const el = row.getElement().querySelector('input[data-mass-select]');
+            if (el instanceof HTMLInputElement) {
+                el.checked = false;
+            }
+        });
+    }, []);
+
+    const syncHeaderSelectState = useCallback(() => {
+        const rows = tableRef.current?.getRows('active') ?? [];
+        const ids = rows.map((row) => rowIdOf(row.getData() as object)).filter(Boolean);
+        const selected = ids.filter((id) => selectedIdsRef.current.has(id)).length;
+        const header = headerSelectRef.current;
+
+        if (!header) {
+            return;
+        }
+
+        header.checked = ids.length > 0 && selected === ids.length;
+        header.indeterminate = selected > 0 && selected < ids.length;
+    }, []);
+
+    const setSelection = useCallback(
+        (next: Set<string>) => {
+            selectedIdsRef.current = next;
+            setSelectedCount(next.size);
+            syncHeaderSelectState();
+        },
+        [syncHeaderSelectState],
+    );
 
     const dataColumns = useMemo(
         () => (columns ?? []).filter((c) => c.field && c.field !== 'acciones'),
@@ -317,7 +384,78 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
     );
 
     const tabulatorColumns = useMemo((): ColumnDefinition[] => {
-        const cols: ColumnDefinition[] = dataColumns.map((col) => {
+        const cols: ColumnDefinition[] = [];
+
+        if (massActionsEnabled) {
+            cols.push({
+                title: '',
+                field: '_mass_select',
+                headerSort: false,
+                hozAlign: 'center',
+                headerHozAlign: 'center',
+                width: 44,
+                minWidth: 44,
+                widthGrow: 0,
+                resizable: false,
+                cssClass: 'tabulator-mass-select-col',
+                titleFormatter: () => {
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.setAttribute('aria-label', t('acciones_masivas'));
+                    headerSelectRef.current = input;
+                    input.addEventListener('click', (event) => event.stopPropagation());
+                    input.addEventListener('change', () => {
+                        const rows = tableRef.current?.getRows('active') ?? [];
+                        const next = new Set<string>();
+                        if (input.checked) {
+                            for (const row of rows) {
+                                const id = rowIdOf(row.getData() as object);
+                                if (id) {
+                                    next.add(id);
+                                }
+                            }
+                        }
+                        selectedIdsRef.current = next;
+                        setSelectedCount(next.size);
+                        for (const row of rows) {
+                            const el = row.getElement().querySelector('input[data-mass-select]');
+                            if (el instanceof HTMLInputElement) {
+                                el.checked = input.checked;
+                            }
+                        }
+                        input.indeterminate = false;
+                    });
+
+                    return input;
+                },
+                formatter: (cell: CellComponent) => {
+                    const rowData = cell.getRow().getData() as T;
+                    const id = rowIdOf(rowData);
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.dataset.massSelect = '1';
+                    input.checked = id !== '' && selectedIdsRef.current.has(id);
+                    input.setAttribute('aria-label', t('acciones_masivas'));
+                    input.addEventListener('click', (event) => event.stopPropagation());
+                    input.addEventListener('change', () => {
+                        if (!id) {
+                            return;
+                        }
+                        const next = new Set(selectedIdsRef.current);
+                        if (input.checked) {
+                            next.add(id);
+                        } else {
+                            next.delete(id);
+                        }
+                        setSelection(next);
+                    });
+
+                    return input;
+                },
+            });
+        }
+
+        for (const col of dataColumns) {
             const field = col.field as string;
             const kind = col.headerFilterKind;
             const definition: ColumnDefinition = {
@@ -356,8 +494,8 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                 definition.headerFilterPlaceholder = t('filtrar_columna');
             }
 
-            return definition;
-        });
+            cols.push(definition);
+        }
 
         if (rowActions) {
             cols.push({
@@ -440,6 +578,8 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                                         : 'confirmar_eliminar';
                                 setPendingDelete({
                                     titleKey,
+                                    confirmLabelKey: 'eliminar',
+                                    destructive: action.variant === 'danger',
                                     onConfirm: () => action.onClick?.(rowData),
                                 });
 
@@ -457,7 +597,16 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
         }
 
         return cols;
-    }, [dataColumns, hiddenColumns, rowActions, actionsColumnSlots, t, i18n.language]);
+    }, [
+        dataColumns,
+        hiddenColumns,
+        rowActions,
+        massActionsEnabled,
+        actionsColumnSlots,
+        setSelection,
+        t,
+        i18n.language,
+    ]);
 
     useEffect(() => {
         advancedFiltersRef.current = advancedFilters;
@@ -566,6 +715,8 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
         // Reinyecta si Tabulator recrea el footer tras paginar/filtrar.
         table.on('dataProcessed', () => {
             syncFooterTotal(ref.current, t('total_registros', { count: lastTotal }));
+            // Selección mass actions = solo página actual.
+            clearSelection();
         });
 
         return () => {
@@ -574,7 +725,7 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
         };
         // Recreate on structural changes; pageSize handled via setPageSize below.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [endpoint, tabulatorColumns, requestUrl, syncRequestFilters, t, i18n.language, dataColumns]);
+    }, [endpoint, tabulatorColumns, requestUrl, syncRequestFilters, t, i18n.language, dataColumns, clearSelection]);
 
     useEffect(() => {
         tableRef.current?.setPageSize(pageSize);
@@ -619,15 +770,109 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
         persist(hiddenColumns, size);
     };
 
+    const runMassAction = (action: MassAction<T>): void => {
+        setMassOpen(false);
+        const rows = (tableRef.current?.getRows('active') ?? [])
+            .map((row) => row.getData() as T)
+            .filter((row) => {
+                const id = rowIdOf(row);
+
+                return id !== '' && selectedIdsRef.current.has(id);
+            });
+
+        if (rows.length === 0) {
+            return;
+        }
+
+        const execute = () => {
+            void Promise.resolve(action.onAction(rows)).then(() => {
+                clearSelection();
+            });
+        };
+
+        if (action.confirm) {
+            const titleKey =
+                typeof action.confirm === 'object'
+                    ? (action.confirm.titleKey ?? 'confirmar_eliminar')
+                    : 'confirmar_eliminar';
+            setPendingDelete({
+                titleKey,
+                confirmLabelKey: action.variant === 'danger' ? 'eliminar' : action.labelKey,
+                destructive: action.variant === 'danger',
+                onConfirm: execute,
+            });
+
+            return;
+        }
+
+        execute();
+    };
+
+    const orderedMassActions = useMemo(() => {
+        if (!massActionsEnabled || !massActions) {
+            return [];
+        }
+
+        return [
+            ...massActions.filter((action) => action.variant !== 'danger'),
+            ...massActions.filter((action) => action.variant === 'danger'),
+        ];
+    }, [massActions, massActionsEnabled]);
+
     return (
         <div className={cn('space-y-3', className)}>
             <div className="flex flex-wrap items-center gap-2">
+                {massActionsEnabled ? (
+                    <div className="relative">
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            disabled={selectedCount === 0}
+                            aria-haspopup="menu"
+                            aria-expanded={massOpen}
+                            onClick={() => {
+                                setColumnsOpen(false);
+                                setMassOpen((open) => !open);
+                            }}
+                        >
+                            {t('acciones_masivas')}
+                        </Button>
+                        {massOpen && selectedCount > 0 ? (
+                            <div
+                                role="menu"
+                                className="absolute z-20 mt-1 min-w-48 rounded-md border border-slate-200 bg-white p-1 shadow-md"
+                            >
+                                {orderedMassActions.map((action) => (
+                                    <button
+                                        key={action.id}
+                                        type="button"
+                                        role="menuitem"
+                                        className={cn(
+                                            'block w-full rounded px-2 py-1.5 text-left text-sm hover:bg-slate-50',
+                                            action.variant === 'danger'
+                                                ? 'text-red-700'
+                                                : 'text-slate-700',
+                                        )}
+                                        onClick={() => runMassAction(action)}
+                                    >
+                                        {t(action.labelKey)}
+                                    </button>
+                                ))}
+                            </div>
+                        ) : null}
+                    </div>
+                ) : null}
+
                 <div className="relative">
                     <Button
                         type="button"
                         size="sm"
                         variant="outline"
-                        onClick={() => setColumnsOpen((open) => !open)}
+                        onClick={() => {
+                            setMassOpen(false);
+                            setColumnsOpen((open) => !open);
+                        }}
                     >
                         {t('mostrar_ocultar_columnas')}
                     </Button>
@@ -706,7 +951,8 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                     }
                 }}
                 title={t(pendingDelete?.titleKey ?? 'confirmar_eliminar')}
-                confirmLabel={t('eliminar')}
+                confirmLabel={t(pendingDelete?.confirmLabelKey ?? 'eliminar')}
+                destructive={pendingDelete?.destructive ?? true}
                 onConfirm={() => {
                     pendingDelete?.onConfirm();
                     setPendingDelete(null);

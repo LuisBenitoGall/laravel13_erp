@@ -1,13 +1,26 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
-    | Logo del ERP (aside)
+    | Marca del producto (Coopmercio)
     |--------------------------------------------------------------------------
     |
-    | Path público o URL absoluta. Placeholder por defecto en /images/erp-logo.svg
+    | name / logo_url / mark_url son configurables por entorno. Los colores
+    | canónicos documentan la paleta; el front operativo usa @theme en CSS.
     |
     */
-    'logo_url' => env('APP_LOGO_URL', '/images/erp-logo.svg'),
+
+    'name' => env('APP_BRAND_NAME', 'Coopmercio'),
+
+    'logo_url' => env('APP_LOGO_URL', '/images/branding/coopmercio-horizontal-color.svg'),
+
+    'mark_url' => env('APP_MARK_URL', '/images/branding/coopmercio-symbol-color.svg'),
+
+    'colors' => [
+        'primary' => '#10A37F',
+        'secondary' => '#633D56',
+    ],
+
 ];

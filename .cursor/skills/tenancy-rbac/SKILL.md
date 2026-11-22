@@ -27,16 +27,16 @@ en `docs/standards/architecture.md`. Ficha viva: `docs/modules/Admin.md`.
 
 ## Tres capas — no saltarse ninguna
 
-Un Module es usable en sesión solo si:
-
 1. `modules.status = Active`
 2. fila en `company_module_authorizations` para esa company
-3. fila en `company_modules` (encendido)
+3. fila en `company_modules` **solo si Optional** (Mis módulos)
 
-Basic se autoriza solo. Optional y AdminOnly no. Encender sin autorizar debe
-fallar. Apagar no borra permisos del rol.
+Basic Active+autorizado = siempre on (sin `company_modules`). Optional exige
+las tres. AdminOnly fuera de Mis módulos (SA). Basic se autoriza solo;
+Optional y AdminOnly no. Encender Optional sin autorizar debe fallar.
+Enable/Disable rechazan Basic/AdminOnly. Apagar no borra permisos del rol.
 
-Menú: tras las 3 capas, comodín `<module>.access` **AND** `{functionality}.view`.
+Menú: tras las capas, comodín `<module>.access` **AND** `{functionality}.view`.
 Module hoja: solo comodín. El comodín no implica todos los `.view`.
 Policy: `viewAny()`→Spatie `.view`; `view()`→Spatie `.viewAny` (detalle).
 

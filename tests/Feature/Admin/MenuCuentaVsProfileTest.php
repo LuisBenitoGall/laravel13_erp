@@ -57,10 +57,12 @@ beforeEach(function () {
     MenuCatalogCache::forget();
 });
 
-it('expone account.show y MenuBuilder profile no apunta a /admin/profile', function () {
-    expect(Route::has('account.show'))->toBeTrue()
+it('expone admin.account.show y MenuBuilder profile no apunta a /admin/profile', function () {
+    expect(Route::has('admin.account.show'))->toBeTrue()
+        ->and(Route::has('admin.account.renew'))->toBeTrue()
         ->and(Route::has('admin.profile.show'))->toBeTrue()
-        ->and(Route::has('profile.show'))->toBeFalse();
+        ->and(Route::has('profile.show'))->toBeFalse()
+        ->and(Route::has('account.show'))->toBeFalse();
 
     $user = User::factory()->create();
     $user->givePermissionTo([
@@ -79,14 +81,14 @@ it('expone account.show y MenuBuilder profile no apunta a /admin/profile', funct
 
     expect($profileItem)->not->toBeNull()
         ->and($profileItem['label'])->toBe(__('mi_cuenta'))
-        ->and($profileItem['href'])->toBe(route('account.show', absolute: false))
+        ->and($profileItem['href'])->toBe(route('admin.account.show', absolute: false))
         ->and($profileItem['href'])->not->toBe(route('admin.profile.show', absolute: false))
         ->and($modulesItem['href'])->toBe(route('admin.company-modules.index', absolute: false))
         ->and($hrefs)->not->toContain('/admin/profile')
         ->and($hrefs)->not->toContain(route('admin.profile.show', absolute: false));
 });
 
-it('GET /account muestra histórico y renovación (Mi cuenta)', function () {
+it('GET /admin/account muestra histórico con CTA a renovación', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
     $user->givePermissionTo([
@@ -95,12 +97,12 @@ it('GET /account muestra histórico y renovación (Mi cuenta)', function () {
     ]);
     actingWithCompany($user, $this->company);
 
-    $this->get(route('account.show'))
+    $this->get(route('admin.account.show'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
-            ->component('Account/Show')
-            ->has('catalogAccounts')
-            ->has('current'));
+            ->component('Admin/Account/Show')
+            ->has('current')
+            ->where('renewUrl', route('admin.account.renew', absolute: false)));
 });
 
 it('AsideNav fuerza sin activo en /admin/profile y avatar sigue a /admin/profile', function () {

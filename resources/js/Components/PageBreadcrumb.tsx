@@ -21,7 +21,7 @@ export default function PageBreadcrumb({
         <div className="mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <Link
                 href={optionHref}
-                className="text-xl font-semibold tracking-tight text-slate-900 hover:text-teal-800"
+                className="text-xl font-semibold tracking-tight text-slate-900 hover:text-brand-ink"
             >
                 {t(optionKey)}
             </Link>

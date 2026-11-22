@@ -58,7 +58,7 @@ export function IconPicker({ id, label, value, onChange, error, required }: Icon
                                     className={cn(
                                         'flex h-10 items-center justify-center rounded-md border text-slate-700',
                                         selected
-                                            ? 'border-teal-700 bg-teal-50 text-teal-800'
+                                            ? 'border-brand bg-brand-muted text-brand-ink'
                                             : 'border-slate-200 hover:bg-slate-50',
                                     )}
                                     onClick={() => {

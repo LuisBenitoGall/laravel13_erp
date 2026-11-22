@@ -33,7 +33,7 @@ final class MenuFunctionalityHref
             'company-roles' => route('admin.company-roles.index', absolute: false),
             'company-users' => route('admin.company-users.index', absolute: false),
             'all-users' => route('admin.all-users.index', absolute: false),
-            'profile' => route('account.show', absolute: false),
+            'profile' => route('admin.account.show', absolute: false),
             default => '#',
         };
     }

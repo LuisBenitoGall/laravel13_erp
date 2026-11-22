@@ -249,7 +249,7 @@ it('Acciones i18n capitalizada y CSS de borde en header filters', function () {
         ->and($css)->toContain('--st-hf-border: 1px solid #cbd5e1')
         ->and($css)->toContain('.tabulator-date-range-trigger')
         ->and($css)->toContain('.tabulator-actions-btn')
-        ->and($css)->toContain('background: #0f766e')
+        ->and($css)->toContain('background: #10A37F')
         ->and($css)->toContain('.tabulator-actions-btn-danger')
         ->and($css)->toContain('background: #fee2e2')
         ->and($css)->toContain('.tabulator-actions-toggle')

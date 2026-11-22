@@ -1,28 +1,12 @@
-import { useForm } from '@inertiajs/react';
-import { FormEvent, useMemo, useState } from 'react';
+import { router } from '@inertiajs/react';
+import { RefreshCw } from 'lucide-react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Field, Select } from '@/Components/Form';
 import { fmt } from '@/Components/Table/formatters';
 import ServerTable, { type ColumnDef } from '@/Components/Table/ServerTable';
-import { Button } from '@/Components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/Components/ui/dialog';
 import AppLayout from '@/Layouts/AppLayout';
 import { formatDate } from '@/lib/format';
-
-type CatalogAccount = {
-    id: number;
-    name: string;
-    rate: string | number;
-    duration: number | null;
-    is_default: boolean;
-};
 
 type CurrentAccount = {
     id: number;
@@ -45,8 +29,8 @@ type CompanyAccountRow = {
 
 type Props = {
     current: CurrentAccount | null;
-    catalogAccounts: CatalogAccount[];
     canRenew: boolean;
+    renewUrl: string;
 };
 
 const companyAccountStatusKeys: Record<string, string> = {
@@ -69,29 +53,8 @@ function companyAccountStatusLabel(
     return key ? translate(key) : status;
 }
 
-export default function Show({ current, catalogAccounts, canRenew }: Props) {
+export default function Show({ current, canRenew, renewUrl }: Props) {
     const { t, i18n } = useTranslation();
-    const [renewOpen, setRenewOpen] = useState(false);
-    const [tableKey, setTableKey] = useState(0);
-
-    const defaultAccountId = useMemo(() => {
-        const preferred = catalogAccounts.find((row) => row.is_default) ?? catalogAccounts[0];
-
-        return preferred ? String(preferred.id) : '';
-    }, [catalogAccounts]);
-
-    const renewForm = useForm({
-        account_id: defaultAccountId,
-    });
-
-    const accountOptions = useMemo(
-        () =>
-            catalogAccounts.map((row) => ({
-                value: String(row.id),
-                label: row.name,
-            })),
-        [catalogAccounts],
-    );
 
     const columns = useMemo<ColumnDef[]>(
         () => [
@@ -141,29 +104,12 @@ export default function Show({ current, catalogAccounts, canRenew }: Props) {
         [i18n.language, t],
     );
 
-    function openRenew() {
-        renewForm.setData('account_id', defaultAccountId);
-        renewForm.clearErrors();
-        setRenewOpen(true);
-    }
-
-    function submitRenew(event: FormEvent) {
-        event.preventDefault();
-        renewForm.post('/account/renew', {
-            preserveScroll: true,
-            onSuccess: () => {
-                setRenewOpen(false);
-                setTableKey((key) => key + 1);
-            },
-        });
-    }
-
     return (
         <AppLayout
             breadcrumb={{
                 optionKey: 'mi_cuenta',
                 suboptionKey: 'dashboard',
-                optionHref: '/account',
+                optionHref: '/admin/account',
             }}
             showBack={false}
             actions={
@@ -171,8 +117,9 @@ export default function Show({ current, catalogAccounts, canRenew }: Props) {
                     ? [
                           {
                               type: 'button',
-                              labelKey: 'renovar_cuenta',
-                              onClick: openRenew,
+                              labelKey: 'renovar_mejorar_cuenta',
+                              icon: RefreshCw,
+                              onClick: () => router.visit(renewUrl),
                           },
                       ]
                     : []
@@ -215,43 +162,11 @@ export default function Show({ current, catalogAccounts, canRenew }: Props) {
             </div>
 
             <ServerTable<CompanyAccountRow>
-                key={tableKey}
-                endpoint="/account/company-accounts/table"
+                endpoint="/admin/account/company-accounts/table"
                 columns={columns}
-                persistKey="account.company-accounts"
+                persistKey="admin.account.company-accounts"
                 exportable={false}
             />
-
-            <Dialog open={renewOpen} onOpenChange={setRenewOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>{t('renovar_cuenta')}</DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={submitRenew} className="space-y-4">
-                        <Field
-                            label={t('cuenta')}
-                            htmlFor="account-renew-catalog"
-                            error={renewForm.errors.account_id}
-                            required
-                        >
-                            <Select
-                                id="account-renew-catalog"
-                                value={renewForm.data.account_id}
-                                options={accountOptions}
-                                onChange={(value) => renewForm.setData('account_id', value)}
-                            />
-                        </Field>
-                        <DialogFooter>
-                            <Button type="button" variant="secondary" onClick={() => setRenewOpen(false)}>
-                                {t('cancelar')}
-                            </Button>
-                            <Button type="submit" disabled={renewForm.processing}>
-                                {t('guardar')}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
         </AppLayout>
     );
 }

@@ -67,7 +67,7 @@ export default function Members({
                 </p>
                 <Link
                     href={`/admin/companies/${company.id}/edit`}
-                    className="text-sm text-teal-700 hover:underline"
+                    className="text-sm text-brand hover:underline"
                 >
                     {t('volver_a_empresa')}
                 </Link>

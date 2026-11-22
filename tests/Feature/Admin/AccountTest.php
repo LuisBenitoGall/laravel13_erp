@@ -1,10 +1,8 @@
 <?php
 
-use App\Domains\Admin\Actions\DisableModuleForCompany;
 use App\Domains\Admin\Enums\AccountStatus;
 use App\Domains\Admin\Models\Account;
 use App\Domains\Admin\Models\Company;
-use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
 use App\Models\User;
 use Database\Seeders\AccountsSeeder;
@@ -75,28 +73,12 @@ it('sin accounts.* las rutas de cuentas responden 403', function () {
     expect(Account::query()->count())->toBe($before);
 });
 
-it('usuario con accounts.view abre el Index y la máscara de renovación', function () {
+it('usuario no-SA no abre accounts aunque tenga permisos (AdminOnly = SA)', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
     Permission::findOrCreate('configuracion.access');
     $user->givePermissionTo(['configuracion.access', 'accounts.view']);
     actingWithCompany($user, $this->company);
-
-    $this->get(route('admin.accounts.index'))->assertOk();
-    $this->get(route('admin.accounts.renewal'))
-        ->assertRedirect(route('account.show'));
-});
-
-it('bloquea Index si configuracion no está activo para no-SA (V-21)', function () {
-    $actor = User::factory()->create();
-    $actor->companies()->attach($this->company->id);
-    setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
-    $actor->givePermissionTo(['configuracion.access', 'accounts.view']);
-    actingWithCompany($actor, $this->company);
-
-    $module = Module::query()->where('slug', 'configuracion')->firstOrFail();
-    app(DisableModuleForCompany::class)->handle($this->company, $module);
 
     $this->get(route('admin.accounts.index'))->assertForbidden();
     $this->get(route('admin.accounts.renewal'))->assertForbidden();
@@ -288,7 +270,7 @@ it('AccountsSeeder deja ≥1 Active default e idempotente', function () {
         ->and(Account::withTrashed()->whereKey(1)->exists())->toBeTrue();
 });
 
-it('admin.accounts.renewal redirige a Mi cuenta', function () {
+it('admin.accounts.renewal redirige a renovación admin', function () {
     $this->get(route('admin.accounts.renewal'))
-        ->assertRedirect(route('account.show'));
+        ->assertRedirect(route('admin.account.renew'));
 });

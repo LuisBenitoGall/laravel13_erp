@@ -13,8 +13,8 @@ use App\Support\Tenancy\CurrentCompany;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Triple condición R-AUT-05/08: Active global + autorizado + encendido.
- * Excepción shell: Super Admin + ModuleLevel::AdminOnly Active → true.
+ * Capas R-AUT-05/08: Active global + autorizado; Optional exige además encendido.
+ * Basic autorizado = on sin `company_modules`. SA + AdminOnly Active → true.
  */
 final class CompanyModuleActivationChecker implements ModuleActivationChecker
 {
@@ -30,8 +30,9 @@ final class CompanyModuleActivationChecker implements ModuleActivationChecker
             return false;
         }
 
-        if ($catalog->level === ModuleLevel::AdminOnly && $this->isSuperAdmin()) {
-            return true;
+        // AdminOnly: solo Super Admin (sin Mis módulos / company_modules).
+        if ($catalog->level === ModuleLevel::AdminOnly) {
+            return $this->isSuperAdmin();
         }
 
         $companyId = $this->currentCompany->id();
@@ -49,16 +50,18 @@ final class CompanyModuleActivationChecker implements ModuleActivationChecker
             return false;
         }
 
-        $enabled = CompanyModule::query()->withoutGlobalScope('company')
-            ->where('company_id', $companyId)
-            ->where('module_id', $catalog->id)
-            ->exists();
+        if ($catalog->level === ModuleLevel::Optional) {
+            $enabled = CompanyModule::query()->withoutGlobalScope('company')
+                ->where('company_id', $companyId)
+                ->where('module_id', $catalog->id)
+                ->exists();
 
-        if (! $enabled) {
-            return false;
+            if (! $enabled) {
+                return false;
+            }
         }
+        // Basic Active+autorizado: siempre on (sin company_modules).
 
-        // AND: tras las tres capas, el actor no-SA necesita el comodín del Module.
         if ($this->isSuperAdmin()) {
             return true;
         }

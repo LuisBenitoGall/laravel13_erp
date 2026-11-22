@@ -269,7 +269,7 @@ export default function CompanyRoleForm({ role, matrix }: Props) {
                                 key={mod.slug}
                                 href={`#module-${mod.slug}`}
                                 className="inline-flex items-center rounded-md px-3.5 py-2 text-xs font-bold uppercase tracking-wide text-white shadow-sm transition-opacity hover:opacity-90"
-                                style={{ backgroundColor: mod.color || '#0f766e' }}
+                                style={{ backgroundColor: mod.color || '#10A37F' }}
                             >
                                 {mod.label}
                             </a>
@@ -304,7 +304,7 @@ export default function CompanyRoleForm({ role, matrix }: Props) {
                             <section key={mod.slug} id={`module-${mod.slug}`} className="scroll-mt-24">
                                 <div
                                     className="mb-3 rounded-lg px-4 py-3 text-white shadow-sm"
-                                    style={{ backgroundColor: mod.color || '#0f766e' }}
+                                    style={{ backgroundColor: mod.color || '#10A37F' }}
                                 >
                                     <h2 className="flex items-center gap-2 text-base font-semibold tracking-wide uppercase">
                                         {active ? (

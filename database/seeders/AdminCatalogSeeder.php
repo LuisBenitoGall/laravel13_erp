@@ -6,7 +6,6 @@ use App\Domains\Admin\Actions\AssignCompanyRole;
 use App\Domains\Admin\Actions\AuthorizeModuleForCompany;
 use App\Domains\Admin\Actions\CreateCompany;
 use App\Domains\Admin\Actions\CreateFunctionality;
-use App\Domains\Admin\Actions\EnableModuleForCompany;
 use App\Domains\Admin\Actions\EnsureCompanyDefaultRoles;
 use App\Domains\Admin\Actions\RealignMenuCatalog;
 use App\Domains\Admin\Actions\SyncManagerPermissionsForCompany;
@@ -175,8 +174,8 @@ class AdminCatalogSeeder extends Seeder
                 app(AssignCompanyRole::class)->handle($managerCandidate, $existing, 'manager');
 
                 foreach ($basicModules as $module) {
+                    // Basic: solo autorizar (siempre on; Enable solo acepta Optional).
                     app(AuthorizeModuleForCompany::class)->handle($existing, $module);
-                    app(EnableModuleForCompany::class)->handle($existing, $module);
                 }
 
                 app(SyncManagerPermissionsForCompany::class)->handle($existing);

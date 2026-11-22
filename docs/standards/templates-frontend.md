@@ -64,7 +64,7 @@ export default function Index() {
     [t],
   )
 
-  // Preguntar a Luis el set de Acciones en cada Index nuevo.
+  // Preguntar a Luis el set de Acciones (fila) en cada Index nuevo.
   const rowActions = (row: ModuleRow): Array<RowAction<ModuleRow>> => [
     {
       id: 'edit',
@@ -73,6 +73,10 @@ export default function Index() {
       onClick: () => router.visit(`/admin/modules/${row.id}/edit`),
     },
   ]
+
+  // Mass actions: opt-in. Si Luis las pide, preguntar qué acciones lleva el set.
+  // Ejemplo piloto: Admin/CompanyUsers (eliminar / activar / desactivar).
+  // const massActions: MassAction<ModuleRow>[] = [...]
 
   return (
     <AppLayout
@@ -87,6 +91,7 @@ export default function Index() {
         persistKey="admin.modules"
         exportable
         rowActions={rowActions}
+        // massActions={massActions}
       />
     </AppLayout>
   )

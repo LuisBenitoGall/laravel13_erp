@@ -14,7 +14,7 @@ function TreeNodes({ nodes }: { nodes: AccountingAccountTypeTreeNode[] }) {
     }
 
     return (
-        <ul className="space-y-1 border-l border-teal-700/20 pl-3">
+        <ul className="space-y-1 border-l border-brand/20 pl-3">
             {nodes.map((node) => (
                 <li key={node.id} className="py-0.5">
                     <div className="flex gap-2 text-sm">

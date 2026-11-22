@@ -4,6 +4,7 @@ namespace App\Domains\Admin\Http\Controllers;
 
 use App\Domains\Admin\Http\Requests\AllUserTableRequest;
 use App\Domains\Admin\Http\Resources\DirectoryUserResource;
+use App\Domains\Admin\Support\UserQuickViewData;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Support\Table\TableBuilder;
@@ -29,5 +30,13 @@ class AllUserController extends Controller
             ->request($request)
             ->through(DirectoryUserResource::class)
             ->json();
+    }
+
+    public function quick(User $user, UserQuickViewData $quickView): JsonResponse
+    {
+        $this->authorize('viewAnyAllUser');
+        abort_unless((bool) $user->is_public, 404);
+
+        return response()->json($quickView->build($user, false));
     }
 }

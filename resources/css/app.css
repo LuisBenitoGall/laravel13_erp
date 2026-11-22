@@ -6,6 +6,15 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Coopmercio brand tokens */
+    --color-brand: #10a37f;
+    --color-brand-hover: #0d8a6b;
+    --color-brand-muted: #e7f6f1;
+    --color-brand-foreground: #ffffff;
+    --color-brand-ink: #0a5c4a;
+    --color-brand-secondary: #633d56;
+    --color-brand-secondary-hover: #4e2f43;
 }
 
 /* Dashboard post-its — look v1 (ul.notes): rotate por nth-child */

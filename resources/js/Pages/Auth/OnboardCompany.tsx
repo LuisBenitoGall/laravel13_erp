@@ -90,7 +90,7 @@ export default function OnboardCompany() {
                 <button
                     type="submit"
                     disabled={processing}
-                    className="w-full rounded-md bg-teal-700 px-3 py-2 text-sm font-medium text-white hover:bg-teal-800 disabled:opacity-50"
+                    className="w-full rounded-md bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-hover disabled:opacity-50"
                 >
                     {t('crear_empresa_y_entrar')}
                 </button>
