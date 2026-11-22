@@ -37,6 +37,6 @@ class AllUserController extends Controller
         $this->authorize('viewAnyAllUser');
         abort_unless((bool) $user->is_public, 404);
 
-        return response()->json($quickView->build($user, false));
+        return response()->json($quickView->build($user, false, 'directory'));
     }
 }

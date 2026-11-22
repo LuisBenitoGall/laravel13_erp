@@ -116,6 +116,10 @@ export default function Index() {
                 kind: 'toggle',
                 labelKey: row.status ? 'desactivar' : 'activar',
                 checked: row.status,
+                confirm: {
+                    titleKey: 'confirmar_desactivar_usuario',
+                    descriptionKey: 'confirmar_desactivar_usuario_detalle',
+                },
                 onToggle: async (_row, checked) => {
                     const result = await patchJson<{ status: boolean }>(
                         `/admin/company-users/${row.id}/status`,
@@ -173,6 +177,10 @@ export default function Index() {
             {
                 id: 'deactivate',
                 labelKey: 'desactivar',
+                confirm: {
+                    titleKey: 'confirmar_desactivar_usuarios_masivo',
+                    descriptionKey: 'confirmar_desactivar_usuario_detalle',
+                },
                 onAction: (rows) => {
                     router.post(
                         '/admin/company-users/bulk-status',

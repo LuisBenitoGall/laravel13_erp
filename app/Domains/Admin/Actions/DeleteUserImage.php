@@ -34,8 +34,8 @@ class DeleteUserImage
 
             $image->delete();
 
-            if ($path !== '' && Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
+            if ($path !== '' && Storage::disk('local')->exists($path)) {
+                Storage::disk('local')->delete($path);
             }
         });
     }

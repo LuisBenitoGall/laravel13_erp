@@ -10,6 +10,7 @@ use App\Models\UserEmail;
 final class UserQuickViewData
 {
     /**
+     * @param  'profile'|'company'|'directory'  $imageContext
      * @return array{
      *     user: array{name: string, surname: string|null, email: string|null},
      *     emails: list<array{id: int, email: string, description: string|null, value: string, label: string|null}>,
@@ -30,7 +31,7 @@ final class UserQuickViewData
      *     can_edit: bool
      * }
      */
-    public function build(User $user, bool $canEdit): array
+    public function build(User $user, bool $canEdit, string $imageContext = 'company'): array
     {
         $user->loadMissing(['emails', 'phones', 'images', 'companies']);
 
@@ -82,7 +83,7 @@ final class UserQuickViewData
                     'href' => null,
                 ])
                 ->all(),
-            'avatar_url' => $featured !== null ? $featured->url() : null,
+            'avatar_url' => $featured !== null ? $featured->url($imageContext) : null,
             'can_edit' => $canEdit,
         ];
     }

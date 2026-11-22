@@ -128,13 +128,15 @@ final class UserEditPageData
                 ->values()
                 ->map(fn (UserImage $image): array => [
                     'id' => $image->id,
-                    'url' => $image->url(),
+                    'url' => $image->url($context === 'company' ? 'company' : 'profile'),
                     'featured' => (bool) $image->featured,
                     'public' => (bool) $image->public,
                     'publicly_visible' => $image->isPubliclyVisible($user),
                 ])
                 ->all(),
-            'avatar_url' => $featured !== null ? $featured->url() : null,
+            'avatar_url' => $featured !== null
+                ? $featured->url($context === 'company' ? 'company' : 'profile')
+                : null,
             'docs' => $user->docs
                 ->sortByDesc('id')
                 ->values()

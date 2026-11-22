@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Activo de Galería (imagen reutilizable). company_id null = plataforma.
@@ -53,9 +52,10 @@ class MediaAsset extends Model
         return $this->belongsTo(Company::class);
     }
 
+    /** URL de entrega autenticada (nunca /storage/…). */
     public function url(): string
     {
-        return Storage::disk('public')->url($this->path);
+        return route('admin.gallery.file', $this, absolute: false);
     }
 
     protected static function newFactory(): MediaAssetFactory

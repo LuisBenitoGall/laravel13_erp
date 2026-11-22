@@ -168,6 +168,8 @@ Route::middleware(['auth', 'company', 'module:configuracion'])->prefix('admin')-
     // Galería (MediaAsset); permisos `gallery.*`. Grid; altas/copias company_id null.
     Route::get('gallery/picker', [MediaAssetController::class, 'picker'])
         ->name('gallery.picker');
+    Route::get('gallery/{media_asset}/file', [MediaAssetController::class, 'file'])
+        ->name('gallery.file');
     Route::post('gallery/{media_asset}/copies', [MediaAssetController::class, 'storeCopy'])
         ->name('gallery.copies');
     Route::resource('gallery', MediaAssetController::class)
@@ -270,6 +272,8 @@ Route::middleware(['auth', 'company'])->prefix('admin')->name('admin.')->group(f
         ->name('profile.phones.mark-primary');
     Route::post('profile/images', [UserImageController::class, 'storeForProfile'])
         ->name('profile.images.store');
+    Route::get('profile/images/{userImage}/file', [UserImageController::class, 'fileForProfile'])
+        ->name('profile.images.file');
     Route::delete('profile/images/{userImage}', [UserImageController::class, 'destroyForProfile'])
         ->name('profile.images.destroy');
     Route::post('profile/images/{userImage}/mark-featured', [UserImageController::class, 'markFeaturedForProfile'])
@@ -293,6 +297,8 @@ Route::middleware(['auth', 'company'])->prefix('admin')->name('admin.')->group(f
 Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('all-users/table', [AllUserController::class, 'table'])->name('all-users.table');
     Route::get('all-users/{user}/quick', [AllUserController::class, 'quick'])->name('all-users.quick');
+    Route::get('all-users/{user}/images/{userImage}/file', [UserImageController::class, 'fileForAllUser'])
+        ->name('all-users.images.file');
     Route::get('all-users', [AllUserController::class, 'index'])->name('all-users.index');
 
     Route::get('company-users/table', [CompanyUserController::class, 'table'])->name('company-users.table');
@@ -321,6 +327,8 @@ Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('admin')->name
         ->name('company-users.phones.mark-primary');
     Route::post('company-users/{user}/images', [UserImageController::class, 'storeForCompanyUser'])
         ->name('company-users.images.store');
+    Route::get('company-users/{user}/images/{userImage}/file', [UserImageController::class, 'fileForCompanyUser'])
+        ->name('company-users.images.file');
     Route::delete('company-users/{user}/images/{userImage}', [UserImageController::class, 'destroyForCompanyUser'])
         ->name('company-users.images.destroy');
     Route::post('company-users/{user}/images/{userImage}/mark-featured', [UserImageController::class, 'markFeaturedForCompanyUser'])

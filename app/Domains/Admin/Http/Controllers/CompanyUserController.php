@@ -95,7 +95,7 @@ class CompanyUserController extends Controller
         $actor = request()->user();
         $canEdit = Gate::forUser($actor)->allows('updateCompanyUser', $user);
 
-        return response()->json($quickView->build($user, $canEdit));
+        return response()->json($quickView->build($user, $canEdit, 'company'));
     }
 
     public function edit(User $user, UserEditPageData $pageData): Response

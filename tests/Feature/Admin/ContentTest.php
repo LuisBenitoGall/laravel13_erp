@@ -263,7 +263,7 @@ it('Update Article acepta video vacío y persiste []', function () {
 });
 
 it('Update Article persiste img de galería y sobrevive al Edit', function () {
-    Storage::fake('public');
+    Storage::fake('local');
 
     $asset = MediaAsset::factory()->create([
         'name' => 'Banner',

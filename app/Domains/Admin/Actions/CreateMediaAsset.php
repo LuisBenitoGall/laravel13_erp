@@ -45,7 +45,7 @@ class CreateMediaAsset
                 $ext = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'jpg');
                 $path = 'gallery/'.Str::uuid()->toString().'.'.$ext;
 
-                Storage::disk('public')->putFileAs(
+                Storage::disk('local')->putFileAs(
                     'gallery',
                     $file,
                     basename($path),

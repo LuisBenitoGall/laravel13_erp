@@ -5,6 +5,7 @@ use App\Domains\Admin\Models\Role;
 use App\Models\User;
 use Database\Seeders\AdminCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\PermissionRegistrar;
 
 uses(RefreshDatabase::class);
@@ -41,4 +42,37 @@ it('login del superadmin redirige al dashboard', function () {
     actingWithCompany($user, $company);
 
     $this->get(route('admin.modules.index'))->assertOk();
+});
+
+it('login con status activo autenticado; inactivo denegado sin sesión', function () {
+    $active = User::factory()->create([
+        'email' => 'active-login@example.test',
+        'password' => 'password',
+        'status' => true,
+    ]);
+    $company = Company::factory()->create();
+    $active->companies()->attach($company->id);
+
+    $this->post(route('login'), [
+        'email' => $active->email,
+        'password' => 'password',
+    ])->assertRedirect();
+
+    $this->assertAuthenticatedAs($active);
+    Auth::logout();
+
+    $inactive = User::factory()->create([
+        'email' => 'inactive-login@example.test',
+        'password' => 'password',
+        'status' => false,
+    ]);
+    $inactive->companies()->attach($company->id);
+
+    $this->post(route('login'), [
+        'email' => $inactive->email,
+        'password' => 'password',
+    ])->assertSessionHasErrors('email')
+        ->assertRedirect();
+
+    $this->assertGuest();
 });

@@ -21,7 +21,7 @@ beforeEach(function () {
 
     $this->seed(AdminCatalogSeeder::class);
 
-    Storage::fake('public');
+    Storage::fake('local');
 
     $this->company = Company::factory()->create();
     $this->otherCompany = Company::factory()->create();
@@ -66,8 +66,9 @@ it('store múltiple con company_id null persiste y expone url', function () {
     expect($assets)->toHaveCount(2)
         ->and($assets->every(fn (MediaAsset $a) => $a->company_id === null))->toBeTrue()
         ->and($assets->pluck('name')->all())->toBe(['banner', 'logo'])
-        ->and(Storage::disk('public')->exists($assets[0]->path))->toBeTrue()
-        ->and(Storage::disk('public')->exists($assets[1]->path))->toBeTrue();
+        ->and(Storage::disk('local')->exists($assets[0]->path))->toBeTrue()
+        ->and(Storage::disk('local')->exists($assets[1]->path))->toBeTrue()
+        ->and($assets[0]->url())->not->toContain('/storage/');
 });
 
 it('store con company_id responde error de validación', function () {
@@ -97,14 +98,14 @@ it('delete soft-delete y quita fichero', function () {
     $asset = MediaAsset::factory()->create();
     $path = $asset->path;
 
-    expect(Storage::disk('public')->exists($path))->toBeTrue();
+    expect(Storage::disk('local')->exists($path))->toBeTrue();
 
     $this->delete(route('admin.gallery.destroy', $asset))
         ->assertRedirect(route('admin.gallery.index'));
 
     expect(MediaAsset::query()->whereKey($asset->id)->exists())->toBeFalse()
         ->and(MediaAsset::withTrashed()->whereKey($asset->id)->exists())->toBeTrue()
-        ->and(Storage::disk('public')->exists($path))->toBeFalse();
+        ->and(Storage::disk('local')->exists($path))->toBeFalse();
 });
 
 it('rechaza mime o peso inválido', function () {
@@ -234,14 +235,14 @@ it('POST copies crea activo nuevo heredando name/alt sin mutar el origen', funct
         ->and($copy->name)->toBe('Banner')
         ->and($copy->alt)->toBe('alt original')
         ->and($copy->path)->not->toBe($originalPath)
-        ->and(Storage::disk('public')->exists($copy->path))->toBeTrue();
+        ->and(Storage::disk('local')->exists($copy->path))->toBeTrue();
 
     $source->refresh();
 
     expect($source->name)->toBe('Banner')
         ->and($source->alt)->toBe('alt original')
         ->and($source->path)->toBe($originalPath)
-        ->and(Storage::disk('public')->exists($originalPath))->toBeTrue();
+        ->and(Storage::disk('local')->exists($originalPath))->toBeTrue();
 });
 
 it('POST copies sin create responde 403', function () {
@@ -300,7 +301,7 @@ it('picker JSON lista activos paginados con meta', function () {
         'alt' => 'Alt picker',
     ]);
 
-    $this->getJson(route('admin.gallery.picker', ['page' => 1, 'per_page' => 24]))
+    $response = $this->getJson(route('admin.gallery.picker', ['page' => 1, 'per_page' => 24]))
         ->assertOk()
         ->assertJsonPath('assets.0.id', $asset->id)
         ->assertJsonPath('assets.0.name', 'Picker')
@@ -314,6 +315,51 @@ it('picker JSON lista activos paginados con meta', function () {
             ],
             'meta' => ['current_page', 'last_page', 'per_page', 'total'],
         ]);
+
+    expect($response->json('assets.0.url'))->not->toContain('/storage/')
+        ->and($response->json('assets.0.url'))->toContain('/admin/gallery/');
+});
+
+it('entrega autenticada gallery file: guest denegado; autorizado 200; fuera de perímetro 403', function () {
+    $asset = MediaAsset::factory()->create();
+
+    auth()->logout();
+    $this->get(route('admin.gallery.file', $asset))->assertRedirect();
+
+    actingWithCompany($this->user, $this->company);
+    $this->get(route('admin.gallery.file', $asset))->assertOk();
+
+    $foreign = MediaAsset::factory()->forCompany($this->otherCompany)->create();
+    $outsider = User::factory()->create();
+    $outsider->companies()->attach($this->company->id);
+    setPermissionsTeamId($this->company->id);
+    Permission::findOrCreate('configuracion.access');
+    $outsider->givePermissionTo([
+        'configuracion.access',
+        'gallery.view',
+        'gallery.viewAny',
+    ]);
+    actingWithCompany($outsider, $this->company);
+
+    $this->get(route('admin.gallery.file', $foreign))->assertForbidden();
+});
+
+it('MediaAssetPolicy::view alinea a gallery.view (Index), no gallery.viewAny', function () {
+    $asset = MediaAsset::factory()->create();
+
+    $actor = User::factory()->create();
+    $actor->companies()->attach($this->company->id);
+    setPermissionsTeamId($this->company->id);
+    Permission::findOrCreate('gallery.view');
+    Permission::findOrCreate('gallery.viewAny');
+
+    $actor->givePermissionTo(['gallery.view']);
+    expect($actor->can('view', $asset))->toBeTrue();
+
+    $actor->revokePermissionTo('gallery.view');
+    $actor->givePermissionTo(['gallery.viewAny']);
+    $actor->unsetRelation('permissions');
+    expect($actor->fresh()->can('view', $asset))->toBeFalse();
 });
 
 it('picker JSON filtra por q en name o alt y pagina', function () {

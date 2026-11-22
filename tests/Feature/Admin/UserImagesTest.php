@@ -7,8 +7,10 @@ use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\Company;
+use App\Domains\Admin\Models\Module;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Support\MenuCatalogCache;
+use App\Domains\Admin\Support\UserQuickViewData;
 use App\Models\User;
 use App\Models\UserImage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -22,7 +24,7 @@ use Spatie\Permission\PermissionRegistrar;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    Storage::fake('public');
+    Storage::fake('local');
     app()[PermissionRegistrar::class]->forgetCachedPermissions();
     setPermissionsTeamId(null);
     MenuCatalogCache::forget();
@@ -79,10 +81,12 @@ function actingImageManager(Company $company, bool $withUpdate = true): User
 
 it('expone rutas profile y company-users images', function () {
     expect(Route::has('admin.profile.images.store'))->toBeTrue()
+        ->and(Route::has('admin.profile.images.file'))->toBeTrue()
         ->and(Route::has('admin.profile.images.destroy'))->toBeTrue()
         ->and(Route::has('admin.profile.images.mark-featured'))->toBeTrue()
         ->and(Route::has('admin.profile.images.public'))->toBeTrue()
         ->and(Route::has('admin.company-users.images.store'))->toBeTrue()
+        ->and(Route::has('admin.company-users.images.file'))->toBeTrue()
         ->and(Route::has('admin.company-users.images.destroy'))->toBeTrue()
         ->and(Route::has('admin.company-users.images.mark-featured'))->toBeTrue()
         ->and(Route::has('admin.company-users.images.public'))->toBeTrue();
@@ -100,7 +104,8 @@ it('self sube marca featured toggle public y elimina; avatar en props', function
     expect($image)->not->toBeNull()
         ->and($image->featured)->toBeFalse()
         ->and($image->public)->toBeFalse()
-        ->and(Storage::disk('public')->exists($image->image))->toBeTrue();
+        ->and(Storage::disk('local')->exists($image->image))->toBeTrue()
+        ->and($image->url())->not->toContain('/storage/');
 
     $this->post(route('admin.profile.images.mark-featured', $image))->assertRedirect();
     expect($image->fresh()->featured)->toBeTrue();
@@ -131,7 +136,7 @@ it('self sube marca featured toggle public y elimina; avatar en props', function
     $this->delete(route('admin.profile.images.destroy', $other))->assertRedirect();
     expect(UserImage::query()->whereKey($other->id)->exists())->toBeFalse()
         ->and(UserImage::withTrashed()->whereKey($other->id)->exists())->toBeTrue()
-        ->and(Storage::disk('public')->exists($path))->toBeFalse();
+        ->and(Storage::disk('local')->exists($path))->toBeFalse();
 });
 
 it('rechaza formato peso y limite 20', function () {
@@ -197,7 +202,7 @@ it('company-users: mutaciones con update; 403 sin update; perímetro SA', functi
         'user_id' => $foreign->id,
         'image' => "users/{$foreign->id}/images/foreign.jpg",
     ]);
-    Storage::disk('public')->put($foreignImage->image, 'x');
+    Storage::disk('local')->put($foreignImage->image, 'x');
 
     $this->post(route('admin.company-users.images.store', $foreign), [
         'images' => [UploadedFile::fake()->image('sa.jpg')->size(50)],
@@ -239,6 +244,153 @@ it('al borrar featured libera hueco y permite marcar otra', function () {
     expect($remaining->fresh()->featured)->toBeTrue()
         ->and(UserImage::query()->where('user_id', $actor->id)->where('featured', true)->count())->toBe(1)
         ->and(UserImage::withTrashed()->where('user_id', $actor->id)->where('featured', true)->count())->toBe(1);
+});
+
+it('entrega autenticada: guest denegado; self OK; ajeno 403', function () {
+    $actor = actingImageManager($this->company);
+    $file = UploadedFile::fake()->image('priv.jpg', 40, 40)->size(40);
+    $this->post(route('admin.profile.images.store'), ['images' => [$file]])->assertRedirect();
+    $image = UserImage::query()->where('user_id', $actor->id)->firstOrFail();
+
+    auth()->logout();
+    $this->get(route('admin.profile.images.file', $image))->assertRedirect();
+
+    $this->actingAs($actor);
+    session(['current_company_id' => $this->company->id]);
+    withCurrentCompany($this->company);
+
+    $this->get(route('admin.profile.images.file', $image))
+        ->assertOk()
+        ->assertHeader('content-type', 'image/jpeg');
+
+    $other = User::factory()->create(['status' => true]);
+    actingWithCompany($other, $this->company);
+    $this->actingAs($other);
+    session(['current_company_id' => $this->company->id]);
+    withCurrentCompany($this->company);
+
+    $this->get(route('admin.profile.images.file', $image))->assertForbidden();
+});
+
+it('company-users file: manager OK; perímetro ajeno 403', function () {
+    $actor = actingImageManager($this->company);
+    $member = User::factory()->create(['email' => 'file-member@example.test']);
+    $this->company->users()->attach($member->id);
+
+    $this->post(route('admin.company-users.images.store', $member), [
+        'images' => [UploadedFile::fake()->image('m.jpg')->size(80)],
+    ])->assertRedirect();
+    $memberImage = UserImage::query()->where('user_id', $member->id)->firstOrFail();
+
+    expect($memberImage->url('company'))->toContain('/admin/company-users/');
+
+    $this->get(route('admin.company-users.images.file', [$member, $memberImage]))
+        ->assertOk();
+
+    $foreign = User::factory()->create(['email' => 'file-foreign@example.test']);
+    $this->other->users()->attach($foreign->id);
+    $foreignImage = UserImage::factory()->create([
+        'user_id' => $foreign->id,
+        'image' => "users/{$foreign->id}/images/fx.jpg",
+    ]);
+    Storage::disk('local')->put($foreignImage->image, 'fake-bytes');
+
+    $this->get(route('admin.company-users.images.file', [$foreign, $foreignImage]))
+        ->assertForbidden();
+});
+
+it('company-users file: view sin update → 200; sin view → 403', function () {
+    $manager = actingImageManager($this->company);
+    $member = User::factory()->create(['email' => 'ro-member@example.test']);
+    $this->company->users()->attach($member->id);
+
+    $this->post(route('admin.company-users.images.store', $member), [
+        'images' => [UploadedFile::fake()->image('ro.jpg')->size(60)],
+    ])->assertRedirect();
+    $memberImage = UserImage::query()->where('user_id', $member->id)->firstOrFail();
+
+    $viewer = actingImageManager($this->company, withUpdate: false);
+    $this->actingAs($viewer);
+    session(['current_company_id' => $this->company->id]);
+    withCurrentCompany($this->company);
+
+    $this->get(route('admin.company-users.images.file', [$member, $memberImage]))
+        ->assertOk();
+
+    $this->post(route('admin.company-users.images.store', $member), [
+        'images' => [UploadedFile::fake()->image('denied.jpg')->size(40)],
+    ])->assertForbidden();
+
+    $noView = User::factory()->create(['status' => true]);
+    actingWithCompany($noView, $this->company);
+    setPermissionsTeamId($this->company->id);
+    $noView->givePermissionTo([Permission::findOrCreate('usuarios.access')]);
+    setPermissionsTeamId(null);
+
+    $this->get(route('admin.company-users.images.file', [$member, $memberImage]))
+        ->assertForbidden();
+});
+
+it('all-users directory file: guest denegado; público 200; no público 404', function () {
+    $usuariosId = Module::query()->where('slug', 'usuarios')->value('id');
+    app(CreateFunctionality::class)->handle([
+        'module_id' => $usuariosId,
+        'name' => 'All users',
+        'slug' => 'all-users',
+        'label' => ['es' => 'Todos los usuarios'],
+        'status' => FunctionalityStatus::Active->value,
+    ]);
+    MenuCatalogCache::forget();
+
+    $public = User::factory()->create([
+        'email' => 'dir-public@example.test',
+        'is_public' => true,
+        'status' => true,
+    ]);
+    $path = "users/{$public->id}/images/dir.jpg";
+    $tmp = UploadedFile::fake()->image('dir.jpg', 30, 30);
+    Storage::disk('local')->put($path, (string) file_get_contents($tmp->getRealPath()));
+    $image = UserImage::factory()->featured()->create([
+        'user_id' => $public->id,
+        'image' => $path,
+    ]);
+
+    auth()->logout();
+    $this->get(route('admin.all-users.images.file', [$public, $image]))->assertRedirect();
+
+    $viewer = User::factory()->create(['status' => true]);
+    actingWithCompany($viewer, $this->company);
+    setPermissionsTeamId($this->company->id);
+    $viewer->givePermissionTo([
+        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('all-users.view'),
+    ]);
+    setPermissionsTeamId(null);
+
+    expect($image->url('directory'))->toContain('/admin/all-users/')
+        ->and($image->url('directory'))->not->toContain('/storage/');
+
+    $payload = app(UserQuickViewData::class)->build($public, false, 'directory');
+    expect($payload['avatar_url'])->toBe($image->url('directory'))
+        ->and($payload['avatar_url'])->not->toContain('/storage/');
+
+    $this->get(route('admin.all-users.images.file', [$public, $image]))->assertOk();
+    $this->get($payload['avatar_url'])->assertOk();
+
+    $private = User::factory()->create([
+        'email' => 'dir-private@example.test',
+        'is_public' => false,
+        'status' => true,
+    ]);
+    $privatePath = "users/{$private->id}/images/priv.jpg";
+    Storage::disk('local')->put($privatePath, (string) file_get_contents($tmp->getRealPath()));
+    $privateImage = UserImage::factory()->create([
+        'user_id' => $private->id,
+        'image' => $privatePath,
+    ]);
+
+    $this->get(route('admin.all-users.images.file', [$private, $privateImage]))
+        ->assertNotFound();
 });
 
 it('UI Dropzone kit y tab imagenes sin placeholder', function () {

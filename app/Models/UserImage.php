@@ -29,10 +29,24 @@ class UserImage extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function url(): string
+    /**
+     * URL de entrega autenticada (nunca /storage/…).
+     *
+     * @param  'profile'|'company'|'directory'  $context
+     */
+    public function url(string $context = 'profile'): string
     {
-        // Relative path: avoids broken absolute URLs when APP_URL ≠ host de Laragon.
-        return '/storage/'.ltrim($this->image, '/');
+        return match ($context) {
+            'company' => route('admin.company-users.images.file', [
+                'user' => $this->user_id,
+                'userImage' => $this,
+            ], absolute: false),
+            'directory' => route('admin.all-users.images.file', [
+                'user' => $this->user_id,
+                'userImage' => $this,
+            ], absolute: false),
+            default => route('admin.profile.images.file', $this, absolute: false),
+        };
     }
 
     public function isPubliclyVisible(?User $owner = null): bool

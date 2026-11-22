@@ -64,8 +64,9 @@ nombre un control de ver detalle que abre la vista rápida de usuario
 ### Requirement: Acciones masivas Usuarios empresa
 El Index Usuarios empresa SHALL declarar en ServerTable acciones masivas sobre
 la página actual: eliminar (detach `user_companies` de sesión + confirm),
-activar y desactivar status. Cada bulk SHALL ir por Action Admin + Policy
-equivalente a la fila. SHALL NOT borrar el User global al eliminar masivo.
+activar y desactivar status **global** del User. Cada bulk SHALL ir por Action
+Admin + Policy equivalente a la fila. SHALL NOT borrar el User global al
+eliminar masivo. Desactivar masivo SHALL impedir el login de esos users.
 
 #### Scenario: Eliminar masivo con confirm
 - **WHEN** el actor autorizado selecciona uno o más users de la página y
@@ -76,12 +77,29 @@ equivalente a la fila. SHALL NOT borrar el User global al eliminar masivo.
 #### Scenario: Activar masivo
 - **WHEN** el actor autorizado selecciona uno o más users de la página y elige
   activar
-- **THEN** el status de esos users queda activo
+- **THEN** el status global de esos users queda activo
 
 #### Scenario: Desactivar masivo
 - **WHEN** el actor autorizado selecciona uno o más users de la página y elige
   desactivar
-- **THEN** el status de esos users queda inactivo
+- **THEN** el status global de esos users queda inactivo y no pueden iniciar
+  sesión
+
+### Requirement: Desactivar user es global y bloquea acceso
+Desactivar un user desde Usuarios empresa (acción de fila o masiva) SHALL
+persistir `users.status` inactivo a nivel global (no status por membership).
+Ese user SHALL quedar imposibilitado de login al ERP. La UI SHALL indicar
+de forma clara (copy/confirm) que la desactivación es global.
+
+#### Scenario: Desactivar desde company-users
+- **WHEN** un actor autorizado desactiva un user en Usuarios empresa
+- **THEN** el status global del user queda inactivo y ese user no puede
+  iniciar sesión
+
+#### Scenario: Copy UI global
+- **WHEN** el actor inicia desactivar (fila o masivo) en Usuarios empresa
+- **THEN** ve copy i18n que aclara que la acción afecta al acceso global
+  al ERP
 
 ### Requirement: Bulk Usuarios empresa respeta perímetro y permisos
 Los endpoints bulk de Usuarios empresa SHALL rechazar o no aplicar ids no

@@ -19,7 +19,7 @@ class MediaAssetFactory extends Factory
         $uuid = (string) Str::uuid();
         $path = 'gallery/'.$uuid.'.png';
 
-        Storage::disk('public')->put($path, $this->tinyPng());
+        Storage::disk('local')->put($path, $this->tinyPng());
 
         return [
             'company_id' => null,

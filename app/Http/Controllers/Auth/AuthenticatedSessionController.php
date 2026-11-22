@@ -24,6 +24,7 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request, SetCompanySession $setCompanySession): RedirectResponse
     {
         $credentials = $request->safe()->only(['email', 'password']);
+        $credentials['status'] = true;
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()->withErrors([

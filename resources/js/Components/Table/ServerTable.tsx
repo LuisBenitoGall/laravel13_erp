@@ -82,7 +82,7 @@ export type RowAction<T = Record<string, unknown>> = {
         row: T,
         checked: boolean,
     ) => void | Promise<void | Partial<T> | Record<string, unknown>>;
-    confirm?: boolean | { titleKey?: string };
+    confirm?: boolean | { titleKey?: string; descriptionKey?: string };
     variant?: 'default' | 'danger';
 };
 
@@ -90,7 +90,7 @@ export type RowAction<T = Record<string, unknown>> = {
 export type MassAction<T = Record<string, unknown>> = {
     id: string;
     labelKey: string;
-    confirm?: boolean | { titleKey?: string };
+    confirm?: boolean | { titleKey?: string; descriptionKey?: string };
     variant?: 'default' | 'danger';
     onAction: (rows: T[]) => void | Promise<void>;
 };
@@ -292,6 +292,7 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
     const [selectedCount, setSelectedCount] = useState(0);
     const [pendingDelete, setPendingDelete] = useState<{
         titleKey: string;
+        descriptionKey?: string;
         confirmLabelKey: string;
         destructive: boolean;
         onConfirm: () => void;
@@ -539,18 +540,48 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                                 void (async () => {
                                     const next = input.checked;
                                     const previous = !next;
-                                    input.disabled = true;
 
-                                    try {
-                                        const patch = await action.onToggle?.(rowData, next);
-                                        if (patch && typeof patch === 'object') {
-                                            await cell.getRow().update(patch);
+                                    const runToggle = async (): Promise<void> => {
+                                        input.disabled = true;
+
+                                        try {
+                                            const patch = await action.onToggle?.(rowData, next);
+                                            if (patch && typeof patch === 'object') {
+                                                await cell.getRow().update(patch);
+                                            }
+                                        } catch {
+                                            input.checked = previous;
+                                        } finally {
+                                            input.disabled = false;
                                         }
-                                    } catch {
+                                    };
+
+                                    // Confirm solo al desactivar (next=false); activar es directo.
+                                    if (action.confirm && !next) {
                                         input.checked = previous;
-                                    } finally {
-                                        input.disabled = false;
+                                        const titleKey =
+                                            typeof action.confirm === 'object'
+                                                ? (action.confirm.titleKey ?? 'confirmar_eliminar')
+                                                : 'confirmar_eliminar';
+                                        const descriptionKey =
+                                            typeof action.confirm === 'object'
+                                                ? action.confirm.descriptionKey
+                                                : undefined;
+                                        setPendingDelete({
+                                            titleKey,
+                                            descriptionKey,
+                                            confirmLabelKey: action.labelKey,
+                                            destructive: true,
+                                            onConfirm: () => {
+                                                input.checked = next;
+                                                void runToggle();
+                                            },
+                                        });
+
+                                        return;
                                     }
+
+                                    await runToggle();
                                 })();
                             });
                             label.appendChild(input);
@@ -576,8 +607,13 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                                     typeof action.confirm === 'object'
                                         ? (action.confirm.titleKey ?? 'confirmar_eliminar')
                                         : 'confirmar_eliminar';
+                                const descriptionKey =
+                                    typeof action.confirm === 'object'
+                                        ? action.confirm.descriptionKey
+                                        : undefined;
                                 setPendingDelete({
                                     titleKey,
+                                    descriptionKey,
                                     confirmLabelKey: 'eliminar',
                                     destructive: action.variant === 'danger',
                                     onConfirm: () => action.onClick?.(rowData),
@@ -795,8 +831,13 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                 typeof action.confirm === 'object'
                     ? (action.confirm.titleKey ?? 'confirmar_eliminar')
                     : 'confirmar_eliminar';
+            const descriptionKey =
+                typeof action.confirm === 'object'
+                    ? action.confirm.descriptionKey
+                    : undefined;
             setPendingDelete({
                 titleKey,
+                descriptionKey,
                 confirmLabelKey: action.variant === 'danger' ? 'eliminar' : action.labelKey,
                 destructive: action.variant === 'danger',
                 onConfirm: execute,
@@ -951,6 +992,11 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                     }
                 }}
                 title={t(pendingDelete?.titleKey ?? 'confirmar_eliminar')}
+                description={
+                    pendingDelete?.descriptionKey
+                        ? t(pendingDelete.descriptionKey)
+                        : undefined
+                }
                 confirmLabel={t(pendingDelete?.confirmLabelKey ?? 'eliminar')}
                 destructive={pendingDelete?.destructive ?? true}
                 onConfirm={() => {

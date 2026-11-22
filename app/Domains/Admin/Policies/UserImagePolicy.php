@@ -7,14 +7,30 @@ use App\Models\UserImage;
 use Illuminate\Support\Facades\Gate;
 
 /**
- * Imágenes del User: misma puerta que update de perfil de la ficha
- * (self, o updateCompanyUser sobre el owner). Sin Spatie nuevo.
+ * Imágenes del User: mutaciones = self / updateCompanyUser;
+ * entrega binaria (view) = self / viewCompanyUser (lectura ficha).
  */
 class UserImagePolicy
 {
     public function upload(User $actor, User $owner): bool
     {
         return $this->canManageOwner($actor, $owner);
+    }
+
+    /** Entrega autenticada: misma puerta que ver la ficha (no solo mutar). */
+    public function view(User $actor, UserImage $image): bool
+    {
+        $owner = $image->user;
+
+        if ($owner === null) {
+            return false;
+        }
+
+        if ($actor->id === $owner->id) {
+            return true;
+        }
+
+        return Gate::forUser($actor)->allows('viewCompanyUser', $owner);
     }
 
     public function delete(User $actor, UserImage $image): bool

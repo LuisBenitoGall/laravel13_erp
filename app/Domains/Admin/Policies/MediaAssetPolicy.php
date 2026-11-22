@@ -12,9 +12,13 @@ class MediaAssetPolicy
         return $user->can('gallery.view');
     }
 
+    /**
+     * Entrega binaria / detalle: misma capacidad Spatie que Index/picker
+     * (`gallery.view`) + perímetro de companies vinculadas.
+     */
     public function view(User $user, MediaAsset $mediaAsset): bool
     {
-        return $user->can('gallery.viewAny') && $this->inPerimeter($user, $mediaAsset);
+        return $user->can('gallery.view') && $this->inPerimeter($user, $mediaAsset);
     }
 
     public function create(User $user): bool

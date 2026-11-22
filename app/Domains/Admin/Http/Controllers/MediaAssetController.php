@@ -19,8 +19,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class MediaAssetController extends Controller
 {
@@ -42,6 +44,21 @@ class MediaAssetController extends Controller
                 'update' => $user->can('gallery.update'),
                 'delete' => $user->can('gallery.delete'),
             ],
+        ]);
+    }
+
+    public function file(MediaAsset $media_asset): BinaryFileResponse
+    {
+        $this->authorize('view', $media_asset);
+
+        abort_unless(Storage::disk('local')->exists($media_asset->path), 404);
+
+        $absolute = Storage::disk('local')->path($media_asset->path);
+        $mime = $media_asset->mime ?: (mime_content_type($absolute) ?: 'application/octet-stream');
+
+        return response()->file($absolute, [
+            'Content-Type' => $mime,
+            'Cache-Control' => 'private, max-age=3600',
         ]);
     }
 

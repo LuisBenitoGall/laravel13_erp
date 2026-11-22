@@ -16,9 +16,23 @@ use App\Support\Tenancy\CurrentCompany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class UserImageController extends Controller
 {
+    public function fileForProfile(
+        Request $request,
+        UserImage $userImage,
+    ): BinaryFileResponse {
+        /** @var User $actor */
+        $actor = $request->user();
+        abort_unless($userImage->user_id === $actor->id, 403);
+        $this->authorize('view', $userImage);
+
+        return $this->streamFile($userImage);
+    }
+
     public function storeForProfile(
         StoreUserImagesRequest $request,
         UploadUserImages $action,
@@ -75,6 +89,32 @@ class UserImageController extends Controller
         $action->handle($userImage, (bool) $request->validated('public'));
 
         return back()->with('success', __('imagen_public_actualizada'));
+    }
+
+    public function fileForCompanyUser(
+        User $user,
+        UserImage $userImage,
+    ): BinaryFileResponse {
+        abort_unless($userImage->user_id === $user->id, 404);
+        $this->authorize('view', $userImage);
+        $company = $this->currentCompany();
+        abort_unless(
+            $user->companies()->where('companies.id', $company->id)->exists(),
+            403,
+        );
+
+        return $this->streamFile($userImage);
+    }
+
+    public function fileForAllUser(
+        User $user,
+        UserImage $userImage,
+    ): BinaryFileResponse {
+        abort_unless($userImage->user_id === $user->id, 404);
+        $this->authorize('viewAnyAllUser');
+        abort_unless((bool) $user->is_public, 404);
+
+        return $this->streamFile($userImage);
     }
 
     public function storeForCompanyUser(
@@ -147,6 +187,19 @@ class UserImageController extends Controller
         $action->handle($userImage, (bool) $request->validated('public'), $company);
 
         return back()->with('success', __('imagen_public_actualizada'));
+    }
+
+    private function streamFile(UserImage $image): BinaryFileResponse
+    {
+        abort_unless(Storage::disk('local')->exists($image->image), 404);
+
+        $absolute = Storage::disk('local')->path($image->image);
+        $mime = mime_content_type($absolute) ?: 'application/octet-stream';
+
+        return response()->file($absolute, [
+            'Content-Type' => $mime,
+            'Cache-Control' => 'private, max-age=3600',
+        ]);
     }
 
     /** @return list<UploadedFile> */

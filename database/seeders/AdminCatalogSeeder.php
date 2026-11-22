@@ -57,8 +57,13 @@ class AdminCatalogSeeder extends Seeder
                 [
                     'name' => (string) config('superadmin.name'),
                     'password' => Hash::make($password),
+                    'status' => true,
                 ],
             );
+
+            if (! $user->status) {
+                $user->forceFill(['status' => true])->save();
+            }
 
             if (! $user->hasRole(Role::SUPER_ADMIN)) {
                 $user->assignRole(Role::SUPER_ADMIN);

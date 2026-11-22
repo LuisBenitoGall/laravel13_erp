@@ -45,7 +45,7 @@ class UploadUserImages
             foreach ($files as $file) {
                 $ext = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'jpg');
                 $path = sprintf('users/%d/images/%s.%s', $owner->id, Str::uuid()->toString(), $ext);
-                Storage::disk('public')->putFileAs(
+                Storage::disk('local')->putFileAs(
                     dirname($path),
                     $file,
                     basename($path),
