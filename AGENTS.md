@@ -1,236 +1,35 @@
 # ERP v2 (SaaS) — instrucciones para agentes
 
-> Puente estándar `AGENTS.md` (Codex y cualquier herramienta que lo soporte). Para evitar
-> divergencias, este fichero NO duplica las reglas: apunta a las fuentes canónicas.
-> En Claude Code el equivalente es `CLAUDE.md`; en Cursor, `.cursor/rules/00-project.mdc`.
+> Puente multi-herramienta. **No duplica** normativa ni guidelines Boost.
+> Canon: `CLAUDE.md` (proyecto + bloque Boost) · Cursor: `.cursor/rules/` ·
+> Standards: `docs/standards/` · Roles: `docs/agents/`.
 
-## Lecturas obligatorias, en este orden
+## Lecturas (on-demand, en este orden)
 
-1. **`CLAUDE.md`** (raíz) — contexto del proyecto, reglas capitales y comandos. Léelo
-   entero: obliga igual aunque estés en otra herramienta.
-2. **`docs/standards/kernel.md`** — invariantes always-on (User/Company, Module ≠
-   Functionality, tres capas, Super Admin, stack, v1). Luego
-   **`docs/standards/README.md`**.
-3. **`docs/agents/README.md`** — metodología de roles.
+1. `CLAUDE.md` — resumen + **única** copia de `<laravel-boost-guidelines>`.
+2. `docs/standards/kernel.md` — invariantes (si tocas tenancy/RBAC/menú).
+3. `docs/agents/README.md` — roles y brief explore→10.
+4. Solo lo del change: `openspec/changes/<change>/` + specs citadas (no el
+   catálogo entero de `openspec/specs/`).
 
-## Metodología de roles
+## Roles
 
-Trabaja siempre COMO UNO de los roles (fichas canónicas en `docs/agents/`):
-
-| Si vas a… | Actúa como | Comando |
+| Si vas a… | Ficha | Comando |
 |---|---|---|
-| Proponer un change, redactar ficha de módulo, decidir diseño | `docs/agents/10-architecture.md` | `/opsx-propose` |
-| Implementar tasks de un change ya propuesto | `docs/agents/20-implementation.md` | `/opsx-apply` |
-| Auditar la implementación tras apply (solo lectura, sin modificar) | `docs/agents/25-architecture-review.md` | — |
-| Escribir/mantener E2E Pest browser (`tests/Browser/`) | `docs/agents/40-e2e.md` | — |
-| Verificar, endurecer tests, comprobar DoD y archivar | `docs/agents/30-testing.md` | `/opsx-archive` |
-| Instalar/configurar deps, plugins, MCP, CI, shadcn, Pest browser *(no OpenSpec)* | `docs/agents/agent-setup.md` | `/setup` |
-
-Lee la ficha del rol ENTERA antes de empezar y respeta su gate de salida. El estado del
-change vive en `openspec/changes/<change>/` (los skills están en `.codex/skills/`); si
-conversación y artefactos chocan, mandan los artefactos. Regla de oro: **no inventar
-requisitos** — opciones A/B anotadas en el artefacto y decide 10-architecture (o Luis).
-
-`/opsx-explore` no es un rol: no implementa, no ejecuta comandos OpenSpec. **Norma fija**:
-el flujo de cualquier change es siempre debate en explore → brief con
-`docs/prompts/template_prompt.md`, guardado como fichero en `docs/prompts/<Change>.md` →
-ejecución con `10-architecture` como **sesión/agente nuevo**, lanzada por el usuario
-(explore nunca la invoca ni continúa en el mismo hilo bajo ese rol). Al redactar el brief,
-sigue el protocolo estricto de `docs/agents/README.md` §"Redactar el brief de handoff": usa
-la plantilla tal cual, cíñete solo a lo debatido (pregunta ante cualquier duda, cuantas
-veces haga falta, nunca infieras) y no ejecutes nada del change mientras redactas.
-
-## Mínimos innegociables (detalle en las fuentes de arriba)
-
-- Multi-tenant BD única: `BelongsToCompany` en modelos de negocio (no en Company ni
-  catálogos globales); test de aislamiento de tenant obligatorio por entidad; jamás
-  `session('currentCompany')`. User sin company no entra al ERP.
-- Module ≠ Functionality; tres capas de módulos; permisos `<functionality>.<acción>`.
-  Super Admin no ve companies ajenas.
-- Policies + permisos Spatie; Actions transaccionales; eventos entre dominios.
-- Front: Inertia + React. Prohibido Livewire.
-- Laravel/Inertia/Pest APIs: Boost `Search Docs` (`.cursor/rules/laravel-boost.mdc`); kernel manda si chocan.
-- Código en inglés según `docs/standards/glossary.md`; UI en español vía i18n.
-- Dependencias solo del canon `docs/standards/libraries.md`.
-- Antes de dar nada por terminado: `composer test`, `vendor/bin/pint`,
-  `vendor/bin/phpstan analyse` en verde.
-
-===
-
-<laravel-boost-guidelines>
-=== .ai/erp-v2-kernel rules ===
-
-# ERP v2 — Boost no sustituye el kernel
-
-This application is **Inertia v3 + React 19**, not Livewire, not Blade CRUD, not yajra DataTables.
-
-If any Boost guideline or skill contradicts `docs/standards/kernel.md` or architecture `R-*`, **follow the kernel**. Boost is for Laravel/Inertia/Pest/Tailwind **APIs**, not tenancy, Module/Functionality, or menu.
-
-- Use `CurrentCompany`, never `session('currentCompany')`.
-- Domain code lives in `app/Domains/<Dominio>/`.
-- Listings: `<ServerTable>` (Tabulator).
-- Permissions: `<functionality>.<acción>`.
-- Do not write business invariants with Boost `Record Rule` (`.ai/rules` is disabled).
-
-=== foundation rules ===
-
-# Laravel Boost Guidelines
-
-## Foundational Context
-
-This application is a Laravel application running on PHP 8.3. Always use the APIs that match the installed major version of each package — do not assume a version.
-
-Before relying on a package's API, confirm its installed version:
-- PHP packages: run `composer show --direct` to list direct dependencies with versions, or `composer show <vendor/package>` for a single package.
-- JS packages: check `package.json` for the installed versions.
-
-## Skills Activation
-
-This project has domain-specific skills available in `**/skills/**`. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
-
-## Conventions
-
-- You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
-- Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
-- Check for existing components to reuse before writing a new one.
-
-## Verification Scripts
-
-- Do not create verification scripts or tinker when tests cover that functionality and prove they work. Unit and feature tests are more important.
-
-## Application Structure & Architecture
-
-- Stick to existing directory structure; don't create new base folders without approval.
-- Do not change the application's dependencies without approval.
-
-## Frontend Bundling
-
-- If a frontend change doesn't show in the UI or you get a "Unable to locate file in Vite manifest" error, run `npm run build` or ask the user to run `npm run dev` or `composer run dev`.
-
-## Documentation Files
-
-- You must only create documentation files if explicitly requested by the user.
-
-=== boost rules ===
-
-# Laravel Boost
-
-## Artisan
-
-- Run Artisan commands directly via the command line (e.g., `php artisan route:list`). Use `php artisan list` to discover available commands and `php artisan [command] --help` to check parameters.
-- Inspect routes with `php artisan route:list`. Filter with: `--method=GET`, `--name=users`, `--path=api`, `--except-vendor`, `--only-vendor`.
-- Read configuration values using dot notation: `php artisan config:show app.name`, `php artisan config:show database.default`. Or read config files directly from the `config/` directory.
-
-## Tinker
-
-- Execute PHP in app context for debugging and testing code. Do not create models without user approval, prefer tests with factories instead. Prefer existing Artisan commands over custom tinker code.
-- Always use single quotes to prevent shell expansion: `php artisan tinker --execute 'Your::code();'`
-  - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
-
-=== php rules ===
-
-# PHP
-
-- Always use curly braces for control structures, even for single-line bodies.
-- Use PHP 8 constructor property promotion: `public function __construct(public GitHub $github) { }`. Do not leave empty zero-parameter `__construct()` methods unless the constructor is private.
-- Use explicit return type declarations and type hints for all method parameters: `function isAccessible(User $user, ?string $path = null): bool`
-- Use TitleCase for Enum keys: `FavoritePerson`, `BestLake`, `Monthly`.
-- Prefer PHPDoc blocks over inline comments. Only add inline comments for exceptionally complex logic.
-- Use array shape type definitions in PHPDoc blocks.
-
-=== deployments rules ===
-
-# Deployment
-
-- Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
-- Activate the `deploying-to-cloud` skill whenever deploying to Laravel Cloud, configuring Cloud environments or resources, using the Cloud CLI, or troubleshooting Cloud deployments.
-
-=== tests rules ===
-
-# Test Enforcement
-
-- Add or update tests for behavior and logic changes when a test provides meaningful regression coverage.
-- Pure copy, styling, and layout-only changes do not require new or updated tests.
-- When test coverage applies, run the affected tests and ensure they pass.
-- Test the changed behavior and its important failure modes, but do not add tests beyond them.
-- Read the `testing-best-practices` skill before writing tests.
-
-=== inertia-laravel/core rules ===
-
-# Inertia
-
-- Inertia creates fully client-side rendered SPAs without modern SPA complexity, leveraging existing server-side patterns.
-- Components live in `resources/js/Pages` (unless specified in `vite.config.js`). Use `Inertia::render()` for server-side routing instead of Blade views.
-- ALWAYS use `search-docs` tool for version-specific Inertia documentation and updated code examples.
-- IMPORTANT: Activate `inertia-react-development` when working with Inertia client-side patterns.
-
-# Inertia v3
-
-- Use all Inertia features from v1, v2, and v3. Check the documentation before making changes to ensure the correct approach.
-- New v3 features: standalone HTTP requests (`useHttp` hook), optimistic updates with automatic rollback, layout props (`useLayoutProps` hook), instant visits, simplified SSR via `@inertiajs/vite` plugin, custom exception handling for error pages.
-- Carried over from v2: deferred props, infinite scroll, merging props, polling, prefetching, once props, flash data.
-- When using deferred props, add an empty state with a pulsing or animated skeleton.
-- Axios has been removed. Use the built-in XHR client with interceptors, or install Axios separately if needed.
-- `Inertia::lazy()` / `LazyProp` has been removed. Use `Inertia::optional()` instead.
-- Prop types (`Inertia::optional()`, `Inertia::defer()`, `Inertia::merge()`) work inside nested arrays with dot-notation paths.
-- SSR works automatically in Vite dev mode with `@inertiajs/vite` - no separate Node.js server needed during development.
-- Event renames: `invalid` is now `httpException`, `exception` is now `networkError`.
-- `router.cancel()` replaced by `router.cancelAll()`.
-- The `future` configuration namespace has been removed - all v2 future options are now always enabled.
-
-=== laravel/core rules ===
-
-# Do Things the Laravel Way
-
-- Use `php artisan make:` commands to create new files (i.e. migrations, controllers, models, etc.). You can list available Artisan commands using `php artisan list` and check their parameters with `php artisan [command] --help`.
-- If you're creating a generic PHP class, use `php artisan make:class`.
-- Pass `--no-interaction` to all Artisan commands to ensure they work without user input. You should also pass the correct `--options` to ensure correct behavior.
-
-### Model Creation
-
-- When creating new models, create useful factories and seeders for them too. Ask the user if they need any other things, using `php artisan make:model --help` to check the available options.
-
-## APIs & Eloquent Resources
-
-- For APIs, default to using Eloquent API Resources and API versioning unless existing API routes do not, then you should follow existing application convention.
-
-## URL Generation
-
-- When generating links to other pages, prefer named routes and the `route()` function.
-
-## Testing
-
-- When creating models for tests, use the factories for the models. Check if the factory has custom states that can be used before manually setting up the model.
-- Faker: Use methods such as `$this->faker->word()` or `fake()->randomDigit()`. Follow existing conventions whether to use `$this->faker` or `fake()`.
-- When creating tests, make use of `php artisan make:test [options] {name}` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
-
-=== pint/core rules ===
-
-# Laravel Pint Code Formatter
-
-- If you have modified any PHP files, you must run `vendor/bin/pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
-- Do not run `vendor/bin/pint --test --format agent`, simply run `vendor/bin/pint --format agent` to fix any formatting issues.
-
-=== pest/core rules ===
-
-# Pest
-
-- This project uses Pest. Create tests with `php artisan make:test --pest {name}`.
-- Do not include the test suite directory in `{name}`. Use `SomeFeatureTest`, not `Feature/SomeFeatureTest`.
-- Read the `testing-best-practices` skill for guidance on coverage, naming, structure, dependency isolation, and review.
-- Do not delete tests or test files without approval. They are part of the application.
-
-## Running Tests
-
-- Run the narrowest set of tests that covers the change. Pass a file path or `--filter=testName` to `php artisan test --compact`.
-- Rerun a test after each change to it.
-- Run `vendor/bin/pest` to call the test runner directly. It accepts the same file path and `--filter=testName` arguments.
-- After the feature tests pass, ask the user to run the complete suite with `php artisan test --compact`.
-
-=== inertia-react/core rules ===
-
-# Inertia + React
-
-- IMPORTANT: Activate `inertia-react-development` when working with Inertia React client-side patterns.
-
-</laravel-boost-guidelines>
+| Proponer / diseñar | `docs/agents/10-architecture.md` | `/opsx-propose` |
+| Implementar tasks | `docs/agents/20-implementation.md` | `/opsx-apply` |
+| Auditar apply (solo lectura) | `docs/agents/25-architecture-review.md` | — |
+| E2E Pest browser | `docs/agents/40-e2e.md` | — |
+| DoD + archive | `docs/agents/30-testing.md` | `/opsx-archive` |
+| Toolchain / MCP / deps | `docs/agents/agent-setup.md` | `/setup` |
+
+Explore no implementa ni ejecuta OpenSpec. Flujo: debate → brief
+`docs/prompts/<Change>.md` → **sesión nueva** 10-architecture.
+
+## Anti-patrones de contexto (coste)
+
+- No pegar ni “leer todas” las specs / standards en un hilo.
+- No re-inyectar aquí el bloque Boost: si `boost:update` lo vuelve a escribir
+  en este fichero, **bórralo** y deja solo el de `CLAUDE.md`.
+- Skills y CodeGraph on-demand; always-on Cursor = `00-project` + `01-kernel` +
+  `laravel-boost` + `codegraph`.

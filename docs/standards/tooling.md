@@ -226,8 +226,13 @@ BDs. No añadir aquí la conexión Hetzner / database `back`.
 `boost:install --guidelines --skills` es **selectivo**: allowlist Laravel 13,
 Inertia React 3, Pest 4, Pint, Tailwind 4. Prohibido publicar Livewire / Flux /
 Folio / Herd / Sail / Volt. El installer solo puede rellenar el bloque
-`<laravel-boost-guidelines>` de `CLAUDE.md`/`AGENTS.md`; el resto del harness no
-se pisa. `boost:update` para refrescar recursos ya publicados.
+`<laravel-boost-guidelines>`; el resto del harness no se pisa.
+`boost:update` para refrescar recursos ya publicados.
+
+**Copia única del bloque Boost:** vive solo en `CLAUDE.md`. `AGENTS.md` es
+puente (sin guidelines). Si `boost:update` reinyecta el bloque en `AGENTS.md`,
+borrarlo de ahí. Always-on Cursor: `00-project` + `01-kernel` + `laravel-boost`
++ `codegraph` — no pegar Boost guidelines en rules `.mdc`.
 
 `Record Rule` / `.ai/rules` no son constitución (kernel y OpenSpec mandan).
 `BOOST_RULES_ENABLED=false` en `.env.example` desactiva esa vía.
