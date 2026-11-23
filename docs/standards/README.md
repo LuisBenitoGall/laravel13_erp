@@ -18,6 +18,7 @@ cumplirla. Actúa como guardrail para cualquier desarrollo, humano o asistido po
 | [glossary.md](glossary.md) | Glosario ES↔EN normativo (Obra→Worksite, Efecto→Effect…) con equivalencias v1 |
 | [e2e.md](e2e.md) | Estándar de tests de navegador: Pest 4 browser testing, qué flujos se cubren, convenciones de selectores y datos |
 | [tooling.md](tooling.md) | Guardrails mecánicos: generador `make:domain-entity`, tests de arquitectura, calidad estática, CI |
+| [capabilities-map.md](capabilities-map.md) | Índice on-demand: qué standards/specs/skills cargar por patrón de change (evitar catálogo entero) |
 
 La **metodología de agentes** (roles 10-architecture / 20-implementation /
 25-architecture-review / 40-e2e / 30-testing, transversal a Claude/Cursor/Codex) vive en

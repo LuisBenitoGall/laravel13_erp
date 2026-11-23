@@ -165,6 +165,7 @@ class MenuBuilder
     {
         return match ($functionality['slug']) {
             'companies' => __('mis_empresas'),
+            'delegations' => __('delegaciones'),
             'company-directory' => __('directorio'),
             'workplaces' => __('centros_de_trabajo'),
             'company-settings' => __('configuracion_de_la_empresa'),

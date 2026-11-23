@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('company-accounts:expire')->daily();
+Schedule::command('hr:sync-employee-statuses')->daily();

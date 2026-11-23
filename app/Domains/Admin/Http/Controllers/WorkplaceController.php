@@ -189,6 +189,9 @@ class WorkplaceController extends Controller
             $user !== null && (
                 $user->can('create', Workplace::class)
                 || $user->can('workplaces.update')
+                // Delegaciones editan sedes de la hija sin workplaces.* (sesión = matriz).
+                || $user->can('createDelegation')
+                || $user->can('updateDelegation')
             ),
             403,
         );

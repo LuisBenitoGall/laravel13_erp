@@ -43,8 +43,11 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('onboarding.company');
         }
 
-        if ($companies->count() === 1) {
-            $setCompanySession->handle($request, $user, (int) $companies->first()->id);
+        // Solo matrices son elegibles como sesión; las Delegaciones nunca (R-TEN-03).
+        $selectable = $user->selectableCompanies();
+
+        if ($selectable->count() === 1) {
+            $setCompanySession->handle($request, $user, (int) $selectable->first()->id);
 
             return redirect()->intended(app(PostLoginRedirect::class)->route($user));
         }

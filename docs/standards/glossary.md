@@ -49,6 +49,7 @@
 | Español | Código v2 | v1 | Notas |
 |---|---|---|---|
 | Empresa | `Company` | Company | Tenant Y tercero a la vez (vision §4.5); jerarquía opcional `parent_id` (Admin) |
+| Delegación | `Company` con `parent_id` ≠ null (Functionality `delegations`) | — | Company hija de la matriz de sesión (sociedad con NIF); alta propia sin `company_accounts`, ≥1 `Workplace`, creador en `user_companies`; **no** es CurrentCompany ni sale en el switcher (solo matrices); ≠ `Workplace` (sede) ni jerarquía genérica de Mis empresas |
 | Extracto (empresa) | `excerpt` | — | Texto breve multi-idioma (JSON Spatie); ≤1000/locale; Edit Info |
 | Descripción (empresa) | `description` | — | HTML rico multi-idioma (JSON Spatie + Wysiwyg); ≤20000/locale; Edit Info |
 | Directorio | `company-directory` | Directorio | Descubrimiento de companies Active+NIF+≥1 sector (Module `empresas`); ≠ Mis empresas |
@@ -72,7 +73,8 @@
 | Imagen de usuario | `UserImage` | — | `user_images`; `featured` = avatar; `public` solo con `User.is_public` |
 | Documento de usuario | `UserDoc` | — | `user_docs`; personal del User (no company); disco privado; share = change futuro |
 | Vínculo user–empresa | `UserCompany` / `user_companies` | — | Membresía/acceso ERP; `position`/`department` nullable en pivot; ≠ Empleo |
-| Empleo | TBD | — | Entidad futura RRHH; puede coexistir o no con `UserCompany`; fuera de tab Empresas |
+| Empleo / periodo laboral | `Employee` | Employee | Periodo laboral RRHH (`employees`); `BelongsToCompany`; ≠ `UserCompany`; historial = N filas; ≤1 `active` por user+company |
+| Tipo de contrato laboral | `ContractType` | — | Catálogo por company (`contract_types`); duration en días; ≠ periodo `Employee` |
 | Apellidos | `surname` | surname | Campo de `User`; UI «Apellidos»; obligatorio en registro (columna nullable en BD) |
 | Perfil público | `is_public` | — | Flag de `User`; visible en directorio «Todos los usuarios» solo si true; default true en Create company-users |
 | NIF (histórico) | `CompanyIdentifier` + `NifResolver` | ídem | Se porta tal cual |
@@ -119,7 +121,7 @@
 | Super Admin | `Super Admin` (`company_id` NULL) | Super Admin | Rol plataforma inmutable; bypass Gate::before |
 | Plan (suscripción) | `Plan` | — | Platform |
 | Tenant / suscriptor | `Tenant` | — | Empresa que contrata el SaaS |
-| Empleado / Fichaje | `Employee` / `TimeEntry` | Employee/fichaje | |
+| Empleado (periodo) / Fichaje | `Employee` / `TimeEntry` | Employee/fichaje | Ver fila Empleo; fichaje = oleadas posteriores |
 | Orden de trabajo | `WorkOrder` | OT | |
 | Incidencia | `Issue` | incidencia | |
 | Tarea | `Task` | Task | |

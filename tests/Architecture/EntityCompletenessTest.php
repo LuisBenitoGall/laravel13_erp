@@ -9,6 +9,8 @@ it('pasa con conjunto vacío de modelos de dominio o solo catálogos/tenant shel
         ? collect((new Filesystem)->allFiles($base))
             ->filter(fn ($f) => preg_match('#[\\\\/]Models[\\\\/][^\\\\/]+\.php$#', $f->getPathname()))
             ->reject(fn ($f) => str_contains($f->getPathname(), 'Admin'.DIRECTORY_SEPARATOR.'Models'))
+            // HR: dominio de negocio con artefactos completos (validado en el test de abajo).
+            ->reject(fn ($f) => str_contains($f->getPathname(), 'HR'.DIRECTORY_SEPARATOR.'Models'))
         : collect();
 
     expect($files)->toBeEmpty();

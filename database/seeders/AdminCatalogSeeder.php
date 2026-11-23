@@ -72,7 +72,7 @@ class AdminCatalogSeeder extends Seeder
             app(RealignMenuCatalog::class)->handle();
 
             $bySlug = Module::query()
-                ->whereIn('slug', ['dashboard', 'cuenta', 'usuarios', 'empresas', 'configuracion'])
+                ->whereIn('slug', ['dashboard', 'cuenta', 'usuarios', 'empresas', 'configuracion', 'rrhh'])
                 ->get()
                 ->keyBy('slug');
 
@@ -93,6 +93,7 @@ class AdminCatalogSeeder extends Seeder
                 ['module' => 'configuracion', 'name' => 'VAT types', 'slug' => 'vat-types', 'label' => ['es' => 'Tipos de IVA', 'en' => 'VAT types', 'ca' => 'Tipus d\'IVA']],
                 ['module' => 'configuracion', 'name' => 'Accounting account types', 'slug' => 'accounting-account-types', 'label' => ['es' => 'Grupos contables', 'en' => 'Account groups', 'ca' => 'Grups comptables']],
                 ['module' => 'empresas', 'name' => 'Companies', 'slug' => 'companies', 'label' => ['es' => 'Mis empresas', 'en' => 'My companies', 'ca' => 'Les meves empreses']],
+                ['module' => 'empresas', 'name' => 'Delegations', 'slug' => 'delegations', 'label' => ['es' => 'Delegaciones', 'en' => 'Delegations', 'ca' => 'Delegacions']],
                 ['module' => 'empresas', 'name' => 'Company directory', 'slug' => 'company-directory', 'label' => ['es' => 'Directorio', 'en' => 'Directory', 'ca' => 'Directori']],
                 ['module' => 'empresas', 'name' => 'Workplaces', 'slug' => 'workplaces', 'label' => ['es' => 'Centros de trabajo', 'en' => 'Workplaces', 'ca' => 'Centres de treball']],
                 ['module' => 'empresas', 'name' => 'Company settings', 'slug' => 'company-settings', 'label' => ['es' => 'Configuración de la empresa', 'en' => 'Company settings', 'ca' => 'Configuració de l\'empresa']],
@@ -101,6 +102,8 @@ class AdminCatalogSeeder extends Seeder
                 ['module' => 'usuarios', 'name' => 'Company users', 'slug' => 'company-users', 'label' => ['es' => 'Usuarios empresa', 'en' => 'Company users', 'ca' => 'Usuaris empresa']],
                 ['module' => 'usuarios', 'name' => 'All users', 'slug' => 'all-users', 'label' => ['es' => 'Todos los usuarios', 'en' => 'All users', 'ca' => 'Tots els usuaris']],
                 ['module' => 'usuarios', 'name' => 'Company roles', 'slug' => 'company-roles', 'label' => ['es' => 'Roles de empresa', 'en' => 'Company roles', 'ca' => 'Rols d\'empresa']],
+                ['module' => 'rrhh', 'name' => 'Contract types', 'slug' => 'contract-types', 'label' => ['es' => 'Tipos de contrato', 'en' => 'Contract types', 'ca' => 'Tipus de contracte']],
+                ['module' => 'rrhh', 'name' => 'Employees', 'slug' => 'employees', 'label' => ['es' => 'Empleados', 'en' => 'Employees', 'ca' => 'Empleats']],
             ] as $item) {
                 $module = $bySlug[$item['module']];
                 $status = $item['status'] ?? FunctionalityStatus::Active;

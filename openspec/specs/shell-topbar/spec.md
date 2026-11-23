@@ -10,13 +10,14 @@ El sistema SHALL mostrar en todas las vistas que usen el `AppLayout` del ERP un 
 este orden: selector de idiomas; indicador de notificaciones (campana + badge + popover
 stub); indicador de notas de usuario (post-it + badge + popover stub); acceso stub al
 chat; acceso stub a vistas favoritas (kebab vertical); nombre de empresa si el usuario
-tiene exactamente una company en `available_companies`, o selector con la empresa de
-sesión preseleccionada si tiene más de una; avatar con menú Perfil y Logout. El aside
-colapsado por defecto en viewport móvil sigue aplicando. SHALL NOT incluir el título de
-la vista ni el breadcrumb option/suboption en este bloque (eso pertenece al capability
-`shell-breadcrumb` bajo el topbar). SHALL NOT incluir ActionBar. SHALL mantener
-coherencia visual con el shell v2 (slate/shadcn) y la estructura del ejemplo v1 de
-referencia.
+tiene exactamente una company elegible (matriz) en `available_companies`, o selector con
+la empresa de sesión preseleccionada si tiene más de una; avatar con menú Perfil y
+Logout. `available_companies` SHALL incluir solo companies del vínculo con
+`parent_id` null (no Delegaciones). El aside colapsado por defecto en viewport móvil
+sigue aplicando. SHALL NOT incluir el título de la vista ni el breadcrumb
+option/suboption en este bloque (eso pertenece al capability `shell-breadcrumb` bajo el
+topbar). SHALL NOT incluir ActionBar. SHALL mantener coherencia visual con el shell v2
+(slate/shadcn) y la estructura del ejemplo v1 de referencia.
 
 #### Scenario: Orden del topbar
 - **WHEN** un usuario autenticado con company de sesión ve el AppLayout
@@ -38,6 +39,10 @@ referencia.
 - **WHEN** se renderiza el topbar
 - **THEN** no aparece el título de la vista ni el breadcrumb option/suboption en el
   bloque 1
+
+#### Scenario: Switcher sin delegaciones
+- **WHEN** el usuario tiene matriz y delegaciones hijas vinculadas
+- **THEN** el control de empresa del topbar no lista las hijas
 
 ### Requirement: Topbar alineado collapse izq. / resto der.
 El sistema SHALL colocar el botón de collapse del aside a la izquierda del topbar y

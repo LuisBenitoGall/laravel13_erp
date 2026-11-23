@@ -26,6 +26,8 @@ Playwright TS. Dependencias solo en `docs/standards/libraries.md`.
 - Empresa activa = `CurrentCompany` (middleware `SetCurrentCompany`, sesión
   `current_company_id` **solo ahí**). Jamás `session('currentCompany')`.
 - Jobs: `company_id` explícito. Test de aislamiento (R-TEN-05) por entidad.
+- R-TEN-10: lecturas RO ancladas a User/hub (varias companies del sujeto) solo
+  si change/spec lo declara; no = “SA ve todas”.
 
 ## Super Admin
 

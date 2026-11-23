@@ -21,6 +21,13 @@ class TableBuilder
     /** @var list<string> */
     private array $searchable = [];
 
+    /**
+     * Handlers por field whitelistado (p. ej. columnas de relación).
+     *
+     * @var array<string, callable(Builder<covariant Model>, string, mixed): void>
+     */
+    private array $filterHandlers = [];
+
     private ?TableRequest $request = null;
 
     /** @var class-string<JsonResource>|null */
@@ -42,6 +49,16 @@ class TableBuilder
     public function searchable(array $columns): self
     {
         $this->searchable = $columns;
+
+        return $this;
+    }
+
+    /**
+     * @param  callable(Builder<covariant Model>, string, mixed): void  $handler
+     */
+    public function filterUsing(string $field, callable $handler): self
+    {
+        $this->filterHandlers[$field] = $handler;
 
         return $this;
     }
@@ -146,6 +163,12 @@ class TableBuilder
                         $q->orWhere($column, 'like', '%'.(string) $value.'%');
                     }
                 });
+
+                continue;
+            }
+
+            if (isset($this->filterHandlers[$field])) {
+                ($this->filterHandlers[$field])($this->query, $type, $value);
 
                 continue;
             }

@@ -40,9 +40,10 @@ class RealignMenuCatalog
             'accounting-account-types',
             'company-module-authorizations',
         ],
-        'empresas' => ['companies', 'company-directory', 'workplaces', 'company-settings', 'company-sectors'],
+        'empresas' => ['companies', 'delegations', 'company-directory', 'workplaces', 'company-settings', 'company-sectors'],
         'usuarios' => ['company-users', 'all-users', 'company-roles'],
         'cuenta' => ['company-modules', 'profile'],
+        'rrhh' => ['contract-types', 'employees'],
     ];
 
     public function __construct(
@@ -59,11 +60,13 @@ class RealignMenuCatalog
             $this->ensureProfile($modules['cuenta']);
             $this->ensureAllUsers($modules['usuarios']);
             $this->ensureWorkplaces($modules['empresas']);
+            $this->ensureDelegations($modules['empresas']);
             $this->ensureCompanySettings($modules['empresas']);
             $this->ensurePaymentMethods($modules['configuracion']);
             $this->ensureContents($modules['configuracion']);
             $this->ensureGallery($modules['configuracion']);
             $this->ensureAccounts($modules['configuracion']);
+            $this->ensureHrFunctionalities($modules['rrhh']);
             $this->reassignFunctionalities($modules);
             $this->applyConfiguracionFunctionalitySort();
             $this->migrateAccessPermissions();
@@ -127,6 +130,18 @@ class RealignMenuCatalog
                     'es' => 'Mis empresas',
                     'en' => 'My companies',
                     'ca' => 'Les meves empreses',
+                ],
+            ],
+            'rrhh' => [
+                'name' => 'RRHH',
+                'label' => ['es' => 'RRHH', 'en' => 'HR', 'ca' => 'RRHH'],
+                'color' => '#be185d',
+                'icon' => 'user-cog',
+                'level' => ModuleLevel::Optional,
+                'explanation' => [
+                    'es' => 'Tipos de contrato y empleados',
+                    'en' => 'Contract types and employees',
+                    'ca' => 'Tipus de contracte i empleats',
                 ],
             ],
             'configuracion' => [
@@ -273,6 +288,41 @@ class RealignMenuCatalog
                 'es' => 'Centros de trabajo',
                 'en' => 'Workplaces',
                 'ca' => 'Centres de treball',
+            ],
+            'status' => FunctionalityStatus::Active->value,
+        ]);
+    }
+
+    private function ensureDelegations(Module $empresas): void
+    {
+        $existing = Functionality::withTrashed()->where('slug', 'delegations')->first();
+
+        if ($existing !== null) {
+            if ($existing->trashed()) {
+                $existing->restore();
+            }
+
+            $existing->forceFill([
+                'module_id' => $empresas->id,
+                'label' => [
+                    'es' => 'Delegaciones',
+                    'en' => 'Delegations',
+                    'ca' => 'Delegacions',
+                ],
+                'status' => FunctionalityStatus::Active,
+            ])->save();
+
+            return;
+        }
+
+        $this->createFunctionality->handle([
+            'module_id' => $empresas->id,
+            'name' => 'Delegations',
+            'slug' => 'delegations',
+            'label' => [
+                'es' => 'Delegaciones',
+                'en' => 'Delegations',
+                'ca' => 'Delegacions',
             ],
             'status' => FunctionalityStatus::Active->value,
         ]);
@@ -451,6 +501,47 @@ class RealignMenuCatalog
             ],
             'status' => FunctionalityStatus::Active->value,
         ]);
+    }
+
+    /** Functionalities de oleada 1 de RRHH (Module Optional `rrhh`). */
+    private function ensureHrFunctionalities(Module $rrhh): void
+    {
+        $definitions = [
+            'contract-types' => [
+                'name' => 'Contract types',
+                'label' => ['es' => 'Tipos de contrato', 'en' => 'Contract types', 'ca' => 'Tipus de contracte'],
+            ],
+            'employees' => [
+                'name' => 'Employees',
+                'label' => ['es' => 'Empleados', 'en' => 'Employees', 'ca' => 'Empleats'],
+            ],
+        ];
+
+        foreach ($definitions as $slug => $definition) {
+            $existing = Functionality::withTrashed()->where('slug', $slug)->first();
+
+            if ($existing !== null) {
+                if ($existing->trashed()) {
+                    $existing->restore();
+                }
+
+                $existing->forceFill([
+                    'module_id' => $rrhh->id,
+                    'label' => $definition['label'],
+                    'status' => FunctionalityStatus::Active,
+                ])->save();
+
+                continue;
+            }
+
+            $this->createFunctionality->handle([
+                'module_id' => $rrhh->id,
+                'name' => $definition['name'],
+                'slug' => $slug,
+                'label' => $definition['label'],
+                'status' => FunctionalityStatus::Active->value,
+            ]);
+        }
     }
 
     private function applyConfiguracionFunctionalitySort(): void

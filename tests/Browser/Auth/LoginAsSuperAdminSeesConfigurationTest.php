@@ -63,18 +63,14 @@ it('login como super admin ve Módulos aunque admin no esté encendido', functio
 
     $page = visit('/login');
 
-    $page->fill('email', 'sa-shell@example.com')
-        ->fill('password', 'password')
-        ->click('Acceder')
+    $page->fill('#d-login-email', 'sa-shell@example.com')
+        ->fill('#d-login-password', 'password')
+        ->click('form:has(#d-login-email) button[type="submit"]')
         ->assertPathIs('/dashboard')
         ->assertSee('Dashboard')
-        ->assertSee('Configuración')
-        ->assertSee('ACME Shell')
-        ->assertDontSee('Módulos')
-        ->assertDontSee('Funcionalidades')
-        ->click('Configuración')
         ->assertSee('Módulos')
-        ->assertSee('Funcionalidades')
+        ->assertSee('ACME Shell')
+        ->assertDontSee('Funcionalidades')
         ->click('Módulos')
         ->assertPathIs('/admin/modules')
         ->assertSee('Módulos')

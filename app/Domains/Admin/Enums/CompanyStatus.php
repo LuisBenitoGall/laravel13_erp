@@ -14,7 +14,8 @@ enum CompanyStatus: string
         return match ($this) {
             self::Draft => [self::Active],
             self::Active => [self::Closed],
-            self::Closed => [],
+            // Reabrir desde cerrada (toggle Index/Edit y Select de ficha).
+            self::Closed => [self::Active],
         };
     }
 }

@@ -90,9 +90,11 @@ empresa preferente.
 - **R-TEN-04** Jobs, comandos y listeners de cola reciben `company_id` explícito en el
   constructor y lo restauran en `CurrentCompany` al ejecutarse. Nada que corra fuera del
   ciclo request puede depender de sesión.
-- **R-TEN-05** Cross-tenant = bug de seguridad. Cada entidad incluye el **test de
-  aislamiento obligatorio**: usuario de empresa A no ve/edita/borra registros de empresa B
-  (ver template de test). Sin ese test la entidad no se considera terminada.
+- **R-TEN-05** Cross-tenant = bug de seguridad en **CRUD y listados** scoped al
+  tenant. Cada entidad incluye el **test de aislamiento obligatorio**: usuario
+  de empresa A no ve/edita/borra registros de empresa B vía esos flujos (ver
+  template de test). Sin ese test la entidad no se considera terminada. No
+  prohíbe las proyecciones de lectura documentadas en R-TEN-10.
 - **R-TEN-06** Nada de empresa "preferente" hardcodeada: ni IDs de empresa, ni semántica
   fija de series (09/00/06/04 de v1 pasa a ser seed de ejemplo), ni menús condicionados a
   una empresa concreta.
@@ -106,6 +108,11 @@ empresa preferente.
 - **R-TEN-09** Super Admin (`Gate::before`, R-AUT-03) no amplía el perímetro de
   datos: solo companies a las que el usuario está vinculado. Prohibido un atajo
   “ver todas”.
+- **R-TEN-10** Lecturas **solo lectura** ancladas a un User (u otro hub
+  explícito en el change/spec) pueden proyectar filas de varias companies del
+  **sujeto** (`withoutGlobalScope('company')` + filtro al hub) cuando el
+  change/spec lo declare. No autoriza mutación cross-tenant ni “SA ve todas”
+  (R-TEN-09). Ver kernel §2.
 
 ## 4. Autorización
 

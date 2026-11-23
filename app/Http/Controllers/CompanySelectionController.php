@@ -14,11 +14,13 @@ class CompanySelectionController extends Controller
     public function create(Request $request): Response|RedirectResponse
     {
         $user = $request->user();
-        $companies = $user->activeCompanies();
-
-        if ($companies->isEmpty()) {
+        if ($user->activeCompanies()->isEmpty()) {
             return redirect()->route('onboarding.company');
         }
+
+        // Solo matrices; si el user solo tiene Delegaciones se muestra la lista vacía
+        // (sin bypass hacia una hija).
+        $companies = $user->selectableCompanies();
 
         if ($companies->count() === 1) {
             app(SetCompanySession::class)->handle($request, $user, (int) $companies->first()->id);

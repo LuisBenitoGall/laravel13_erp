@@ -34,7 +34,7 @@ Capa 1 — Maestros        Admin (+ Support sin dominio)
 | **Tax** | Ámbitos fiscales, SII, VERI*FACTU, credenciales por tenant (maestro `VatType` vive en Admin; Tax lo **lee**) | SiiCredential, SiiReport | 4 |
 | **Portal** | Tienda B2B, carrito, presupuestos/pedidos de cliente, roles cliente, chat por obra | Cart, roles cliente, ChatRoom | 5 |
 | **Projects** | Proyectos, órdenes de trabajo, producción, SAT, tareas/incidencias | Project, WorkOrder, SatTicket, Task | 6 |
-| **HR** | Empleados, contratos, fichajes, calendarios, planning, vehículos | Employee, Contract, TimeEntry, WorkCalendar | 6 |
+| **HR** | Empleados, tipos de contrato, fichajes, calendarios, planning, vehículos | Employee, ContractType, TimeEntry, WorkCalendar | 6 |
 
 `Support/` (sin dominio): formato es-ES, dinero/decimales, importe en letras
 (`MoneyToWordsEs`), IBAN/BIC, fechas. `Shared` conceptual: `NumberingService` y branding de
@@ -55,27 +55,29 @@ y [architecture.md](architecture.md) R-AUT-07/R-AUT-08.
 `D` = dependencia directa permitida (lectura/Actions). `E` = solo por eventos.
 Fila = dominio que depende; columna = dominio del que depende.
 
-| ↓ usa → | Admin | Catalog | Inventory | Sales | Purchasing | Invoicing | Treasury | Accounting | Tax |
-|---|---|---|---|---|---|---|---|---|---|
-| **Admin** | — | | | | | | | | |
-| **Catalog** | D | — | | | | | | | |
-| **Inventory** | D | D | — | | | | | | |
-| **Sales** | D | D | D | — | | | | | |
-| **Purchasing** | D | D | D | D¹ | — | | | | |
-| **Invoicing** | D | D | E² | D | D | — | | | |
-| **Treasury** | D | | | | | D | — | | |
-| **Accounting** | D | | | E³ | E³ | E³ | E³ | — | |
-| **Tax** | D | | | | | D | | | — |
-| **Portal** | D | D | D | D⁴ | | D | | | |
-| **Projects** | D | D | D | D | D | D | | | |
-| **HR** | D | | | | | | | | |
-| **Platform** | D | | | | | | | | |
+| ↓ usa → | Admin | Catalog | Inventory | Sales | Purchasing | Invoicing | Treasury | Accounting | Tax | HR |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **Admin** | — | | | | | | | | | D⁵ |
+| **Catalog** | D | — | | | | | | | | |
+| **Inventory** | D | D | — | | | | | | | |
+| **Sales** | D | D | D | — | | | | | | |
+| **Purchasing** | D | D | D | D¹ | — | | | | | |
+| **Invoicing** | D | D | E² | D | D | — | | | | |
+| **Treasury** | D | | | | | D | — | | | |
+| **Accounting** | D | | | E³ | E³ | E³ | E³ | — | | |
+| **Tax** | D | | | | | D | | | — | |
+| **Portal** | D | D | D | D⁴ | | D | | | | |
+| **Projects** | D | D | D | D | D | D | | | | |
+| **HR** | D | | | | | | | | | — |
+| **Platform** | D | | | | | | | | | |
 
 1. Compra desde venta (envío directo de fábrica) — comparte el modelo `Order`.
 2. Facturar albarán ajusta stock SOLO vía eventos/Actions de Inventory.
 3. **Toda la contabilidad se alimenta por eventos** (R-LED-02): ningún dominio llama a
    Accounting directamente para escribir; Accounting escucha.
 4. El portal desemboca en el motor estándar de pedidos de Sales (borrador + notificación).
+5. Admin → HR = D: lectura RO de periodos `Employee` en la ficha Edit de User
+   (tab Empleos, R-TEN-10); sin mutaciones desde Admin.
 
 Una dependencia que no esté en esta matriz **no se puede introducir** sin actualizar este
 documento en el mismo PR y validar que no crea ciclos.

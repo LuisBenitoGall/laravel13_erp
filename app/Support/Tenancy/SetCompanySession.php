@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use RuntimeException;
 
 /**
- * Fija la empresa de sesión tras validar pertenencia a company activa (R-TEN-03).
+ * Fija la empresa de sesión tras validar pertenencia a company activa matriz (R-TEN-03).
+ * Las Delegaciones (`parent_id` no null) no se pueden fijar como empresa de sesión.
  */
 final class SetCompanySession
 {
@@ -17,8 +18,8 @@ final class SetCompanySession
 
     public function handle(Request $request, User $user, int $companyId): void
     {
-        if (! $user->belongsToCompany($companyId)) {
-            throw new RuntimeException('User does not belong to the requested active company.');
+        if (! $user->belongsToSelectableCompany($companyId)) {
+            throw new RuntimeException('User does not belong to the requested active matrix company.');
         }
 
         $request->session()->put('current_company_id', $companyId);

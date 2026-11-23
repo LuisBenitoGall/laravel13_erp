@@ -22,6 +22,11 @@ export default function SelectCompany({ companies }: { companies: CompanyOption[
                     {t('seleccionar_empresa')}
                 </h1>
                 <p className="mt-1 text-sm text-slate-600">{t('seleccionar_empresa_subtitulo')}</p>
+                {companies.length === 0 && (
+                    <p className="mt-4 text-sm text-slate-600">
+                        {t('seleccionar_empresa_sin_matriz')}
+                    </p>
+                )}
                 <form
                     className="mt-4 space-y-3"
                     onSubmit={(e) => {
@@ -50,7 +55,7 @@ export default function SelectCompany({ companies }: { companies: CompanyOption[
                     <button
                         type="submit"
                         className="w-full rounded-md bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-hover"
-                        disabled={form.processing}
+                        disabled={form.processing || companies.length === 0}
                     >
                         {t('continuar')}
                     </button>

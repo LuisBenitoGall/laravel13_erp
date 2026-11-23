@@ -73,7 +73,7 @@ class HandleInertiaRequests extends Middleware
                     : null,
             ],
             'available_companies' => fn () => $user
-                ? $user->activeCompanies()->map(fn (Company $c) => [
+                ? $user->selectableCompanies()->map(fn (Company $c) => [
                     'id' => $c->id,
                     'name' => $c->name,
                 ])->values()->all()

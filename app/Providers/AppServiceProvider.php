@@ -36,6 +36,7 @@ use App\Domains\Admin\Policies\CompanyUserPolicy;
 use App\Domains\Admin\Policies\ContentPolicy;
 use App\Domains\Admin\Policies\CountryPolicy;
 use App\Domains\Admin\Policies\CurrencyPolicy;
+use App\Domains\Admin\Policies\DelegationPolicy;
 use App\Domains\Admin\Policies\FunctionalityPolicy;
 use App\Domains\Admin\Policies\MediaAssetPolicy;
 use App\Domains\Admin\Policies\ModulePolicy;
@@ -56,6 +57,10 @@ use App\Domains\Admin\Policies\UserImagePolicy;
 use App\Domains\Admin\Policies\VatTypePolicy;
 use App\Domains\Admin\Policies\WorkplacePolicy;
 use App\Domains\Admin\Services\CompanyModuleActivationChecker;
+use App\Domains\HR\Models\ContractType;
+use App\Domains\HR\Models\Employee;
+use App\Domains\HR\Policies\ContractTypePolicy;
+use App\Domains\HR\Policies\EmployeePolicy;
 use App\Models\Phone;
 use App\Models\UserCompany;
 use App\Models\UserDoc;
@@ -107,6 +112,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Role::class, PlatformRolePolicy::class);
         Gate::policy(Company::class, CompanyPolicy::class);
         Gate::policy(Workplace::class, WorkplacePolicy::class);
+        Gate::policy(ContractType::class, ContractTypePolicy::class);
+        Gate::policy(Employee::class, EmployeePolicy::class);
         Gate::policy(Note::class, NotePolicy::class);
         Gate::policy(Content::class, ContentPolicy::class);
         Gate::policy(MediaAsset::class, MediaAssetPolicy::class);
@@ -122,6 +129,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('createCompanyRole', [CompanyRolePolicy::class, 'create']);
         Gate::define('updateCompanyRole', [CompanyRolePolicy::class, 'update']);
         Gate::define('deleteCompanyRole', [CompanyRolePolicy::class, 'delete']);
+
+        Gate::define('viewAnyDelegation', [DelegationPolicy::class, 'viewAny']);
+        Gate::define('createDelegation', [DelegationPolicy::class, 'create']);
+        Gate::define('updateDelegation', [DelegationPolicy::class, 'update']);
+        Gate::define('deleteDelegation', [DelegationPolicy::class, 'delete']);
 
         Gate::define('viewAnyAllUser', [AllUserPolicy::class, 'viewAny']);
         Gate::define('viewAnyCompanyDirectory', [CompanyDirectoryPolicy::class, 'viewAny']);

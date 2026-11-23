@@ -4,10 +4,12 @@ use App\Domains\Admin\Actions\AuthorizeModuleForCompany;
 use App\Domains\Admin\Actions\CreateCompany;
 use App\Domains\Admin\Actions\CreateFunctionality;
 use App\Domains\Admin\Actions\CreateModule;
+use App\Domains\Admin\Enums\AccountStatus;
 use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
+use App\Domains\Admin\Models\Account;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\PermissionRegistrar;
@@ -35,9 +37,9 @@ it('login como manager entra al AppLayout con menú Basic usable', function () {
 
     app(CreateFunctionality::class)->handle([
         'module_id' => $module->id,
-        'name' => 'Demo catalog',
-        'slug' => 'demo-catalog',
-        'label' => ['es' => 'Catálogo demo', 'en' => 'Catálogo demo'],
+        'name' => 'Workplaces',
+        'slug' => 'workplaces',
+        'label' => ['es' => 'Centros de trabajo', 'en' => 'Workplaces'],
         'status' => FunctionalityStatus::Active->value,
     ]);
 
@@ -46,6 +48,8 @@ it('login como manager entra al AppLayout con menú Basic usable', function () {
         'email' => 'manager-menu@example.com',
         'password' => 'password',
     ]);
+
+    Account::factory()->default()->create(['status' => AccountStatus::Active]);
 
     $company = app(CreateCompany::class)->handle([
         'name' => 'Empresa Manager',
@@ -59,23 +63,22 @@ it('login como manager entra al AppLayout con menú Basic usable', function () {
     app(AuthorizeModuleForCompany::class)->handle($company, $module);
 
     setPermissionsTeamId($company->id);
-    $manager->givePermissionTo(['partners-core.access', 'demo-catalog.view']);
+    $manager->givePermissionTo(['partners-core.access', 'workplaces.view']);
     app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
     $page = visit('/login');
 
-    $page->fill('email', 'manager-menu@example.com')
-        ->fill('password', 'password')
-        ->click('Acceder')
+    $page->fill('#d-login-email', 'manager-menu@example.com')
+        ->fill('#d-login-password', 'password')
+        ->click('form:has(#d-login-email) button[type="submit"]')
         ->assertPathIs('/dashboard')
-        ->assertSee('Panel principal de la empresa activa.')
+        ->assertSee('Mis opciones preferidas')
         ->assertSee('Dashboard')
         ->assertSee('Empresa Manager')
         ->assertSee('UM')
         ->click('UM')
         ->assertSee('Perfil')
         ->assertSee('Salir')
-        ->assertSee('Catálogo demo')
-        ->assertDontSee('Configuración')
+        ->assertSee('Centros de trabajo')
         ->assertDontSee('Módulos');
 });

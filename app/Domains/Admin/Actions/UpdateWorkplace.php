@@ -14,10 +14,16 @@ class UpdateWorkplace
         return DB::transaction(function () use ($workplace, $data): Workplace {
             unset($data['slug']);
 
+            // Siempre por company_id explícito del workplace (también Delegaciones).
+            $siblings = fn () => Workplace::query()
+                ->withoutGlobalScope('company')
+                ->where('company_id', $workplace->company_id);
+
             if (array_key_exists('name', $data) && (string) $data['name'] !== $workplace->name) {
                 $data['slug'] = UniqueSlug::from(
                     (string) $data['name'],
-                    fn (string $slug): bool => Workplace::withTrashed()
+                    fn (string $slug): bool => $siblings()
+                        ->withTrashed()
                         ->where('slug', $slug)
                         ->whereKeyNot($workplace->id)
                         ->exists(),
@@ -25,7 +31,7 @@ class UpdateWorkplace
             }
 
             if (array_key_exists('featured', $data) && (bool) $data['featured'] === true) {
-                Workplace::query()
+                $siblings()
                     ->where('featured', true)
                     ->whereKeyNot($workplace->id)
                     ->update(['featured' => false]);

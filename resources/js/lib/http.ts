@@ -49,7 +49,21 @@ export async function patchJson<TResponse = unknown>(
     });
 
     if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        let message = `HTTP ${response.status}`;
+        try {
+            const payload = (await response.json()) as {
+                message?: string;
+                errors?: Record<string, string[]>;
+            };
+            const firstError = payload.errors
+                ? Object.values(payload.errors).flat()[0]
+                : undefined;
+            message = firstError ?? payload.message ?? message;
+        } catch {
+            // keep status message
+        }
+
+        throw new Error(message);
     }
 
     return (await response.json()) as TResponse;

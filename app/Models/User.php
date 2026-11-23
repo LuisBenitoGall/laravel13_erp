@@ -92,11 +92,35 @@ class User extends Authenticatable implements CanResetPasswordContract
             ->get();
     }
 
+    /**
+     * Companies elegibles como empresa de sesión: vinculadas, Active y matriz
+     * (`parent_id` null). Las Delegaciones nunca se eligen como CurrentCompany.
+     *
+     * @return Collection<int, Company>
+     */
+    public function selectableCompanies(): Collection
+    {
+        return $this->companies()
+            ->where('companies.status', CompanyStatus::Active)
+            ->whereNull('companies.parent_id')
+            ->orderBy('companies.name')
+            ->get();
+    }
+
     public function belongsToCompany(int $companyId): bool
     {
         return $this->companies()
             ->where('companies.id', $companyId)
             ->where('companies.status', CompanyStatus::Active)
+            ->exists();
+    }
+
+    public function belongsToSelectableCompany(int $companyId): bool
+    {
+        return $this->companies()
+            ->where('companies.id', $companyId)
+            ->where('companies.status', CompanyStatus::Active)
+            ->whereNull('companies.parent_id')
             ->exists();
     }
 }

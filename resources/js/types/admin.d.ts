@@ -144,7 +144,9 @@ export type WorkplaceRow = {
     town_id: number | null;
     town_name?: string | null;
     province_id?: number | null;
+    province_name?: string | null;
     country_id?: number | null;
+    country_name?: string | null;
     featured: boolean;
     status: string;
     created_at?: string | null;

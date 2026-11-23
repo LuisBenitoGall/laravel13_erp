@@ -35,8 +35,12 @@ identificadores en inglés según [glossary.md](glossary.md).
   `current_company_id`. **Prohibido** `session('currentCompany')` en queries,
   modelos, Actions o vistas (R-TEN-03).
 - Jobs/comandos/listeners: `company_id` explícito; restaurar `CurrentCompany`.
-- Sin empresa preferente hardcodeada (R-TEN-06). Cross-tenant = bug; cada entidad
-  de negocio lleva test de aislamiento (R-TEN-05).
+- Sinempresa preferente hardcodeada (R-TEN-06). Cross-tenant = bug en
+  mutaciones y listados tenant-scoped; cada entidad de negocio lleva test de
+  aislamiento (R-TEN-05). **Excepción (R-TEN-10):** consultas de **solo
+  lectura** ancladas a un User (u otro hub declarado en el change/spec) que
+  proyecten filas de varias companies del **sujeto** están permitidas cuando el
+  change/spec lo declare. No equivale a “SA ve todas las empresas”.
 
 ## 3. Super Admin
 
@@ -44,6 +48,7 @@ identificadores en inglés según [glossary.md](glossary.md).
 - `Gate::before`: bypass de **permisos, módulos y funcionalidades**.
 - **No** bypass del perímetro de datos: solo ve/edita companies a las que está
   **vinculado**. No existe “ver todas las empresas” salvo change explícito.
+  Una proyección R-TEN-10 anclada a User **no** es ese bypass.
 
 ## 4. Module ≠ Functionality (no confundir)
 

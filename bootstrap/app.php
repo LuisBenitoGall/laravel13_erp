@@ -26,6 +26,9 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function (): void {
             Route::middleware('web')
                 ->group(base_path('routes/domains/admin.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/domains/hr.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

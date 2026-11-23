@@ -18,7 +18,7 @@ está mal: corregirlo primero.
 
 ## Mínimos (detalle en kernel / architecture)
 
-- Tenant = Company; `BelongsToCompany` en negocio; jamás `session('currentCompany')`; R-TEN-05.
+- Tenant = Company; `BelongsToCompany` en negocio; jamás `session('currentCompany')`; R-TEN-05. Lecturas RO multi-company ancladas a User solo con R-TEN-10 + spec.
 - Module ≠ Functionality; tres capas; permisos `<functionality>.<acción>`; SA no bypasea perímetro.
 - Actions transaccionales; listados `<ServerTable>`; UI i18n; **no Livewire**.
 - No inventar requisitos fuera de spec/design/vision.

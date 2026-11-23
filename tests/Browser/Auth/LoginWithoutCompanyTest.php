@@ -17,9 +17,9 @@ it('usuario sin empresa vinculada no entra al ERP y va a onboarding', function (
 
     $page = visit('/login');
 
-    $page->fill('email', 'no-company@example.com')
-        ->fill('password', 'password')
-        ->click('Acceder')
+    $page->fill('#d-login-email', 'no-company@example.com')
+        ->fill('#d-login-password', 'password')
+        ->click('form:has(#d-login-email) button[type="submit"]')
         ->assertPathIs('/onboarding/company')
         ->assertSee('Tu empresa')
         ->assertDontSee('Salir');

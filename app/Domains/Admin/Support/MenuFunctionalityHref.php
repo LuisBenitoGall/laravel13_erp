@@ -12,6 +12,7 @@ final class MenuFunctionalityHref
         return match ($slug) {
             'modules' => route('admin.modules.index', absolute: false),
             'companies' => route('admin.companies.index', absolute: false),
+            'delegations' => route('admin.delegations.index', absolute: false),
             'company-directory' => route('admin.company-directory.index', absolute: false),
             'workplaces' => route('admin.workplaces.index', absolute: false),
             'company-settings' => route('admin.company-settings.index', absolute: false),
@@ -34,6 +35,8 @@ final class MenuFunctionalityHref
             'company-users' => route('admin.company-users.index', absolute: false),
             'all-users' => route('admin.all-users.index', absolute: false),
             'profile' => route('admin.account.show', absolute: false),
+            'contract-types' => route('hr.contract-types.index', absolute: false),
+            'employees' => route('hr.employees.index', absolute: false),
             default => '#',
         };
     }

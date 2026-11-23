@@ -34,11 +34,11 @@ it('login con una empresa entra al AppLayout', function () {
 
     $page = visit('/login');
 
-    $page->fill('email', 'one-company@example.com')
-        ->fill('password', 'password')
-        ->click('Acceder')
+    $page->fill('#d-login-email', 'one-company@example.com')
+        ->fill('#d-login-password', 'password')
+        ->click('form:has(#d-login-email) button[type="submit"]')
         ->assertPathIs('/dashboard')
-        ->assertSee('Panel principal de la empresa activa.')
+        ->assertSee('Mis opciones preferidas')
         ->assertSee('Dashboard')
         ->assertSee('Empresa Una')
         ->assertSee('UU')

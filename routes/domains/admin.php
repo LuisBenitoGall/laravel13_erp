@@ -15,6 +15,8 @@ use App\Domains\Admin\Http\Controllers\CompanyUserController;
 use App\Domains\Admin\Http\Controllers\ContentController;
 use App\Domains\Admin\Http\Controllers\CountryController;
 use App\Domains\Admin\Http\Controllers\CurrencyController;
+use App\Domains\Admin\Http\Controllers\DelegationController;
+use App\Domains\Admin\Http\Controllers\DelegationWorkplaceController;
 use App\Domains\Admin\Http\Controllers\FunctionalityController;
 use App\Domains\Admin\Http\Controllers\MediaAssetController;
 use App\Domains\Admin\Http\Controllers\ModuleController;
@@ -30,6 +32,7 @@ use App\Domains\Admin\Http\Controllers\UnitController;
 use App\Domains\Admin\Http\Controllers\UserCompanyController;
 use App\Domains\Admin\Http\Controllers\UserDocController;
 use App\Domains\Admin\Http\Controllers\UserEmailController;
+use App\Domains\Admin\Http\Controllers\UserEmploymentPeriodController;
 use App\Domains\Admin\Http\Controllers\UserImageController;
 use App\Domains\Admin\Http\Controllers\UserPhoneController;
 use App\Domains\Admin\Http\Controllers\VatTypeController;
@@ -236,6 +239,20 @@ Route::middleware(['auth', 'company', 'module:empresas'])->prefix('admin')->name
     Route::put('companies/{company}/sectors', [CompanyController::class, 'syncSectors'])
         ->name('companies.sectors.sync');
     Route::resource('companies', CompanyController::class)->except(['show']);
+
+    // Delegaciones = Companies hijas de la matriz de sesión (≠ Mis empresas; sin company_accounts).
+    Route::get('delegations/table', [DelegationController::class, 'table'])->name('delegations.table');
+    Route::patch('delegations/{delegation}/status', [DelegationController::class, 'updateStatus'])
+        ->name('delegations.status');
+    Route::post('delegations/{delegation}/workplaces', [DelegationWorkplaceController::class, 'store'])
+        ->name('delegations.workplaces.store');
+    Route::put('delegations/{delegation}/workplaces/{workplace}', [DelegationWorkplaceController::class, 'update'])
+        ->whereNumber('workplace')
+        ->name('delegations.workplaces.update');
+    Route::delete('delegations/{delegation}/workplaces/{workplace}', [DelegationWorkplaceController::class, 'destroy'])
+        ->whereNumber('workplace')
+        ->name('delegations.workplaces.destroy');
+    Route::resource('delegations', DelegationController::class)->except(['show']);
 });
 
 Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('admin')->name('admin.')->group(function () {
@@ -292,6 +309,8 @@ Route::middleware(['auth', 'company'])->prefix('admin')->name('admin.')->group(f
         ->name('profile.companies.update');
     Route::delete('profile/companies/{userCompany}', [UserCompanyController::class, 'destroyForProfile'])
         ->name('profile.companies.destroy');
+    Route::get('profile/employment-periods/table', [UserEmploymentPeriodController::class, 'tableForProfile'])
+        ->name('profile.employment-periods.table');
 });
 
 Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('admin')->name('admin.')->group(function () {
@@ -347,6 +366,8 @@ Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('admin')->name
         ->name('company-users.companies.update');
     Route::delete('company-users/{user}/companies/{userCompany}', [UserCompanyController::class, 'destroyForCompanyUser'])
         ->name('company-users.companies.destroy');
+    Route::get('company-users/{user}/employment-periods/table', [UserEmploymentPeriodController::class, 'tableForCompanyUser'])
+        ->name('company-users.employment-periods.table');
     Route::patch('company-users/{user}/status', [CompanyUserController::class, 'updateStatus'])
         ->name('company-users.status');
     Route::get('company-users', [CompanyUserController::class, 'index'])->name('company-users.index');

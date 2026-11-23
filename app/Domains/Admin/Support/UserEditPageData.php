@@ -3,6 +3,7 @@
 namespace App\Domains\Admin\Support;
 
 use App\Domains\Admin\Models\Company;
+use App\Domains\HR\Models\Employee;
 use App\Models\Phone;
 use App\Models\User;
 use App\Models\UserCompany;
@@ -49,6 +50,7 @@ final class UserEditPageData
      *         created_at: string|null
      *     }>,
      *     companies: list<array{id: int, name: string, href: null}>,
+     *     has_employment_periods: bool,
      *     can: array{
      *         update_profile: bool,
      *         change_password: bool,
@@ -157,6 +159,10 @@ final class UserEditPageData
                     'href' => null,
                 ])
                 ->all(),
+            // R-TEN-10 hub User readout: exists across companies (no CurrentCompany filter).
+            'has_employment_periods' => Employee::withoutGlobalScope('company')
+                ->where('user_id', $user->id)
+                ->exists(),
             'can' => [
                 'update_profile' => true,
                 'change_password' => $isSelf,

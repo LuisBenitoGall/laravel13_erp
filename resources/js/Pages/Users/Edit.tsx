@@ -14,6 +14,7 @@ import ContactsEmailsPanel, { type UserEmailItem } from '@/Pages/Users/component
 import { type UserPhoneItem } from '@/Pages/Users/components/ContactsPhonesPanel';
 import UserCompaniesPanel from '@/Pages/Users/components/UserCompaniesPanel';
 import UserDocsPanel, { type UserDocItem } from '@/Pages/Users/components/UserDocsPanel';
+import UserEmploymentPeriodsPanel from '@/Pages/Users/components/UserEmploymentPeriodsPanel';
 import UserImagesPanel, { type UserImageItem } from '@/Pages/Users/components/UserImagesPanel';
 
 const EDIT_TABS = [
@@ -23,6 +24,7 @@ const EDIT_TABS = [
     'images',
     'docs',
     'companies',
+    'empleos',
 ] as const;
 
 type EditTabId = (typeof EDIT_TABS)[number];
@@ -65,6 +67,7 @@ type Props = {
     avatar_url: string | null;
     docs: UserDocItem[];
     companies: LinkedCompany[];
+    has_employment_periods: boolean;
     can: {
         update_profile: boolean;
         change_password: boolean;
@@ -87,6 +90,7 @@ export default function Edit({
     avatar_url,
     docs,
     companies,
+    has_employment_periods,
     can,
 }: Props) {
     const { t, i18n } = useTranslation();
@@ -451,6 +455,22 @@ export default function Edit({
                             context === 'profile'
                                 ? `/admin/profile/companies/${id}`
                                 : `/admin/company-users/${user.id}/companies/${id}`
+                        }
+                    />
+                </div>
+            ),
+        },
+        {
+            id: 'empleos',
+            labelKey: 'empleos',
+            visible: has_employment_periods,
+            panel: (
+                <div className="rounded-xl border border-slate-200 bg-white p-5">
+                    <UserEmploymentPeriodsPanel
+                        tableEndpoint={
+                            context === 'profile'
+                                ? '/admin/profile/employment-periods/table'
+                                : `/admin/company-users/${user.id}/employment-periods/table`
                         }
                     />
                 </div>

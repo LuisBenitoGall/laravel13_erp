@@ -1,5 +1,7 @@
 <?php
 
+use App\Domains\Admin\Enums\AccountStatus;
+use App\Domains\Admin\Models\Account;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -13,16 +15,18 @@ beforeEach(function () {
 });
 
 it('registro y onboarding de empresa entran al AppLayout usable', function () {
+    Account::factory()->default()->create(['status' => AccountStatus::Active]);
+
     $page = visit('/register');
 
     $page->assertSee('Crear cuenta')
-        ->fill('name', 'Ada')
-        ->fill('surname', 'Onboard')
-        ->fill('email', 'ada-onboard@example.com')
-        ->fill('password', 'Password1!')
-        ->fill('password_confirmation', 'Password1!')
-        ->check('terms')
-        ->click('Continuar')
+        ->fill('#d-register-name', 'Ada')
+        ->fill('#d-register-surname', 'Onboard')
+        ->fill('#d-register-email', 'ada-onboard@example.com')
+        ->fill('#d-register-password', 'Password1!')
+        ->fill('#d-register-password_confirmation', 'Password1!')
+        ->check('#d-terms')
+        ->click('form:has(#d-register-email) button[type="submit"]')
         ->assertPathIs('/onboarding/company')
         ->assertSee('Tu empresa')
         ->fill('nif', 'B99887766')
@@ -30,10 +34,7 @@ it('registro y onboarding de empresa entran al AppLayout usable', function () {
         ->fill('tradename', 'Onboard E2E')
         ->click('Crear empresa y entrar')
         ->assertPathIs('/dashboard')
+        ->assertSee('Completar configuración de la empresa')
         ->assertSee('Empresa Onboard E2E')
-        ->assertSee('AD')
-        ->assertSee('Panel principal de la empresa activa.')
-        ->click('AD')
-        ->assertSee('Perfil')
-        ->assertSee('Salir');
+        ->assertSee('Mis opciones preferidas');
 });
