@@ -109,6 +109,7 @@
     "conversion_moneda_creada": "Cotización guardada",
     "conversion_moneda_eliminada": "Cotización eliminada",
     "conversion_monedas": "Conversión monedas",
+    "conversion_par_ya_existe": "Este par de monedas ya existe. Edítalo en lugar de crear otro.",
     "conversion_requiere_rate": "Indica al menos un tipo de cambio (A→B o B→A).",
     "copiar": "Copiar",
     "creado": "Creado",

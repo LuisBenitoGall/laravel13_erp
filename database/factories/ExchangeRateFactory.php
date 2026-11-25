@@ -18,7 +18,6 @@ class ExchangeRateFactory extends Factory
             'from_currency_id' => Currency::factory(),
             'to_currency_id' => Currency::factory(),
             'rate' => number_format(fake()->randomFloat(6, 0.1, 100), 6, '.', ''),
-            'rate_date' => fake()->dateTimeBetween('-2 years', 'now')->format('Y-m-d'),
         ];
     }
 }

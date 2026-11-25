@@ -109,6 +109,7 @@
     "conversion_moneda_creada": "Exchange rate saved",
     "conversion_moneda_eliminada": "Exchange rate deleted",
     "conversion_monedas": "Currency conversion",
+    "conversion_par_ya_existe": "This currency pair already exists. Edit it instead of creating another.",
     "conversion_requiere_rate": "Enter at least one exchange rate (A→B or B→A).",
     "copiar": "Copy",
     "creado": "Created",

@@ -46,13 +46,13 @@ class ExchangeRateController extends Controller
         $minEr = 'CASE WHEN exchange_rates.from_currency_id < exchange_rates.to_currency_id THEN exchange_rates.from_currency_id ELSE exchange_rates.to_currency_id END';
         $maxEr = 'CASE WHEN exchange_rates.from_currency_id > exchange_rates.to_currency_id THEN exchange_rates.from_currency_id ELSE exchange_rates.to_currency_id END';
 
-        // Una fila = par unordered + fecha; ambas tasas vía JOIN.
+        // Una fila = par unordered; ambas tasas vía JOIN.
         $query = ExchangeRate::query()
             ->whereIn('exchange_rates.id', function ($sub) use ($minId, $maxId): void {
                 $sub->selectRaw('MIN(id)')
                     ->from('exchange_rates')
                     ->whereNull('deleted_at')
-                    ->groupByRaw("{$minId}, {$maxId}, rate_date");
+                    ->groupByRaw("{$minId}, {$maxId}");
             })
             ->leftJoin('currencies as ca', function ($join) use ($minEr): void {
                 $join->whereRaw("ca.id = {$minEr}");
@@ -63,13 +63,11 @@ class ExchangeRateController extends Controller
             ->leftJoin('exchange_rates as ab', function ($join) use ($minEr, $maxEr): void {
                 $join->whereRaw("ab.from_currency_id = {$minEr}")
                     ->whereRaw("ab.to_currency_id = {$maxEr}")
-                    ->whereColumn('ab.rate_date', 'exchange_rates.rate_date')
                     ->whereNull('ab.deleted_at');
             })
             ->leftJoin('exchange_rates as ba', function ($join) use ($minEr, $maxEr): void {
                 $join->whereRaw("ba.from_currency_id = {$maxEr}")
                     ->whereRaw("ba.to_currency_id = {$minEr}")
-                    ->whereColumn('ba.rate_date', 'exchange_rates.rate_date')
                     ->whereNull('ba.deleted_at');
             })
             ->select('exchange_rates.*')
@@ -87,7 +85,7 @@ class ExchangeRateController extends Controller
             );
 
         if ($request->sorts() === []) {
-            $query->orderByDesc('exchange_rates.rate_date');
+            $query->orderBy('pair_label');
         }
 
         return $table->for($query)
@@ -113,7 +111,6 @@ class ExchangeRateController extends Controller
         // Canonical A/B (min/max id) para que rate_ab / rate_ba del form coincidan con el Index.
         $data['from_currency_id'] = min($exchangeRate->from_currency_id, $exchangeRate->to_currency_id);
         $data['to_currency_id'] = max($exchangeRate->from_currency_id, $exchangeRate->to_currency_id);
-        $data['rate_date'] = $exchangeRate->rate_date->toDateString();
 
         $action->handle($data);
 

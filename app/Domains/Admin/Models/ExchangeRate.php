@@ -8,17 +8,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 
 /**
  * Catálogo global de cotizaciones (excepción R-TEN-01 --global; sin company_id).
- * Par dirigido from_currency → to_currency. Vigente = mayor rate_date ≤ D.
+ * Par dirigido from_currency → to_currency. Unicidad (from, to); vigente = fila actual.
  *
  * @property int $id
  * @property int $from_currency_id
  * @property int $to_currency_id
  * @property string $rate
- * @property Carbon $rate_date
  * @property-read Currency $fromCurrency
  * @property-read Currency $toCurrency
  */
@@ -31,14 +29,12 @@ class ExchangeRate extends Model
         'from_currency_id',
         'to_currency_id',
         'rate',
-        'rate_date',
     ];
 
     protected function casts(): array
     {
         return [
             'rate' => 'decimal:6',
-            'rate_date' => 'date',
         ];
     }
 

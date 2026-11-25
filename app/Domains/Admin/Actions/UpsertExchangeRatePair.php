@@ -6,7 +6,7 @@ use App\Domains\Admin\Models\ExchangeRate;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Upserta ambos sentidos de un par dirigido en una sola transacción.
+ * Upserta ambos sentidos de un par dirigido en una sola transacción (sin fecha).
  * Los sentidos con rate null/vacío se omiten (no se crean ni borran).
  */
 class UpsertExchangeRatePair
@@ -17,27 +17,25 @@ class UpsertExchangeRatePair
         DB::transaction(function () use ($data): void {
             $fromId = (int) $data['from_currency_id'];
             $toId = (int) $data['to_currency_id'];
-            $date = $data['rate_date'];
 
             $rateAb = $data['rate_ab'] ?? null;
             $rateBa = $data['rate_ba'] ?? null;
 
             if ($rateAb !== null && $rateAb !== '') {
-                $this->upsertRow($fromId, $toId, $date, (string) $rateAb);
+                $this->upsertRow($fromId, $toId, (string) $rateAb);
             }
 
             if ($rateBa !== null && $rateBa !== '') {
-                $this->upsertRow($toId, $fromId, $date, (string) $rateBa);
+                $this->upsertRow($toId, $fromId, (string) $rateBa);
             }
         });
     }
 
-    private function upsertRow(int $fromId, int $toId, mixed $date, string $rate): void
+    private function upsertRow(int $fromId, int $toId, string $rate): void
     {
         $existing = ExchangeRate::withTrashed()
             ->where('from_currency_id', $fromId)
             ->where('to_currency_id', $toId)
-            ->whereDate('rate_date', $date)
             ->first();
 
         if ($existing !== null) {
@@ -51,7 +49,6 @@ class UpsertExchangeRatePair
                 'from_currency_id' => $fromId,
                 'to_currency_id' => $toId,
                 'rate' => $rate,
-                'rate_date' => $date,
             ]);
         }
     }

@@ -31,7 +31,6 @@ class ExchangeRateResource extends JsonResource
             : ExchangeRate::query()
                 ->where('from_currency_id', $currencyAId)
                 ->where('to_currency_id', $currencyBId)
-                ->whereDate('rate_date', $this->rate_date->toDateString())
                 ->value('rate');
 
         $rateBa = array_key_exists('rate_ba', $attributes)
@@ -39,7 +38,6 @@ class ExchangeRateResource extends JsonResource
             : ExchangeRate::query()
                 ->where('from_currency_id', $currencyBId)
                 ->where('to_currency_id', $currencyAId)
-                ->whereDate('rate_date', $this->rate_date->toDateString())
                 ->value('rate');
 
         return [
@@ -51,7 +49,6 @@ class ExchangeRateResource extends JsonResource
             'pair_label' => trim((string) $codeA).'/'.trim((string) $codeB),
             'rate_ab' => $rateAb,
             'rate_ba' => $rateBa,
-            'rate_date' => $this->rate_date->toDateString(),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];

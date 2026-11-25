@@ -51,7 +51,6 @@ export interface ExchangeRateRow {
     pair_label: string;
     rate_ab: string | null;
     rate_ba: string | null;
-    rate_date: string;
 }
 
 export interface UnitRow {

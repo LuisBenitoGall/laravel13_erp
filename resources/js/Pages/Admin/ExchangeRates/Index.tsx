@@ -25,7 +25,6 @@ type Props = {
 type CreateState = {
     from_currency_id: string;
     to_currency_id: string;
-    rate_date: string;
     rate_ab: string;
     rate_ba: string;
 };
@@ -38,7 +37,6 @@ type EditState = {
 const emptyCreate = (): CreateState => ({
     from_currency_id: '',
     to_currency_id: '',
-    rate_date: '',
     rate_ab: '',
     rate_ba: '',
 });
@@ -53,7 +51,7 @@ function currencyCode(list: CurrencyRow[], id: string): string {
 }
 
 export default function Index({ currencies }: Props) {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const [tableKey, setTableKey] = useState(0);
     const [createOpen, setCreateOpen] = useState(false);
     const [editing, setEditing] = useState<ExchangeRateRow | null>(null);
@@ -96,16 +94,8 @@ export default function Index({ currencies }: Props) {
                 valueKind: 'number',
                 formatter: fmt.number(6),
             },
-            {
-                title: t('fecha'),
-                field: 'rate_date',
-                width: 140,
-                headerFilterKind: 'date',
-                valueKind: 'date',
-                formatter: fmt.date(i18n.language),
-            },
         ],
-        [i18n.language, t],
+        [t],
     );
 
     function openCreate() {
@@ -259,21 +249,6 @@ export default function Index({ currencies }: Props) {
                                 />
                             </Field>
                         </div>
-                        <Field
-                            label={t('fecha')}
-                            htmlFor="er-create-date"
-                            error={createForm.errors.rate_date}
-                            required
-                        >
-                            <Input
-                                id="er-create-date"
-                                type="date"
-                                value={createForm.data.rate_date}
-                                onChange={(event) =>
-                                    createForm.setData('rate_date', event.target.value)
-                                }
-                            />
-                        </Field>
                         <div className="grid grid-cols-2 gap-3">
                             <Field
                                 label={
@@ -354,24 +329,14 @@ export default function Index({ currencies }: Props) {
                         <DialogTitle>{t('editar_conversion_moneda')}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={submitEdit} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-3">
-                            <Field label={t('par')} htmlFor="er-edit-pair">
-                                <Input
-                                    id="er-edit-pair"
-                                    value={editing?.pair_label ?? ''}
-                                    readOnly
-                                    disabled
-                                />
-                            </Field>
-                            <Field label={t('fecha')} htmlFor="er-edit-date">
-                                <Input
-                                    id="er-edit-date"
-                                    value={editing?.rate_date ?? ''}
-                                    readOnly
-                                    disabled
-                                />
-                            </Field>
-                        </div>
+                        <Field label={t('par')} htmlFor="er-edit-pair">
+                            <Input
+                                id="er-edit-pair"
+                                value={editing?.pair_label ?? ''}
+                                readOnly
+                                disabled
+                            />
+                        </Field>
                         <div className="grid grid-cols-2 gap-3">
                             <Field
                                 label={t('tasa_uno_igual', {

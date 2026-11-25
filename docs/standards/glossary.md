@@ -113,7 +113,7 @@
 | Tipo de IVA | `VatType` | Tipo de IVA | Catálogo global Admin por `Country` (sin `company_id`); `rate` + RE nullable; Functionality `vat-types`; Tax consume a futuro |
 | Grupo contable | `AccountingAccountType` | Grupo contable | Catálogo jerárquico PGC Admin (sin `company_id`/status); `autoreference`/`code`/`name`/`mode`; Functionality `accounting-account-types`; Accounting consume a futuro |
 | Moneda | `Currency` | Moneda | Catálogo global Admin (sin `company_id`); `code` ISO 4217 y `number` inmutables tras el alta; Functionality `currencies` |
-| Cotización / tipo de cambio | `ExchangeRate` | Conversión monedas | Catálogo global Admin (sin `company_id`); par dirigido `from`→`to`, `rate` 6 dec, `rate_date`; vigente = última ≤ D; Functionality `exchange-rates` |
+| Cotización / tipo de cambio | `ExchangeRate` | Conversión monedas | Catálogo global Admin (sin `company_id`); par dirigido `from`→`to`, `rate` 6 dec; par unordered único (sin historial por fecha); vigente = rate actual; snapshot en operación (aplazado); Functionality `exchange-rates` |
 | Provincia | `Province` | Provincia | Hija de `Country`; catálogo global |
 | Población | `Town` | Población | Hija de `Province`; código `Town` como v1 (no Municipality) |
 | Rol manager (empresa) | `manager` (Spatie Role + `company_id`) | `{id}/manager` | Máximo dentro de la empresa; UI «Manager»; plantilla universal `company_id` NULL |

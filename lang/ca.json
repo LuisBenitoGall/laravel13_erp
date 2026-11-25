@@ -109,6 +109,7 @@
     "conversion_moneda_creada": "Cotització guardada",
     "conversion_moneda_eliminada": "Cotització eliminada",
     "conversion_monedas": "Conversió de monedes",
+    "conversion_par_ya_existe": "Aquest parell de monedes ja existeix. Edita'l en lloc de crear-ne un altre.",
     "conversion_requiere_rate": "Indica almenys un tipus de canvi (A→B o B→A).",
     "copiar": "Copiar",
     "creado": "Creat",
