@@ -9,6 +9,7 @@ use Database\Factories\WorkplaceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -52,6 +53,18 @@ class Workplace extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Delegaciones (hijas de la matriz) vinculadas a esta sede; pivote `workplace_delegation`.
+     *
+     * @return BelongsToMany<Company, $this>
+     */
+    public function delegations(): BelongsToMany
+    {
+        return $this->belongsToMany(Company::class, 'workplace_delegation', 'workplace_id', 'company_id')
+            ->withPivot('is_preferred')
+            ->withTimestamps();
     }
 
     /** @return BelongsTo<Town, $this> */

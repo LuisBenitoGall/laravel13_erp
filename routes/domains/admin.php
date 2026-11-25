@@ -16,7 +16,7 @@ use App\Domains\Admin\Http\Controllers\ContentController;
 use App\Domains\Admin\Http\Controllers\CountryController;
 use App\Domains\Admin\Http\Controllers\CurrencyController;
 use App\Domains\Admin\Http\Controllers\DelegationController;
-use App\Domains\Admin\Http\Controllers\DelegationWorkplaceController;
+use App\Domains\Admin\Http\Controllers\ExchangeRateController;
 use App\Domains\Admin\Http\Controllers\FunctionalityController;
 use App\Domains\Admin\Http\Controllers\MediaAssetController;
 use App\Domains\Admin\Http\Controllers\ModuleController;
@@ -132,6 +132,12 @@ Route::middleware(['auth', 'company', 'module:configuracion'])->prefix('admin')-
     Route::patch('currencies/{currency}/status', [CurrencyController::class, 'updateStatus'])->name('currencies.status');
     Route::resource('currencies', CurrencyController::class)->only(['index', 'store', 'update', 'destroy']);
 
+    // Cotizaciones globales (catálogo par dirigido); permisos `exchange-rates.*`.
+    Route::get('exchange-rates/table', [ExchangeRateController::class, 'table'])->name('exchange-rates.table');
+    Route::resource('exchange-rates', ExchangeRateController::class)
+        ->parameters(['exchange-rates' => 'exchange_rate'])
+        ->only(['index', 'store', 'update', 'destroy']);
+
     // Bancos globales (Admin); permisos `banks.*`.
     Route::get('banks/table', [BankController::class, 'table'])->name('banks.table');
     Route::patch('banks/{bank}/status', [BankController::class, 'updateStatus'])->name('banks.status');
@@ -223,6 +229,9 @@ Route::middleware(['auth', 'company', 'module:empresas'])->prefix('admin')->name
         ->name('workplaces.geo.towns');
     Route::patch('workplaces/{workplace}/status', [WorkplaceController::class, 'updateStatus'])
         ->name('workplaces.status');
+    Route::put('workplaces/{workplace}/delegations', [WorkplaceController::class, 'syncDelegations'])
+        ->whereNumber('workplace')
+        ->name('workplaces.delegations.sync');
     Route::resource('workplaces', WorkplaceController::class)->except(['show']);
 
     Route::get('companies/table', [CompanyController::class, 'table'])->name('companies.table');
@@ -244,14 +253,6 @@ Route::middleware(['auth', 'company', 'module:empresas'])->prefix('admin')->name
     Route::get('delegations/table', [DelegationController::class, 'table'])->name('delegations.table');
     Route::patch('delegations/{delegation}/status', [DelegationController::class, 'updateStatus'])
         ->name('delegations.status');
-    Route::post('delegations/{delegation}/workplaces', [DelegationWorkplaceController::class, 'store'])
-        ->name('delegations.workplaces.store');
-    Route::put('delegations/{delegation}/workplaces/{workplace}', [DelegationWorkplaceController::class, 'update'])
-        ->whereNumber('workplace')
-        ->name('delegations.workplaces.update');
-    Route::delete('delegations/{delegation}/workplaces/{workplace}', [DelegationWorkplaceController::class, 'destroy'])
-        ->whereNumber('workplace')
-        ->name('delegations.workplaces.destroy');
     Route::resource('delegations', DelegationController::class)->except(['show']);
 });
 

@@ -29,6 +29,7 @@ class RealignMenuCatalog
             'permissions',
             'countries',
             'currencies',
+            'exchange-rates',
             'banks',
             'units',
             'sectors',
@@ -62,6 +63,7 @@ class RealignMenuCatalog
             $this->ensureWorkplaces($modules['empresas']);
             $this->ensureDelegations($modules['empresas']);
             $this->ensureCompanySettings($modules['empresas']);
+            $this->ensureExchangeRates($modules['configuracion']);
             $this->ensurePaymentMethods($modules['configuracion']);
             $this->ensureContents($modules['configuracion']);
             $this->ensureGallery($modules['configuracion']);
@@ -358,6 +360,41 @@ class RealignMenuCatalog
                 'es' => 'Configuración de la empresa',
                 'en' => 'Company settings',
                 'ca' => 'Configuració de l\'empresa',
+            ],
+            'status' => FunctionalityStatus::Active->value,
+        ]);
+    }
+
+    private function ensureExchangeRates(Module $configuracion): void
+    {
+        $existing = Functionality::withTrashed()->where('slug', 'exchange-rates')->first();
+
+        if ($existing !== null) {
+            if ($existing->trashed()) {
+                $existing->restore();
+            }
+
+            $existing->forceFill([
+                'module_id' => $configuracion->id,
+                'label' => [
+                    'es' => 'Conversión monedas',
+                    'en' => 'Currency conversion',
+                    'ca' => 'Conversió de monedes',
+                ],
+                'status' => FunctionalityStatus::Active,
+            ])->save();
+
+            return;
+        }
+
+        $this->createFunctionality->handle([
+            'module_id' => $configuracion->id,
+            'name' => 'Exchange rates',
+            'slug' => 'exchange-rates',
+            'label' => [
+                'es' => 'Conversión monedas',
+                'en' => 'Currency conversion',
+                'ca' => 'Conversió de monedes',
             ],
             'status' => FunctionalityStatus::Active->value,
         ]);

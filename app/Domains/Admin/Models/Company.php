@@ -87,6 +87,20 @@ class Company extends Model
     }
 
     /**
+     * Sedes de la matriz vinculadas a esta Delegación (lectura inversa del mapa
+     * `workplace_delegation`). Sin global scope de tenant: el perímetro lo fija quien consume.
+     *
+     * @return BelongsToMany<Workplace, $this>
+     */
+    public function workplacesViaMap(): BelongsToMany
+    {
+        return $this->belongsToMany(Workplace::class, 'workplace_delegation', 'company_id', 'workplace_id')
+            ->withoutGlobalScope('company')
+            ->withPivot('is_preferred')
+            ->withTimestamps();
+    }
+
+    /**
      * Companies vinculadas al usuario vía `user_companies` (perímetro Super Admin inclusive).
      *
      * @param  Builder<Company>  $query

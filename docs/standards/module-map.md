@@ -22,7 +22,7 @@ Capa 1 — Maestros        Admin (+ Support sin dominio)
 
 | Dominio | Propósito | Entidades núcleo (v1 de referencia) | Fase |
 |---|---|---|---|
-| **Admin** | Único dominio funcional Fase 0: usuarios, RBAC, módulos, menú, catálogos globales, **Company** (tenant), **Bank**, **Workplace**, **Content** (Help/Article), shell | User, UserCompany, UserEmail, UserImage, UserDoc, Phone, Role, Module, Functionality, CompanyModules, Company, CompanyAccount, Workplace, Preference, Note, Content, Bank, Country, Currency, Unit, Account, Sector, PaymentMethod, VatType, AccountingAccountType, `*Pattern`, InvoiceSerie | 0–1 |
+| **Admin** | Único dominio funcional Fase 0: usuarios, RBAC, módulos, menú, catálogos globales, **Company** (tenant), **Bank**, **Workplace**, **Content** (Help/Article), shell | User, UserCompany, UserEmail, UserImage, UserDoc, Phone, Role, Module, Functionality, CompanyModules, Company, CompanyAccount, Workplace, Preference, Note, Content, Bank, Country, Currency, ExchangeRate, Unit, Account, Sector, PaymentMethod, VatType, AccountingAccountType, `*Pattern`, InvoiceSerie | 0–1 |
 | **Platform** | Consola del operador SaaS: tenants, planes, uso, soporte, onboarding | Tenant/Subscription, Plan | 0 |
 | **Catalog** | Productos, precios versionados, tarifas (5 + A/B/C), familias/categorías/tags, catálogo proveedor (unidades de producto **leen** el maestro `Unit` de Admin) | Product, ProductPrices, Rate, Family, Category, ProductProviders | 1 |
 | **Inventory** | Multi-almacén, kardex, consolidado, reservas, lotes, nº serie, inventario | Store, Stock, StockTotal, StockReserve, Lot, SerialNumber | 2 |

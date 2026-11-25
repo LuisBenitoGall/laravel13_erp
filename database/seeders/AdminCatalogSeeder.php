@@ -84,6 +84,7 @@ class AdminCatalogSeeder extends Seeder
                 ['module' => 'configuracion', 'name' => 'Permissions', 'slug' => 'permissions', 'label' => ['es' => 'Permisos', 'en' => 'Permissions', 'ca' => 'Permisos']],
                 ['module' => 'configuracion', 'name' => 'Countries', 'slug' => 'countries', 'label' => ['es' => 'Países', 'en' => 'Countries', 'ca' => 'Països']],
                 ['module' => 'configuracion', 'name' => 'Currencies', 'slug' => 'currencies', 'label' => ['es' => 'Monedas', 'en' => 'Currencies', 'ca' => 'Monedes']],
+                ['module' => 'configuracion', 'name' => 'Exchange rates', 'slug' => 'exchange-rates', 'label' => ['es' => 'Conversión monedas', 'en' => 'Currency conversion', 'ca' => 'Conversió de monedes']],
                 ['module' => 'configuracion', 'name' => 'Banks', 'slug' => 'banks', 'label' => ['es' => 'Bancos', 'en' => 'Banks', 'ca' => 'Bancs']],
                 ['module' => 'configuracion', 'name' => 'Units', 'slug' => 'units', 'label' => ['es' => 'Unidades', 'en' => 'Units', 'ca' => 'Unitats']],
                 ['module' => 'configuracion', 'name' => 'Sectors', 'slug' => 'sectors', 'label' => ['es' => 'Sectores', 'en' => 'Sectors', 'ca' => 'Sectors']],

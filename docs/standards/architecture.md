@@ -113,6 +113,15 @@ empresa preferente.
   **sujeto** (`withoutGlobalScope('company')` + filtro al hub) cuando el
   change/spec lo declare. No autoriza mutación cross-tenant ni “SA ve todas”
   (R-TEN-09). Ver kernel §2.
+- **R-TEN-11** Grupo societario: una **Delegación** (`parent_id` = matriz) **no**
+  es empresa de sesión vía switcher ni `CurrentCompany` por ese dropdown; el
+  gate SaaS / `company_accounts` / middleware de cuenta se ancla a la **matriz
+  de sesión**. Matriz = `parent_id` null (sí sesión + alta con
+  `company_accounts`). Workplace del grupo: `company_id` = matriz; asociación
+  a Delegaciones solo vía pivote N:N (+ preferida). Constitución: kernel §2
+  «Grupo societario». Invariantes de sociedad en documentos comerciales:
+  aplazadas en el mismo §2; no autorizan implementar pedidos en un change de
+  docs/UI de grupo.
 
 ## 4. Autorización
 

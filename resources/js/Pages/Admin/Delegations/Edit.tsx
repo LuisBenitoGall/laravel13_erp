@@ -11,11 +11,9 @@ import { patchJson } from '@/lib/http';
 import { auditRecordSummaryFields } from '@/lib/recordSummary';
 
 import DelegationForm from './components/DelegationForm';
-import DelegationWorkplacesPanel, {
-    type DelegationWorkplace,
-} from './components/DelegationWorkplacesPanel';
-
-type GeoOption = { id: number; name: string };
+import MatrixWorkplacesLinkedPanel, {
+    type LinkedWorkplace,
+} from './components/MatrixWorkplacesLinkedPanel';
 
 type Props = {
     delegation: {
@@ -28,11 +26,10 @@ type Props = {
         updated_at?: string | null;
     };
     matrix: { id: number; name: string };
-    workplaces: DelegationWorkplace[];
-    countries: GeoOption[];
+    linked_workplaces: LinkedWorkplace[];
 };
 
-export default function Edit({ delegation, matrix, workplaces, countries }: Props) {
+export default function Edit({ delegation, matrix, linked_workplaces }: Props) {
     const { t, i18n } = useTranslation();
     const [tab, setTab] = useState('info');
     const [status, setStatus] = useState(delegation.status);
@@ -89,13 +86,7 @@ export default function Edit({ delegation, matrix, workplaces, countries }: Prop
         {
             id: 'workplaces',
             labelKey: 'centros_de_trabajo',
-            panel: (
-                <DelegationWorkplacesPanel
-                    delegationId={delegation.id}
-                    workplaces={workplaces}
-                    countries={countries}
-                />
-            ),
+            panel: <MatrixWorkplacesLinkedPanel workplaces={linked_workplaces} />,
         },
     ];
 

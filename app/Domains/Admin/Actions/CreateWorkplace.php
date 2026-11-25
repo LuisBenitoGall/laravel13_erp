@@ -13,7 +13,7 @@ class CreateWorkplace
 {
     /**
      * @param  array<string, mixed>  $data
-     * @param  Company|null  $company  Tenant explícito (Delegación); null = CurrentCompany.
+     * @param  Company|null  $company  Tenant explícito (opción A: matriz del grupo); null = CurrentCompany.
      */
     public function handle(array $data, ?Company $company = null): Workplace
     {

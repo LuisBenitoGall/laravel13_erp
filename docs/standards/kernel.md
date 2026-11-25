@@ -42,6 +42,44 @@ identificadores en inglés según [glossary.md](glossary.md).
   proyecten filas de varias companies del **sujeto** están permitidas cuando el
   change/spec lo declare. No equivale a “SA ve todas las empresas”.
 
+### Grupo societario (matriz / Delegación / Workplace)
+
+Todas las filas de `companies` son el mismo tipo organizativo (Company); **no**
+todas son elegibles como empresa de sesión SaaS. Detalle R-TEN-11.
+
+1. **Matriz**: Company con `parent_id` null. Es la empresa de sesión SaaS;
+   aparece en el switcher / select de empresa; el alta genérica (Mis empresas)
+   crea `company_accounts`.
+2. **Delegación**: Company con `parent_id` = matriz. Tiene NIF y el mismo “ser
+   empresa” en datos; **no** aparece en el switcher ni se elige como
+   `CurrentCompany` por ese dropdown. Alta vía CRUD Delegaciones **sin**
+   `company_accounts`. El gate SaaS / cuenta (`company_accounts`,
+   `EnsureCompanyAccountIsActive`) se ancla a la **matriz de sesión**, no a la
+   hija.
+3. **Workplace**: pertenece siempre a la **matriz** (`company_id` = matriz).
+   Se asocia N:N a Delegaciones hijas vía `workplace_delegation`, con como
+   máximo una **preferida** (opcional) por workplace. Alta/edición de sedes
+   solo en Centros de trabajo (sesión matriz); escritura del vínculo en Edit
+   Workplace. **SHALL NOT** persistir workplaces con `company_id` = Delegación.
+   Ver [glossary.md](glossary.md) (Delegación, mapa sede–delegación).
+
+### Invariantes aplazadas — documentos comerciales
+
+> **SHALL al implementar Sales/Orders (y albaranes/facturas relacionados).
+> No se implementa en el change de constitución del grupo.** Texto citable
+> para no reabrir el debate al llegar a presupuestos/pedidos.
+
+- En presupuesto/pedido de **venta**, “nosotros” = `orders.provider_id`; en
+  **compra**, “nosotros” = `orders.customer_id` (ambas FK a `companies.id`).
+- Default = matriz de sesión. UI con dropdown de Delegaciones hijas; si el
+  documento lleva workplace con mapeo, default = la preferida de esa sede
+  cuando exista.
+- El usuario puede cambiar la sociedad hasta **antes** de facturar; tras
+  facturar queda bloqueada.
+- Albarán hereda la sociedad del pedido.
+- Listados desde la matriz: por defecto ven documentos propios **y** de hijas;
+  filtro multi-delegación.
+
 ## 3. Super Admin
 
 - Rol plataforma `Super Admin` (`company_id` NULL en Spatie Teams).

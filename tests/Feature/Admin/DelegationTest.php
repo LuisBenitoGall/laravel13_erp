@@ -19,6 +19,7 @@ use App\Models\User;
 use App\Support\Tenancy\CurrentCompany;
 use Database\Seeders\AdminCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -92,7 +93,7 @@ function companyAccountsCount(Company $company): int
 
 // --- 2.1 Alta -------------------------------------------------------------
 
-it('alta de Delegación: parent_id = matriz de sesión, creador vinculado, ≥1 workplace y sin company_accounts', function () {
+it('alta de Delegación: parent_id = matriz, creador vinculado, workplace en matriz + pivote, sin company_accounts', function () {
     $matrix = Company::factory()->create(['slug' => 'matriz']);
     $actor = actingDelegationUser($matrix);
 
@@ -107,12 +108,16 @@ it('alta de Delegación: parent_id = matriz de sesión, creador vinculado, ≥1 
         ->and(companyAccountsCount($delegation))->toBe(0);
 
     $workplaces = Workplace::query()->withoutGlobalScope('company')
-        ->where('company_id', $delegation->id)
+        ->where('company_id', $matrix->id)
+        ->where('name', 'Sede Norte')
         ->get();
 
     expect($workplaces)->toHaveCount(1)
-        ->and($workplaces->first()?->name)->toBe('Sede Norte')
         ->and($workplaces->first()?->featured)->toBeTrue();
+
+    expect($delegation->workplacesViaMap()->pluck('workplaces.id')->all())
+        ->toBe([$workplaces->first()->id])
+        ->and((bool) $delegation->workplacesViaMap()->first()?->pivot->is_preferred)->toBeTrue();
 
     // La sesión sigue en la matriz (no se cambia CurrentCompany a la hija).
     expect(app(CurrentCompany::class)->id())->toBe($matrix->id)
@@ -123,6 +128,24 @@ it('alta de Delegación: parent_id = matriz de sesión, creador vinculado, ≥1 
     $actor->unsetRelation('roles');
     expect($actor->hasRole('manager'))->toBeTrue();
     setPermissionsTeamId($matrix->id);
+});
+
+it('alta de Delegación vinculando workplaces existentes de la matriz', function () {
+    $matrix = Company::factory()->create();
+    $existing = Workplace::factory()->create(['company_id' => $matrix->id, 'name' => 'Ya existe']);
+    actingDelegationUser($matrix);
+
+    $payload = delegationPayload();
+    unset($payload['workplace']);
+    $payload['workplace_ids'] = [$existing->id];
+
+    $this->post(route('admin.delegations.store'), $payload)->assertRedirect();
+
+    $delegation = Company::query()->where('nif', '12345678Z')->firstOrFail();
+
+    expect(Workplace::query()->withoutGlobalScope('company')->where('company_id', $delegation->id)->count())
+        ->toBe(0)
+        ->and($delegation->workplacesViaMap()->pluck('workplaces.id')->all())->toBe([$existing->id]);
 });
 
 it('ignora un parent_id enviado por el cliente', function () {
@@ -136,7 +159,7 @@ it('ignora un parent_id enviado por el cliente', function () {
     expect(Company::query()->where('nif', '12345678Z')->value('parent_id'))->toBe($matrix->id);
 });
 
-it('alta de Delegación exige el primer workplace', function () {
+it('alta de Delegación exige centro nuevo o workplace_ids', function () {
     $matrix = Company::factory()->create();
     actingDelegationUser($matrix);
 
@@ -146,7 +169,7 @@ it('alta de Delegación exige el primer workplace', function () {
     expect(Company::query()->where('nif', '12345678Z')->exists())->toBeFalse();
 });
 
-it('alta de Delegación persiste town_id del centro inicial', function () {
+it('alta de Delegación persiste town_id del centro nuevo en la matriz', function () {
     $matrix = Company::factory()->create();
     actingDelegationUser($matrix);
     $town = Town::factory()->create();
@@ -156,7 +179,8 @@ it('alta de Delegación persiste town_id del centro inicial', function () {
     ]))->assertRedirect();
 
     $workplace = Workplace::query()->withoutGlobalScope('company')
-        ->where('company_id', Company::query()->where('nif', '12345678Z')->value('id'))
+        ->where('company_id', $matrix->id)
+        ->where('name', 'Sede Norte')
         ->firstOrFail();
 
     expect($workplace->town_id)->toBe($town->id);
@@ -264,7 +288,9 @@ it('actualiza campos de empresa de una Delegación propia sin tocar parent_id', 
             ->component('Admin/Delegations/Edit')
             ->where('delegation.id', $delegation->id)
             ->where('matrix.id', $matrix->id)
-            ->has('countries'));
+            ->has('linked_workplaces', 0)
+            ->missing('workplaces')
+            ->missing('countries'));
 
     $this->put(route('admin.delegations.update', $delegation), [
         'name' => 'Nueva',
@@ -358,66 +384,12 @@ it('sin delegations.view el Index responde 403', function () {
     $this->getJson(route('admin.delegations.table'))->assertForbidden();
 });
 
-// --- Workplaces de la hija (company_id explícito) -------------------------
+// --- Opción A: sin CRUD de sedes en Delegación ----------------------------
 
-it('gestiona workplaces de la delegación sin cambiar CurrentCompany', function () {
-    $matrix = Company::factory()->create();
-    $delegation = Company::factory()->create(['parent_id' => $matrix->id]);
-    $matrixWorkplace = Workplace::factory()->featured()->create(['company_id' => $matrix->id]);
-    actingDelegationUser($matrix);
-
-    $this->post(route('admin.delegations.workplaces.store', $delegation), [
-        'name' => 'Sede A',
-        'featured' => true,
-        'status' => 'active',
-    ])->assertRedirect();
-
-    $first = Workplace::query()->withoutGlobalScope('company')
-        ->where('company_id', $delegation->id)->firstOrFail();
-    expect($first->featured)->toBeTrue();
-
-    $this->post(route('admin.delegations.workplaces.store', $delegation), [
-        'name' => 'Sede B',
-        'featured' => true,
-        'status' => 'active',
-    ])->assertRedirect();
-
-    $second = Workplace::query()->withoutGlobalScope('company')
-        ->where('company_id', $delegation->id)->where('name', 'Sede B')->firstOrFail();
-
-    expect($first->fresh()->featured)->toBeFalse()
-        ->and($second->featured)->toBeTrue()
-        // El workplace principal de la matriz no se toca.
-        ->and($matrixWorkplace->fresh()->featured)->toBeTrue();
-
-    $this->put(route('admin.delegations.workplaces.update', [$delegation, $first]), [
-        'name' => 'Sede A2',
-        'featured' => false,
-        'status' => 'active',
-    ])->assertRedirect();
-    expect($first->fresh()->name)->toBe('Sede A2');
-
-    $this->delete(route('admin.delegations.workplaces.destroy', [$delegation, $first]))
-        ->assertRedirect();
-    expect(Workplace::query()->withoutGlobalScope('company')->whereKey($first->id)->exists())->toBeFalse();
-
-    expect(app(CurrentCompany::class)->id())->toBe($matrix->id);
-});
-
-it('no permite tocar workplaces de la matriz vía una delegación', function () {
-    $matrix = Company::factory()->create();
-    $delegation = Company::factory()->create(['parent_id' => $matrix->id]);
-    $matrixWorkplace = Workplace::factory()->create(['company_id' => $matrix->id]);
-    actingDelegationUser($matrix);
-
-    $this->put(route('admin.delegations.workplaces.update', [$delegation, $matrixWorkplace]), [
-        'name' => 'Hack',
-        'status' => 'active',
-    ])->assertNotFound();
-    $this->delete(route('admin.delegations.workplaces.destroy', [$delegation, $matrixWorkplace]))
-        ->assertNotFound();
-
-    expect($matrixWorkplace->fresh()->name)->not->toBe('Hack');
+it('rutas antiguas delegations.workplaces.* ya no existen', function () {
+    expect(Route::has('admin.delegations.workplaces.store'))->toBeFalse()
+        ->and(Route::has('admin.delegations.workplaces.update'))->toBeFalse()
+        ->and(Route::has('admin.delegations.workplaces.destroy'))->toBeFalse();
 });
 
 // --- 1.1 Catálogo / menú --------------------------------------------------
@@ -534,6 +506,71 @@ it('usuario solo vinculado a delegaciones no entra en sesión hija: select vací
         ->assertInertia(fn ($page) => $page
             ->component('Auth/SelectCompany')
             ->has('companies', 0));
+});
+
+// --- Sus centros (único listado RO) ---------------------------------------
+
+it('edit expone linked_workplaces con preferida y empty state', function () {
+    $matrix = Company::factory()->create();
+    $delegation = Company::factory()->create(['parent_id' => $matrix->id]);
+    $linkedPreferred = Workplace::factory()->create([
+        'company_id' => $matrix->id,
+        'name' => 'Sede Preferida',
+    ]);
+    $linkedOther = Workplace::factory()->create([
+        'company_id' => $matrix->id,
+        'name' => 'Sede Secundaria',
+    ]);
+    $foreignWorkplace = Workplace::factory()->create([
+        'company_id' => Company::factory()->create()->id,
+        'name' => 'Ajena',
+    ]);
+
+    $linkedPreferred->delegations()->attach($delegation->id, ['is_preferred' => true]);
+    $linkedOther->delegations()->attach($delegation->id, ['is_preferred' => false]);
+    $foreignWorkplace->delegations()->attach($delegation->id, ['is_preferred' => false]);
+
+    actingDelegationUser($matrix);
+
+    $this->get(route('admin.delegations.edit', $delegation))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Admin/Delegations/Edit')
+            ->has('linked_workplaces', 2)
+            ->where('linked_workplaces.0.id', $linkedPreferred->id)
+            ->where('linked_workplaces.0.name', 'Sede Preferida')
+            ->where('linked_workplaces.0.is_preferred', true)
+            ->where('linked_workplaces.1.id', $linkedOther->id)
+            ->where('linked_workplaces.1.is_preferred', false)
+            ->missing('workplaces'));
+
+    $orphan = Company::factory()->create(['parent_id' => $matrix->id]);
+    $this->get(route('admin.delegations.edit', $orphan))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->has('linked_workplaces', 0));
+});
+
+it('UI Edit Delegación es un solo listado Sus centros sin CRUD hijo', function () {
+    $edit = file_get_contents(resource_path('js/Pages/Admin/Delegations/Edit.tsx'));
+    $panel = file_get_contents(
+        resource_path('js/Pages/Admin/Delegations/components/MatrixWorkplacesLinkedPanel.tsx'),
+    );
+    $create = file_get_contents(resource_path('js/Pages/Admin/Delegations/Create.tsx'));
+    $form = file_get_contents(
+        resource_path('js/Pages/Admin/Delegations/components/DelegationForm.tsx'),
+    );
+
+    expect($edit)->toContain('MatrixWorkplacesLinkedPanel')
+        ->and($edit)->toContain('linked_workplaces')
+        ->and($edit)->not->toContain('DelegationWorkplacesPanel')
+        ->and($panel)->toContain('data-testid="delegation-linked-workplaces"')
+        ->and($panel)->toContain('sus_centros')
+        ->and($panel)->not->toContain('useForm')
+        ->and($create)->toContain('matrix_workplaces')
+        ->and($form)->toContain('usar_centros_existentes')
+        ->and($form)->toContain('centro_trabajo_empresa')
+        ->and($form)->not->toContain('N:M')
+        ->and($form)->not->toContain('mapa');
 });
 
 // --- V-21 módulo empresas -------------------------------------------------

@@ -42,6 +42,18 @@ export interface CurrencyRow {
     status: string;
 }
 
+export interface ExchangeRateRow {
+    id: number;
+    currency_a_id: number;
+    currency_b_id: number;
+    code_a: string | null;
+    code_b: string | null;
+    pair_label: string;
+    rate_ab: string | null;
+    rate_ba: string | null;
+    rate_date: string;
+}
+
 export interface UnitRow {
     id: number;
     name: string;

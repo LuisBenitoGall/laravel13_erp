@@ -3,8 +3,20 @@
 Centros de trabajo (`Workplace`) de la company en sesión: CRUD con
 ServerTable, dirección embebida (una por centro) y menú bajo Empresas.
 Base operativa distinta de Obra (`Worksite`) y del Directorio de companies.
+En grupo societario (opción A), las sedes operativas viven en la matriz.
 
 ## Requirements
+
+### Requirement: Centros de trabajo del grupo viven en la matriz
+En el modelo de grupo societario (opción A), los workplaces operativos SHALL
+pertenecer a la Company matriz. El menú Centros de trabajo (sesión matriz)
+SHALL ser el único CRUD de alta/edición de esas sedes, incluida la gestión del
+vínculo N:N a Delegaciones.
+
+#### Scenario: CRUD solo en Centros de trabajo
+- **WHEN** un actor gestiona sedes del grupo
+- **THEN** lo hace bajo `/admin/workplaces` (matriz), no creando workplaces
+  con dueño = Delegación
 
 ### Requirement: Workplace de la company en sesión
 El sistema SHALL persistir centros de trabajo (`Workplace`) con
@@ -22,7 +34,9 @@ esta entidad `Worksite` ni `Workspace` en código.
 ### Requirement: CRUD Workplace con ServerTable
 El sistema SHALL exponer CRUD completo de Workplace bajo
 `/admin/workplaces`: Index con `<ServerTable>`, Create, Edit y Delete
-(soft), con Policy y permisos Spatie `workplaces.*`.
+(soft), con Policy y permisos Spatie `workplaces.*`. El Edit (y Create si
+aplica) de un workplace de la matriz SHALL permitir gestionar el mapeo N:M a
+Delegaciones hijas y la delegación preferida, sin alterar el resto del MVP.
 
 #### Scenario: Index Tabulator
 - **WHEN** el actor con `workplaces.view` abre el Index
@@ -31,6 +45,10 @@ El sistema SHALL exponer CRUD completo de Workplace bajo
 #### Scenario: Create Edit Delete
 - **WHEN** el actor autorizado crea, edita o elimina un workplace
 - **THEN** la mutación aplica solo al registro de su company de sesión
+
+#### Scenario: Gestión de vínculos en ficha sede
+- **WHEN** el actor autorizado edita un workplace de la matriz
+- **THEN** puede añadir/quitar delegaciones vinculadas y la preferida
 
 ### Requirement: Dirección embebida MVP
 Cada Workplace SHALL tener como máximo una dirección embebida

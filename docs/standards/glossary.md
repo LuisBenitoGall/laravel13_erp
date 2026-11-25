@@ -49,7 +49,7 @@
 | Español | Código v2 | v1 | Notas |
 |---|---|---|---|
 | Empresa | `Company` | Company | Tenant Y tercero a la vez (vision §4.5); jerarquía opcional `parent_id` (Admin) |
-| Delegación | `Company` con `parent_id` ≠ null (Functionality `delegations`) | — | Company hija de la matriz de sesión (sociedad con NIF); alta propia sin `company_accounts`, ≥1 `Workplace`, creador en `user_companies`; **no** es CurrentCompany ni sale en el switcher (solo matrices); ≠ `Workplace` (sede) ni jerarquía genérica de Mis empresas |
+| Delegación | `Company` con `parent_id` ≠ null (Functionality `delegations`) | — | Company hija de la matriz de sesión (sociedad con NIF); alta propia sin `company_accounts`, ≥1 `Workplace` de la matriz asociado (pivote), creador en `user_companies`; **no** es CurrentCompany ni sale en el switcher (solo matrices); ≠ dueña de sedes ni jerarquía genérica de Mis empresas |
 | Extracto (empresa) | `excerpt` | — | Texto breve multi-idioma (JSON Spatie); ≤1000/locale; Edit Info |
 | Descripción (empresa) | `description` | — | HTML rico multi-idioma (JSON Spatie + Wysiwyg); ≤20000/locale; Edit Info |
 | Directorio | `company-directory` | Directorio | Descubrimiento de companies Active+NIF+≥1 sector (Module `empresas`); ≠ Mis empresas |
@@ -62,8 +62,10 @@
 | Contenido (kind) | `ContentKind::Article` | type=2 | Pieza editorial; Edit real = change futuro |
 | Ancla (contenido) | `code` | code | Identificador estable HelpTip; convención `{helpScope}.{fieldKey}` (ej. `companies.nif`). Create Help: code **explícito** (sin slugify del nombre; admite `.` y `-`); Create Article: auto-slug desde nombre; inmutable en Edit; `helpCode` en Field = override del derive |
 | Configuración de la empresa | hub `company-settings` | Company settings | Hub/onboarding de la company en sesión (Functionality bajo `empresas`); readiness = nif+logo+≥1 workplace Active; ≠ Configuración SA |
-| Centro de trabajo | `Workplace` | Workplace | Sede/dirección operativa de la company (`BelongsToCompany`); ≠ Obra (`Worksite`) ni `Workspace` |
+| Centro de trabajo | `Workplace` | Workplace | Sede/dirección operativa; en el grupo societario `company_id` = **matriz** (`BelongsToCompany`); se asocia a Delegaciones solo vía mapa sede–delegación; ≠ Obra (`Worksite`) ni `Workspace` |
 | Principal (centro) | `featured` | — | Flag `Workplace.featured`; UI «Principal»; ≤1/company; dirección default facturación/pedidos (consumo = changes futuros) |
+| Mapa sede–delegación | pivote `workplace_delegation` (`Workplace::delegations()` / `Company::workplacesViaMap()`) | — | Única relación N:N entre `Workplace` de la matriz y Delegaciones hijas; se gestiona en Edit Workplace con `workplaces.update`; `company_id` del pivote = delegación (sin `BelongsToCompany` en el pivote) |
+| Delegación preferida (de sede) | `workplace_delegation.is_preferred` | — | ≤1 por `Workplace` entre las vinculadas; opcional (0 es válido); UI «Delegación preferida»; default de sociedad por sede (consumo = changes futuros, p. ej. pedidos); no existe preferida global por delegación |
 | Obra | `Worksite` | Obra | Decisión de naming 2026-07-14; ≠ Centro de trabajo (`Workplace`) |
 | UTE | `JointVenture` | UTE | UI muestra "UTE" |
 | Contacto | `Contact` | Contact | |
@@ -111,6 +113,7 @@
 | Tipo de IVA | `VatType` | Tipo de IVA | Catálogo global Admin por `Country` (sin `company_id`); `rate` + RE nullable; Functionality `vat-types`; Tax consume a futuro |
 | Grupo contable | `AccountingAccountType` | Grupo contable | Catálogo jerárquico PGC Admin (sin `company_id`/status); `autoreference`/`code`/`name`/`mode`; Functionality `accounting-account-types`; Accounting consume a futuro |
 | Moneda | `Currency` | Moneda | Catálogo global Admin (sin `company_id`); `code` ISO 4217 y `number` inmutables tras el alta; Functionality `currencies` |
+| Cotización / tipo de cambio | `ExchangeRate` | Conversión monedas | Catálogo global Admin (sin `company_id`); par dirigido `from`→`to`, `rate` 6 dec, `rate_date`; vigente = última ≤ D; Functionality `exchange-rates` |
 | Provincia | `Province` | Provincia | Hija de `Country`; catálogo global |
 | Población | `Town` | Población | Hija de `Province`; código `Town` como v1 (no Municipality) |
 | Rol manager (empresa) | `manager` (Spatie Role + `company_id`) | `{id}/manager` | Máximo dentro de la empresa; UI «Manager»; plantilla universal `company_id` NULL |

@@ -4,15 +4,18 @@ namespace App\Domains\Admin\Http\Controllers;
 
 use App\Domains\Admin\Actions\CreateWorkplace;
 use App\Domains\Admin\Actions\DeleteWorkplace;
+use App\Domains\Admin\Actions\SyncWorkplaceDelegations;
 use App\Domains\Admin\Actions\ToggleWorkplaceStatus;
 use App\Domains\Admin\Actions\UpdateWorkplace;
 use App\Domains\Admin\Enums\GeographyStatus;
 use App\Domains\Admin\Enums\WorkplaceStatus;
 use App\Domains\Admin\Http\Requests\StoreWorkplaceRequest;
+use App\Domains\Admin\Http\Requests\SyncWorkplaceDelegationsRequest;
 use App\Domains\Admin\Http\Requests\ToggleWorkplaceStatusRequest;
 use App\Domains\Admin\Http\Requests\UpdateWorkplaceRequest;
 use App\Domains\Admin\Http\Requests\WorkplaceTableRequest;
 use App\Domains\Admin\Http\Resources\WorkplaceResource;
+use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Country;
 use App\Domains\Admin\Models\Province;
 use App\Domains\Admin\Models\Town;
@@ -20,6 +23,7 @@ use App\Domains\Admin\Models\Workplace;
 use App\Http\Controllers\Controller;
 use App\Support\Table\ActiveFirstOrder;
 use App\Support\Table\TableBuilder;
+use App\Support\Tenancy\CurrentCompany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -97,7 +101,21 @@ class WorkplaceController extends Controller
         return Inertia::render('Admin/Workplaces/Edit', [
             'workplace' => WorkplaceResource::make($workplace)->resolve(),
             'countries' => $this->activeCountries(),
+            'delegation_map' => $this->delegationMap($workplace),
         ]);
+    }
+
+    public function syncDelegations(
+        SyncWorkplaceDelegationsRequest $request,
+        Workplace $workplace,
+        SyncWorkplaceDelegations $action,
+    ): RedirectResponse {
+        /** @var list<int|string> $ids */
+        $ids = $request->validated('delegation_ids');
+
+        $action->handle($workplace, $ids, $request->validated('preferred_delegation_id'));
+
+        return back()->with('success', __('delegaciones_sede_actualizadas'));
     }
 
     public function update(
@@ -195,6 +213,41 @@ class WorkplaceController extends Controller
             ),
             403,
         );
+    }
+
+    /**
+     * Mapa sede↔Delegaciones solo si la sesión es matriz (parent_id null); null oculta el panel.
+     *
+     * @return array{options: list<array{id: int, name: string}>, linked_ids: list<int>, preferred_id: int|null}|null
+     */
+    private function delegationMap(Workplace $workplace): ?array
+    {
+        $matrixId = app(CurrentCompany::class)->id();
+
+        $isMatrix = $matrixId !== null
+            && (int) $workplace->company_id === $matrixId
+            && Company::query()->whereKey($matrixId)->whereNull('parent_id')->exists();
+
+        if (! $isMatrix) {
+            return null;
+        }
+
+        $options = Company::query()
+            ->where('parent_id', $matrixId)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $linkedIds = $workplace->delegations()->pluck('companies.id');
+        $preferredId = $workplace->delegations()->wherePivot('is_preferred', true)->value('companies.id');
+
+        return [
+            'options' => $options
+                ->map(fn (Company $company): array => ['id' => $company->id, 'name' => $company->name])
+                ->values()
+                ->all(),
+            'linked_ids' => $linkedIds->map(fn ($id): int => (int) $id)->values()->all(),
+            'preferred_id' => $preferredId !== null ? (int) $preferredId : null,
+        ];
     }
 
     /** @return list<array{id: int, name: string}> */

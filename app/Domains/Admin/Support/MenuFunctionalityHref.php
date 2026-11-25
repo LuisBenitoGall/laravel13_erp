@@ -22,6 +22,7 @@ final class MenuFunctionalityHref
             'permissions' => route('admin.permissions.index', absolute: false),
             'countries' => route('admin.countries.index', absolute: false),
             'currencies' => route('admin.currencies.index', absolute: false),
+            'exchange-rates' => route('admin.exchange-rates.index', absolute: false),
             'banks' => route('admin.banks.index', absolute: false),
             'units' => route('admin.units.index', absolute: false),
             'sectors' => route('admin.sectors.index', absolute: false),

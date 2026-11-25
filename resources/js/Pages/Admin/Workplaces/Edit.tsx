@@ -6,6 +6,9 @@ import AppLayout from '@/Layouts/AppLayout';
 import { formatDate } from '@/lib/format';
 import { auditRecordSummaryFields } from '@/lib/recordSummary';
 
+import WorkplaceDelegationsPanel, {
+    type WorkplaceDelegationMap,
+} from './components/WorkplaceDelegationsPanel';
 import WorkplaceForm from './components/WorkplaceForm';
 
 type GeoOption = { id: number; name: string };
@@ -27,9 +30,11 @@ type Workplace = {
 type Props = {
     workplace: Workplace;
     countries: GeoOption[];
+    /** null si la sesión no es matriz: el panel de delegaciones no se muestra. */
+    delegation_map: WorkplaceDelegationMap | null;
 };
 
-export default function Edit({ workplace, countries }: Props) {
+export default function Edit({ workplace, countries, delegation_map }: Props) {
     const { i18n } = useTranslation();
 
     const summaryFields = useMemo(
@@ -73,6 +78,9 @@ export default function Edit({ workplace, countries }: Props) {
                         status: workplace.status,
                     }}
                 />
+                {delegation_map ? (
+                    <WorkplaceDelegationsPanel workplaceId={workplace.id} map={delegation_map} />
+                ) : null}
             </div>
         </AppLayout>
     );

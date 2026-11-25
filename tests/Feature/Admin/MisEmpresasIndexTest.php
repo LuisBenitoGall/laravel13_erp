@@ -94,7 +94,7 @@ it('table solo lista companies del forUser del actor', function () {
         ->and($actor->companies()->whereKey($foreign->id)->exists())->toBeFalse();
 });
 
-it('toggle status draft a active y active a closed; closed a active rechaza', function () {
+it('toggle status draft→active, active→closed y closed→active', function () {
     $session = Company::factory()->create(['status' => CompanyStatus::Active]);
     $target = Company::factory()->create(['status' => CompanyStatus::Draft]);
     $actor = actingCompaniesManager($session);
@@ -119,10 +119,10 @@ it('toggle status draft a active y active a closed; closed a active rechaza', fu
     $this->patchJson(route('admin.companies.status', $target), [
         'status' => CompanyStatus::Active->value,
     ])
-        ->assertRedirect()
-        ->assertSessionHasErrors('status');
+        ->assertOk()
+        ->assertJson(['status' => CompanyStatus::Active->value]);
 
-    expect($target->fresh()->status)->toBe(CompanyStatus::Closed);
+    expect($target->fresh()->status)->toBe(CompanyStatus::Active);
 });
 
 it('status sin update o company no vinculada responde 403', function () {

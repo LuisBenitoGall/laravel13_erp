@@ -19,7 +19,12 @@ Playwright TS. Dependencias solo en `docs/standards/libraries.md`.
 ## User / Company
 
 - Company (Admin) = único tenant organizativo; todas iguales; **sin**
-  `BelongsToCompany`.
+  `BelongsToCompany`. **No** toda Company es sesión: solo **matriz**
+  (`parent_id` null) sale en switcher / `CurrentCompany`; **Delegación**
+  (`parent_id` = matriz) no — alta sin `company_accounts`; gate SaaS anclado
+  a la matriz (R-TEN-11; kernel §2 grupo societario).
+- Workplace del grupo: `company_id` = matriz; vínculo a Delegaciones solo
+  vía pivote N:N (+ preferida). No sedes con dueño = hija.
 - User puede existir sin empresa; **no entra al ERP** sin ≥1 company activa
   (`user_companies`).
 - 1 empresa → sesión auto; N → modal bloqueante.

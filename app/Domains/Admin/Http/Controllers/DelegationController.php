@@ -13,7 +13,6 @@ use App\Domains\Admin\Http\Requests\StoreDelegationRequest;
 use App\Domains\Admin\Http\Requests\UpdateDelegationRequest;
 use App\Domains\Admin\Http\Requests\UpdateDelegationStatusRequest;
 use App\Domains\Admin\Http\Resources\CompanyResource;
-use App\Domains\Admin\Http\Resources\WorkplaceResource;
 use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Country;
 use App\Domains\Admin\Models\Workplace;
@@ -57,11 +56,24 @@ class DelegationController extends Controller
 
     public function create(): Response
     {
-        $this->perimeter->matrix();
+        $matrix = $this->perimeter->matrix();
         $this->authorize('createDelegation');
+
+        $matrixWorkplaces = Workplace::query()
+            ->withoutGlobalScope('company')
+            ->where('company_id', $matrix->id)
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn (Workplace $workplace): array => [
+                'id' => $workplace->id,
+                'name' => $workplace->name,
+            ])
+            ->values()
+            ->all();
 
         return Inertia::render('Admin/Delegations/Create', [
             'countries' => $this->activeCountries(),
+            'matrix_workplaces' => $matrixWorkplaces,
         ]);
     }
 
@@ -70,11 +82,22 @@ class DelegationController extends Controller
         $matrix = $this->perimeter->matrix();
         $validated = $request->validated();
 
-        /** @var array<string, mixed> $workplace */
-        $workplace = $validated['workplace'];
+        /** @var array<string, mixed>|null $workplace */
+        $workplace = $validated['workplace'] ?? null;
         unset($validated['workplace']);
 
-        $delegation = $action->handle($matrix, $validated, $workplace, $request->user());
+        /** @var list<int> $workplaceIds */
+        $workplaceIds = array_values(array_map('intval', $validated['workplace_ids'] ?? []));
+        unset($validated['workplace_ids']);
+
+        $hasNewWorkplace = filled($workplace['name'] ?? null);
+        $delegation = $action->handle(
+            $matrix,
+            $validated,
+            $hasNewWorkplace ? $workplace : null,
+            $workplaceIds,
+            $request->user(),
+        );
 
         return to_route('admin.delegations.edit', $delegation)
             ->with('success', __('delegacion_creada'));
@@ -86,19 +109,30 @@ class DelegationController extends Controller
         $this->perimeter->assertOwns($delegation);
         $this->authorize('updateDelegation', $delegation);
 
-        $workplaces = Workplace::query()
+        // Único listado: sedes de la matriz vinculadas (RO; escritura = Edit Workplace).
+        $linkedWorkplaces = Workplace::query()
             ->withoutGlobalScope('company')
-            ->where('company_id', $delegation->id)
-            ->with(['town.province.country'])
-            ->orderByDesc('featured')
-            ->orderBy('name')
-            ->get();
+            ->join('workplace_delegation', 'workplaces.id', '=', 'workplace_delegation.workplace_id')
+            ->where('workplace_delegation.company_id', $delegation->id)
+            ->where('workplaces.company_id', $matrix->id)
+            ->orderBy('workplaces.name')
+            ->get([
+                'workplaces.id',
+                'workplaces.name',
+                'workplace_delegation.is_preferred',
+            ])
+            ->map(fn (Workplace $workplace): array => [
+                'id' => (int) $workplace->id,
+                'name' => $workplace->name,
+                'is_preferred' => (bool) $workplace->getAttribute('is_preferred'),
+            ])
+            ->values()
+            ->all();
 
         return Inertia::render('Admin/Delegations/Edit', [
             'delegation' => CompanyResource::make($delegation)->resolve(),
             'matrix' => ['id' => $matrix->id, 'name' => $matrix->name],
-            'workplaces' => WorkplaceResource::collection($workplaces)->resolve(),
-            'countries' => $this->activeCountries(),
+            'linked_workplaces' => $linkedWorkplaces,
         ]);
     }
 

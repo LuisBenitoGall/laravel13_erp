@@ -3,16 +3,18 @@ import type { FormEvent } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Field, FormActions, Input, Select, Switch } from '@/Components/Form';
+import { Checkbox, Field, FormActions, Input, Select, Switch } from '@/Components/Form';
 import { Button } from '@/Components/ui/button';
 
 type GeoOption = { id: number; name: string };
+type WorkplaceOption = { id: number; name: string };
 
 type DelegationFormData = {
     name: string;
     tradename: string;
     nif: string;
     status: string;
+    workplace_ids: number[];
     workplace: {
         name: string;
         address: string;
@@ -26,6 +28,7 @@ type Props = {
     submitUrl: string;
     method?: 'post' | 'put';
     countries?: GeoOption[];
+    matrixWorkplaces?: WorkplaceOption[];
     initial?: Partial<Pick<DelegationFormData, 'name' | 'tradename' | 'nif' | 'status'>>;
     /** Edit: toggle inmediato active/closed (mismo endpoint que el Index). */
     statusChecked?: boolean;
@@ -44,12 +47,13 @@ async function fetchJson<T>(url: string): Promise<T> {
     return response.json() as Promise<T>;
 }
 
-/** Alta/edición de Delegación (Company hija). El alta incluye el primer centro de trabajo. */
+/** Alta/edición de Delegación (Company hija). Alta: centro nuevo y/o sedes existentes de la matriz. */
 export default function DelegationForm({
     mode,
     submitUrl,
     method = 'post',
     countries = [],
+    matrixWorkplaces = [],
     initial,
     statusChecked = false,
     onStatusToggle,
@@ -66,6 +70,7 @@ export default function DelegationForm({
         tradename: initial?.tradename ?? '',
         nif: initial?.nif ?? '',
         status: initial?.status ?? 'active',
+        workplace_ids: [],
         workplace: { name: '', address: '', cp: '', town_id: '' },
     });
 
@@ -148,8 +153,9 @@ export default function DelegationForm({
             mode === 'create'
                 ? {
                       ...company,
+                      workplace_ids: form.data.workplace_ids,
                       workplace: {
-                          name: form.data.workplace.name,
+                          name: form.data.workplace.name || null,
                           address: form.data.workplace.address || null,
                           cp: form.data.workplace.cp || null,
                           town_id: form.data.workplace.town_id
@@ -169,6 +175,13 @@ export default function DelegationForm({
 
     const setWorkplace = (key: keyof DelegationFormData['workplace'], value: string) =>
         form.setData('workplace', { ...form.data.workplace, [key]: value });
+
+    function toggleWorkplaceId(id: number, checked: boolean) {
+        const next = checked
+            ? [...new Set([...form.data.workplace_ids, id])]
+            : form.data.workplace_ids.filter((value) => value !== id);
+        form.setData('workplace_ids', next);
+    }
 
     return (
         <form
@@ -237,96 +250,125 @@ export default function DelegationForm({
             )}
 
             {mode === 'create' ? (
-                <fieldset className="space-y-4 rounded-lg border border-slate-200 p-4">
-                    <legend className="px-2 text-sm font-medium text-slate-700">
-                        {t('delegacion_centro_inicial')}
-                    </legend>
+                <>
+                    <fieldset className="space-y-4 rounded-lg border border-slate-200 p-4">
+                        <legend className="px-2 text-sm font-medium text-slate-700">
+                            {t('centro_trabajo_empresa')}
+                        </legend>
+                        <p className="text-sm text-slate-600">{t('centro_trabajo_empresa_ayuda')}</p>
 
-                    <Field
-                        label={t('nombre')}
-                        htmlFor="delegation-workplace-name"
-                        error={form.errors['workplace.name']}
-                        required
-                    >
-                        <Input
-                            id="delegation-workplace-name"
-                            value={form.data.workplace.name}
-                            maxLength={255}
-                            onChange={(e) => setWorkplace('name', e.target.value)}
-                        />
-                    </Field>
-
-                    <div className="grid gap-4 md:grid-cols-4">
                         <Field
-                            className="md:col-span-3"
-                            label={t('direccion')}
-                            htmlFor="delegation-workplace-address"
-                            error={form.errors['workplace.address']}
+                            label={t('nombre')}
+                            htmlFor="delegation-workplace-name"
+                            error={form.errors['workplace.name']}
                         >
                             <Input
-                                id="delegation-workplace-address"
-                                value={form.data.workplace.address}
+                                id="delegation-workplace-name"
+                                value={form.data.workplace.name}
                                 maxLength={255}
-                                onChange={(e) => setWorkplace('address', e.target.value)}
+                                onChange={(e) => setWorkplace('name', e.target.value)}
                             />
                         </Field>
-                        <Field
-                            label={t('codigo_postal')}
-                            htmlFor="delegation-workplace-cp"
-                            error={form.errors['workplace.cp']}
-                        >
-                            <Input
-                                id="delegation-workplace-cp"
-                                value={form.data.workplace.cp}
-                                maxLength={16}
-                                onChange={(e) => setWorkplace('cp', e.target.value)}
-                            />
-                        </Field>
-                    </div>
 
-                    <div className="grid gap-4 md:grid-cols-3">
-                        <Field label={t('pais')} htmlFor="delegation-workplace-country">
-                            <Select
-                                id="delegation-workplace-country"
-                                options={countryOptions}
-                                value={countryId}
-                                onChange={(value) => {
-                                    setCountryId(value);
-                                    setProvinceId('');
-                                    setWorkplace('town_id', '');
-                                }}
-                                placeholder={t('elegir')}
-                            />
+                        <div className="grid gap-4 md:grid-cols-4">
+                            <Field
+                                className="md:col-span-3"
+                                label={t('direccion')}
+                                htmlFor="delegation-workplace-address"
+                                error={form.errors['workplace.address']}
+                            >
+                                <Input
+                                    id="delegation-workplace-address"
+                                    value={form.data.workplace.address}
+                                    maxLength={255}
+                                    onChange={(e) => setWorkplace('address', e.target.value)}
+                                />
+                            </Field>
+                            <Field
+                                label={t('codigo_postal')}
+                                htmlFor="delegation-workplace-cp"
+                                error={form.errors['workplace.cp']}
+                            >
+                                <Input
+                                    id="delegation-workplace-cp"
+                                    value={form.data.workplace.cp}
+                                    maxLength={16}
+                                    onChange={(e) => setWorkplace('cp', e.target.value)}
+                                />
+                            </Field>
+                        </div>
+
+                        <div className="grid gap-4 md:grid-cols-3">
+                            <Field label={t('pais')} htmlFor="delegation-workplace-country">
+                                <Select
+                                    id="delegation-workplace-country"
+                                    options={countryOptions}
+                                    value={countryId}
+                                    onChange={(value) => {
+                                        setCountryId(value);
+                                        setProvinceId('');
+                                        setWorkplace('town_id', '');
+                                    }}
+                                    placeholder={t('elegir')}
+                                />
+                            </Field>
+                            <Field label={t('provincia')} htmlFor="delegation-workplace-province">
+                                <Select
+                                    id="delegation-workplace-province"
+                                    options={provinceOptions}
+                                    value={provinceId}
+                                    onChange={(value) => {
+                                        setProvinceId(value);
+                                        setWorkplace('town_id', '');
+                                    }}
+                                    placeholder={t('elegir')}
+                                    disabled={!countryId}
+                                />
+                            </Field>
+                            <Field
+                                label={t('poblacion')}
+                                htmlFor="delegation-workplace-town"
+                                error={form.errors['workplace.town_id']}
+                            >
+                                <Select
+                                    id="delegation-workplace-town"
+                                    options={townOptions}
+                                    value={form.data.workplace.town_id}
+                                    onChange={(value) => setWorkplace('town_id', value)}
+                                    placeholder={t('elegir')}
+                                    disabled={!provinceId}
+                                />
+                            </Field>
+                        </div>
+                    </fieldset>
+
+                    <fieldset className="space-y-3 rounded-lg border border-slate-200 p-4">
+                        <legend className="px-2 text-sm font-medium text-slate-700">
+                            {t('usar_centros_existentes')}
+                        </legend>
+                        <p className="text-sm text-slate-600">{t('usar_centros_existentes_ayuda')}</p>
+                        <Field label={t('centros_de_trabajo')} error={form.errors.workplace_ids}>
+                            {matrixWorkplaces.length === 0 ? (
+                                <p className="text-sm text-slate-500">{t('sin_centros_de_trabajo')}</p>
+                            ) : (
+                                <ul className="grid gap-2 sm:grid-cols-2">
+                                    {matrixWorkplaces.map((option) => (
+                                        <li key={option.id}>
+                                            <Checkbox
+                                                id={`delegation-existing-workplace-${option.id}`}
+                                                label={option.name}
+                                                checked={form.data.workplace_ids.includes(option.id)}
+                                                onCheckedChange={(value) =>
+                                                    toggleWorkplaceId(option.id, value)
+                                                }
+                                            />
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </Field>
-                        <Field label={t('provincia')} htmlFor="delegation-workplace-province">
-                            <Select
-                                id="delegation-workplace-province"
-                                options={provinceOptions}
-                                value={provinceId}
-                                onChange={(value) => {
-                                    setProvinceId(value);
-                                    setWorkplace('town_id', '');
-                                }}
-                                placeholder={t('elegir')}
-                                disabled={!countryId}
-                            />
-                        </Field>
-                        <Field
-                            label={t('poblacion')}
-                            htmlFor="delegation-workplace-town"
-                            error={form.errors['workplace.town_id']}
-                        >
-                            <Select
-                                id="delegation-workplace-town"
-                                options={townOptions}
-                                value={form.data.workplace.town_id}
-                                onChange={(value) => setWorkplace('town_id', value)}
-                                placeholder={t('elegir')}
-                                disabled={!provinceId}
-                            />
-                        </Field>
-                    </div>
-                </fieldset>
+                    </fieldset>
+                </>
             ) : null}
 
             <FormActions>
