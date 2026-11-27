@@ -33,7 +33,7 @@ beforeEach(function () {
 
 it('CanonicalPermission distingue canónicos, access y custom', function () {
     expect(CanonicalPermission::isCanonical('modules.viewAny'))->toBeTrue()
-        ->and(CanonicalPermission::isCanonical('configuracion.access'))->toBeTrue()
+        ->and(CanonicalPermission::isCanonical('settings.access'))->toBeTrue()
         ->and(CanonicalPermission::isCanonical('modules.export'))->toBeFalse()
         ->and(CanonicalPermission::isReservedSuffix('view'))->toBeTrue()
         ->and(CanonicalPermission::isReservedSuffix('export'))->toBeFalse()
@@ -45,14 +45,14 @@ it('Permission es catálogo global Spatie sin company_id (R-TEN-05 N/A)', functi
         ->and(Schema::hasColumn('permissions', 'company_id'))->toBeFalse();
 });
 
-it('seeder deja Functionality permissions y Spatie permissions.* + configuracion.access', function () {
+it('seeder deja Functionality permissions y Spatie permissions.* + settings.access', function () {
     expect(Functionality::query()->where('slug', 'permissions')->where('status', FunctionalityStatus::Active)->exists())->toBeTrue();
 
     foreach (['viewAny', 'view', 'create', 'update', 'delete'] as $ability) {
         expect(Permission::query()->where('name', "permissions.{$ability}")->exists())->toBeTrue();
     }
 
-    expect(Permission::query()->where('name', 'configuracion.access')->exists())->toBeTrue();
+    expect(Permission::query()->where('name', 'settings.access')->exists())->toBeTrue();
 });
 
 it('Index requiere permissions.view', function () {
@@ -76,7 +76,7 @@ it('Index requiere permissions.view', function () {
 it('no-SA no abre permissions aunque tenga view+access (AdminOnly = SA)', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    $user->givePermissionTo(['configuracion.access', 'permissions.view']);
+    $user->givePermissionTo(['settings.access', 'permissions.view']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.permissions.index'))->assertForbidden();
@@ -160,7 +160,7 @@ it('rechaza name duplicado', function () {
 it('borra permiso custom y protege canónicos y access', function () {
     $custom = Permission::findOrCreate('modules.export');
     $canonical = Permission::query()->where('name', 'modules.viewAny')->firstOrFail();
-    $access = Permission::query()->where('name', 'configuracion.access')->firstOrFail();
+    $access = Permission::query()->where('name', 'settings.access')->firstOrFail();
 
     $this->delete(route('admin.permissions.destroy', $custom))->assertRedirect();
     expect(Permission::query()->whereKey($custom->id)->exists())->toBeFalse();

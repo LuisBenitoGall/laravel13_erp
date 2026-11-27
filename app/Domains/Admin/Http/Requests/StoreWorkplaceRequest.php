@@ -47,7 +47,7 @@ class StoreWorkplaceRequest extends FormRequest
             'return_to' => [
                 'nullable',
                 'string',
-                'regex:#^/admin/company-settings(?:\\?.*)?$#',
+                'regex:#^/companies/company-settings(?:\\?.*)?$#',
             ],
         ];
     }

@@ -102,8 +102,8 @@ it('sin vat-types.* las rutas responden 403', function () {
 it('usuario con vat-types.view abre el Index', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
-    $user->givePermissionTo(['configuracion.access', 'vat-types.view']);
+    Permission::findOrCreate('settings.access');
+    $user->givePermissionTo(['settings.access', 'vat-types.view']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.vat-types.index'))->assertOk();

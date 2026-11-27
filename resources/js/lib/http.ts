@@ -29,15 +29,13 @@ export async function getJson<TResponse = unknown>(
     return (await response.json()) as TResponse;
 }
 
-/**
- * PATCH JSON same-origin (tabla Acciones async; excepción R-FE-03 junto al ajax Tabulator).
- */
-export async function patchJson<TResponse = unknown>(
+async function writeJson<TResponse = unknown>(
+    method: 'PATCH' | 'PUT',
     url: string,
     body: Record<string, unknown>,
 ): Promise<TResponse> {
     const response = await fetch(url, {
-        method: 'PATCH',
+        method,
         credentials: 'same-origin',
         headers: {
             Accept: 'application/json',
@@ -67,4 +65,22 @@ export async function patchJson<TResponse = unknown>(
     }
 
     return (await response.json()) as TResponse;
+}
+
+/**
+ * PATCH JSON same-origin (tabla Acciones async; excepción R-FE-03 junto al ajax Tabulator).
+ */
+export async function patchJson<TResponse = unknown>(
+    url: string,
+    body: Record<string, unknown>,
+): Promise<TResponse> {
+    return writeJson<TResponse>('PATCH', url, body);
+}
+
+/** PUT JSON same-origin (acciones de tabla / sync parcial). */
+export async function putJson<TResponse = unknown>(
+    url: string,
+    body: Record<string, unknown>,
+): Promise<TResponse> {
+    return writeJson<TResponse>('PUT', url, body);
 }

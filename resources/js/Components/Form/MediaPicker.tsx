@@ -50,7 +50,7 @@ async function fetchPickerPage(
         params.set('q', q.trim());
     }
 
-    const response = await fetch(`/admin/gallery/picker?${params.toString()}`, {
+    const response = await fetch(`/settings/gallery/picker?${params.toString()}`, {
         headers: { Accept: 'application/json' },
         credentials: 'same-origin',
         signal,

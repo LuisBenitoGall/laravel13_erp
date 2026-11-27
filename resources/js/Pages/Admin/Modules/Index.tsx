@@ -108,7 +108,7 @@ export default function Index() {
             id: 'edit',
             icon: Pencil,
             labelKey: 'editar',
-            onClick: () => router.visit(`/admin/modules/${row.id}/edit`),
+            onClick: () => router.visit(`/settings/modules/${row.id}/edit`),
         };
         const remove: RowAction<ModuleRow> = {
             id: 'delete',
@@ -116,7 +116,7 @@ export default function Index() {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/admin/modules/${current.id}`, { preserveScroll: true });
+                router.delete(`/settings/modules/${current.id}`, { preserveScroll: true });
             },
         };
 
@@ -130,7 +130,7 @@ export default function Index() {
                 checked: row.status === 'active',
                 onToggle: async (_row, checked) => {
                     const status = checked ? 'active' : 'inactive';
-                    await patchJson<{ status: string }>(`/admin/modules/${row.id}/status`, {
+                    await patchJson<{ status: string }>(`/settings/modules/${row.id}/status`, {
                         status,
                     });
 
@@ -153,20 +153,20 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'modulos',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/modules',
+                optionHref: '/settings/modules',
             }}
             showBack={false}
             actions={[
                 {
                     type: 'link',
                     labelKey: 'crear',
-                    href: '/admin/modules/create',
+                    href: '/settings/modules/create',
                     icon: Plus,
                 },
             ]}
         >
             <ServerTable<ModuleRow>
-                endpoint="/admin/modules/table"
+                endpoint="/settings/modules/table"
                 columns={columns}
                 persistKey="admin.modules"
                 exportable

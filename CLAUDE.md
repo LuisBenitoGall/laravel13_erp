@@ -12,6 +12,7 @@ v2 multi-tenant del ERP Viuda Vila. Referencia funcional (v1, solo lectura):
 | Roles / flujo OpenSpec | `docs/agents/README.md` |
 | Boost MCP (cuándo usarlo) | `.cursor/rules/laravel-boost.mdc` |
 | Skills de dominio | activar on-demand (`tenancy-rbac`, `openspec-*`, etc.) |
+| Modern Web Guidance | skill `modern-web-guidance`; Baseline Widely available; **subordinado** a `frontend.md` / shadcn / ServerTable (detalle en `AGENTS.md`) |
 
 Excepciones a standards: solo en el design OpenSpec del change. Si un estándar
 está mal: corregirlo primero.

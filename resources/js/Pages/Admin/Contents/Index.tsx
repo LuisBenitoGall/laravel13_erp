@@ -66,7 +66,7 @@ export default function Index() {
             checked: row.status === 'active',
             onToggle: async (_row, checked) => {
                 const status = checked ? 'active' : 'inactive';
-                await patchJson<{ status: string }>(`/admin/contents/${row.id}/status`, {
+                await patchJson<{ status: string }>(`/settings/contents/${row.id}/status`, {
                     status,
                 });
 
@@ -77,7 +77,7 @@ export default function Index() {
             id: 'edit',
             icon: Pencil,
             labelKey: 'editar',
-            onClick: () => router.visit(`/admin/contents/${row.id}/edit`),
+            onClick: () => router.visit(`/settings/contents/${row.id}/edit`),
         },
         {
             id: 'delete',
@@ -85,7 +85,7 @@ export default function Index() {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/admin/contents/${current.id}`, { preserveScroll: true });
+                router.delete(`/settings/contents/${current.id}`, { preserveScroll: true });
             },
         },
     ];
@@ -95,14 +95,14 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'contenidos',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/contents',
+                optionHref: '/settings/contents',
             }}
             showBack={false}
             actions={[
                 {
                     type: 'link',
                     labelKey: 'crear',
-                    href: '/admin/contents/create',
+                    href: '/settings/contents/create',
                     icon: Plus,
                 },
             ]}
@@ -111,7 +111,7 @@ export default function Index() {
                 <HelpTip code="contents-admin" />
             </div>
             <ServerTable<ContentRow>
-                endpoint="/admin/contents/table"
+                endpoint="/settings/contents/table"
                 columns={columns}
                 persistKey="admin.contents"
                 exportable

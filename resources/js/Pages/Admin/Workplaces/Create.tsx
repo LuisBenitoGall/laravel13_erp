@@ -11,14 +11,14 @@ type Props = {
 };
 
 export default function Create({ countries, default_featured, return_to = null }: Props) {
-    const backHref = return_to || '/admin/workplaces';
+    const backHref = return_to || '/companies/workplaces';
 
     return (
         <AppLayout
             breadcrumb={{
                 optionKey: 'centros_de_trabajo',
                 suboptionKey: 'nuevo_centro_trabajo',
-                optionHref: '/admin/workplaces',
+                optionHref: '/companies/workplaces',
             }}
             backHref={backHref}
             actions={[]}
@@ -26,7 +26,7 @@ export default function Create({ countries, default_featured, return_to = null }
             <WorkplaceForm
                 mode="create"
                 method="post"
-                submitUrl="/admin/workplaces"
+                submitUrl="/companies/workplaces"
                 countries={countries}
                 defaultFeatured={default_featured}
                 returnTo={return_to}

@@ -37,7 +37,8 @@ class StoreContentRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:64',
-                'regex:/^[a-z0-9]+(?:[.\-][a-z0-9]+)*$/',
+                // Segmentos a-z0-9_ unidos por . o - (p. ej. users.is_public, user_profile.x).
+                'regex:/^[a-z0-9_]+(?:[.\-][a-z0-9_]+)*$/',
                 Rule::unique('contents', 'code'),
             ],
         ];

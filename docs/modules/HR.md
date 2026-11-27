@@ -16,13 +16,17 @@
 - Mapa de capabilities de referencia (`docs/standards/capabilities-map.md`)
   con RRHH como primer ejemplo.
 
-**No entra:**
+**No entra (en dominio HR):**
 
-- Fichajes (`TimeEntry`), calendarios, planning, vehículos.
+- Fichajes (`TimeEntry`), planning, vehículos.
 - Vencimientos/notificaciones programadas de contratos.
 - Alta de User desde el flujo de empleo.
 - Empleado sin fila en `user_companies` de la company.
 - Importación de datos v1 (tablas vacías; Viuda Vila no usa la funcionalidad).
+
+**Calendarios laborales:** viven en el dominio **Calendar**
+(`docs/modules/Calendar.md`). HR/Module `rrhh` solo los **consume** (menú
+`calendars` / `day-types`, rutas `/rrhh/calendars*` y `/rrhh/day-types*`).
 
 ## Entidades
 
@@ -95,7 +99,7 @@ Rutas v1: `admin/contracts*`, `admin/employees*`. No clonar Livewire/Blade/yajra
 | V-18 | No | Sin side-effect CreateCompany |
 | V-19 | No | Sin onboarding steps nuevos |
 | V-20 | Sí | Activity log en ContractType y Employee (maestros/documentos relevantes) |
-| V-21 | Sí | Rutas `/hr/*` bajo `module:rrhh` + Feature acceso tenant |
+| V-21 | Sí | Rutas `/rrhh/*` bajo `module:rrhh` + Feature acceso tenant |
 | R-TEN-05 | Sí | Ambas entidades con `company_id` |
 | E2E | N/A | No toca flujos de `e2e.md` §4; Feature HTTP basta |
 

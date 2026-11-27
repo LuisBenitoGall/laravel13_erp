@@ -276,8 +276,8 @@ it('Mis módulos Index solo lista Optional Active', function () {
     actingWithCompany($user, $company);
     setPermissionsTeamId($company->id);
     Permission::findOrCreate('company-modules.view');
-    Permission::findOrCreate('cuenta.access');
-    $user->givePermissionTo(['company-modules.view', 'cuenta.access']);
+    Permission::findOrCreate('account.access');
+    $user->givePermissionTo(['company-modules.view', 'account.access']);
     $user->unsetRelation('roles');
     $user->unsetRelation('permissions');
     setPermissionsTeamId(null);

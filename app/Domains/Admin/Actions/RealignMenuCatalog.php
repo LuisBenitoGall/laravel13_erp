@@ -20,9 +20,24 @@ use Spatie\Permission\PermissionRegistrar;
  */
 class RealignMenuCatalog
 {
+    /**
+     * Legacy Spanish / interim slugs → English Module slug (name+slug EN = route segment).
+     *
+     * @var array<string, string>
+     */
+    private const MODULE_SLUG_RENAMES = [
+        'cuenta' => 'account',
+        'usuarios' => 'users',
+        'empresas' => 'companies',
+        'configuracion' => 'settings',
+        'catalogue' => 'products',
+        'productos' => 'products',
+        'albaranes' => 'deliveries',
+    ];
+
     /** @var array<string, list<string>> */
     private const FUNCTIONALITY_MAP = [
-        'configuracion' => [
+        'settings' => [
             'modules',
             'functionalities',
             'roles',
@@ -41,10 +56,11 @@ class RealignMenuCatalog
             'accounting-account-types',
             'company-module-authorizations',
         ],
-        'empresas' => ['companies', 'delegations', 'company-directory', 'workplaces', 'company-settings', 'company-sectors'],
-        'usuarios' => ['company-users', 'all-users', 'company-roles'],
-        'cuenta' => ['company-modules', 'profile'],
-        'rrhh' => ['contract-types', 'employees'],
+        'companies' => ['companies', 'delegations', 'company-directory', 'workplaces', 'company-settings', 'company-sectors'],
+        'users' => ['company-users', 'all-users', 'company-roles'],
+        'account' => ['company-modules', 'profile'],
+        'rrhh' => ['contract-types', 'employees', 'calendars', 'day-types'],
+        'products' => ['catalogue'],
     ];
 
     public function __construct(
@@ -57,20 +73,25 @@ class RealignMenuCatalog
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         DB::transaction(function (): void {
+            $this->renameLegacyModuleSlugs();
             $modules = $this->ensureModules();
-            $this->ensureProfile($modules['cuenta']);
-            $this->ensureAllUsers($modules['usuarios']);
-            $this->ensureWorkplaces($modules['empresas']);
-            $this->ensureDelegations($modules['empresas']);
-            $this->ensureCompanySettings($modules['empresas']);
-            $this->ensureExchangeRates($modules['configuracion']);
-            $this->ensurePaymentMethods($modules['configuracion']);
-            $this->ensureContents($modules['configuracion']);
-            $this->ensureGallery($modules['configuracion']);
-            $this->ensureAccounts($modules['configuracion']);
+            $this->ensureProfile($modules['account']);
+            $this->ensureAllUsers($modules['users']);
+            $this->ensureWorkplaces($modules['companies']);
+            $this->ensureDelegations($modules['companies']);
+            $this->ensureCompanySettings($modules['companies']);
+            $this->ensureExchangeRates($modules['settings']);
+            $this->ensurePaymentMethods($modules['settings']);
+            $this->ensureContents($modules['settings']);
+            $this->ensureGallery($modules['settings']);
+            $this->ensureAccounts($modules['settings']);
             $this->ensureHrFunctionalities($modules['rrhh']);
+            $this->ensureProductsFunctionalities($modules['products']);
             $this->reassignFunctionalities($modules);
-            $this->applyConfiguracionFunctionalitySort();
+            $this->applyModuleSort($modules);
+            $this->applySettingsFunctionalitySort();
+            $this->applyHrFunctionalitySort();
+            $this->applyProductsFunctionalitySort();
             $this->migrateAccessPermissions();
             $this->retireLegacyModules($modules);
             $this->migrateCompanyLayers($modules);
@@ -98,8 +119,8 @@ class RealignMenuCatalog
                     'ca' => 'Inici de l\'ERP',
                 ],
             ],
-            'cuenta' => [
-                'name' => 'Cuenta',
+            'account' => [
+                'name' => 'Account',
                 'label' => ['es' => 'Cuenta', 'en' => 'Account', 'ca' => 'Compte'],
                 'color' => '#7c3aed',
                 'icon' => 'user',
@@ -110,8 +131,8 @@ class RealignMenuCatalog
                     'ca' => 'El meu compte i mòduls de l\'empresa',
                 ],
             ],
-            'usuarios' => [
-                'name' => 'Usuarios',
+            'users' => [
+                'name' => 'Users',
                 'label' => ['es' => 'Usuarios', 'en' => 'Users', 'ca' => 'Usuaris'],
                 'color' => '#0369a1',
                 'icon' => 'users',
@@ -122,8 +143,8 @@ class RealignMenuCatalog
                     'ca' => 'Usuaris i rols d\'empresa',
                 ],
             ],
-            'empresas' => [
-                'name' => 'Empresas',
+            'companies' => [
+                'name' => 'Companies',
                 'label' => ['es' => 'Empresas', 'en' => 'Companies', 'ca' => 'Empreses'],
                 'color' => '#0369a1',
                 'icon' => 'briefcase',
@@ -146,8 +167,20 @@ class RealignMenuCatalog
                     'ca' => 'Tipus de contracte i empleats',
                 ],
             ],
-            'configuracion' => [
-                'name' => 'Configuracion',
+            'products' => [
+                'name' => 'Products',
+                'label' => ['es' => 'Productos', 'en' => 'Products', 'ca' => 'Productes'],
+                'color' => '#c2410c',
+                'icon' => 'package',
+                'level' => ModuleLevel::Optional,
+                'explanation' => [
+                    'es' => 'Productos y servicios de la empresa',
+                    'en' => 'Company products and services',
+                    'ca' => 'Productes i serveis de l\'empresa',
+                ],
+            ],
+            'settings' => [
+                'name' => 'Settings',
                 'label' => ['es' => 'Configuración', 'en' => 'Settings', 'ca' => 'Configuració'],
                 'color' => '#0f766e',
                 'icon' => 'settings',
@@ -181,6 +214,7 @@ class RealignMenuCatalog
                 }
 
                 $module->forceFill([
+                    'name' => $def['name'],
                     'label' => $def['label'],
                     'color' => $def['color'],
                     'icon' => $def['icon'],
@@ -196,6 +230,57 @@ class RealignMenuCatalog
         }
 
         return $out;
+    }
+
+    /** Rename Spanish/interim Module slugs to English before ensureModules. */
+    private function renameLegacyModuleSlugs(): void
+    {
+        foreach (self::MODULE_SLUG_RENAMES as $from => $to) {
+            $legacy = Module::withTrashed()->where('slug', $from)->first();
+
+            if ($legacy === null) {
+                continue;
+            }
+
+            $target = Module::withTrashed()->where('slug', $to)->first();
+
+            if ($target !== null && $target->id !== $legacy->id) {
+                Functionality::withTrashed()
+                    ->where('module_id', $legacy->id)
+                    ->update(['module_id' => $target->id]);
+
+                CompanyModuleAuthorization::query()->withoutGlobalScope('company')
+                    ->where('module_id', $legacy->id)
+                    ->update(['module_id' => $target->id]);
+
+                CompanyModule::query()->withoutGlobalScope('company')
+                    ->where('module_id', $legacy->id)
+                    ->update(['module_id' => $target->id]);
+
+                if (! $legacy->trashed()) {
+                    $legacy->delete();
+                }
+
+                $this->renamePermission($from.'.access', $to.'.access');
+
+                continue;
+            }
+
+            $legacy->forceFill([
+                'slug' => $to,
+                'name' => match ($to) {
+                    'account' => 'Account',
+                    'users' => 'Users',
+                    'companies' => 'Companies',
+                    'settings' => 'Settings',
+                    'products' => 'Products',
+                    'deliveries' => 'Deliveries',
+                    default => $legacy->name,
+                },
+            ])->save();
+
+            $this->renamePermission($from.'.access', $to.'.access');
+        }
     }
 
     private function ensureProfile(Module $cuenta): void
@@ -552,6 +637,14 @@ class RealignMenuCatalog
                 'name' => 'Employees',
                 'label' => ['es' => 'Empleados', 'en' => 'Employees', 'ca' => 'Empleats'],
             ],
+            'calendars' => [
+                'name' => 'Calendars',
+                'label' => ['es' => 'Calendarios', 'en' => 'Calendars', 'ca' => 'Calendaris'],
+            ],
+            'day-types' => [
+                'name' => 'Day types',
+                'label' => ['es' => 'Tipos de jornada', 'en' => 'Day types', 'ca' => 'Tipus de jornada'],
+            ],
         ];
 
         foreach ($definitions as $slug => $definition) {
@@ -581,13 +674,123 @@ class RealignMenuCatalog
         }
     }
 
-    private function applyConfiguracionFunctionalitySort(): void
+    private function applySettingsFunctionalitySort(): void
     {
-        foreach (self::FUNCTIONALITY_MAP['configuracion'] as $index => $slug) {
+        foreach (self::FUNCTIONALITY_MAP['settings'] as $index => $slug) {
             Functionality::withTrashed()
                 ->where('slug', $slug)
                 ->update(['sort' => ($index + 1) * 10]);
         }
+    }
+
+    private function applyHrFunctionalitySort(): void
+    {
+        foreach (self::FUNCTIONALITY_MAP['rrhh'] as $index => $slug) {
+            Functionality::withTrashed()
+                ->where('slug', $slug)
+                ->update(['sort' => ($index + 1) * 10]);
+        }
+    }
+
+    private function applyProductsFunctionalitySort(): void
+    {
+        foreach (self::FUNCTIONALITY_MAP['products'] as $index => $slug) {
+            Functionality::withTrashed()
+                ->where('slug', $slug)
+                ->update(['sort' => ($index + 1) * 10]);
+        }
+    }
+
+    /**
+     * @param  array<string, Module>  $modules
+     */
+    private function applyModuleSort(array $modules): void
+    {
+        $order = [
+            'dashboard',
+            'account',
+            'users',
+            'companies',
+            'products',
+            'rrhh',
+            'deliveries',
+            'settings',
+        ];
+
+        foreach ($order as $index => $slug) {
+            if (! isset($modules[$slug])) {
+                $module = Module::withTrashed()->where('slug', $slug)->first();
+                if ($module === null) {
+                    continue;
+                }
+            } else {
+                $module = $modules[$slug];
+            }
+
+            $module->forceFill(['sort' => ($index + 1) * 10])->save();
+        }
+    }
+
+    /** Functionality `catalogue` bajo Module Optional `products` (UI: Productos → Catálogo). */
+    private function ensureProductsFunctionalities(Module $products): void
+    {
+        foreach (['productos', 'products'] as $legacySlug) {
+            $legacy = Functionality::withTrashed()->where('slug', $legacySlug)->first();
+
+            if ($legacy === null) {
+                continue;
+            }
+
+            $target = Functionality::withTrashed()->where('slug', 'catalogue')->first();
+
+            if ($target !== null && $target->id !== $legacy->id) {
+                if (! $legacy->trashed()) {
+                    $legacy->delete();
+                }
+            } else {
+                $legacy->forceFill([
+                    'slug' => 'catalogue',
+                    'name' => 'Catalogue',
+                    'module_id' => $products->id,
+                    'label' => ['es' => 'Catálogo', 'en' => 'Catalogue', 'ca' => 'Catàleg'],
+                    'status' => FunctionalityStatus::Active,
+                ])->save();
+            }
+
+            foreach (['view', 'viewAny', 'create', 'update', 'delete'] as $ability) {
+                $this->renamePermission($legacySlug.'.'.$ability, 'catalogue.'.$ability);
+            }
+        }
+
+        $calendarios = Functionality::withTrashed()->where('slug', 'calendarios')->first();
+        if ($calendarios !== null && ! $calendarios->trashed()) {
+            $calendarios->delete();
+        }
+
+        $existing = Functionality::withTrashed()->where('slug', 'catalogue')->first();
+
+        if ($existing !== null) {
+            if ($existing->trashed()) {
+                $existing->restore();
+            }
+
+            $existing->forceFill([
+                'module_id' => $products->id,
+                'name' => 'Catalogue',
+                'label' => ['es' => 'Catálogo', 'en' => 'Catalogue', 'ca' => 'Catàleg'],
+                'status' => FunctionalityStatus::Active,
+            ])->save();
+
+            return;
+        }
+
+        $this->createFunctionality->handle([
+            'module_id' => $products->id,
+            'name' => 'Catalogue',
+            'slug' => 'catalogue',
+            'label' => ['es' => 'Catálogo', 'en' => 'Catalogue', 'ca' => 'Catàleg'],
+            'status' => FunctionalityStatus::Active->value,
+        ]);
     }
 
     /**
@@ -633,19 +836,25 @@ class RealignMenuCatalog
 
     private function migrateAccessPermissions(): void
     {
-        $this->renamePermission('admin.access', 'configuracion.access');
+        $this->renamePermission('admin.access', 'settings.access');
+        $this->renamePermission('configuracion.access', 'settings.access');
+        $this->renamePermission('cuenta.access', 'account.access');
+        $this->renamePermission('usuarios.access', 'users.access');
+        $this->renamePermission('empresas.access', 'companies.access');
+        $this->renamePermission('catalogue.access', 'products.access');
+        $this->renamePermission('productos.access', 'products.access');
 
         $workspace = Permission::query()->where('name', 'workspace.access')->first();
 
         if ($workspace !== null) {
-            foreach (['dashboard', 'cuenta', 'usuarios', 'empresas'] as $slug) {
+            foreach (['dashboard', 'account', 'users', 'companies'] as $slug) {
                 $this->copyPermissionGrants($workspace, $this->ensurePermission($slug.'.access'));
             }
 
             $workspace->delete();
         }
 
-        foreach (['dashboard', 'cuenta', 'usuarios', 'empresas', 'configuracion'] as $slug) {
+        foreach (['dashboard', 'account', 'users', 'companies', 'products', 'settings', 'rrhh'] as $slug) {
             $this->ensurePermission($slug.'.access');
         }
     }
@@ -710,10 +919,10 @@ class RealignMenuCatalog
                 continue;
             }
 
-            // Orphans should already be reassigned; force leftover to configuracion.
+            // Orphans should already be reassigned; force leftover to settings.
             Functionality::withTrashed()
                 ->where('module_id', $legacy->id)
-                ->update(['module_id' => $modules['configuracion']->id]);
+                ->update(['module_id' => $modules['settings']->id]);
 
             if (! $legacy->trashed()) {
                 $legacy->delete();
@@ -733,9 +942,9 @@ class RealignMenuCatalog
     {
         $basics = [
             $modules['dashboard'],
-            $modules['cuenta'],
-            $modules['usuarios'],
-            $modules['empresas'],
+            $modules['account'],
+            $modules['users'],
+            $modules['companies'],
         ];
 
         $companyIds = CompanyModuleAuthorization::query()

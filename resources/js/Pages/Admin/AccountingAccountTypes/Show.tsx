@@ -37,9 +37,9 @@ export default function Show() {
             breadcrumb={{
                 optionKey: 'grupos_contables',
                 suboptionKey: 'ver_plan_pgc',
-                optionHref: '/admin/accounting-account-types',
+                optionHref: '/settings/accounting-account-types',
             }}
-            backHref="/admin/accounting-account-types"
+            backHref="/settings/accounting-account-types"
             showBack
         >
             <div className="space-y-4">

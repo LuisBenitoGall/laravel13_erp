@@ -72,39 +72,42 @@ class AdminCatalogSeeder extends Seeder
             app(RealignMenuCatalog::class)->handle();
 
             $bySlug = Module::query()
-                ->whereIn('slug', ['dashboard', 'cuenta', 'usuarios', 'empresas', 'configuracion', 'rrhh'])
+                ->whereIn('slug', ['dashboard', 'account', 'users', 'companies', 'settings', 'rrhh', 'products'])
                 ->get()
                 ->keyBy('slug');
 
             foreach ([
-                ['module' => 'configuracion', 'name' => 'Modules', 'slug' => 'modules', 'label' => ['es' => 'Módulos', 'en' => 'Modules', 'ca' => 'Mòduls']],
-                ['module' => 'configuracion', 'name' => 'Functionalities', 'slug' => 'functionalities', 'label' => ['es' => 'Funcionalidades', 'en' => 'Functionalities', 'ca' => 'Funcionalitats'], 'status' => FunctionalityStatus::Inactive],
-                ['module' => 'configuracion', 'name' => 'Module authorizations', 'slug' => 'company-module-authorizations', 'label' => ['es' => 'Autorización de módulos', 'en' => 'Module authorizations', 'ca' => 'Autorització de mòduls']],
-                ['module' => 'configuracion', 'name' => 'Roles', 'slug' => 'roles', 'label' => ['es' => 'Roles', 'en' => 'Roles', 'ca' => 'Rols']],
-                ['module' => 'configuracion', 'name' => 'Permissions', 'slug' => 'permissions', 'label' => ['es' => 'Permisos', 'en' => 'Permissions', 'ca' => 'Permisos']],
-                ['module' => 'configuracion', 'name' => 'Countries', 'slug' => 'countries', 'label' => ['es' => 'Países', 'en' => 'Countries', 'ca' => 'Països']],
-                ['module' => 'configuracion', 'name' => 'Currencies', 'slug' => 'currencies', 'label' => ['es' => 'Monedas', 'en' => 'Currencies', 'ca' => 'Monedes']],
-                ['module' => 'configuracion', 'name' => 'Exchange rates', 'slug' => 'exchange-rates', 'label' => ['es' => 'Conversión monedas', 'en' => 'Currency conversion', 'ca' => 'Conversió de monedes']],
-                ['module' => 'configuracion', 'name' => 'Banks', 'slug' => 'banks', 'label' => ['es' => 'Bancos', 'en' => 'Banks', 'ca' => 'Bancs']],
-                ['module' => 'configuracion', 'name' => 'Units', 'slug' => 'units', 'label' => ['es' => 'Unidades', 'en' => 'Units', 'ca' => 'Unitats']],
-                ['module' => 'configuracion', 'name' => 'Sectors', 'slug' => 'sectors', 'label' => ['es' => 'Sectores', 'en' => 'Sectors', 'ca' => 'Sectors']],
-                ['module' => 'configuracion', 'name' => 'Payment methods', 'slug' => 'payment-methods', 'label' => ['es' => 'Métodos de pago', 'en' => 'Payment methods', 'ca' => 'Mètodes de pagament']],
-                ['module' => 'configuracion', 'name' => 'Contents', 'slug' => 'contents', 'label' => ['es' => 'Contenidos', 'en' => 'Contents', 'ca' => 'Continguts']],
-                ['module' => 'configuracion', 'name' => 'Accounts', 'slug' => 'accounts', 'label' => ['es' => 'Cuentas', 'en' => 'Accounts', 'ca' => 'Comptes']],
-                ['module' => 'configuracion', 'name' => 'VAT types', 'slug' => 'vat-types', 'label' => ['es' => 'Tipos de IVA', 'en' => 'VAT types', 'ca' => 'Tipus d\'IVA']],
-                ['module' => 'configuracion', 'name' => 'Accounting account types', 'slug' => 'accounting-account-types', 'label' => ['es' => 'Grupos contables', 'en' => 'Account groups', 'ca' => 'Grups comptables']],
-                ['module' => 'empresas', 'name' => 'Companies', 'slug' => 'companies', 'label' => ['es' => 'Mis empresas', 'en' => 'My companies', 'ca' => 'Les meves empreses']],
-                ['module' => 'empresas', 'name' => 'Delegations', 'slug' => 'delegations', 'label' => ['es' => 'Delegaciones', 'en' => 'Delegations', 'ca' => 'Delegacions']],
-                ['module' => 'empresas', 'name' => 'Company directory', 'slug' => 'company-directory', 'label' => ['es' => 'Directorio', 'en' => 'Directory', 'ca' => 'Directori']],
-                ['module' => 'empresas', 'name' => 'Workplaces', 'slug' => 'workplaces', 'label' => ['es' => 'Centros de trabajo', 'en' => 'Workplaces', 'ca' => 'Centres de treball']],
-                ['module' => 'empresas', 'name' => 'Company settings', 'slug' => 'company-settings', 'label' => ['es' => 'Configuración de la empresa', 'en' => 'Company settings', 'ca' => 'Configuració de l\'empresa']],
-                ['module' => 'empresas', 'name' => 'Company sectors', 'slug' => 'company-sectors', 'label' => ['es' => 'Sectores de empresa', 'en' => 'Company sectors', 'ca' => 'Sectors d\'empresa']],
-                ['module' => 'cuenta', 'name' => 'Company modules', 'slug' => 'company-modules', 'label' => ['es' => 'Mis módulos', 'en' => 'My modules', 'ca' => 'Els meus mòduls']],
-                ['module' => 'usuarios', 'name' => 'Company users', 'slug' => 'company-users', 'label' => ['es' => 'Usuarios empresa', 'en' => 'Company users', 'ca' => 'Usuaris empresa']],
-                ['module' => 'usuarios', 'name' => 'All users', 'slug' => 'all-users', 'label' => ['es' => 'Todos los usuarios', 'en' => 'All users', 'ca' => 'Tots els usuaris']],
-                ['module' => 'usuarios', 'name' => 'Company roles', 'slug' => 'company-roles', 'label' => ['es' => 'Roles de empresa', 'en' => 'Company roles', 'ca' => 'Rols d\'empresa']],
+                ['module' => 'settings', 'name' => 'Modules', 'slug' => 'modules', 'label' => ['es' => 'Módulos', 'en' => 'Modules', 'ca' => 'Mòduls']],
+                ['module' => 'settings', 'name' => 'Functionalities', 'slug' => 'functionalities', 'label' => ['es' => 'Funcionalidades', 'en' => 'Functionalities', 'ca' => 'Funcionalitats'], 'status' => FunctionalityStatus::Inactive],
+                ['module' => 'settings', 'name' => 'Module authorizations', 'slug' => 'company-module-authorizations', 'label' => ['es' => 'Autorización de módulos', 'en' => 'Module authorizations', 'ca' => 'Autorització de mòduls']],
+                ['module' => 'settings', 'name' => 'Roles', 'slug' => 'roles', 'label' => ['es' => 'Roles', 'en' => 'Roles', 'ca' => 'Rols']],
+                ['module' => 'settings', 'name' => 'Permissions', 'slug' => 'permissions', 'label' => ['es' => 'Permisos', 'en' => 'Permissions', 'ca' => 'Permisos']],
+                ['module' => 'settings', 'name' => 'Countries', 'slug' => 'countries', 'label' => ['es' => 'Países', 'en' => 'Countries', 'ca' => 'Països']],
+                ['module' => 'settings', 'name' => 'Currencies', 'slug' => 'currencies', 'label' => ['es' => 'Monedas', 'en' => 'Currencies', 'ca' => 'Monedes']],
+                ['module' => 'settings', 'name' => 'Exchange rates', 'slug' => 'exchange-rates', 'label' => ['es' => 'Conversión monedas', 'en' => 'Currency conversion', 'ca' => 'Conversió de monedes']],
+                ['module' => 'settings', 'name' => 'Banks', 'slug' => 'banks', 'label' => ['es' => 'Bancos', 'en' => 'Banks', 'ca' => 'Bancs']],
+                ['module' => 'settings', 'name' => 'Units', 'slug' => 'units', 'label' => ['es' => 'Unidades', 'en' => 'Units', 'ca' => 'Unitats']],
+                ['module' => 'settings', 'name' => 'Sectors', 'slug' => 'sectors', 'label' => ['es' => 'Sectores', 'en' => 'Sectors', 'ca' => 'Sectors']],
+                ['module' => 'settings', 'name' => 'Payment methods', 'slug' => 'payment-methods', 'label' => ['es' => 'Métodos de pago', 'en' => 'Payment methods', 'ca' => 'Mètodes de pagament']],
+                ['module' => 'settings', 'name' => 'Contents', 'slug' => 'contents', 'label' => ['es' => 'Contenidos', 'en' => 'Contents', 'ca' => 'Continguts']],
+                ['module' => 'settings', 'name' => 'Accounts', 'slug' => 'accounts', 'label' => ['es' => 'Cuentas', 'en' => 'Accounts', 'ca' => 'Comptes']],
+                ['module' => 'settings', 'name' => 'VAT types', 'slug' => 'vat-types', 'label' => ['es' => 'Tipos de IVA', 'en' => 'VAT types', 'ca' => 'Tipus d\'IVA']],
+                ['module' => 'settings', 'name' => 'Accounting account types', 'slug' => 'accounting-account-types', 'label' => ['es' => 'Grupos contables', 'en' => 'Account groups', 'ca' => 'Grups comptables']],
+                ['module' => 'companies', 'name' => 'Companies', 'slug' => 'companies', 'label' => ['es' => 'Mis empresas', 'en' => 'My companies', 'ca' => 'Les meves empreses']],
+                ['module' => 'companies', 'name' => 'Delegations', 'slug' => 'delegations', 'label' => ['es' => 'Delegaciones', 'en' => 'Delegations', 'ca' => 'Delegacions']],
+                ['module' => 'companies', 'name' => 'Company directory', 'slug' => 'company-directory', 'label' => ['es' => 'Directorio', 'en' => 'Directory', 'ca' => 'Directori']],
+                ['module' => 'companies', 'name' => 'Workplaces', 'slug' => 'workplaces', 'label' => ['es' => 'Centros de trabajo', 'en' => 'Workplaces', 'ca' => 'Centres de treball']],
+                ['module' => 'companies', 'name' => 'Company settings', 'slug' => 'company-settings', 'label' => ['es' => 'Configuración de la empresa', 'en' => 'Company settings', 'ca' => 'Configuració de l\'empresa']],
+                ['module' => 'companies', 'name' => 'Company sectors', 'slug' => 'company-sectors', 'label' => ['es' => 'Sectores de empresa', 'en' => 'Company sectors', 'ca' => 'Sectors d\'empresa']],
+                ['module' => 'account', 'name' => 'Company modules', 'slug' => 'company-modules', 'label' => ['es' => 'Mis módulos', 'en' => 'My modules', 'ca' => 'Els meus mòduls']],
+                ['module' => 'users', 'name' => 'Company users', 'slug' => 'company-users', 'label' => ['es' => 'Usuarios empresa', 'en' => 'Company users', 'ca' => 'Usuaris empresa']],
+                ['module' => 'users', 'name' => 'All users', 'slug' => 'all-users', 'label' => ['es' => 'Todos los usuarios', 'en' => 'All users', 'ca' => 'Tots els usuaris']],
+                ['module' => 'users', 'name' => 'Company roles', 'slug' => 'company-roles', 'label' => ['es' => 'Roles de empresa', 'en' => 'Company roles', 'ca' => 'Rols d\'empresa']],
                 ['module' => 'rrhh', 'name' => 'Contract types', 'slug' => 'contract-types', 'label' => ['es' => 'Tipos de contrato', 'en' => 'Contract types', 'ca' => 'Tipus de contracte']],
                 ['module' => 'rrhh', 'name' => 'Employees', 'slug' => 'employees', 'label' => ['es' => 'Empleados', 'en' => 'Employees', 'ca' => 'Empleats']],
+                ['module' => 'rrhh', 'name' => 'Calendars', 'slug' => 'calendars', 'label' => ['es' => 'Calendarios', 'en' => 'Calendars', 'ca' => 'Calendaris']],
+                ['module' => 'rrhh', 'name' => 'Day types', 'slug' => 'day-types', 'label' => ['es' => 'Tipos de jornada', 'en' => 'Day types', 'ca' => 'Tipus de jornada']],
+                ['module' => 'products', 'name' => 'Catalogue', 'slug' => 'catalogue', 'label' => ['es' => 'Catálogo', 'en' => 'Catalogue', 'ca' => 'Catàleg']],
             ] as $item) {
                 $module = $bySlug[$item['module']];
                 $status = $item['status'] ?? FunctionalityStatus::Active;
@@ -168,7 +171,7 @@ class AdminCatalogSeeder extends Seeder
             }
 
             $basicModules = Module::query()
-                ->whereIn('slug', ['dashboard', 'cuenta', 'usuarios', 'empresas'])
+                ->whereIn('slug', ['dashboard', 'cuenta', 'usuarios', 'empresas', 'catalogue'])
                 ->get();
 
             Company::query()->each(function (Company $existing) use ($user, $basicModules): void {

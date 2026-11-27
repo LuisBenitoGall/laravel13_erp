@@ -29,7 +29,7 @@ export default function Create({ roleOptions }: Props) {
 
     function submit(e: FormEvent) {
         e.preventDefault();
-        router.post('/admin/company-users', {
+        router.post('/users/company-users', {
             name: data.name,
             surname: data.surname || null,
             email: data.email,
@@ -45,9 +45,9 @@ export default function Create({ roleOptions }: Props) {
             breadcrumb={{
                 optionKey: 'usuarios_empresa',
                 suboptionKey: 'crear_usuario',
-                optionHref: '/admin/company-users',
+                optionHref: '/users/company-users',
             }}
-            backHref="/admin/company-users"
+            backHref="/users/company-users"
         >
             <form
                 onSubmit={submit}
@@ -120,7 +120,7 @@ export default function Create({ roleOptions }: Props) {
                     <Button
                         type="button"
                         variant="secondary"
-                        onClick={() => router.visit('/admin/company-users')}
+                        onClick={() => router.visit('/users/company-users')}
                     >
                         {t('cancelar')}
                     </Button>

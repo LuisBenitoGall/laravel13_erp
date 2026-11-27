@@ -57,7 +57,7 @@ export default function Create() {
             kind: current.kind,
             ...(current.kind === 'help' ? { code: current.code.trim().toLowerCase() } : {}),
         }));
-        post('/admin/contents');
+        post('/settings/contents');
     }
 
     return (
@@ -65,9 +65,9 @@ export default function Create() {
             breadcrumb={{
                 optionKey: 'contenidos',
                 suboptionKey: 'contenido_crear',
-                optionHref: '/admin/contents',
+                optionHref: '/settings/contents',
             }}
-            backHref="/admin/contents"
+            backHref="/settings/contents"
             actions={[]}
         >
             <form

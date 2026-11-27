@@ -3,6 +3,7 @@
 use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\WorkplaceStatus;
 use App\Domains\Admin\Models\Company;
+use App\Domains\Admin\Models\Currency;
 use App\Domains\Admin\Models\Role;
 use App\Domains\Admin\Models\Workplace;
 use App\Domains\Admin\Services\CompanySetupReadiness;
@@ -61,8 +62,8 @@ it('sin company-settings.view el hub responde 403', function () {
 it('usuario con company-settings.view abre el hub', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('empresas.access');
-    $user->givePermissionTo(['empresas.access', 'company-settings.view']);
+    Permission::findOrCreate('companies.access');
+    $user->givePermissionTo(['companies.access', 'company-settings.view']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.company-settings.index'))
@@ -73,10 +74,11 @@ it('usuario con company-settings.view abre el hub', function () {
             ->where('setup.complete', false));
 });
 
-it('readiness exige nif, logo y workplace Active', function () {
+it('readiness exige nif, logo, workplace Active y moneda por defecto', function () {
     $readiness = app(CompanySetupReadiness::class);
 
-    expect($readiness->evaluate($this->company)['complete'])->toBeFalse();
+    expect($readiness->evaluate($this->company)['complete'])->toBeFalse()
+        ->and($readiness->evaluate($this->company)['total_steps'])->toBe(3);
 
     $this->company->forceFill(['nif' => 'B12345678'])->save();
     expect($readiness->evaluate($this->company->fresh())['steps']['identity']['nif'])->toBeTrue()
@@ -90,6 +92,13 @@ it('readiness exige nif, logo y workplace Active', function () {
         'company_id' => $this->company->id,
         'status' => WorkplaceStatus::Active,
     ]);
+
+    expect($readiness->evaluate($this->company->fresh())['steps']['workplaces']['done'])->toBeTrue()
+        ->and($readiness->evaluate($this->company->fresh())['complete'])->toBeFalse()
+        ->and($readiness->evaluate($this->company->fresh())['steps']['currencies']['done'])->toBeFalse();
+
+    $eur = Currency::factory()->create();
+    $this->company->currencies()->attach($eur->id, ['is_default' => true]);
 
     expect($readiness->evaluate($this->company->fresh())['complete'])->toBeTrue();
 });
@@ -125,6 +134,8 @@ it('store Mis empresas cambia sesión a la nueva y muestra modal si incompleta',
         'company_id' => $this->company->id,
         'status' => WorkplaceStatus::Active,
     ]);
+    $eur = Currency::factory()->create();
+    $this->company->currencies()->attach($eur->id, ['is_default' => true]);
 
     expect(app(CompanySetupReadiness::class)->evaluate($this->company->fresh())['complete'])->toBeTrue();
     expect(session('current_company_id'))->toBe($this->company->id);
@@ -176,12 +187,12 @@ it('hub wizard=1 y listado de sedes; create workplace acepta return_to', functio
             ->has('workplaces', 1));
 
     $this->get(route('admin.workplaces.create', [
-        'return_to' => '/admin/company-settings?wizard=1',
+        'return_to' => '/companies/company-settings?wizard=1',
     ]))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Admin/Workplaces/Create')
-            ->where('return_to', '/admin/company-settings?wizard=1'));
+            ->where('return_to', '/companies/company-settings?wizard=1'));
 });
 
 it('banner desaparece cuando readiness completa', function () {
@@ -196,6 +207,8 @@ it('banner desaparece cuando readiness completa', function () {
         'company_id' => $this->company->id,
         'status' => WorkplaceStatus::Active,
     ]);
+    $eur = Currency::factory()->create();
+    $this->company->currencies()->attach($eur->id, ['is_default' => true]);
 
     $this->get(route('dashboard'))
         ->assertOk()
@@ -204,11 +217,36 @@ it('banner desaparece cuando readiness completa', function () {
             ->where('company_setup.show_modal', false));
 });
 
+it('hub sync monedas completa el paso currencies', function () {
+    $this->company->forceFill([
+        'nif' => 'B12345678',
+        'logo' => 'companies/1/logo.png',
+    ])->save();
+    Workplace::factory()->create([
+        'company_id' => $this->company->id,
+        'status' => WorkplaceStatus::Active,
+    ]);
+
+    setPermissionsTeamId($this->company->id);
+    $this->user->givePermissionTo(Permission::findOrCreate('company-settings.update'));
+
+    $eur = Currency::factory()->create();
+
+    $this->put(route('admin.company-settings.currencies.sync'), [
+        'currency_ids' => [$eur->id],
+        'default_currency_id' => $eur->id,
+    ])->assertRedirect();
+
+    expect(app(CompanySetupReadiness::class)->evaluate($this->company->fresh())['complete'])->toBeTrue()
+        ->and(app(CompanySetupReadiness::class)->evaluate($this->company->fresh())['steps']['currencies']['done'])->toBeTrue();
+});
+
 it('Index hub no inventa pasos futuros y wizard exige logo antes de Sedes', function () {
     $source = (string) file_get_contents(resource_path('js/Pages/Admin/CompanySettings/Index.tsx'));
 
     expect($source)->toContain('paso_identidad')
         ->and($source)->toContain('paso_sedes')
+        ->and($source)->toContain('paso_monedas')
         ->and($source)->toContain('logoOk')
         ->and($source)->toContain('setup.steps.identity.logo')
         ->and($source)->not->toContain('accounting_account')

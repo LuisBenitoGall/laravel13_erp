@@ -95,6 +95,12 @@ todas son elegibles como empresa de sesión SaaS. Detalle R-TEN-11.
 | **Module** | Unidad **SaaS-activable** (plan/catálogo). Gate de `EnsureModuleIsActive`. Catálogo **global** (excepción R-TEN-01, sin `company_id`). Puede ser **hoja de menú** si no tiene Functionalities (p. ej. `dashboard`). | La unidad de permiso de acciones CRUD. |
 | **Functionality** | Unidad de **permiso y subítem de menú** dentro de un Module. Slug **inmutable** tras crearse. Catálogo global. | Un Module. |
 
+**Naming Module (canónico):** `name` y `slug` en **inglés** (kebab-case el
+slug). El `slug` es el segmento de ruta del Module (`/{slug}/…`), el argumento
+de `module:{slug}` y el comodín Spatie `{slug}.access`. Labels i18n (ES/EN/CA)
+son la UI; no el identificador. Functionality: slug inglés inmutable; no tiene
+por qué coincidir con el del Module.
+
 Permisos Spatie: `<slug-de-Functionality>.<acción>` (`modules.view`,
 `invoices.create`). **No** usar el slug del Module como prefijo salvo el comodín
 `<module-slug>.access`. Habilidades canónicas en BD:

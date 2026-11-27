@@ -64,12 +64,24 @@ final class PreferenceUrlNormalizer
             return false;
         }
 
-        return $pathOnly === '/admin'
-            || str_starts_with($pathOnly, '/admin/')
-            || $pathOnly === '/dashboard'
-            || str_starts_with($pathOnly, '/dashboard/')
-            || $pathOnly === '/account'
-            || str_starts_with($pathOnly, '/account/');
+        $allowedRoots = [
+            'dashboard',
+            'account',
+            'users',
+            'companies',
+            'settings',
+            'products',
+            'rrhh',
+            'deliveries',
+        ];
+
+        foreach ($allowedRoots as $root) {
+            if ($pathOnly === '/'.$root || str_starts_with($pathOnly, '/'.$root.'/')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** @throws ValidationException */

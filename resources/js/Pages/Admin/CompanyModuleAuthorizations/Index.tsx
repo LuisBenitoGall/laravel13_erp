@@ -32,7 +32,7 @@ export default function Index({
             breadcrumb={{
                 optionKey: 'autorizacion_de_modulos',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/company-module-authorizations',
+                optionHref: '/settings/company-module-authorizations',
             }}
             showBack={false}
             actions={[]}
@@ -47,7 +47,7 @@ export default function Index({
                         className="rounded-md border border-slate-300 px-3 py-2 text-sm"
                         value={selected_company_id ?? ''}
                         onChange={(e) =>
-                            router.get('/admin/company-module-authorizations', {
+                            router.get('/settings/company-module-authorizations', {
                                 company_id: e.target.value,
                             })
                         }
@@ -86,8 +86,8 @@ export default function Index({
                                 }
                                 router.post(
                                     module.authorized
-                                        ? `/admin/company-module-authorizations/${selected_company_id}/${module.id}/revoke`
-                                        : `/admin/company-module-authorizations/${selected_company_id}/${module.id}/authorize`,
+                                        ? `/settings/company-module-authorizations/${selected_company_id}/${module.id}/revoke`
+                                        : `/settings/company-module-authorizations/${selected_company_id}/${module.id}/authorize`,
                                 );
                             }}
                         >

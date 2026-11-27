@@ -36,7 +36,7 @@ export default function Index() {
         const controller = new AbortController();
         setQuickLoading(true);
 
-        void getJson<UserQuickViewPayload>(`/admin/all-users/${quickUserId}/quick`, {
+        void getJson<UserQuickViewPayload>(`/users/all-users/${quickUserId}/quick`, {
             signal: controller.signal,
         })
             .then((data) => {
@@ -113,12 +113,12 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'todos_los_usuarios',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/all-users',
+                optionHref: '/users/all-users',
             }}
             showBack={false}
         >
             <ServerTable<DirectoryUserRow>
-                endpoint="/admin/all-users/table"
+                endpoint="/users/all-users/table"
                 columns={columns}
                 persistKey="admin.all-users"
                 exportable={false}

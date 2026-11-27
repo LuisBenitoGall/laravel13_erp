@@ -108,7 +108,7 @@ export default function Index() {
 
     function submitCreate(event: FormEvent) {
         event.preventDefault();
-        createForm.post('/admin/currencies', {
+        createForm.post('/settings/currencies', {
             preserveScroll: true,
             onSuccess: () => {
                 setCreateOpen(false);
@@ -123,7 +123,7 @@ export default function Index() {
             return;
         }
 
-        editForm.put(`/admin/currencies/${editing.id}`, {
+        editForm.put(`/settings/currencies/${editing.id}`, {
             preserveScroll: true,
             onSuccess: () => {
                 setEditing(null);
@@ -140,7 +140,7 @@ export default function Index() {
             checked: row.status === 'active',
             onToggle: async (_row, checked) => {
                 const status = checked ? 'active' : 'inactive';
-                await patchJson<{ status: string }>(`/admin/currencies/${row.id}/status`, {
+                await patchJson<{ status: string }>(`/settings/currencies/${row.id}/status`, {
                     status,
                 });
 
@@ -159,7 +159,7 @@ export default function Index() {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/admin/currencies/${current.id}`, {
+                router.delete(`/settings/currencies/${current.id}`, {
                     preserveScroll: true,
                     onSuccess: () => setTableKey((key) => key + 1),
                     onError: (errors) => {
@@ -178,7 +178,7 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'monedas',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/currencies',
+                optionHref: '/settings/currencies',
             }}
             showBack={false}
             actions={[
@@ -192,7 +192,7 @@ export default function Index() {
         >
             <ServerTable<CurrencyRow>
                 key={tableKey}
-                endpoint="/admin/currencies/table"
+                endpoint="/settings/currencies/table"
                 columns={columns}
                 persistKey="admin.currencies"
                 exportable={false}

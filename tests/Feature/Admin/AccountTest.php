@@ -76,8 +76,8 @@ it('sin accounts.* las rutas de cuentas responden 403', function () {
 it('usuario no-SA no abre accounts aunque tenga permisos (AdminOnly = SA)', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
-    $user->givePermissionTo(['configuracion.access', 'accounts.view']);
+    Permission::findOrCreate('settings.access');
+    $user->givePermissionTo(['settings.access', 'accounts.view']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.accounts.index'))->assertForbidden();

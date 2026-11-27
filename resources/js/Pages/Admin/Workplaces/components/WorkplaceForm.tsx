@@ -23,7 +23,7 @@ type Props = {
     countries: GeoOption[];
     /** Create: true si no hay centros Active; false si ya hay ≥1 Active. */
     defaultFeatured?: boolean;
-    /** Tras crear, redirect al hub (p. ej. `/admin/company-settings`). */
+    /** Tras crear, redirect al hub (p. ej. `/companies/company-settings`). */
     returnTo?: string | null;
     initial?: Partial<{
         name: string;
@@ -102,7 +102,7 @@ export default function WorkplaceForm({
         }
 
         let cancelled = false;
-        fetchJson<GeoOption[]>(`/admin/workplaces/geo/countries/${countryId}/provinces`)
+        fetchJson<GeoOption[]>(`/companies/workplaces/geo/countries/${countryId}/provinces`)
             .then((rows) => {
                 if (!cancelled) {
                     setProvinces(rows);
@@ -126,7 +126,7 @@ export default function WorkplaceForm({
         }
 
         let cancelled = false;
-        fetchJson<GeoOption[]>(`/admin/workplaces/geo/provinces/${provinceId}/towns`)
+        fetchJson<GeoOption[]>(`/companies/workplaces/geo/provinces/${provinceId}/towns`)
             .then((rows) => {
                 if (!cancelled) {
                     setTowns(rows);
@@ -268,7 +268,7 @@ export default function WorkplaceForm({
                 <Button
                     type="button"
                     variant="secondary"
-                    onClick={() => router.visit('/admin/workplaces')}
+                    onClick={() => router.visit('/companies/workplaces')}
                 >
                     {t('cancelar')}
                 </Button>

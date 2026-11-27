@@ -14,15 +14,15 @@ export default function Create({ options, default_user_id = null }: Props) {
             breadcrumb={{
                 optionKey: 'empleados',
                 suboptionKey: 'empleo_nuevo',
-                optionHref: '/hr/employees',
+                optionHref: '/rrhh/employees',
             }}
-            backHref="/hr/employees"
+            backHref="/rrhh/employees"
             actions={[]}
         >
             <EmployeeForm
                 mode="create"
                 method="post"
-                submitUrl="/hr/employees"
+                submitUrl="/rrhh/employees"
                 options={options}
                 defaultUserId={default_user_id}
             />

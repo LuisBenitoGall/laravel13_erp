@@ -71,8 +71,8 @@ it('sin banks.* las rutas de bancos responden 403', function () {
 it('usuario con banks.view abre el Index', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
-    $user->givePermissionTo(['configuracion.access', 'banks.view']);
+    Permission::findOrCreate('settings.access');
+    $user->givePermissionTo(['settings.access', 'banks.view']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.banks.index'))->assertOk();

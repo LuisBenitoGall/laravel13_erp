@@ -35,6 +35,9 @@ ambigüedad más abajo.
   - R-BD-05: numeración solo vía `NumberingService`.
   - R-TRV-05 / R-FE-05: cero literales de UI sin i18n.
   - Front Inertia+React: **prohibido Livewire**. Skill `tenancy-rbac`.
+  - UI cliente (TSX/CSS/forms/modales/a11y/CWV): skill `modern-web-guidance` (Baseline
+    Widely available); **subordinada** a `frontend.md` / shadcn / `<ServerTable>` —
+    no sustituye el design system. Detalle: `AGENTS.md` § Modern Web Guidance.
 - Reutilizar el catálogo de componentes (`frontend.md` §4) — prohibido duplicar un
   componente existente; promocionar a `Components/` si un privado se necesita en 2 dominios.
 - Escribir los tests que las tasks piden EN la misma task (no "al final"); el test de

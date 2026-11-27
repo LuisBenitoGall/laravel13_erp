@@ -3,9 +3,10 @@ name: agent-setup
 description: >-
   Installs and configures ERP v2 toolchain from the project canon: Composer/npm
   libraries, shadcn/ui, Cursor/VS Code extensions, MCP, PHPStan, Pint, ESLint,
-  Prettier, CI, Pest browser. Use when the user mentions setup, plugins,
-  librerías, dependencias, composer require, npm install, shadcn, extensiones,
-  MCP, tooling, Fase 0, Agent Setup & Settings, or environment configuration.
+  Prettier, CI, Pest browser, modern-web-guidance. Use when the user mentions
+  setup, plugins, librerías, dependencias, composer require, npm install, shadcn,
+  extensiones, MCP, tooling, Fase 0, Agent Setup & Settings, Baseline, or
+  environment configuration.
 ---
 
 # Agent Setup & Settings
@@ -100,6 +101,19 @@ servidor en MCP Settings.
 Base del design system (`frontend.md` §2). Se **copia** código a
 `resources/js/Components/ui/`; no se instala un kit alternativo. Tokens en
 `resources/css/app.css` (`@theme`). Iconos solo `lucide-react`.
+
+### Modern Web Guidance (DX agentes)
+
+Skill de plataforma web (Chrome/MDN), no dependencia runtime del ERP:
+
+```bash
+npx skills add GoogleChrome/modern-web-guidance -y -s modern-web-guidance -a cursor -a claude-code --copy
+```
+
+- Node ≥ 22. Solo el skill `modern-web-guidance` (no `chrome-extensions`).
+- Baseline del proyecto: **Widely available** (`AGENTS.md` / `CLAUDE.md`).
+- Subordinado a `frontend.md`, shadcn y `<ServerTable>`; no va a `docs/standards/`.
+- Actualizar: mismo comando o `npx skills update modern-web-guidance -y`.
 
 ## Configuración moderna (cuando el usuario lo pida)
 

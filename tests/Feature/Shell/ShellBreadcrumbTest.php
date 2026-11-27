@@ -38,7 +38,7 @@ it('Modules Index declara breadcrumb con Dashboard y href al index', function ()
 
     expect($source)->toContain("optionKey: 'modulos'")
         ->and($source)->toContain("suboptionKey: 'dashboard'")
-        ->and($source)->toContain("optionHref: '/admin/modules'");
+        ->and($source)->toContain("optionHref: '/settings/modules'");
 });
 
 it('Modules Edit declara suboption editar y option enlaza al index', function () {
@@ -46,7 +46,7 @@ it('Modules Edit declara suboption editar y option enlaza al index', function ()
 
     expect($source)->toContain("optionKey: 'modulos'")
         ->and($source)->toContain('modulo_editar')
-        ->and($source)->toContain("optionHref: '/admin/modules'");
+        ->and($source)->toContain("optionHref: '/settings/modules'");
 });
 
 it('Index y Edit de modules responden OK con AppLayout', function () {

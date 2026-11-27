@@ -55,7 +55,7 @@ export default function CompanyHierarchyPanel({
 
     function submitParent(event: FormEvent) {
         event.preventDefault();
-        parentForm.put(`/admin/companies/${companyId}/parent`, {
+        parentForm.put(`/companies/${companyId}/parent`, {
             preserveScroll: true,
         });
     }
@@ -67,7 +67,7 @@ export default function CompanyHierarchyPanel({
         }
 
         router.post(
-            `/admin/companies/${companyId}/children`,
+            `/companies/${companyId}/children`,
             { child_id: Number(childToAdd) },
             {
                 preserveScroll: true,
@@ -81,7 +81,7 @@ export default function CompanyHierarchyPanel({
             return;
         }
 
-        router.delete(`/admin/companies/${companyId}/children/${childId}`, {
+        router.delete(`/companies/${companyId}/children/${childId}`, {
             preserveScroll: true,
         });
     }

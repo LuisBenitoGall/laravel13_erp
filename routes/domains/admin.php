@@ -44,7 +44,8 @@ use Illuminate\Support\Facades\Route;
 // El catálogo de módulos queda fuera de `module:configuracion`: si pasa a Inactive,
 // el listado y el toggle siguen accesibles para volver a activarlo. El resto del
 // área admin sigue detrás del middleware.
-Route::middleware(['auth', 'company'])->prefix('admin')->name('admin.')->group(function () {
+// Catálogo Modules (SA): fuera de module:settings para poder reactivar si Inactive.
+Route::middleware(['auth', 'company'])->prefix('settings')->name('admin.')->group(function () {
     Route::get('modules/table', [ModuleController::class, 'table'])->name('modules.table');
     Route::patch('modules/{module}/status', [ModuleController::class, 'updateStatus'])->name('modules.status');
     Route::get('modules/{module}/functionalities/table', [FunctionalityController::class, 'moduleTable'])
@@ -53,14 +54,16 @@ Route::middleware(['auth', 'company'])->prefix('admin')->name('admin.')->group(f
         ->name('modules.functionalities.store');
     Route::resource('modules', ModuleController::class)->except(['show']);
 
-    // Mutaciones usadas desde Module Edit (CRUD anidado); fuera de module:configuracion como el catálogo.
+    // Mutaciones usadas desde Module Edit (CRUD anidado); fuera de module:settings como el catálogo.
     Route::patch('functionalities/{functionality}/status', [FunctionalityController::class, 'updateStatus'])
         ->name('functionalities.status');
     Route::put('functionalities/{functionality}', [FunctionalityController::class, 'update'])
         ->name('functionalities.update');
     Route::delete('functionalities/{functionality}', [FunctionalityController::class, 'destroy'])
         ->name('functionalities.destroy');
+});
 
+Route::middleware(['auth', 'company'])->prefix('account')->name('admin.')->group(function () {
     // Favoritos personales (sin Functionality de menú; D4/D6).
     Route::post('preferences', [PreferenceController::class, 'store'])->name('preferences.store');
     Route::delete('preferences/{preference}', [PreferenceController::class, 'destroy'])
@@ -71,7 +74,7 @@ Route::middleware(['auth', 'company'])->prefix('admin')->name('admin.')->group(f
     Route::delete('notes/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
 });
 
-Route::middleware(['auth', 'company', 'module:cuenta'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'company', 'module:account'])->prefix('account')->name('admin.')->group(function () {
     Route::get('company-modules', [CompanyModuleController::class, 'index'])->name('company-modules.index');
     Route::post('company-modules/{module}/enable', [CompanyModuleController::class, 'enable'])->name('company-modules.enable');
     Route::post('company-modules/{module}/disable', [CompanyModuleController::class, 'disable'])->name('company-modules.disable');
@@ -84,7 +87,7 @@ Route::middleware(['auth', 'company', 'module:cuenta'])->prefix('admin')->name('
     Route::post('account-renew', [CompanyAccountPortalController::class, 'renew'])->name('account.renew.store');
 });
 
-Route::middleware(['auth', 'company', 'module:configuracion'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'company', 'module:settings'])->prefix('settings')->name('admin.')->group(function () {
     Route::get('permissions/table', [PermissionController::class, 'table'])->name('permissions.table');
     Route::get('permissions', [PermissionController::class, 'index'])->name('permissions.index');
     Route::post('permissions', [PermissionController::class, 'store'])->name('permissions.store');
@@ -209,7 +212,7 @@ Route::middleware(['auth', 'company', 'module:configuracion'])->prefix('admin')-
         ->name('company-module-authorizations.revoke');
 });
 
-Route::middleware(['auth', 'company', 'module:empresas'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'company', 'module:companies'])->prefix('companies')->name('admin.')->group(function () {
     Route::get('company-directory', [CompanyDirectoryController::class, 'index'])
         ->name('company-directory.index');
     Route::get('company-directory/{company}', [CompanyDirectoryController::class, 'show'])
@@ -217,6 +220,8 @@ Route::middleware(['auth', 'company', 'module:empresas'])->prefix('admin')->name
 
     Route::get('company-settings', [CompanySettingsController::class, 'index'])
         ->name('company-settings.index');
+    Route::put('company-settings/currencies', [CompanySettingsController::class, 'syncCurrencies'])
+        ->name('company-settings.currencies.sync');
     Route::post('company-settings/dismiss-modal', [CompanySettingsController::class, 'dismissModal'])
         ->name('company-settings.dismiss-modal');
 
@@ -234,29 +239,56 @@ Route::middleware(['auth', 'company', 'module:empresas'])->prefix('admin')->name
         ->name('workplaces.delegations.sync');
     Route::resource('workplaces', WorkplaceController::class)->except(['show']);
 
-    Route::get('companies/table', [CompanyController::class, 'table'])->name('companies.table');
-    Route::patch('companies/{company}/status', [CompanyController::class, 'updateStatus'])
-        ->name('companies.status');
-    Route::post('companies/{company}/logo', [CompanyController::class, 'uploadLogo'])
-        ->name('companies.logo');
-    Route::put('companies/{company}/parent', [CompanyController::class, 'updateParent'])
-        ->name('companies.parent');
-    Route::post('companies/{company}/children', [CompanyController::class, 'attachChild'])
-        ->name('companies.children.attach');
-    Route::delete('companies/{company}/children/{child}', [CompanyController::class, 'detachChild'])
-        ->name('companies.children.detach');
-    Route::put('companies/{company}/sectors', [CompanyController::class, 'syncSectors'])
-        ->name('companies.sectors.sync');
-    Route::resource('companies', CompanyController::class)->except(['show']);
-
     // Delegaciones = Companies hijas de la matriz de sesión (≠ Mis empresas; sin company_accounts).
     Route::get('delegations/table', [DelegationController::class, 'table'])->name('delegations.table');
     Route::patch('delegations/{delegation}/status', [DelegationController::class, 'updateStatus'])
         ->name('delegations.status');
+    Route::put('delegations/{delegation}/currencies', [DelegationController::class, 'syncCurrencies'])
+        ->name('delegations.currencies.sync');
+    Route::get('delegations/{delegation}/workplaces/table', [DelegationController::class, 'workplacesTable'])
+        ->name('delegations.workplaces.table');
+    Route::put('delegations/{delegation}/preferred-workplace', [DelegationController::class, 'setPreferredWorkplace'])
+        ->name('delegations.preferred-workplace');
     Route::resource('delegations', DelegationController::class)->except(['show']);
+
+    // Mis empresas en la raíz del Module `companies` (evita /companies/companies).
+    Route::get('table', [CompanyController::class, 'table'])->name('companies.table');
+    Route::get('/', [CompanyController::class, 'index'])->name('companies.index');
+    Route::get('create', [CompanyController::class, 'create'])->name('companies.create');
+    Route::post('/', [CompanyController::class, 'store'])->name('companies.store');
+    Route::patch('{company}/status', [CompanyController::class, 'updateStatus'])
+        ->whereNumber('company')
+        ->name('companies.status');
+    Route::post('{company}/logo', [CompanyController::class, 'uploadLogo'])
+        ->whereNumber('company')
+        ->name('companies.logo');
+    Route::put('{company}/parent', [CompanyController::class, 'updateParent'])
+        ->whereNumber('company')
+        ->name('companies.parent');
+    Route::post('{company}/children', [CompanyController::class, 'attachChild'])
+        ->whereNumber('company')
+        ->name('companies.children.attach');
+    Route::delete('{company}/children/{child}', [CompanyController::class, 'detachChild'])
+        ->whereNumber('company')
+        ->name('companies.children.detach');
+    Route::put('{company}/sectors', [CompanyController::class, 'syncSectors'])
+        ->whereNumber('company')
+        ->name('companies.sectors.sync');
+    Route::put('{company}/currencies', [CompanyController::class, 'syncCurrencies'])
+        ->whereNumber('company')
+        ->name('companies.currencies.sync');
+    Route::get('{company}/edit', [CompanyController::class, 'edit'])
+        ->whereNumber('company')
+        ->name('companies.edit');
+    Route::put('{company}', [CompanyController::class, 'update'])
+        ->whereNumber('company')
+        ->name('companies.update');
+    Route::delete('{company}', [CompanyController::class, 'destroy'])
+        ->whereNumber('company')
+        ->name('companies.destroy');
 });
 
-Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'company', 'module:users'])->prefix('users')->name('admin.')->group(function () {
     Route::get('companies/{company}/members', [CompanyMemberController::class, 'index'])
         ->name('companies.members.index');
     Route::put('companies/{company}/members/{user}/role', [CompanyMemberController::class, 'updateRole'])
@@ -272,7 +304,7 @@ Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('admin')->name
         ->parameters(['company-roles' => 'companyRole']);
 });
 
-Route::middleware(['auth', 'company'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'company'])->prefix('account')->name('admin.')->group(function () {
     Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
@@ -314,7 +346,7 @@ Route::middleware(['auth', 'company'])->prefix('admin')->name('admin.')->group(f
         ->name('profile.employment-periods.table');
 });
 
-Route::middleware(['auth', 'company', 'module:usuarios'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'company', 'module:users'])->prefix('users')->name('admin.')->group(function () {
     Route::get('all-users/table', [AllUserController::class, 'table'])->name('all-users.table');
     Route::get('all-users/{user}/quick', [AllUserController::class, 'quick'])->name('all-users.quick');
     Route::get('all-users/{user}/images/{userImage}/file', [UserImageController::class, 'fileForAllUser'])

@@ -1,0 +1,23 @@
+---
+description: Layout de formularios — columnas vs full-width, HelpTip/fieldKey; seguir skill form-layout-polish
+globs:
+  - resources/js/Pages/**/*.tsx
+  - resources/js/Components/Form/**/*.{tsx,ts}
+  - resources/js/Components/**/*Form*.tsx
+  - resources/js/Components/HelpTip.tsx
+alwaysApply: false
+---
+
+# form-layout-polish — activación automática en formularios
+
+Canon: skill `.cursor/skills/form-layout-polish/SKILL.md` (LEERLA y aplicarla).
+
+Al crear, editar o revisar **cualquier** vista/componente de formulario Inertia
+(Create/Edit, `*Form*`, `Field`, tabs de ficha con inputs):
+
+1. **Leer y seguir** la skill `form-layout-polish` completa.
+2. Decidir **full-width vs 2/3 columnas** con su heurística (móvil 1 col;
+   `md:`+ compacta campos cortos; email/dirección/textos largos a línea completa).
+3. Cablear `FormHelpScope` + `fieldKey` + `tipAlign` según la checklist de la skill.
+4. No dar por cerrado el form si hay desalineación tip/control o un grid que
+   aplasta campos largos o rompe móvil.

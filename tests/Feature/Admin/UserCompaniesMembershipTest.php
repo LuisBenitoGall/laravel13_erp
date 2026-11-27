@@ -72,7 +72,7 @@ function actingMembershipManager(Company $company, bool $withUpdate = true): Use
 
     setPermissionsTeamId($company->id);
     $perms = [
-        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('users.access'),
         Permission::findOrCreate('company-users.view'),
         Permission::findOrCreate('company-users.viewAny'),
     ];

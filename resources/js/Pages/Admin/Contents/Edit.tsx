@@ -59,15 +59,15 @@ export default function Edit({ content }: ContentEditProps) {
             breadcrumb={{
                 optionKey: 'contenidos',
                 suboptionKey: 'contenido_editar',
-                optionHref: '/admin/contents',
+                optionHref: '/settings/contents',
             }}
-            backHref="/admin/contents"
+            backHref="/settings/contents"
             actions={[
                 {
                     type: 'delete',
                     confirmKey: 'contenido_confirmar_eliminar',
                     onConfirm: () => {
-                        router.delete(`/admin/contents/${content.id}`);
+                        router.delete(`/settings/contents/${content.id}`);
                     },
                 },
             ]}

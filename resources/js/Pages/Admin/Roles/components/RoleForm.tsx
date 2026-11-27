@@ -135,7 +135,7 @@ export default function RoleForm({
         markPending([name], true);
 
         try {
-            const result = await patchJson<ToggleResponse>(`/admin/roles/${role.id}/permissions`, {
+            const result = await patchJson<ToggleResponse>(`/settings/roles/${role.id}/permissions`, {
                 permission: name,
                 enabled,
             });
@@ -174,7 +174,7 @@ export default function RoleForm({
 
         try {
             const result = await patchJson<ToggleResponse>(
-                `/admin/roles/${role.id}/functionalities`,
+                `/settings/roles/${role.id}/functionalities`,
                 {
                     functionality: fn.slug,
                     enabled,
@@ -204,7 +204,7 @@ export default function RoleForm({
     function submitDescription(e: FormEvent) {
         e.preventDefault();
         router.put(
-            `/admin/roles/${role.id}`,
+            `/settings/roles/${role.id}`,
             { description: data.description },
             { preserveScroll: true },
         );
@@ -214,7 +214,7 @@ export default function RoleForm({
         if (role.protected_template) {
             return;
         }
-        destroy(`/admin/roles/${role.id}`);
+        destroy(`/settings/roles/${role.id}`);
     }
 
     function submitCopy(e: FormEvent) {
@@ -225,7 +225,7 @@ export default function RoleForm({
         }
         setCopying(true);
         router.post(
-            `/admin/roles/${role.id}/copy`,
+            `/settings/roles/${role.id}/copy`,
             { company_ids: copyIds },
             {
                 preserveScroll: true,
@@ -266,10 +266,10 @@ export default function RoleForm({
             breadcrumb={{
                 optionKey: 'roles',
                 suboptionKey: 'rol_editar',
-                optionHref: '/admin/roles',
+                optionHref: '/settings/roles',
             }}
             actions={viewActions}
-            backHref="/admin/roles"
+            backHref="/settings/roles"
         >
             <div className="space-y-6">
                 <form
@@ -307,7 +307,7 @@ export default function RoleForm({
                     ) : null}
 
                     <FormActions>
-                        <Button type="button" variant="secondary" onClick={() => router.visit('/admin/roles')}>
+                        <Button type="button" variant="secondary" onClick={() => router.visit('/settings/roles')}>
                             {t('cancelar')}
                         </Button>
                         <Button type="submit" disabled={processing}>

@@ -71,7 +71,7 @@ function actingCompanyUsersViewer(Company $company, bool $withUpdate = true): Us
     setPermissionsTeamId($company->id);
 
     $perms = [
-        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('users.access'),
         Permission::findOrCreate('company-users.view'),
         Permission::findOrCreate('company-users.viewAny'),
     ];
@@ -95,7 +95,7 @@ function actingAllUsersViewer(Company $company): User
 
     setPermissionsTeamId($company->id);
     $user->givePermissionTo([
-        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('users.access'),
         Permission::findOrCreate('all-users.view'),
     ]);
     $user->unsetRelation('roles');

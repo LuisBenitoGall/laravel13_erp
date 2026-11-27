@@ -107,7 +107,7 @@ export default function Index() {
 
     function submitCreate(event: FormEvent) {
         event.preventDefault();
-        createForm.post('/admin/banks', {
+        createForm.post('/settings/banks', {
             preserveScroll: true,
             onSuccess: () => {
                 setCreateOpen(false);
@@ -122,7 +122,7 @@ export default function Index() {
             return;
         }
 
-        editForm.put(`/admin/banks/${editing.id}`, {
+        editForm.put(`/settings/banks/${editing.id}`, {
             preserveScroll: true,
             onSuccess: () => {
                 setEditing(null);
@@ -139,7 +139,7 @@ export default function Index() {
             checked: row.status === 'active',
             onToggle: async (_row, checked) => {
                 const status = checked ? 'active' : 'inactive';
-                await patchJson<{ status: string }>(`/admin/banks/${row.id}/status`, {
+                await patchJson<{ status: string }>(`/settings/banks/${row.id}/status`, {
                     status,
                 });
 
@@ -158,7 +158,7 @@ export default function Index() {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/admin/banks/${current.id}`, {
+                router.delete(`/settings/banks/${current.id}`, {
                     preserveScroll: true,
                     onSuccess: () => setTableKey((key) => key + 1),
                     onError: (errors) => {
@@ -268,7 +268,7 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'bancos',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/banks',
+                optionHref: '/settings/banks',
             }}
             showBack={false}
             actions={[
@@ -282,7 +282,7 @@ export default function Index() {
         >
             <ServerTable<BankRow>
                 key={tableKey}
-                endpoint="/admin/banks/table"
+                endpoint="/settings/banks/table"
                 columns={columns}
                 persistKey="admin.banks"
                 exportable={false}

@@ -14,7 +14,7 @@ usa las inferiores); las dependencias hacia arriba u horizontales van SIEMPRE po
 (R-DOM-02).
 
 ```
-Capa 4 — Extensiones     Portal · Projects · HR · Platform
+Capa 4 — Extensiones     Portal · Projects · HR · Calendar · Platform
 Capa 3 — Financiera      Invoicing · Treasury · Accounting · Tax
 Capa 2 — Operaciones     Sales · Purchasing · Inventory
 Capa 1 — Maestros        Admin (+ Support sin dominio)
@@ -22,9 +22,9 @@ Capa 1 — Maestros        Admin (+ Support sin dominio)
 
 | Dominio | Propósito | Entidades núcleo (v1 de referencia) | Fase |
 |---|---|---|---|
-| **Admin** | Único dominio funcional Fase 0: usuarios, RBAC, módulos, menú, catálogos globales, **Company** (tenant), **Bank**, **Workplace**, **Content** (Help/Article), shell | User, UserCompany, UserEmail, UserImage, UserDoc, Phone, Role, Module, Functionality, CompanyModules, Company, CompanyAccount, Workplace, Preference, Note, Content, Bank, Country, Currency, ExchangeRate, Unit, Account, Sector, PaymentMethod, VatType, AccountingAccountType, `*Pattern`, InvoiceSerie | 0–1 |
+| **Admin** | Único dominio funcional Fase 0: usuarios, RBAC, módulos, menú, catálogos globales, **Company** (tenant; pivote `company_currencies` ↔ Currency), **Bank**, **Workplace**, **Content** (Help/Article), shell | User, UserCompany, UserEmail, UserImage, UserDoc, Phone, Role, Module, Functionality, CompanyModules, Company, CompanyAccount, Workplace, Preference, Note, Content, Bank, Country, Currency, ExchangeRate, Unit, Account, Sector, PaymentMethod, VatType, AccountingAccountType, `*Pattern`, InvoiceSerie | 0–1 |
 | **Platform** | Consola del operador SaaS: tenants, planes, uso, soporte, onboarding | Tenant/Subscription, Plan | 0 |
-| **Catalog** | Productos, precios versionados, tarifas (5 + A/B/C), familias/categorías/tags, catálogo proveedor (unidades de producto **leen** el maestro `Unit` de Admin) | Product, ProductPrices, Rate, Family, Category, ProductProviders | 1 |
+| **Catalog** | Productos + imágenes + documentos (CRUD/tabs Edit); precios/tarifas/familias/proveedor **pendientes** (unidades de producto leerán `Unit` de Admin). Catalog → Admin = D (sin dependencia nueva) | Product, ProductImage, ProductDoc (operativo); ProductPrices, Rate, Family, Category, ProductProviders (pendiente) | 1 |
 | **Inventory** | Multi-almacén, kardex, consolidado, reservas, lotes, nº serie, inventario | Store, Stock, StockTotal, StockReserve, Lot, SerialNumber | 2 |
 | **Sales** | Presupuesto → pedido → albarán (modelo `Order` unificado, lado venta), previsiones, equipos comerciales | Order, Item, OrderVersion, ItemRevision, DeliveryNote, OrderPrevisions | 2 |
 | **Purchasing** | Pedido de compra, recepciones, costes reales/portes, compra desde venta | Order (lado compra), Receiving, ReceivingLine | 3 |
@@ -34,7 +34,8 @@ Capa 1 — Maestros        Admin (+ Support sin dominio)
 | **Tax** | Ámbitos fiscales, SII, VERI*FACTU, credenciales por tenant (maestro `VatType` vive en Admin; Tax lo **lee**) | SiiCredential, SiiReport | 4 |
 | **Portal** | Tienda B2B, carrito, presupuestos/pedidos de cliente, roles cliente, chat por obra | Cart, roles cliente, ChatRoom | 5 |
 | **Projects** | Proyectos, órdenes de trabajo, producción, SAT, tareas/incidencias | Project, WorkOrder, SatTicket, Task | 6 |
-| **HR** | Empleados, tipos de contrato, fichajes, calendarios, planning, vehículos | Employee, ContractType, TimeEntry, WorkCalendar | 6 |
+| **HR** | Empleados, tipos de contrato, fichajes, planning, vehículos (calendarios vía Calendar) | Employee, ContractType, TimeEntry | 6 |
+| **Calendar** | Tipos de jornada y calendarios laborales 1:1 por sede; rejilla anual | DayType, WorkCalendar, WorkCalendarDay | 6 |
 
 `Support/` (sin dominio): formato es-ES, dinero/decimales, importe en letras
 (`MoneyToWordsEs`), IBAN/BIC, fechas. `Shared` conceptual: `NumberingService` y branding de
@@ -55,21 +56,22 @@ y [architecture.md](architecture.md) R-AUT-07/R-AUT-08.
 `D` = dependencia directa permitida (lectura/Actions). `E` = solo por eventos.
 Fila = dominio que depende; columna = dominio del que depende.
 
-| ↓ usa → | Admin | Catalog | Inventory | Sales | Purchasing | Invoicing | Treasury | Accounting | Tax | HR |
-|---|---|---|---|---|---|---|---|---|---|---|
-| **Admin** | — | | | | | | | | | D⁵ |
-| **Catalog** | D | — | | | | | | | | |
-| **Inventory** | D | D | — | | | | | | | |
-| **Sales** | D | D | D | — | | | | | | |
-| **Purchasing** | D | D | D | D¹ | — | | | | | |
-| **Invoicing** | D | D | E² | D | D | — | | | | |
-| **Treasury** | D | | | | | D | — | | | |
-| **Accounting** | D | | | E³ | E³ | E³ | E³ | — | | |
-| **Tax** | D | | | | | D | | | — | |
-| **Portal** | D | D | D | D⁴ | | D | | | | |
-| **Projects** | D | D | D | D | D | D | | | | |
-| **HR** | D | | | | | | | | | — |
-| **Platform** | D | | | | | | | | | |
+| ↓ usa → | Admin | Catalog | Inventory | Sales | Purchasing | Invoicing | Treasury | Accounting | Tax | HR | Calendar |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **Admin** | — | | | | | | | | | D⁵ | |
+| **Catalog** | D | — | | | | | | | | | |
+| **Inventory** | D | D | — | | | | | | | | |
+| **Sales** | D | D | D | — | | | | | | | |
+| **Purchasing** | D | D | D | D¹ | — | | | | | | |
+| **Invoicing** | D | D | E² | D | D | — | | | | | |
+| **Treasury** | D | | | | | D | — | | | | |
+| **Accounting** | D | | | E³ | E³ | E³ | E³ | — | | | |
+| **Tax** | D | | | | | D | | | — | | |
+| **Portal** | D | D | D | D⁴ | | D | | | | | |
+| **Projects** | D | D | D | D | D | D | | | | | |
+| **HR** | D | | | | | | | | | — | D⁶ |
+| **Calendar** | D | | | | | | | | | | — |
+| **Platform** | D | | | | | | | | | | |
 
 1. Compra desde venta (envío directo de fábrica) — comparte el modelo `Order`.
 2. Facturar albarán ajusta stock SOLO vía eventos/Actions de Inventory.
@@ -78,6 +80,8 @@ Fila = dominio que depende; columna = dominio del que depende.
 4. El portal desemboca en el motor estándar de pedidos de Sales (borrador + notificación).
 5. Admin → HR = D: lectura RO de periodos `Employee` en la ficha Edit de User
    (tab Empleos, R-TEN-10); sin mutaciones desde Admin.
+6. HR → Calendar = D: Module `rrhh` expone menú/permisos y UI `/hr/*` sobre
+   modelos del dominio Calendar (DayType, WorkCalendar); HR no posee el núcleo.
 
 Una dependencia que no esté en esta matriz **no se puede introducir** sin actualizar este
 documento en el mismo PR y validar que no crea ciclos.

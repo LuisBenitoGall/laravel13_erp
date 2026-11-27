@@ -14,6 +14,8 @@ Este fichero no la duplica; resumen mínimo:
 - No es un rol OpenSpec (no sustituye a 10/20/25/30/40). No implementa dominio.
 - Flujo: auditar → proponer delta → confirmar si instalas → configurar → verificar.
 - Prohibido instalar fuera del canon; escalar nuevas deps a 10-architecture.
+- DX: `modern-web-guidance` (skill; Baseline Widely available; subordinado a
+  `frontend.md` / shadcn / ServerTable).
 - Gate de salida: casillas de la ficha canónica.
 
 ## Comando

@@ -57,7 +57,7 @@ beforeEach(function () {
     MenuCatalogCache::forget();
 });
 
-it('expone admin.account.show y MenuBuilder profile no apunta a /admin/profile', function () {
+it('expone admin.account.show y MenuBuilder profile no apunta a /account/profile', function () {
     expect(Route::has('admin.account.show'))->toBeTrue()
         ->and(Route::has('admin.account.renew'))->toBeTrue()
         ->and(Route::has('admin.profile.show'))->toBeTrue()
@@ -66,7 +66,7 @@ it('expone admin.account.show y MenuBuilder profile no apunta a /admin/profile',
 
     $user = User::factory()->create();
     $user->givePermissionTo([
-        Permission::findOrCreate('cuenta.access'),
+        Permission::findOrCreate('account.access'),
         Permission::findOrCreate('profile.view'),
         Permission::findOrCreate('company-modules.view'),
     ]);
@@ -84,15 +84,15 @@ it('expone admin.account.show y MenuBuilder profile no apunta a /admin/profile',
         ->and($profileItem['href'])->toBe(route('admin.account.show', absolute: false))
         ->and($profileItem['href'])->not->toBe(route('admin.profile.show', absolute: false))
         ->and($modulesItem['href'])->toBe(route('admin.company-modules.index', absolute: false))
-        ->and($hrefs)->not->toContain('/admin/profile')
+        ->and($hrefs)->not->toContain('/account/profile')
         ->and($hrefs)->not->toContain(route('admin.profile.show', absolute: false));
 });
 
-it('GET /admin/account muestra histórico con CTA a renovación', function () {
+it('GET /account muestra histórico con CTA a renovación', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
     $user->givePermissionTo([
-        Permission::findOrCreate('cuenta.access'),
+        Permission::findOrCreate('account.access'),
         Permission::findOrCreate('profile.view'),
     ]);
     actingWithCompany($user, $this->company);
@@ -105,14 +105,14 @@ it('GET /admin/account muestra histórico con CTA a renovación', function () {
             ->where('renewUrl', route('admin.account.renew', absolute: false)));
 });
 
-it('AsideNav fuerza sin activo en /admin/profile y avatar sigue a /admin/profile', function () {
+it('AsideNav fuerza sin activo en /account/profile y avatar sigue a /account/profile', function () {
     $aside = file_get_contents(resource_path('js/Components/AsideNav.tsx'));
     $menu = file_get_contents(resource_path('js/Components/Topbar/UserMenu.tsx'));
     $edit = file_get_contents(resource_path('js/Pages/Users/Edit.tsx'));
 
     expect($aside)->toContain('isUserProfilePath')
-        ->and($aside)->toContain('/admin/profile/')
-        ->and($menu)->toContain('href="/admin/profile"')
+        ->and($aside)->toContain('/account/profile/')
+        ->and($menu)->toContain('href="/account/profile"')
         ->and($menu)->toContain("t('perfil')")
         ->and($edit)->toContain("optionKey: 'perfil'")
         ->and($edit)->not->toMatch("/context === 'profile'\\s*\\?[\\s\\S]*optionKey: 'mi_cuenta'/");

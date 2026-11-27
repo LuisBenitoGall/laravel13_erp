@@ -106,7 +106,7 @@ export default function Index() {
 
     function submitCreate(event: FormEvent) {
         event.preventDefault();
-        createForm.post('/admin/accounts', {
+        createForm.post('/settings/accounts', {
             preserveScroll: true,
             onSuccess: () => {
                 setCreateOpen(false);
@@ -121,7 +121,7 @@ export default function Index() {
             return;
         }
 
-        editForm.put(`/admin/accounts/${editing.id}`, {
+        editForm.put(`/settings/accounts/${editing.id}`, {
             preserveScroll: true,
             onSuccess: () => {
                 setEditing(null);
@@ -138,7 +138,7 @@ export default function Index() {
             checked: row.status === 'active',
             onToggle: async (_row, checked) => {
                 const status = checked ? 'active' : 'inactive';
-                await patchJson<{ status: string }>(`/admin/accounts/${row.id}/status`, {
+                await patchJson<{ status: string }>(`/settings/accounts/${row.id}/status`, {
                     status,
                 });
 
@@ -157,7 +157,7 @@ export default function Index() {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/admin/accounts/${current.id}`, {
+                router.delete(`/settings/accounts/${current.id}`, {
                     preserveScroll: true,
                     onSuccess: () => setTableKey((key) => key + 1),
                     onError: (errors) => {
@@ -176,7 +176,7 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'cuentas',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/accounts',
+                optionHref: '/settings/accounts',
             }}
             showBack={false}
             actions={[
@@ -190,7 +190,7 @@ export default function Index() {
         >
             <ServerTable<AccountRow>
                 key={tableKey}
-                endpoint="/admin/accounts/table"
+                endpoint="/settings/accounts/table"
                 columns={columns}
                 persistKey="admin.accounts"
                 exportable={false}

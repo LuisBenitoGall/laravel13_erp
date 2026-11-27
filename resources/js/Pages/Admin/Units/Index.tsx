@@ -83,7 +83,7 @@ export default function Index() {
 
     function submitCreate(event: FormEvent) {
         event.preventDefault();
-        createForm.post('/admin/units', {
+        createForm.post('/settings/units', {
             preserveScroll: true,
             onSuccess: () => {
                 setCreateOpen(false);
@@ -98,7 +98,7 @@ export default function Index() {
             return;
         }
 
-        editForm.put(`/admin/units/${editing.id}`, {
+        editForm.put(`/settings/units/${editing.id}`, {
             preserveScroll: true,
             onSuccess: () => {
                 setEditing(null);
@@ -115,7 +115,7 @@ export default function Index() {
             checked: row.status === 'active',
             onToggle: async (_row, checked) => {
                 const status = checked ? 'active' : 'inactive';
-                await patchJson<{ status: string }>(`/admin/units/${row.id}/status`, {
+                await patchJson<{ status: string }>(`/settings/units/${row.id}/status`, {
                     status,
                 });
 
@@ -134,7 +134,7 @@ export default function Index() {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/admin/units/${current.id}`, {
+                router.delete(`/settings/units/${current.id}`, {
                     preserveScroll: true,
                     onSuccess: () => setTableKey((key) => key + 1),
                     onError: (errors) => {
@@ -153,7 +153,7 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'unidades',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/units',
+                optionHref: '/settings/units',
             }}
             showBack={false}
             actions={[
@@ -167,7 +167,7 @@ export default function Index() {
         >
             <ServerTable<UnitRow>
                 key={tableKey}
-                endpoint="/admin/units/table"
+                endpoint="/settings/units/table"
                 columns={columns}
                 persistKey="admin.units"
                 exportable={false}

@@ -247,8 +247,8 @@ it('Renew usa AccountCatalogGrid y no quedan Pages/Account', function () {
 it('sin profile.view no abre Mi cuenta ni renovación', function () {
     $actor = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('cuenta.access');
-    $actor->givePermissionTo(['cuenta.access']);
+    Permission::findOrCreate('account.access');
+    $actor->givePermissionTo(['account.access']);
     actingWithCompany($actor, $this->company);
 
     $this->get(route('admin.account.show'))->assertForbidden();

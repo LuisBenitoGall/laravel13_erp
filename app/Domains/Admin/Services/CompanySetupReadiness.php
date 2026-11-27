@@ -7,7 +7,8 @@ use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Workplace;
 
 /**
- * Readiness computada de onboarding (company de sesión): nif + logo + ≥1 workplace Active.
+ * Readiness computada de onboarding (company de sesión):
+ * nif + logo + ≥1 workplace Active + moneda por defecto.
  */
 class CompanySetupReadiness
 {
@@ -18,7 +19,8 @@ class CompanySetupReadiness
      *     total_steps: int,
      *     steps: array{
      *         identity: array{done: bool, nif: bool, logo: bool},
-     *         workplaces: array{done: bool}
+     *         workplaces: array{done: bool},
+     *         currencies: array{done: bool}
      *     }
      * }
      */
@@ -33,12 +35,16 @@ class CompanySetupReadiness
             ->where('status', WorkplaceStatus::Active)
             ->exists();
 
-        $completed = (int) $identityOk + (int) $workplaceOk;
+        $currenciesOk = $company->currencies()
+            ->wherePivot('is_default', true)
+            ->exists();
+
+        $completed = (int) $identityOk + (int) $workplaceOk + (int) $currenciesOk;
 
         return [
-            'complete' => $identityOk && $workplaceOk,
+            'complete' => $identityOk && $workplaceOk && $currenciesOk,
             'completed_steps' => $completed,
-            'total_steps' => 2,
+            'total_steps' => 3,
             'steps' => [
                 'identity' => [
                     'done' => $identityOk,
@@ -47,6 +53,9 @@ class CompanySetupReadiness
                 ],
                 'workplaces' => [
                     'done' => $workplaceOk,
+                ],
+                'currencies' => [
+                    'done' => $currenciesOk,
                 ],
             ],
         ];

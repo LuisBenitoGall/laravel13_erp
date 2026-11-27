@@ -16,15 +16,15 @@ export default function Create({ countries, matrix_workplaces }: Props) {
             breadcrumb={{
                 optionKey: 'delegaciones',
                 suboptionKey: 'delegacion_nueva',
-                optionHref: '/admin/delegations',
+                optionHref: '/companies/delegations',
             }}
-            backHref="/admin/delegations"
+            backHref="/companies/delegations"
             actions={[]}
         >
             <DelegationForm
                 mode="create"
                 method="post"
-                submitUrl="/admin/delegations"
+                submitUrl="/companies/delegations"
                 countries={countries}
                 matrixWorkplaces={matrix_workplaces}
             />

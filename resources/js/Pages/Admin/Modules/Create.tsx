@@ -44,7 +44,7 @@ export default function Create() {
 
     function submit(event: FormEvent) {
         event.preventDefault();
-        post('/admin/modules');
+        post('/settings/modules');
     }
 
     return (
@@ -52,7 +52,7 @@ export default function Create() {
             breadcrumb={{
                 optionKey: 'modulos',
                 suboptionKey: 'modulo_crear',
-                optionHref: '/admin/modules',
+                optionHref: '/settings/modules',
             }}
             actions={[]}
         >

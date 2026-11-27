@@ -32,10 +32,17 @@ type Props = {
     countries: GeoOption[];
     /** null si la sesión no es matriz: el panel de delegaciones no se muestra. */
     delegation_map: WorkplaceDelegationMap | null;
+    return_to?: string | null;
 };
 
-export default function Edit({ workplace, countries, delegation_map }: Props) {
+export default function Edit({
+    workplace,
+    countries,
+    delegation_map,
+    return_to = null,
+}: Props) {
     const { i18n } = useTranslation();
+    const backHref = return_to || '/companies/workplaces';
 
     const summaryFields = useMemo(
         () =>
@@ -51,9 +58,11 @@ export default function Edit({ workplace, countries, delegation_map }: Props) {
             breadcrumb={{
                 optionKey: 'centros_de_trabajo',
                 suboptionKey: 'editar',
-                optionHref: '/admin/workplaces',
+                optionHref: backHref.startsWith('/companies/delegations/')
+                    ? backHref
+                    : '/companies/workplaces',
             }}
-            backHref="/admin/workplaces"
+            backHref={backHref}
             actions={[]}
         >
             <div className="w-full space-y-4">
@@ -65,7 +74,7 @@ export default function Edit({ workplace, countries, delegation_map }: Props) {
                 <WorkplaceForm
                     mode="edit"
                     method="put"
-                    submitUrl={`/admin/workplaces/${workplace.id}`}
+                    submitUrl={`/companies/workplaces/${workplace.id}`}
                     countries={countries}
                     initial={{
                         name: workplace.name,

@@ -56,7 +56,7 @@ function actingDelegationUser(Company $session, array $abilities = ['view', 'vie
     actingWithCompany($user, $session);
 
     setPermissionsTeamId($session->id);
-    $names = ['empresas.access'];
+    $names = ['companies.access'];
     foreach ($abilities as $ability) {
         $names[] = "delegations.{$ability}";
     }
@@ -288,7 +288,7 @@ it('actualiza campos de empresa de una Delegación propia sin tocar parent_id', 
             ->component('Admin/Delegations/Edit')
             ->where('delegation.id', $delegation->id)
             ->where('matrix.id', $matrix->id)
-            ->has('linked_workplaces', 0)
+            ->missing('linked_workplaces')
             ->missing('workplaces')
             ->missing('countries'));
 
@@ -510,62 +510,40 @@ it('usuario solo vinculado a delegaciones no entra en sesión hija: select vací
 
 // --- Sus centros (único listado RO) ---------------------------------------
 
-it('edit expone linked_workplaces con preferida y empty state', function () {
+it('edit no expone linked_workplaces; tab sedes usa ServerTable', function () {
     $matrix = Company::factory()->create();
     $delegation = Company::factory()->create(['parent_id' => $matrix->id]);
-    $linkedPreferred = Workplace::factory()->create([
-        'company_id' => $matrix->id,
-        'name' => 'Sede Preferida',
-    ]);
-    $linkedOther = Workplace::factory()->create([
-        'company_id' => $matrix->id,
-        'name' => 'Sede Secundaria',
-    ]);
-    $foreignWorkplace = Workplace::factory()->create([
-        'company_id' => Company::factory()->create()->id,
-        'name' => 'Ajena',
-    ]);
-
-    $linkedPreferred->delegations()->attach($delegation->id, ['is_preferred' => true]);
-    $linkedOther->delegations()->attach($delegation->id, ['is_preferred' => false]);
-    $foreignWorkplace->delegations()->attach($delegation->id, ['is_preferred' => false]);
-
     actingDelegationUser($matrix);
 
     $this->get(route('admin.delegations.edit', $delegation))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Admin/Delegations/Edit')
-            ->has('linked_workplaces', 2)
-            ->where('linked_workplaces.0.id', $linkedPreferred->id)
-            ->where('linked_workplaces.0.name', 'Sede Preferida')
-            ->where('linked_workplaces.0.is_preferred', true)
-            ->where('linked_workplaces.1.id', $linkedOther->id)
-            ->where('linked_workplaces.1.is_preferred', false)
-            ->missing('workplaces'));
-
-    $orphan = Company::factory()->create(['parent_id' => $matrix->id]);
-    $this->get(route('admin.delegations.edit', $orphan))
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page->has('linked_workplaces', 0));
+            ->missing('linked_workplaces')
+            ->missing('workplaces')
+            ->where('can.update_preferred_workplace', true));
 });
 
-it('UI Edit Delegación es un solo listado Sus centros sin CRUD hijo', function () {
+it('UI Edit Delegación usa ServerTable de sedes sin CRUD hijo ni lista HTML', function () {
     $edit = file_get_contents(resource_path('js/Pages/Admin/Delegations/Edit.tsx'));
     $panel = file_get_contents(
-        resource_path('js/Pages/Admin/Delegations/components/MatrixWorkplacesLinkedPanel.tsx'),
+        resource_path('js/Pages/Admin/Delegations/components/DelegationLinkedWorkplacesTable.tsx'),
     );
     $create = file_get_contents(resource_path('js/Pages/Admin/Delegations/Create.tsx'));
     $form = file_get_contents(
         resource_path('js/Pages/Admin/Delegations/components/DelegationForm.tsx'),
     );
 
-    expect($edit)->toContain('MatrixWorkplacesLinkedPanel')
-        ->and($edit)->toContain('linked_workplaces')
+    expect($edit)->toContain('DelegationLinkedWorkplacesTable')
+        ->and($edit)->not->toContain('MatrixWorkplacesLinkedPanel')
+        ->and($edit)->not->toContain('linked_workplaces')
         ->and($edit)->not->toContain('DelegationWorkplacesPanel')
         ->and($panel)->toContain('data-testid="delegation-linked-workplaces"')
-        ->and($panel)->toContain('sus_centros')
-        ->and($panel)->not->toContain('useForm')
+        ->and($panel)->toContain('ServerTable')
+        ->and($panel)->toContain('sede_preferida')
+        ->and($panel)->toContain('is_preferred_seat')
+        ->and($panel)->not->toContain('delegacion_preferida')
+        ->and($panel)->not->toContain("field: 'is_preferred'")
         ->and($create)->toContain('matrix_workplaces')
         ->and($form)->toContain('usar_centros_existentes')
         ->and($form)->toContain('centro_trabajo_empresa')

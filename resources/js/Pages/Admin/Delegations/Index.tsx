@@ -60,7 +60,7 @@ export default function Index() {
             checked: row.status === 'active',
             onToggle: async (_current, checked) => {
                 const status = checked ? 'active' : 'closed';
-                await patchJson<{ status: string }>(`/admin/delegations/${row.id}/status`, {
+                await patchJson<{ status: string }>(`/companies/delegations/${row.id}/status`, {
                     status,
                 });
 
@@ -71,7 +71,7 @@ export default function Index() {
             id: 'edit',
             icon: Pencil,
             labelKey: 'editar',
-            onClick: (current) => router.visit(`/admin/delegations/${current.id}/edit`),
+            onClick: (current) => router.visit(`/companies/delegations/${current.id}/edit`),
         },
         {
             id: 'delete',
@@ -79,7 +79,7 @@ export default function Index() {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/admin/delegations/${current.id}`, { preserveScroll: true });
+                router.delete(`/companies/delegations/${current.id}`, { preserveScroll: true });
             },
         },
     ];
@@ -89,20 +89,20 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'delegaciones',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/delegations',
+                optionHref: '/companies/delegations',
             }}
             showBack={false}
             actions={[
                 {
                     type: 'link',
                     labelKey: 'crear',
-                    href: '/admin/delegations/create',
+                    href: '/companies/delegations/create',
                     icon: Plus,
                 },
             ]}
         >
             <ServerTable<DelegationRow>
-                endpoint="/admin/delegations/table"
+                endpoint="/companies/delegations/table"
                 columns={columns}
                 persistKey="admin.delegations"
                 exportable

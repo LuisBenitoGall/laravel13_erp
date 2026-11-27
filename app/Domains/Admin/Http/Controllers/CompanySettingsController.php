@@ -2,12 +2,15 @@
 
 namespace App\Domains\Admin\Http\Controllers;
 
+use App\Domains\Admin\Actions\SyncCompanyCurrencies;
 use App\Domains\Admin\Enums\WorkplaceStatus;
+use App\Domains\Admin\Http\Requests\SyncCompanySettingsCurrenciesRequest;
 use App\Domains\Admin\Http\Resources\CompanyResource;
 use App\Domains\Admin\Http\Resources\WorkplaceResource;
 use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Workplace;
 use App\Domains\Admin\Services\CompanySetupReadiness;
+use App\Domains\Admin\Support\CompanyCurrencyInertiaData;
 use App\Http\Controllers\Controller;
 use App\Support\Tenancy\CurrentCompany;
 use Illuminate\Http\RedirectResponse;
@@ -22,6 +25,7 @@ class CompanySettingsController extends Controller
         $this->authorize('viewAnyCompanySettings');
 
         $company = $this->currentCompany();
+        $company->load('currencies');
         $evaluation = $readiness->evaluate($company);
 
         $workplaces = Workplace::query()
@@ -35,13 +39,33 @@ class CompanySettingsController extends Controller
         return Inertia::render('Admin/CompanySettings/Index', [
             'company' => CompanyResource::make($company)->resolve(),
             'workplaces' => WorkplaceResource::collection($workplaces)->resolve(),
+            ...CompanyCurrencyInertiaData::for($company),
             'setup' => $evaluation,
             'wizard' => $wizard,
             'can' => [
                 'update_company' => $request->user()?->can('update', $company) ?? false,
                 'create_workplace' => $request->user()?->can('create', Workplace::class) ?? false,
+                'update_company_currencies' => $request->user()?->can('updateCompanySettings') ?? false,
             ],
         ]);
+    }
+
+    public function syncCurrencies(
+        SyncCompanySettingsCurrenciesRequest $request,
+        SyncCompanyCurrencies $action,
+    ): RedirectResponse {
+        $this->authorize('updateCompanySettings');
+
+        /** @var list<int|string> $currencyIds */
+        $currencyIds = $request->validated('currency_ids');
+        $defaultId = $request->validated('default_currency_id');
+        $action->handle(
+            $request->company(),
+            $currencyIds,
+            $defaultId !== null ? (int) $defaultId : null,
+        );
+
+        return back()->with('success', __('monedas_empresa_actualizadas'));
     }
 
     public function dismissModal(Request $request): RedirectResponse

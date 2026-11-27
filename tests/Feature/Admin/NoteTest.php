@@ -132,7 +132,7 @@ it('NotesModal sustituye el stub vacío', function () {
     $topbar = (string) file_get_contents(resource_path('js/Components/Topbar/AppTopbar.tsx'));
 
     expect($source)->toContain('nueva_nota')
-        ->and($source)->toContain('/admin/notes')
+        ->and($source)->toContain('/account/notes')
         ->and($source)->toContain('ver_todas_las_notas')
         ->and($topbar)->toContain('NotesModal')
         ->and($topbar)->not->toContain('NotesStub')

@@ -24,7 +24,7 @@ export default function FavoritesPopover() {
             name: form.data.name,
             url,
         }));
-        form.post('/admin/preferences', {
+        form.post('/account/preferences', {
             preserveScroll: true,
             onSuccess: () => {
                 form.reset('name');

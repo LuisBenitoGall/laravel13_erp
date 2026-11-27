@@ -138,7 +138,7 @@ export default function ContractTypeForm({ mode, submitUrl, method = 'post', ini
                 <Button
                     type="button"
                     variant="secondary"
-                    onClick={() => router.visit('/hr/contract-types')}
+                    onClick={() => router.visit('/rrhh/contract-types')}
                 >
                     {t('cancelar')}
                 </Button>

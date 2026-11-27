@@ -86,9 +86,16 @@ Cuando el usuario pida `.vscode/extensions.json`:
 No recomendar extensiones que dupliquen Intelephense (p. ej. PHP IntelliSense de
 Felix) ni temas/packs de relleno.
 
+## Skills DX (agentes, no runtime)
+
+| Skill | Nota |
+|---|---|
+| `modern-web-guidance` | `npx skills add GoogleChrome/modern-web-guidance -y -s modern-web-guidance -a cursor -a claude-code --copy`. Baseline Widely available. Subordinado a `frontend.md` / shadcn / ServerTable. Sin `chrome-extensions`. |
+
 ## Entorno local (Laragon / Windows)
 
 - PHP 8.3+, MySQL strict ON, Node 20+ (preferir 22 en el menú de Laragon).
 - Playwright: reabrir terminal tras cambiar Node; nunca `npm i -g` dentro del repo.
 - App local típica: `http://laravel13_erp.test` (no asumir `localhost` si Laragon
   sirve el vhost).
+- modern-web-guidance CLI: Node ≥ 22.

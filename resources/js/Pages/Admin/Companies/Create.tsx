@@ -8,11 +8,11 @@ export default function Create() {
             breadcrumb={{
                 optionKey: 'mis_empresas',
                 suboptionKey: 'empresa_nueva',
-                optionHref: '/admin/companies',
+                optionHref: '/companies',
             }}
             actions={[]}
         >
-            <CompanyForm mode="create" method="post" submitUrl="/admin/companies" />
+            <CompanyForm mode="create" method="post" submitUrl="/companies" />
         </AppLayout>
     );
 }

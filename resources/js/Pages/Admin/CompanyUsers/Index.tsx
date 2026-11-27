@@ -42,7 +42,7 @@ export default function Index() {
         const controller = new AbortController();
         setQuickLoading(true);
 
-        void getJson<UserQuickViewPayload>(`/admin/company-users/${quickUserId}/quick`, {
+        void getJson<UserQuickViewPayload>(`/users/company-users/${quickUserId}/quick`, {
             signal: controller.signal,
         })
             .then((data) => {
@@ -122,7 +122,7 @@ export default function Index() {
                 },
                 onToggle: async (_row, checked) => {
                     const result = await patchJson<{ status: boolean }>(
-                        `/admin/company-users/${row.id}/status`,
+                        `/users/company-users/${row.id}/status`,
                         { status: checked },
                     );
 
@@ -134,7 +134,7 @@ export default function Index() {
                 icon: Pencil,
                 labelKey: 'editar',
                 onClick: () => {
-                    router.visit(`/admin/company-users/${row.id}/edit`);
+                    router.visit(`/users/company-users/${row.id}/edit`);
                 },
             },
             {
@@ -143,7 +143,7 @@ export default function Index() {
                 variant: 'danger',
                 confirm: true,
                 onClick: (current) => {
-                    router.delete(`/admin/company-users/${current.id}`, {
+                    router.delete(`/users/company-users/${current.id}`, {
                         preserveScroll: true,
                         onSuccess: refreshTable,
                         onError: toastFirstError,
@@ -161,7 +161,7 @@ export default function Index() {
                 labelKey: 'activar',
                 onAction: (rows) => {
                     router.post(
-                        '/admin/company-users/bulk-status',
+                        '/users/company-users/bulk-status',
                         {
                             ids: rows.map((row) => row.id),
                             status: true,
@@ -183,7 +183,7 @@ export default function Index() {
                 },
                 onAction: (rows) => {
                     router.post(
-                        '/admin/company-users/bulk-status',
+                        '/users/company-users/bulk-status',
                         {
                             ids: rows.map((row) => row.id),
                             status: false,
@@ -203,7 +203,7 @@ export default function Index() {
                 confirm: { titleKey: 'confirmar_eliminar_masivo' },
                 onAction: (rows) => {
                     router.post(
-                        '/admin/company-users/bulk-detach',
+                        '/users/company-users/bulk-detach',
                         {
                             ids: rows.map((row) => row.id),
                         },
@@ -221,7 +221,7 @@ export default function Index() {
 
     const editHref =
         quickPayload?.can_edit && quickUserId !== null
-            ? `/admin/company-users/${quickUserId}/edit`
+            ? `/users/company-users/${quickUserId}/edit`
             : null;
 
     return (
@@ -229,7 +229,7 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'usuarios_empresa',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/company-users',
+                optionHref: '/users/company-users',
             }}
             showBack={false}
             actions={[
@@ -238,14 +238,14 @@ export default function Index() {
                     labelKey: 'crear_usuario',
                     icon: Plus,
                     onClick: () => {
-                        router.visit('/admin/company-users/create');
+                        router.visit('/users/company-users/create');
                     },
                 },
             ]}
         >
             <ServerTable<DirectoryUserRow>
                 key={tableKey}
-                endpoint="/admin/company-users/table"
+                endpoint="/users/company-users/table"
                 columns={columns}
                 persistKey="admin.company-users"
                 exportable={false}

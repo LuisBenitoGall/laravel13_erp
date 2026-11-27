@@ -106,7 +106,7 @@ export default function CropDialog({ asset, onClose }: Props) {
             const data = new FormData();
             data.append('image', blob, `crop.${ext}`);
 
-            router.post(`/admin/gallery/${asset.id}/copies`, data, {
+            router.post(`/settings/gallery/${asset.id}/copies`, data, {
                 forceFormData: true,
                 preserveScroll: true,
                 onSuccess: () => handleOpenChange(false),

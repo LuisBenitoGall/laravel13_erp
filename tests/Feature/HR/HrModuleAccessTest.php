@@ -36,7 +36,7 @@ it('el seeder registra Module rrhh Optional Active con Functionalities y permiso
     expect($module->level)->toBe(ModuleLevel::Optional)
         ->and($module->status)->toBe(ModuleStatus::Active)
         ->and(Functionality::query()->where('module_id', $module->id)->orderBy('slug')->pluck('slug')->all())
-        ->toBe(['contract-types', 'employees'])
+        ->toBe(['calendars', 'contract-types', 'day-types', 'employees'])
         ->and(Functionality::query()->where('module_id', $module->id)->where('status', '!=', FunctionalityStatus::Active)->exists())->toBeFalse();
 
     $names = Permission::query()->pluck('name');
@@ -68,9 +68,11 @@ it('menú RRHH: capas + comodín + .view; Super Admin ve ambos ítems con su hre
     $rrhh = collect(app(MenuBuilder::class)->forUser($sa))->firstWhere('slug', 'rrhh');
     $items = collect($rrhh['functionalities'] ?? [])->keyBy('slug');
 
-    expect($items->keys()->all())->toBe(['contract-types', 'employees'])
-        ->and($items['contract-types']['href'])->toBe(route('hr.contract-types.index', absolute: false))
-        ->and($items['employees']['href'])->toBe(route('hr.employees.index', absolute: false));
+    expect($items->keys()->all())->toBe(['contract-types', 'employees', 'calendars', 'day-types'])
+        ->and($items['contract-types']['href'])->toBe(route('rrhh.contract-types.index', absolute: false))
+        ->and($items['employees']['href'])->toBe(route('rrhh.employees.index', absolute: false))
+        ->and($items['calendars']['href'])->toBe(route('rrhh.calendars.index', absolute: false))
+        ->and($items['day-types']['href'])->toBe(route('rrhh.day-types.index', absolute: false));
 
     // Usuario normal: comodín AND .view.
     $user = User::factory()->create(['status' => true]);
@@ -112,10 +114,13 @@ it('manager de una company autorizada recibe los permisos de RRHH', function () 
 });
 
 dataset('hr routes', [
-    'contract-types index' => ['hr.contract-types.index', 'contract-types.view'],
-    'contract-types table' => ['hr.contract-types.table', 'contract-types.view'],
-    'employees index' => ['hr.employees.index', 'employees.view'],
-    'employees table' => ['hr.employees.table', 'employees.view'],
+    'contract-types index' => ['rrhh.contract-types.index', 'contract-types.view'],
+    'contract-types table' => ['rrhh.contract-types.table', 'contract-types.view'],
+    'employees index' => ['rrhh.employees.index', 'employees.view'],
+    'employees table' => ['rrhh.employees.table', 'employees.view'],
+    'calendars index' => ['rrhh.calendars.index', 'calendars.view'],
+    'day-types index' => ['rrhh.day-types.index', 'day-types.view'],
+    'day-types table' => ['rrhh.day-types.table', 'day-types.view'],
 ]);
 
 it('V-21 bloquea el acceso si el módulo rrhh está apagado para la company', function (string $route) {

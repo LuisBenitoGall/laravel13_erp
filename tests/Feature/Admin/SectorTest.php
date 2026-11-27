@@ -76,8 +76,8 @@ it('sin sectors.* las rutas de sectores responden 403', function () {
 it('usuario con sectors.view abre el Index', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
-    $user->givePermissionTo(['configuracion.access', 'sectors.view']);
+    Permission::findOrCreate('settings.access');
+    $user->givePermissionTo(['settings.access', 'sectors.view']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.sectors.index'))->assertOk();

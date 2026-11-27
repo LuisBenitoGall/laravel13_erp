@@ -34,7 +34,7 @@ function actingCompanyCreator(Company $sessionCompany): User
 
     setPermissionsTeamId($sessionCompany->id);
     $user->givePermissionTo([
-        Permission::findOrCreate('empresas.access'),
+        Permission::findOrCreate('companies.access'),
         Permission::findOrCreate('companies.view'),
         Permission::findOrCreate('companies.create'),
     ]);
@@ -135,8 +135,8 @@ it('ignora slug logo excerpt y description enviados por el cliente en Create', f
 });
 
 it('UI Create solo name tradename nif status sin slug logo excerpt ni description', function () {
-    $create = file_get_contents(resource_path('js/Pages/admin/companies/Create.tsx'));
-    $form = file_get_contents(resource_path('js/Pages/admin/companies/components/CompanyForm.tsx'));
+    $create = file_get_contents(resource_path('js/Pages/Admin/Companies/Create.tsx'));
+    $form = file_get_contents(resource_path('js/Pages/Admin/Companies/components/CompanyForm.tsx'));
 
     expect($create)->toContain('mode="create"')
         ->and($create)->toContain("optionKey: 'mis_empresas'")

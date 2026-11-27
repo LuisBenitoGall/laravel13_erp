@@ -68,7 +68,7 @@ function actingEmploymentEditor(Company $company, bool $withUpdate = true): User
 
     setPermissionsTeamId($company->id);
     $perms = [
-        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('users.access'),
         Permission::findOrCreate('company-users.view'),
         Permission::findOrCreate('company-users.viewAny'),
     ];

@@ -104,7 +104,7 @@ export default function Index() {
 
     function submitCreate(event: FormEvent) {
         event.preventDefault();
-        createForm.post('/admin/countries', {
+        createForm.post('/settings/countries', {
             preserveScroll: true,
             onSuccess: () => {
                 setCreateOpen(false);
@@ -119,7 +119,7 @@ export default function Index() {
             return;
         }
 
-        editForm.put(`/admin/countries/${editing.id}`, {
+        editForm.put(`/settings/countries/${editing.id}`, {
             preserveScroll: true,
             onSuccess: () => {
                 setEditing(null);
@@ -136,7 +136,7 @@ export default function Index() {
             checked: row.status === 'active',
             onToggle: async (_row, checked) => {
                 const status = checked ? 'active' : 'inactive';
-                await patchJson<{ status: string }>(`/admin/countries/${row.id}/status`, {
+                await patchJson<{ status: string }>(`/settings/countries/${row.id}/status`, {
                     status,
                 });
 
@@ -147,7 +147,7 @@ export default function Index() {
             id: 'provinces',
             icon: Map,
             labelKey: 'provincias',
-            onClick: () => router.visit(`/admin/countries/${row.id}/provinces`),
+            onClick: () => router.visit(`/settings/countries/${row.id}/provinces`),
         },
         {
             id: 'edit',
@@ -161,7 +161,7 @@ export default function Index() {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/admin/countries/${current.id}`, {
+                router.delete(`/settings/countries/${current.id}`, {
                     preserveScroll: true,
                     onSuccess: () => setTableKey((key) => key + 1),
                     onError: (errors) => {
@@ -237,7 +237,7 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'paises',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/countries',
+                optionHref: '/settings/countries',
             }}
             showBack={false}
             actions={[
@@ -251,7 +251,7 @@ export default function Index() {
         >
             <ServerTable<CountryRow>
                 key={tableKey}
-                endpoint="/admin/countries/table"
+                endpoint="/settings/countries/table"
                 columns={columns}
                 persistKey="admin.countries"
                 exportable={false}

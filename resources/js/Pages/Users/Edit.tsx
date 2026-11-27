@@ -2,7 +2,15 @@ import { FormEvent, useMemo, useState } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import { useTranslation } from 'react-i18next';
 
-import { Checkbox, DatePicker, Field, FormActions, Input, Switch } from '@/Components/Form';
+import {
+    Checkbox,
+    DatePicker,
+    Field,
+    FormActions,
+    FormHelpScope,
+    Input,
+    Switch,
+} from '@/Components/Form';
 import RecordEditLayout from '@/Components/Records/RecordEditLayout';
 import RecordSummary from '@/Components/Records/RecordSummary';
 import UserProfileReadout from '@/Components/Users/UserProfileReadout';
@@ -105,12 +113,12 @@ export default function Edit({
     }
 
     const basePath =
-        context === 'profile' ? '/admin/profile' : `/admin/company-users/${user.id}/edit`;
+        context === 'profile' ? '/account/profile' : `/users/company-users/${user.id}/edit`;
     const profileUrl =
-        context === 'profile' ? '/admin/profile' : `/admin/company-users/${user.id}`;
+        context === 'profile' ? '/account/profile' : `/users/company-users/${user.id}`;
     const passwordUrl =
-        context === 'profile' ? '/admin/profile/password' : `/admin/company-users/${user.id}/password`;
-    const backHref = context === 'profile' ? undefined : '/admin/company-users';
+        context === 'profile' ? '/account/profile/password' : `/users/company-users/${user.id}/password`;
+    const backHref = context === 'profile' ? undefined : '/users/company-users';
 
     function selectTab(next: string) {
         setTab(next);
@@ -182,87 +190,125 @@ export default function Edit({
                         onSubmit={submitProfile}
                         className="space-y-5 rounded-xl border border-slate-200 bg-white p-6"
                     >
-                        <div className="grid gap-4 md:grid-cols-2">
+                        <FormHelpScope value="users">
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <Field
+                                    label={t('nombre')}
+                                    htmlFor="user-name"
+                                    fieldKey="name"
+                                    required
+                                    error={profileForm.errors.name}
+                                >
+                                    <Input
+                                        id="user-name"
+                                        value={profileForm.data.name}
+                                        onChange={(e) =>
+                                            profileForm.setData('name', e.target.value)
+                                        }
+                                        maxLength={255}
+                                    />
+                                </Field>
+                                <Field
+                                    label={t('apellidos')}
+                                    htmlFor="user-surname"
+                                    fieldKey="surname"
+                                    error={profileForm.errors.surname}
+                                >
+                                    <Input
+                                        id="user-surname"
+                                        value={profileForm.data.surname}
+                                        onChange={(e) =>
+                                            profileForm.setData('surname', e.target.value)
+                                        }
+                                        maxLength={255}
+                                    />
+                                </Field>
+                            </div>
+
                             <Field
-                                label={t('nombre')}
-                                htmlFor="user-name"
+                                label={t('email')}
+                                htmlFor="user-email"
+                                fieldKey="email"
                                 required
-                                error={profileForm.errors.name}
+                                error={profileForm.errors.email}
                             >
                                 <Input
-                                    id="user-name"
-                                    value={profileForm.data.name}
-                                    onChange={(e) => profileForm.setData('name', e.target.value)}
+                                    id="user-email"
+                                    type="email"
+                                    value={profileForm.data.email}
+                                    onChange={(e) => profileForm.setData('email', e.target.value)}
                                     maxLength={255}
                                 />
                             </Field>
-                            <Field
-                                label={t('apellidos')}
-                                htmlFor="user-surname"
-                                error={profileForm.errors.surname}
-                            >
-                                <Input
-                                    id="user-surname"
-                                    value={profileForm.data.surname}
-                                    onChange={(e) => profileForm.setData('surname', e.target.value)}
-                                    maxLength={255}
-                                />
-                            </Field>
-                        </div>
 
-                        <Field
-                            label={t('email')}
-                            htmlFor="user-email"
-                            required
-                            error={profileForm.errors.email}
-                        >
-                            <Input
-                                id="user-email"
-                                type="email"
-                                value={profileForm.data.email}
-                                onChange={(e) => profileForm.setData('email', e.target.value)}
-                                maxLength={255}
-                            />
-                        </Field>
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <Field
+                                    label={t('nif')}
+                                    htmlFor="user-nif"
+                                    fieldKey="nif"
+                                    error={profileForm.errors.nif}
+                                >
+                                    <Input
+                                        id="user-nif"
+                                        value={profileForm.data.nif}
+                                        onChange={(e) =>
+                                            profileForm.setData('nif', e.target.value)
+                                        }
+                                        maxLength={32}
+                                    />
+                                </Field>
+                                <Field
+                                    label={t('fecha_nacimiento')}
+                                    htmlFor="user-birth-date"
+                                    fieldKey="birth_date"
+                                    error={profileForm.errors.birth_date}
+                                >
+                                    <DatePicker
+                                        id="user-birth-date"
+                                        value={profileForm.data.birth_date}
+                                        onChange={(value) =>
+                                            profileForm.setData('birth_date', value)
+                                        }
+                                    />
+                                </Field>
+                            </div>
 
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <Field label={t('nif')} htmlFor="user-nif" error={profileForm.errors.nif}>
-                                <Input
-                                    id="user-nif"
-                                    value={profileForm.data.nif}
-                                    onChange={(e) => profileForm.setData('nif', e.target.value)}
-                                    maxLength={32}
-                                />
-                            </Field>
-                            <Field
-                                label={t('fecha_nacimiento')}
-                                htmlFor="user-birth-date"
-                                error={profileForm.errors.birth_date}
-                            >
-                                <DatePicker
-                                    id="user-birth-date"
-                                    value={profileForm.data.birth_date}
-                                    onChange={(value) => profileForm.setData('birth_date', value)}
-                                />
-                            </Field>
-                        </div>
-
-                        <div className="flex flex-row flex-wrap items-center gap-x-8 gap-y-3">
-                            <Switch
-                                id="user-status"
-                                checked={profileForm.data.status}
-                                disabled={!can.change_visibility_flags}
-                                onCheckedChange={(checked) => profileForm.setData('status', checked)}
-                                label={t('activo')}
-                            />
-                            <Checkbox
-                                id="user-is-public"
-                                checked={profileForm.data.is_public}
-                                disabled={!can.change_visibility_flags}
-                                onCheckedChange={(checked) => profileForm.setData('is_public', checked)}
-                                label={t('perfil_publico')}
-                            />
-                        </div>
+                            <div className="flex flex-row flex-wrap items-start gap-x-8 gap-y-3">
+                                <Field
+                                    label={t('activo')}
+                                    htmlFor="user-status"
+                                    fieldKey="status"
+                                    tipAlign="center"
+                                    className="w-auto"
+                                >
+                                    <Switch
+                                        id="user-status"
+                                        className="mt-1.5"
+                                        checked={profileForm.data.status}
+                                        disabled={!can.change_visibility_flags}
+                                        onCheckedChange={(checked) =>
+                                            profileForm.setData('status', checked)
+                                        }
+                                    />
+                                </Field>
+                                <Field
+                                    label={t('perfil_publico')}
+                                    htmlFor="user-is-public"
+                                    fieldKey="is_public"
+                                    tipAlign="center"
+                                    className="w-auto"
+                                >
+                                    <Checkbox
+                                        id="user-is-public"
+                                        checked={profileForm.data.is_public}
+                                        disabled={!can.change_visibility_flags}
+                                        onCheckedChange={(checked) =>
+                                            profileForm.setData('is_public', checked)
+                                        }
+                                    />
+                                </Field>
+                            </div>
+                        </FormHelpScope>
 
                         <FormActions>
                             <Button type="submit" disabled={profileForm.processing || !can.update_profile}>
@@ -344,33 +390,33 @@ export default function Edit({
                     canManage={can.manage_emails && can.manage_phones}
                     storeUrl={
                         context === 'profile'
-                            ? '/admin/profile/emails'
-                            : `/admin/company-users/${user.id}/emails`
+                            ? '/account/profile/emails'
+                            : `/users/company-users/${user.id}/emails`
                     }
                     destroyUrl={(id) =>
                         context === 'profile'
-                            ? `/admin/profile/emails/${id}`
-                            : `/admin/company-users/${user.id}/emails/${id}`
+                            ? `/account/profile/emails/${id}`
+                            : `/users/company-users/${user.id}/emails/${id}`
                     }
                     phonesStoreUrl={
                         context === 'profile'
-                            ? '/admin/profile/phones'
-                            : `/admin/company-users/${user.id}/phones`
+                            ? '/account/profile/phones'
+                            : `/users/company-users/${user.id}/phones`
                     }
                     phonesUpdateUrl={(id) =>
                         context === 'profile'
-                            ? `/admin/profile/phones/${id}`
-                            : `/admin/company-users/${user.id}/phones/${id}`
+                            ? `/account/profile/phones/${id}`
+                            : `/users/company-users/${user.id}/phones/${id}`
                     }
                     phonesDestroyUrl={(id) =>
                         context === 'profile'
-                            ? `/admin/profile/phones/${id}`
-                            : `/admin/company-users/${user.id}/phones/${id}`
+                            ? `/account/profile/phones/${id}`
+                            : `/users/company-users/${user.id}/phones/${id}`
                     }
                     phonesMarkPrimaryUrl={(id) =>
                         context === 'profile'
-                            ? `/admin/profile/phones/${id}/mark-primary`
-                            : `/admin/company-users/${user.id}/phones/${id}/mark-primary`
+                            ? `/account/profile/phones/${id}/mark-primary`
+                            : `/users/company-users/${user.id}/phones/${id}/mark-primary`
                     }
                 />
             ),
@@ -385,23 +431,23 @@ export default function Edit({
                         canManage={can.manage_images}
                         storeUrl={
                             context === 'profile'
-                                ? '/admin/profile/images'
-                                : `/admin/company-users/${user.id}/images`
+                                ? '/account/profile/images'
+                                : `/users/company-users/${user.id}/images`
                         }
                         destroyUrl={(id) =>
                             context === 'profile'
-                                ? `/admin/profile/images/${id}`
-                                : `/admin/company-users/${user.id}/images/${id}`
+                                ? `/account/profile/images/${id}`
+                                : `/users/company-users/${user.id}/images/${id}`
                         }
                         markFeaturedUrl={(id) =>
                             context === 'profile'
-                                ? `/admin/profile/images/${id}/mark-featured`
-                                : `/admin/company-users/${user.id}/images/${id}/mark-featured`
+                                ? `/account/profile/images/${id}/mark-featured`
+                                : `/users/company-users/${user.id}/images/${id}/mark-featured`
                         }
                         updatePublicUrl={(id) =>
                             context === 'profile'
-                                ? `/admin/profile/images/${id}/public`
-                                : `/admin/company-users/${user.id}/images/${id}/public`
+                                ? `/account/profile/images/${id}/public`
+                                : `/users/company-users/${user.id}/images/${id}/public`
                         }
                     />
                 </div>
@@ -417,18 +463,18 @@ export default function Edit({
                         canManage={can.manage_docs}
                         storeUrl={
                             context === 'profile'
-                                ? '/admin/profile/docs'
-                                : `/admin/company-users/${user.id}/docs`
+                                ? '/account/profile/docs'
+                                : `/users/company-users/${user.id}/docs`
                         }
                         downloadUrl={(id) =>
                             context === 'profile'
-                                ? `/admin/profile/docs/${id}/download`
-                                : `/admin/company-users/${user.id}/docs/${id}/download`
+                                ? `/account/profile/docs/${id}/download`
+                                : `/users/company-users/${user.id}/docs/${id}/download`
                         }
                         destroyUrl={(id) =>
                             context === 'profile'
-                                ? `/admin/profile/docs/${id}`
-                                : `/admin/company-users/${user.id}/docs/${id}`
+                                ? `/account/profile/docs/${id}`
+                                : `/users/company-users/${user.id}/docs/${id}`
                         }
                     />
                 </div>
@@ -443,18 +489,18 @@ export default function Edit({
                         canManage={can.manage_companies}
                         tableEndpoint={
                             context === 'profile'
-                                ? '/admin/profile/companies/table'
-                                : `/admin/company-users/${user.id}/companies/table`
+                                ? '/account/profile/companies/table'
+                                : `/users/company-users/${user.id}/companies/table`
                         }
                         updateUrl={(id) =>
                             context === 'profile'
-                                ? `/admin/profile/companies/${id}`
-                                : `/admin/company-users/${user.id}/companies/${id}`
+                                ? `/account/profile/companies/${id}`
+                                : `/users/company-users/${user.id}/companies/${id}`
                         }
                         destroyUrl={(id) =>
                             context === 'profile'
-                                ? `/admin/profile/companies/${id}`
-                                : `/admin/company-users/${user.id}/companies/${id}`
+                                ? `/account/profile/companies/${id}`
+                                : `/users/company-users/${user.id}/companies/${id}`
                         }
                     />
                 </div>
@@ -469,8 +515,8 @@ export default function Edit({
                     <UserEmploymentPeriodsPanel
                         tableEndpoint={
                             context === 'profile'
-                                ? '/admin/profile/employment-periods/table'
-                                : `/admin/company-users/${user.id}/employment-periods/table`
+                                ? '/account/profile/employment-periods/table'
+                                : `/users/company-users/${user.id}/employment-periods/table`
                         }
                     />
                 </div>
@@ -485,12 +531,12 @@ export default function Edit({
                     ? {
                           optionKey: 'perfil',
                           suboptionKey: 'dashboard',
-                          optionHref: '/admin/profile',
+                          optionHref: '/account/profile',
                       }
                     : {
                           optionKey: 'usuarios_empresa',
                           suboptionKey: 'editar_usuario',
-                          optionHref: '/admin/company-users',
+                          optionHref: '/users/company-users',
                       }
             }
             showBack={context === 'company'}

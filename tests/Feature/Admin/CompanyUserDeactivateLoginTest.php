@@ -54,7 +54,7 @@ it('tras desactivar desde company-users el login de ese user falla', function ()
     actingWithCompany($manager, $this->company);
     setPermissionsTeamId($this->company->id);
     $manager->givePermissionTo([
-        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('users.access'),
         Permission::findOrCreate('company-users.view'),
         Permission::findOrCreate('company-users.viewAny'),
         Permission::findOrCreate('company-users.update'),

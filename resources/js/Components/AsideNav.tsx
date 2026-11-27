@@ -43,11 +43,11 @@ function normalizePath(value: string): string {
     return path || '/';
 }
 
-/** Ficha self `/admin/profile*`: ningún ítem del lateral debe marcarse activo. */
+/** Ficha self `/account/profile*`: ningún ítem del lateral debe marcarse activo. */
 function isUserProfilePath(currentUrl: string): boolean {
     const path = normalizePath(currentUrl);
 
-    return path === '/admin/profile' || path.startsWith('/admin/profile/');
+    return path === '/account/profile' || path.startsWith('/account/profile/');
 }
 
 function pathMatches(currentUrl: string, href: string): boolean {
@@ -69,36 +69,17 @@ function childrenOf(item: AsideNavItem): Array<{ slug: string; label: string; hr
     return item.functionalities ?? [];
 }
 
+/** Solo módulos hoja (sin Functionalities). Un hijo no colapsa el pilar: se ve Module + Functionality. */
 function isDirectLink(item: AsideNavItem): boolean {
-    const children = childrenOf(item);
-
-    if (item.href && children.length === 0) {
-        return true;
-    }
-
-    return children.length === 1;
+    return Boolean(item.href) && childrenOf(item).length === 0;
 }
 
 function directHref(item: AsideNavItem): string {
-    const children = childrenOf(item);
-
-    if (item.href && children.length === 0) {
-        return item.href;
-    }
-
-    return children[0]?.href ?? '#';
+    return item.href ?? '#';
 }
 
 function directLabel(item: AsideNavItem): string {
-    const children = childrenOf(item);
-
-    if (item.href && children.length === 0) {
-        return item.label;
-    }
-
-    const only = children[0];
-
-    return item.slug === 'dashboard' ? item.label : (only?.label ?? item.label);
+    return item.label;
 }
 
 function activeGroupSlugs(menu: AsideNavItem[], currentUrl: string): Set<string> {

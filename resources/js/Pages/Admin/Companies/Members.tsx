@@ -57,7 +57,7 @@ export default function Members({
             breadcrumb={{
                 optionKey: 'empresas',
                 suboptionKey: 'miembros',
-                optionHref: '/admin/companies',
+                optionHref: '/companies',
             }}
             actions={[]}
         >
@@ -66,7 +66,7 @@ export default function Members({
                     {t('miembros_subtitulo')} · {company.name}
                 </p>
                 <Link
-                    href={`/admin/companies/${company.id}/edit`}
+                    href={`/companies/${company.id}/edit`}
                     className="text-sm text-brand hover:underline"
                 >
                     {t('volver_a_empresa')}
@@ -99,7 +99,7 @@ export default function Members({
                                                 return;
                                             }
                                             router.put(
-                                                `/admin/companies/${company.id}/members/${member.id}/role`,
+                                                `/users/companies/${company.id}/members/${member.id}/role`,
                                                 { role },
                                             );
                                         }}

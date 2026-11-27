@@ -68,7 +68,7 @@ function actingCreator(Company $company, bool $withCreate = true): User
     setPermissionsTeamId($company->id);
 
     $perms = [
-        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('users.access'),
         Permission::findOrCreate('company-users.view'),
         Permission::findOrCreate('company-users.viewAny'),
         Permission::findOrCreate('company-users.update'),
@@ -92,8 +92,8 @@ it('expone rutas create/store/edit y CTA Index ya no es máscara', function () {
         ->and(Route::has('admin.company-users.edit'))->toBeTrue();
 
     $source = file_get_contents(resource_path('js/Pages/Admin/CompanyUsers/Index.tsx'));
-    expect($source)->toContain('/admin/company-users/create')
-        ->and($source)->toContain('/admin/company-users/${row.id}/edit')
+    expect($source)->toContain('/users/company-users/create')
+        ->and($source)->toContain('/users/company-users/${row.id}/edit')
         ->and($source)->not->toContain('alta_usuario_mascara')
         ->and($source)->not->toContain('edicion_usuario_mascara');
 });

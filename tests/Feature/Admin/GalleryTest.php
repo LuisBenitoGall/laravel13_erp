@@ -147,8 +147,8 @@ it('no-SA no abre gallery aunque tenga permisos (AdminOnly = SA)', function () {
     $actor = User::factory()->create();
     $actor->companies()->attach($this->company->id);
     setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
-    $actor->givePermissionTo(['configuracion.access', 'gallery.view']);
+    Permission::findOrCreate('settings.access');
+    $actor->givePermissionTo(['settings.access', 'gallery.view']);
     actingWithCompany($actor, $this->company);
 
     $this->get(route('admin.gallery.index'))->assertForbidden();
@@ -181,7 +181,7 @@ it('seeder y menú Galería tras Contenidos', function () {
         ->and($galleryIdx)->toBe($contentsIdx + 1);
 
     $item = collect($config['functionalities'] ?? [])->firstWhere('slug', 'gallery');
-    expect($item['href'])->toBe('/admin/gallery');
+    expect($item['href'])->toBe('/settings/gallery');
 });
 
 it('Index no usa ServerTable y no muestra Volver', function () {
@@ -251,8 +251,8 @@ it('POST copies sin create responde 403', function () {
     $actor = User::factory()->create();
     $actor->companies()->attach($this->company->id);
     setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
-    $actor->givePermissionTo(['configuracion.access', 'gallery.view', 'gallery.viewAny']);
+    Permission::findOrCreate('settings.access');
+    $actor->givePermissionTo(['settings.access', 'gallery.view', 'gallery.viewAny']);
     actingWithCompany($actor, $this->company);
 
     $this->post(route('admin.gallery.copies', $source), [
@@ -268,9 +268,9 @@ it('POST copies con origen fuera de perímetro responde 403', function () {
     $actorA = User::factory()->create();
     $actorA->companies()->attach($this->company->id);
     setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
+    Permission::findOrCreate('settings.access');
     $actorA->givePermissionTo([
-        'configuracion.access',
+        'settings.access',
         'gallery.view',
         'gallery.viewAny',
         'gallery.create',
@@ -317,7 +317,7 @@ it('picker JSON lista activos paginados con meta', function () {
         ]);
 
     expect($response->json('assets.0.url'))->not->toContain('/storage/')
-        ->and($response->json('assets.0.url'))->toContain('/admin/gallery/');
+        ->and($response->json('assets.0.url'))->toContain('/settings/gallery/');
 });
 
 it('entrega autenticada gallery file: guest denegado; autorizado 200; fuera de perímetro 403', function () {
@@ -333,9 +333,9 @@ it('entrega autenticada gallery file: guest denegado; autorizado 200; fuera de p
     $outsider = User::factory()->create();
     $outsider->companies()->attach($this->company->id);
     setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
+    Permission::findOrCreate('settings.access');
     $outsider->givePermissionTo([
-        'configuracion.access',
+        'settings.access',
         'gallery.view',
         'gallery.viewAny',
     ]);

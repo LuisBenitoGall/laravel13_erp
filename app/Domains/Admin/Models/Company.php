@@ -86,6 +86,30 @@ class Company extends Model
         return $this->belongsToMany(Sector::class);
     }
 
+    /** @return BelongsToMany<Currency, $this> */
+    public function currencies(): BelongsToMany
+    {
+        return $this->belongsToMany(Currency::class, 'company_currencies')
+            ->withPivot('is_default')
+            ->withTimestamps();
+    }
+
+    public function defaultCurrency(): ?Currency
+    {
+        if ($this->relationLoaded('currencies')) {
+            /** @var Currency|null $currency */
+            $currency = $this->currencies->first(
+                fn (Currency $item): bool => (bool) data_get($item->getRelations(), 'pivot.is_default', false),
+            );
+
+            return $currency;
+        }
+
+        return $this->currencies()
+            ->wherePivot('is_default', true)
+            ->first();
+    }
+
     /**
      * Sedes de la matriz vinculadas a esta Delegación (lectura inversa del mapa
      * `workplace_delegation`). Sin global scope de tenant: el perímetro lo fija quien consume.
@@ -96,7 +120,7 @@ class Company extends Model
     {
         return $this->belongsToMany(Workplace::class, 'workplace_delegation', 'company_id', 'workplace_id')
             ->withoutGlobalScope('company')
-            ->withPivot('is_preferred')
+            ->withPivot(['is_preferred', 'is_preferred_seat'])
             ->withTimestamps();
     }
 

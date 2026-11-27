@@ -47,7 +47,7 @@ it('da de alta un periodo con company_id de sesión, casts decimales y auditorí
     $actor = actingHrUser($company);
     $member = companyMember($company);
 
-    $this->post(route('hr.employees.store'), employeePayload($company, $member))
+    $this->post(route('rrhh.employees.store'), employeePayload($company, $member))
         ->assertRedirect();
 
     $employee = Employee::query()->firstOrFail();
@@ -75,7 +75,7 @@ it('un periodo scheduled que solapa un active indefinido se rechaza (opción B)'
     ]);
 
     // Sin cerrar el active (Renew / Create→active), no se puede programar solapado.
-    $this->post(route('hr.employees.store'), employeePayload($company, $member, [
+    $this->post(route('rrhh.employees.store'), employeePayload($company, $member, [
         'start_date' => now()->addMonth()->toDateString(),
     ]))->assertSessionHasErrors('start_date');
 
@@ -95,7 +95,7 @@ it('un periodo con inicio futuro nace scheduled si no hay solape con no-ended', 
         'end_date' => now()->subMonths(6)->toDateString(),
     ]);
 
-    $this->post(route('hr.employees.store'), employeePayload($company, $member, [
+    $this->post(route('rrhh.employees.store'), employeePayload($company, $member, [
         'start_date' => now()->addMonth()->toDateString(),
     ]))->assertRedirect();
 
@@ -109,8 +109,8 @@ it('rechaza el alta de un User sin membresía en la company', function () {
     actingHrUser($company);
     $outsider = User::factory()->create(['status' => true]); // sin user_companies
 
-    $this->from(route('hr.employees.create'))
-        ->post(route('hr.employees.store'), employeePayload($company, $outsider))
+    $this->from(route('rrhh.employees.create'))
+        ->post(route('rrhh.employees.store'), employeePayload($company, $outsider))
         ->assertRedirect()
         ->assertSessionHasErrors('user_id');
 
@@ -118,11 +118,11 @@ it('rechaza el alta de un User sin membresía en la company', function () {
     $otherCompany = Company::factory()->create();
     $otherMember = companyMember($otherCompany);
 
-    $this->post(route('hr.employees.store'), employeePayload($company, $otherMember))
+    $this->post(route('rrhh.employees.store'), employeePayload($company, $otherMember))
         ->assertSessionHasErrors('user_id');
 
     // User inexistente: el flujo no crea Users.
-    $this->post(route('hr.employees.store'), employeePayload($company, $outsider, ['user_id' => 999999]))
+    $this->post(route('rrhh.employees.store'), employeePayload($company, $outsider, ['user_id' => 999999]))
         ->assertSessionHasErrors('user_id');
 
     expect(Employee::query()->count())->toBe(0)
@@ -140,12 +140,12 @@ it('rechaza ContractType y Workplace de otra company o no ofertables', function 
     $inactiveType = ContractType::factory()->inactive()->create(['company_id' => $company->id]);
     $inactiveWorkplace = Workplace::factory()->inactive()->create(['company_id' => $company->id]);
 
-    $this->post(route('hr.employees.store'), employeePayload($company, $member, [
+    $this->post(route('rrhh.employees.store'), employeePayload($company, $member, [
         'contract_type_id' => $foreignType->id,
         'workplace_id' => $foreignWorkplace->id,
     ]))->assertSessionHasErrors(['contract_type_id', 'workplace_id']);
 
-    $this->post(route('hr.employees.store'), employeePayload($company, $member, [
+    $this->post(route('rrhh.employees.store'), employeePayload($company, $member, [
         'contract_type_id' => $inactiveType->id,
         'workplace_id' => $inactiveWorkplace->id,
     ]))->assertSessionHasErrors(['contract_type_id', 'workplace_id']);
@@ -157,7 +157,7 @@ it('rechaza ContractType y Workplace de otra company o no ofertables', function 
 
     $okType = ContractType::factory()->create(['company_id' => $company->id]);
 
-    $this->post(route('hr.employees.store'), employeePayload($company, $member, [
+    $this->post(route('rrhh.employees.store'), employeePayload($company, $member, [
         'contract_type_id' => $okType->id,
         'workplace_id' => $okWorkplace->id,
     ]))->assertSessionHasNoErrors()->assertRedirect();
@@ -170,7 +170,7 @@ it('valida fechas, horas y salario', function () {
     actingHrUser($company);
     $member = companyMember($company);
 
-    $this->post(route('hr.employees.store'), employeePayload($company, $member, [
+    $this->post(route('rrhh.employees.store'), employeePayload($company, $member, [
         'start_date' => '2026-05-10',
         'end_date' => '2026-05-01',
         'weekly_hours' => '200',
@@ -189,7 +189,7 @@ it('mantiene como máximo un periodo active por user y company', function () {
         'start_date' => now()->subYear()->toDateString(),
     ]);
 
-    $this->post(route('hr.employees.store'), employeePayload($company, $member, [
+    $this->post(route('rrhh.employees.store'), employeePayload($company, $member, [
         'start_date' => now()->subDay()->toDateString(),
     ]))->assertRedirect();
 
@@ -220,11 +220,11 @@ it('renovar cierra el periodo activo y crea uno nuevo en la misma transacción',
     ]);
     $newType = ContractType::factory()->create(['company_id' => $company->id, 'name' => 'Indefinido']);
 
-    $this->get(route('hr.employees.renew.form', $current))
+    $this->get(route('rrhh.employees.renew.form', $current))
         ->assertOk()
         ->assertInertia(fn ($page) => $page->component('HR/Employees/Renew'));
 
-    $this->post(route('hr.employees.renew', $current), employeePayload($company, $member, [
+    $this->post(route('rrhh.employees.renew', $current), employeePayload($company, $member, [
         'contract_type_id' => $newType->id,
         'start_date' => now()->toDateString(),
     ]))->assertRedirect();
@@ -241,7 +241,7 @@ it('renovar cierra el periodo activo y crea uno nuevo en la misma transacción',
         ->and(Employee::query()->where('status', EmployeeStatus::Active)->count())->toBe(1);
 
     // El histórico del User aparece en Edit.
-    $this->get(route('hr.employees.edit', $renewed))
+    $this->get(route('rrhh.employees.edit', $renewed))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('HR/Employees/Edit')
@@ -256,10 +256,10 @@ it('no permite renovar ni finalizar un periodo que no está active', function ()
 
     $ended = Employee::factory()->ended()->create(['company_id' => $company->id, 'user_id' => $member->id]);
 
-    $this->post(route('hr.employees.renew', $ended), employeePayload($company, $member))
+    $this->post(route('rrhh.employees.renew', $ended), employeePayload($company, $member))
         ->assertSessionHasErrors('employee');
 
-    $this->post(route('hr.employees.end', $ended))->assertSessionHasErrors('employee');
+    $this->post(route('rrhh.employees.end', $ended))->assertSessionHasErrors('employee');
 
     expect(Employee::query()->count())->toBe(1);
 });
@@ -271,7 +271,7 @@ it('finalizar cierra el periodo activo con la fecha indicada o hoy', function ()
 
     $employee = Employee::factory()->create(['company_id' => $company->id, 'user_id' => $member->id]);
 
-    $this->post(route('hr.employees.end', $employee))->assertRedirect();
+    $this->post(route('rrhh.employees.end', $employee))->assertRedirect();
 
     $employee->refresh();
 
@@ -280,7 +280,7 @@ it('finalizar cierra el periodo activo con la fecha indicada o hoy', function ()
 
     $second = Employee::factory()->create(['company_id' => $company->id, 'user_id' => $member->id]);
 
-    $this->post(route('hr.employees.end', $second), ['end_date' => now()->addWeek()->toDateString()])
+    $this->post(route('rrhh.employees.end', $second), ['end_date' => now()->addWeek()->toDateString()])
         ->assertRedirect();
 
     expect($second->fresh()->end_date->toDateString())->toBe(now()->addWeek()->toDateString());
@@ -293,7 +293,7 @@ it('update edita el periodo sin cambiar user ni status', function () {
     $employee = Employee::factory()->create(['company_id' => $company->id, 'user_id' => $member->id]);
     $intruder = companyMember($company);
 
-    $this->put(route('hr.employees.update', $employee), employeePayload($company, $intruder, [
+    $this->put(route('rrhh.employees.update', $employee), employeePayload($company, $intruder, [
         'job_title' => 'Encargado',
         'weekly_hours' => '20',
         'status' => 'ended',
@@ -314,7 +314,7 @@ it('Create ofrece solo miembros de la company y Edit conserva tipo borrado del h
     $member = companyMember($company);
     $outsider = User::factory()->create(['status' => true]);
 
-    $this->get(route('hr.employees.create'))
+    $this->get(route('rrhh.employees.create'))
         ->assertOk()
         ->assertInertia(function ($page) use ($member, $outsider) {
             $ids = collect($page->toArray()['props']['options']['users'])->pluck('id');
@@ -332,7 +332,7 @@ it('Create ofrece solo miembros de la company y Edit conserva tipo borrado del h
 
     expect($employee->fresh()->contractType->id)->toBe($type->id);
 
-    $this->get(route('hr.employees.edit', $employee))
+    $this->get(route('rrhh.employees.edit', $employee))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->has('options.contract_types', 1)
@@ -357,32 +357,32 @@ it('lista los periodos de la company con filtro por estado', function () {
         'contract_type_id' => $type->id,
     ]);
 
-    $this->get(route('hr.employees.index'))
+    $this->get(route('rrhh.employees.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('HR/Employees/Index')
             ->has('contract_type_filter')
             ->where('contract_type_filter.'.(string) $type->id, $type->name));
 
-    $this->get(route('hr.employees.table'))
+    $this->get(route('rrhh.employees.table'))
         ->assertOk()
         ->assertJsonPath('total', 2)
         ->assertJsonPath('data.0.status', 'active')
         ->assertJsonPath('data.0.user_name', $member->name);
 
-    $this->getJson(route('hr.employees.table', [
+    $this->getJson(route('rrhh.employees.table', [
         'filter' => [['field' => 'status', 'type' => '=', 'value' => 'ended']],
     ]))->assertJsonPath('total', 1)->assertJsonPath('data.0.status', 'ended');
 
-    $this->getJson(route('hr.employees.table', [
+    $this->getJson(route('rrhh.employees.table', [
         'filter' => [['field' => 'user_name', 'type' => 'like', 'value' => $member->name]],
     ]))->assertJsonPath('total', 2);
 
-    $this->getJson(route('hr.employees.table', [
+    $this->getJson(route('rrhh.employees.table', [
         'filter' => [['field' => 'user_name', 'type' => 'like', 'value' => 'zzz-no-match']],
     ]))->assertJsonPath('total', 0);
 
-    $this->getJson(route('hr.employees.table', [
+    $this->getJson(route('rrhh.employees.table', [
         'filter' => [['field' => 'contract_type_id', 'type' => '=', 'value' => (string) $type->id]],
     ]))->assertJsonPath('total', 2);
 });
@@ -402,17 +402,17 @@ it('aísla empleados entre companies (R-TEN-05)', function () {
         ->toContain($employeeA->id)
         ->not->toContain($employeeB->id);
 
-    $this->get(route('hr.employees.table'))
+    $this->get(route('rrhh.employees.table'))
         ->assertOk()
         ->assertJsonPath('total', 1)
         ->assertJsonPath('data.0.id', $employeeA->id);
 
-    $this->get(route('hr.employees.edit', $employeeB))->assertNotFound();
-    $this->put(route('hr.employees.update', $employeeB), employeePayload($companyA, $memberA))->assertNotFound();
-    $this->get(route('hr.employees.renew.form', $employeeB))->assertNotFound();
-    $this->post(route('hr.employees.renew', $employeeB), employeePayload($companyA, $memberA))->assertNotFound();
-    $this->post(route('hr.employees.end', $employeeB))->assertNotFound();
-    $this->delete(route('hr.employees.destroy', $employeeB))->assertNotFound();
+    $this->get(route('rrhh.employees.edit', $employeeB))->assertNotFound();
+    $this->put(route('rrhh.employees.update', $employeeB), employeePayload($companyA, $memberA))->assertNotFound();
+    $this->get(route('rrhh.employees.renew.form', $employeeB))->assertNotFound();
+    $this->post(route('rrhh.employees.renew', $employeeB), employeePayload($companyA, $memberA))->assertNotFound();
+    $this->post(route('rrhh.employees.end', $employeeB))->assertNotFound();
+    $this->delete(route('rrhh.employees.destroy', $employeeB))->assertNotFound();
 
     expect($employeeB->fresh()->status)->toBe(EmployeeStatus::Active);
 });
@@ -423,8 +423,8 @@ it('soft-delete de un periodo lo oculta del listado', function () {
     $member = companyMember($company);
     $employee = Employee::factory()->create(['company_id' => $company->id, 'user_id' => $member->id]);
 
-    $this->delete(route('hr.employees.destroy', $employee))
-        ->assertRedirect(route('hr.employees.index'));
+    $this->delete(route('rrhh.employees.destroy', $employee))
+        ->assertRedirect(route('rrhh.employees.index'));
 
     expect(Employee::query()->count())->toBe(0)
         ->and(Employee::withTrashed()->count())->toBe(1);
@@ -437,16 +437,16 @@ it('responde 403 sin permisos de employees', function () {
 
     actingHrUser($company, ['rrhh.access']);
 
-    $this->get(route('hr.employees.index'))->assertForbidden();
-    $this->get(route('hr.employees.table'))->assertForbidden();
-    $this->get(route('hr.employees.create'))->assertForbidden();
-    $this->post(route('hr.employees.store'), employeePayload($company, $member))->assertForbidden();
-    $this->get(route('hr.employees.edit', $employee))->assertForbidden();
-    $this->put(route('hr.employees.update', $employee), employeePayload($company, $member))->assertForbidden();
-    $this->get(route('hr.employees.renew.form', $employee))->assertForbidden();
-    $this->post(route('hr.employees.renew', $employee), employeePayload($company, $member))->assertForbidden();
-    $this->post(route('hr.employees.end', $employee))->assertForbidden();
-    $this->delete(route('hr.employees.destroy', $employee))->assertForbidden();
+    $this->get(route('rrhh.employees.index'))->assertForbidden();
+    $this->get(route('rrhh.employees.table'))->assertForbidden();
+    $this->get(route('rrhh.employees.create'))->assertForbidden();
+    $this->post(route('rrhh.employees.store'), employeePayload($company, $member))->assertForbidden();
+    $this->get(route('rrhh.employees.edit', $employee))->assertForbidden();
+    $this->put(route('rrhh.employees.update', $employee), employeePayload($company, $member))->assertForbidden();
+    $this->get(route('rrhh.employees.renew.form', $employee))->assertForbidden();
+    $this->post(route('rrhh.employees.renew', $employee), employeePayload($company, $member))->assertForbidden();
+    $this->post(route('rrhh.employees.end', $employee))->assertForbidden();
+    $this->delete(route('rrhh.employees.destroy', $employee))->assertForbidden();
 });
 
 it('renovar exige employees.create además de employees.update', function () {
@@ -456,8 +456,8 @@ it('renovar exige employees.create además de employees.update', function () {
 
     actingHrUser($company, ['rrhh.access', 'employees.view', 'employees.update']);
 
-    $this->get(route('hr.employees.renew.form', $employee))->assertForbidden();
-    $this->post(route('hr.employees.end', $employee))->assertRedirect();
+    $this->get(route('rrhh.employees.renew.form', $employee))->assertForbidden();
+    $this->post(route('rrhh.employees.end', $employee))->assertRedirect();
 });
 
 it('exige end_date cuando el tipo tiene duration y permite null si es indefinido', function () {
@@ -468,21 +468,21 @@ it('exige end_date cuando el tipo tiene duration y permite null si es indefinido
     $fixed = ContractType::factory()->fixed(90)->create(['company_id' => $company->id]);
     $indefinite = ContractType::factory()->indefinite()->create(['company_id' => $company->id]);
 
-    $this->from(route('hr.employees.create'))
-        ->post(route('hr.employees.store'), employeePayload($company, $member, [
+    $this->from(route('rrhh.employees.create'))
+        ->post(route('rrhh.employees.store'), employeePayload($company, $member, [
             'contract_type_id' => $fixed->id,
             'end_date' => null,
         ]))
         ->assertRedirect()
         ->assertSessionHasErrors('end_date');
 
-    $this->post(route('hr.employees.store'), employeePayload($company, $member, [
+    $this->post(route('rrhh.employees.store'), employeePayload($company, $member, [
         'contract_type_id' => $fixed->id,
         'start_date' => '2026-01-01',
         'end_date' => '2026-03-31',
     ]))->assertRedirect()->assertSessionHasNoErrors();
 
-    $this->post(route('hr.employees.store'), employeePayload($company, $member, [
+    $this->post(route('rrhh.employees.store'), employeePayload($company, $member, [
         'user_id' => companyMember($company)->id,
         'contract_type_id' => $indefinite->id,
         'end_date' => null,

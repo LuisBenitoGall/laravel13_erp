@@ -39,7 +39,7 @@ export default function Renew({ catalogAccounts, defaultAccountId, canRenew, his
             return;
         }
 
-        form.post('/admin/account-renew', {
+        form.post('/account-renew', {
             preserveScroll: true,
         });
     }
@@ -49,7 +49,7 @@ export default function Renew({ catalogAccounts, defaultAccountId, canRenew, his
             breadcrumb={{
                 optionKey: 'renovar_cuenta',
                 suboptionKey: 'mi_cuenta',
-                optionHref: '/admin/account-renew',
+                optionHref: '/account-renew',
             }}
             showBack
         >

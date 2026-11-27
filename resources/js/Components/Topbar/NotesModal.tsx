@@ -29,7 +29,7 @@ export default function NotesModal() {
 
     function submit(event: FormEvent) {
         event.preventDefault();
-        form.post('/admin/notes', {
+        form.post('/account/notes', {
             preserveScroll: true,
             onSuccess: () => {
                 form.reset();

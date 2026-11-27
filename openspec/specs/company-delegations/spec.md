@@ -74,20 +74,21 @@ Una Delegación SHALL asociarse a workplaces únicamente vía el pivote N:N
   hija
 
 ### Requirement: Edit Delegación — un solo listado “Sus centros”
-El Edit de Delegación SHALL mostrar un único listado de workplaces de la matriz
-asociados a esa Delegación (RO respecto al mapeo; enlace a Edit de la sede).
+El Edit de Delegación SHALL mostrar un único listado de workplaces de la
+matriz asociados a esa Delegación mediante `<ServerTable>` (enlace a Edit
+de la sede; sede preferida de la Delegación editable desde esa ficha).
 SHALL NOT ofrecer CRUD de centros con dueño = hija ni un segundo bloque
 paralelo con otra semántica. Copy en lenguaje llano (sin jerga N:M / mapa).
 
 #### Scenario: Solo sus centros asociados
 - **WHEN** el actor abre el Edit de una Delegación con sedes asociadas
-- **THEN** ve esas sedes en un único listado comprensible, sin dos categorías
-  técnicas de “centros”
+- **THEN** ve esas sedes en un único ServerTable comprensible, sin dos
+  categorías técnicas de “centros”
 
 #### Scenario: Sin centros asociados
 - **WHEN** la Delegación no tiene vínculos
-- **THEN** empty state + vía clara para vincular/crear sede en el flujo de
-  matriz (sin crear dueño = hija)
+- **THEN** empty state con copy de ayuda hacia Centros de trabajo (vincular
+  desde Edit Workplace; sin CTA botón obligatorio en la ficha)
 
 #### Scenario: Ya no hay panel CRUD de centros de la hija
 - **WHEN** un actor abre el Edit de Delegación
@@ -102,3 +103,18 @@ Los workplaces existentes con `company_id` = Delegación SHALL pasar a
 - **WHEN** se aplica la migración de datos
 - **THEN** no quedan workplaces no soft-deleted con `company_id` de una
   Delegación y las asociaciones N:N reflejan la relación anterior
+
+### Requirement: Sección Monedas en Edit Delegación
+El tab Información del Edit de Delegación SHALL incluir una sección Monedas
+(default + permitidas) con la misma semántica que Edit Company, independiente
+de la matriz. SHALL NOT añadir un tab dedicado Monedas. Create Delegación
+SHALL NOT exigir monedas.
+
+#### Scenario: Sección en Información
+- **WHEN** un actor autorizado abre Edit Delegación
+- **THEN** ve Monedas dentro de Información junto a los datos de identidad
+
+#### Scenario: Default propio de la Delegación
+- **WHEN** el actor guarda default USD en una Delegación cuya matriz tiene
+  default EUR
+- **THEN** la Delegación queda con default USD sin alterar la matriz

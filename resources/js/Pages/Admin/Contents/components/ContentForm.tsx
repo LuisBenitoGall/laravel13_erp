@@ -108,7 +108,7 @@ export default function ContentForm({ contentId, kind, initial }: Props) {
         }
 
         form.transform(() => payload);
-        form.put(`/admin/contents/${contentId}`, { preserveScroll: true });
+        form.put(`/settings/contents/${contentId}`, { preserveScroll: true });
     };
 
     return (

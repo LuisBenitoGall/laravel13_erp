@@ -42,7 +42,7 @@ function actingCompanySectorEditor(Company $company, array $extraPermissions = [
 
     setPermissionsTeamId($company->id);
     $names = array_merge(
-        ['empresas.access', 'companies.view', 'companies.update'],
+        ['companies.access', 'companies.view', 'companies.update'],
         $extraPermissions,
     );
     $user->givePermissionTo(

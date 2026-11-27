@@ -53,7 +53,7 @@ export default function Index() {
                 id: 'edit',
                 icon: Pencil,
                 labelKey: 'editar',
-                onClick: () => router.visit(`/admin/roles/${row.id}/edit`),
+                onClick: () => router.visit(`/settings/roles/${row.id}/edit`),
             },
         ];
 
@@ -64,7 +64,7 @@ export default function Index() {
                 variant: 'danger',
                 confirm: true,
                 onClick: (current) => {
-                    router.delete(`/admin/roles/${current.id}`, { preserveScroll: true });
+                    router.delete(`/settings/roles/${current.id}`, { preserveScroll: true });
                 },
             });
         }
@@ -77,20 +77,20 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'roles',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/roles',
+                optionHref: '/settings/roles',
             }}
             showBack={false}
             actions={[
                 {
                     type: 'link',
                     labelKey: 'rol_crear',
-                    href: '/admin/roles/create',
+                    href: '/settings/roles/create',
                     icon: Plus,
                 },
             ]}
         >
             <ServerTable<PlatformRoleRow>
-                endpoint="/admin/roles/table"
+                endpoint="/settings/roles/table"
                 columns={columns}
                 persistKey="admin.roles"
                 exportable={false}

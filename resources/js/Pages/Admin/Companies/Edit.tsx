@@ -15,6 +15,9 @@ import CompanyHierarchyPanel, {
 } from './components/CompanyHierarchyPanel';
 import CompanyLogoPanel from './components/CompanyLogoPanel';
 import CompanyProfileReadout from './components/CompanyProfileReadout';
+import CompanyCurrenciesPanel, {
+    type CompanyCurrencyOption,
+} from './components/CompanyCurrenciesPanel';
 import CompanySectorsPanel, { type SectorOption } from './components/CompanySectorsPanel';
 
 const BASE_EDIT_TABS = ['info', 'images', 'hierarchy', 'sectors'] as const;
@@ -23,6 +26,7 @@ type EditTabId = (typeof BASE_EDIT_TABS)[number];
 type CompanyEditCan = {
     view_company_sectors?: boolean;
     update_company_sectors?: boolean;
+    update_company_currencies?: boolean;
 };
 
 function tabFromPageUrl(url: string, allowed: readonly EditTabId[]): EditTabId {
@@ -48,6 +52,9 @@ type Props = {
     };
     sectors: SectorOption[];
     sector_options: SectorOption[];
+    currencies: CompanyCurrencyOption[];
+    currency_options: CompanyCurrencyOption[];
+    default_currency_id: number | null;
     can?: CompanyEditCan;
 };
 
@@ -58,12 +65,16 @@ export default function Edit({
     hierarchy_options,
     sectors,
     sector_options,
+    currencies,
+    currency_options,
+    default_currency_id,
     can,
 }: Props) {
     const { t, i18n } = useTranslation();
     const page = usePage();
     const canViewSectors = Boolean(can?.view_company_sectors);
     const canUpdateSectors = Boolean(can?.update_company_sectors);
+    const canUpdateCurrencies = Boolean(can?.update_company_currencies);
 
     const allowedTabs = useMemo(
         () =>
@@ -83,7 +94,7 @@ export default function Edit({
     }
 
     const activeTab = allowedTabs.includes(tab as EditTabId) ? tab : 'info';
-    const basePath = `/admin/companies/${company.id}/edit`;
+    const basePath = `/companies/${company.id}/edit`;
 
     function selectTab(next: string) {
         setTab(next);
@@ -91,42 +102,66 @@ export default function Edit({
         window.history.replaceState(window.history.state, '', href);
     }
 
-    const summaryFields = useMemo(
-        () =>
-            auditRecordSummaryFields({
-                created_at: formatDate(company.created_at ?? null, i18n.language) || undefined,
-                updated_at: formatDate(company.updated_at ?? null, i18n.language) || undefined,
-            }),
-        [company.created_at, company.updated_at, i18n.language],
+    const defaultCurrency = useMemo(
+        () => currencies.find((currency) => currency.id === default_currency_id) ?? null,
+        [currencies, default_currency_id],
     );
+
+    const summaryFields = useMemo(() => {
+        const audit = auditRecordSummaryFields({
+            created_at: formatDate(company.created_at ?? null, i18n.language) || undefined,
+            updated_at: formatDate(company.updated_at ?? null, i18n.language) || undefined,
+        });
+
+        if (!defaultCurrency) {
+            return audit;
+        }
+
+        return [
+            {
+                labelKey: 'moneda_por_defecto',
+                value: defaultCurrency.code ?? defaultCurrency.name,
+            },
+            ...audit,
+        ];
+    }, [company.created_at, company.updated_at, defaultCurrency, i18n.language]);
 
     const tabs = [
         {
             id: 'info',
             labelKey: 'informacion',
             panel: (
-                <div className="grid gap-6 lg:grid-cols-[minmax(240px,280px)_1fr]">
-                    <CompanyProfileReadout
-                        company={{
-                            name: company.name,
-                            tradename: company.tradename,
-                            nif: company.nif,
-                            status: company.status,
-                            logo_url: company.logo_url ?? null,
-                        }}
-                    />
-                    <CompanyForm
-                        mode="edit"
-                        method="put"
-                        submitUrl={`/admin/companies/${company.id}`}
-                        initial={{
-                            name: company.name,
-                            tradename: company.tradename ?? '',
-                            nif: company.nif ?? '',
-                            status: company.status,
-                            excerpt: company.excerpt,
-                            description: company.description,
-                        }}
+                <div className="space-y-6">
+                    <div className="grid gap-6 lg:grid-cols-[minmax(240px,280px)_1fr]">
+                        <CompanyProfileReadout
+                            company={{
+                                name: company.name,
+                                tradename: company.tradename,
+                                nif: company.nif,
+                                status: company.status,
+                                logo_url: company.logo_url ?? null,
+                            }}
+                        />
+                        <CompanyForm
+                            mode="edit"
+                            method="put"
+                            submitUrl={`/companies/${company.id}`}
+                            initial={{
+                                name: company.name,
+                                tradename: company.tradename ?? '',
+                                nif: company.nif ?? '',
+                                status: company.status,
+                                excerpt: company.excerpt,
+                                description: company.description,
+                            }}
+                        />
+                    </div>
+                    <CompanyCurrenciesPanel
+                        submitUrl={`/companies/${company.id}/currencies`}
+                        currencies={currencies}
+                        currencyOptions={currency_options}
+                        defaultCurrencyId={default_currency_id}
+                        canUpdate={canUpdateCurrencies}
                     />
                 </div>
             ),
@@ -176,11 +211,11 @@ export default function Edit({
             breadcrumb={{
                 optionKey: 'mis_empresas',
                 suboptionKey: 'empresa_editar',
-                optionHref: '/admin/companies',
+                optionHref: '/companies',
                 suboptionParams: { name: company.name },
             }}
             showBack
-            backHref="/admin/companies"
+            backHref="/companies"
             actions={[]}
         >
             <RecordEditLayout

@@ -70,7 +70,7 @@ export default function Index() {
 
     function submitCreate(event: FormEvent) {
         event.preventDefault();
-        createForm.post('/admin/accounting-account-types', {
+        createForm.post('/settings/accounting-account-types', {
             preserveScroll: true,
             onSuccess: () => {
                 setCreateOpen(false);
@@ -85,7 +85,7 @@ export default function Index() {
             return;
         }
 
-        editForm.put(`/admin/accounting-account-types/${editing.id}`, {
+        editForm.put(`/settings/accounting-account-types/${editing.id}`, {
             preserveScroll: true,
             onSuccess: () => {
                 setEditing(null);
@@ -107,7 +107,7 @@ export default function Index() {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/admin/accounting-account-types/${current.id}`, {
+                router.delete(`/settings/accounting-account-types/${current.id}`, {
                     preserveScroll: true,
                     onSuccess: () => setTableKey((key) => key + 1),
                     onError: (errors) => {
@@ -126,14 +126,14 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'grupos_contables',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/accounting-account-types',
+                optionHref: '/settings/accounting-account-types',
             }}
             showBack={false}
             actions={[
                 {
                     type: 'link',
                     labelKey: 'ver_plan_pgc',
-                    href: '/admin/accounting-account-types/show',
+                    href: '/settings/accounting-account-types/show',
                     icon: ListTree,
                 },
                 {
@@ -146,7 +146,7 @@ export default function Index() {
         >
             <ServerTable<AccountingAccountTypeRow>
                 key={tableKey}
-                endpoint="/admin/accounting-account-types/table"
+                endpoint="/settings/accounting-account-types/table"
                 columns={columns}
                 persistKey="admin.accounting-account-types"
                 exportable={false}

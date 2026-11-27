@@ -55,7 +55,7 @@ export default function Index({ companies, sectors, filters }: Props) {
 
     function visit(next: { sector_ids?: number[]; sort?: string; page?: number }) {
         router.get(
-            '/admin/company-directory',
+            '/companies/company-directory',
             {
                 sector_ids: next.sector_ids ?? filters.sector_ids,
                 sort: next.sort ?? filters.sort,
@@ -80,7 +80,7 @@ export default function Index({ companies, sectors, filters }: Props) {
             breadcrumb={{
                 optionKey: 'directorio',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/company-directory',
+                optionHref: '/companies/company-directory',
             }}
             showBack={false}
         >
@@ -132,7 +132,7 @@ export default function Index({ companies, sectors, filters }: Props) {
                             {companies.data.map((company) => (
                                 <li key={company.id}>
                                     <Link
-                                        href={`/admin/company-directory/${company.id}`}
+                                        href={`/companies/company-directory/${company.id}`}
                                         className="flex h-full flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm"
                                     >
                                         <div className="flex items-center gap-3">

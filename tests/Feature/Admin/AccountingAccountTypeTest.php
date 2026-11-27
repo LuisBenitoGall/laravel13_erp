@@ -60,8 +60,8 @@ it('sin accounting-account-types.* responde 403', function () {
 it('usuario con view y viewAny abre Index y show', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
-    $user->givePermissionTo(['configuracion.access', 'accounting-account-types.view', 'accounting-account-types.viewAny']);
+    Permission::findOrCreate('settings.access');
+    $user->givePermissionTo(['settings.access', 'accounting-account-types.view', 'accounting-account-types.viewAny']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.accounting-account-types.index'))->assertOk();

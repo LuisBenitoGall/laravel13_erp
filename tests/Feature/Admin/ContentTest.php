@@ -99,6 +99,23 @@ it('Create Help con code duplicado o formato inválido responde 422', function (
         ->and(Content::query()->where('name', 'Inválido')->exists())->toBeFalse();
 });
 
+it('Create Help admite underscore en scope y field del code', function () {
+    $this->post(route('admin.contents.store'), [
+        'name' => 'Perfil público',
+        'kind' => 'help',
+        'code' => 'users.is_public',
+    ])->assertRedirect()->assertSessionHasNoErrors();
+
+    $this->post(route('admin.contents.store'), [
+        'name' => 'Scope con guion bajo',
+        'kind' => 'help',
+        'code' => 'user_profile.is_public',
+    ])->assertRedirect()->assertSessionHasNoErrors();
+
+    expect(Content::query()->where('code', 'users.is_public')->exists())->toBeTrue()
+        ->and(Content::query()->where('code', 'user_profile.is_public')->exists())->toBeTrue();
+});
+
 it('Create Help con code soft-deleted responde 422', function () {
     $trashed = Content::factory()->create(['code' => 'companies.tradename']);
     $trashed->delete();
@@ -402,7 +419,7 @@ it('Index sin columna Estado y toggle en Acciones', function () {
     $source = (string) file_get_contents(resource_path('js/Pages/Admin/Contents/Index.tsx'));
 
     expect($source)->toContain("kind: 'toggle'")
-        ->and($source)->toContain('/admin/contents/${row.id}/status')
+        ->and($source)->toContain('/settings/contents/${row.id}/status')
         ->and($source)->not->toContain("field: 'status'");
 });
 
@@ -480,7 +497,7 @@ it('seeder y menú Contenidos', function () {
     $item = collect($config['functionalities'] ?? [])->firstWhere('slug', 'contents');
 
     expect($item)->not->toBeNull()
-        ->and($item['href'])->toBe('/admin/contents');
+        ->and($item['href'])->toBe('/settings/contents');
 });
 
 it('HelpTip silencia codes inexistentes y no usa JSON runtime', function () {

@@ -63,7 +63,7 @@ function actingBulkActor(Company $company, bool $withDelete = true, bool $withUp
     setPermissionsTeamId($company->id);
 
     $perms = [
-        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('users.access'),
         Permission::findOrCreate('company-users.view'),
         Permission::findOrCreate('company-users.viewAny'),
     ];

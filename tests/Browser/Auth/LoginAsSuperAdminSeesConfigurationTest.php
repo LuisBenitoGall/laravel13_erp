@@ -72,7 +72,7 @@ it('login como super admin ve Módulos aunque admin no esté encendido', functio
         ->assertSee('ACME Shell')
         ->assertDontSee('Funcionalidades')
         ->click('Módulos')
-        ->assertPathIs('/admin/modules')
+        ->assertPathIs('/settings/modules')
         ->assertSee('Módulos')
         ->assertSee('Mostrar/ocultar columnas')
         ->assertSee('Acciones');

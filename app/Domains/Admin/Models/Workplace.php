@@ -63,7 +63,7 @@ class Workplace extends Model
     public function delegations(): BelongsToMany
     {
         return $this->belongsToMany(Company::class, 'workplace_delegation', 'workplace_id', 'company_id')
-            ->withPivot('is_preferred')
+            ->withPivot(['is_preferred', 'is_preferred_seat'])
             ->withTimestamps();
     }
 

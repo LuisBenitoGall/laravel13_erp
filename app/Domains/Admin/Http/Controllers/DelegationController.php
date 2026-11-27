@@ -4,18 +4,25 @@ namespace App\Domains\Admin\Http\Controllers;
 
 use App\Domains\Admin\Actions\CreateDelegation;
 use App\Domains\Admin\Actions\DeleteCompany;
+use App\Domains\Admin\Actions\SetDelegationPreferredWorkplace;
+use App\Domains\Admin\Actions\SyncCompanyCurrencies;
 use App\Domains\Admin\Actions\UpdateCompany;
 use App\Domains\Admin\Actions\UpdateCompanyStatus;
 use App\Domains\Admin\Enums\CompanyStatus;
 use App\Domains\Admin\Enums\GeographyStatus;
 use App\Domains\Admin\Http\Requests\DelegationTableRequest;
+use App\Domains\Admin\Http\Requests\DelegationWorkplaceTableRequest;
+use App\Domains\Admin\Http\Requests\SetDelegationPreferredWorkplaceRequest;
 use App\Domains\Admin\Http\Requests\StoreDelegationRequest;
+use App\Domains\Admin\Http\Requests\SyncDelegationCurrenciesRequest;
 use App\Domains\Admin\Http\Requests\UpdateDelegationRequest;
 use App\Domains\Admin\Http\Requests\UpdateDelegationStatusRequest;
 use App\Domains\Admin\Http\Resources\CompanyResource;
+use App\Domains\Admin\Http\Resources\DelegationLinkedWorkplaceResource;
 use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Country;
 use App\Domains\Admin\Models\Workplace;
+use App\Domains\Admin\Support\CompanyCurrencyInertiaData;
 use App\Domains\Admin\Support\DelegationPerimeter;
 use App\Http\Controllers\Controller;
 use App\Support\Table\TableBuilder;
@@ -109,31 +116,172 @@ class DelegationController extends Controller
         $this->perimeter->assertOwns($delegation);
         $this->authorize('updateDelegation', $delegation);
 
-        // Único listado: sedes de la matriz vinculadas (RO; escritura = Edit Workplace).
-        $linkedWorkplaces = Workplace::query()
-            ->withoutGlobalScope('company')
-            ->join('workplace_delegation', 'workplaces.id', '=', 'workplace_delegation.workplace_id')
-            ->where('workplace_delegation.company_id', $delegation->id)
-            ->where('workplaces.company_id', $matrix->id)
-            ->orderBy('workplaces.name')
-            ->get([
-                'workplaces.id',
-                'workplaces.name',
-                'workplace_delegation.is_preferred',
-            ])
-            ->map(fn (Workplace $workplace): array => [
-                'id' => (int) $workplace->id,
-                'name' => $workplace->name,
-                'is_preferred' => (bool) $workplace->getAttribute('is_preferred'),
-            ])
-            ->values()
-            ->all();
+        $delegation->load('currencies');
 
         return Inertia::render('Admin/Delegations/Edit', [
             'delegation' => CompanyResource::make($delegation)->resolve(),
             'matrix' => ['id' => $matrix->id, 'name' => $matrix->name],
-            'linked_workplaces' => $linkedWorkplaces,
+            ...CompanyCurrencyInertiaData::for($delegation),
+            'can' => [
+                'update_company_currencies' => request()->user()?->can('updateDelegation', $delegation) ?? false,
+                'update_preferred_workplace' => request()->user()?->can('updateDelegation', $delegation) ?? false,
+            ],
         ]);
+    }
+
+    public function workplacesTable(
+        DelegationWorkplaceTableRequest $request,
+        Company $delegation,
+        TableBuilder $table,
+    ): JsonResponse {
+        $matrix = $this->perimeter->matrix();
+        $this->perimeter->assertOwns($delegation);
+        $this->authorize('updateDelegation', $delegation);
+
+        $query = Workplace::query()
+            ->withoutGlobalScope('company')
+            ->select([
+                'workplaces.*',
+                'workplace_delegation.is_preferred_seat as is_preferred_seat',
+            ])
+            ->join(
+                'workplace_delegation',
+                'workplaces.id',
+                '=',
+                'workplace_delegation.workplace_id',
+            )
+            ->where('workplace_delegation.company_id', $delegation->id)
+            ->where('workplaces.company_id', $matrix->id)
+            ->with(['town.province.country']);
+
+        if ($request->sorts() === []) {
+            $query->orderBy('workplaces.name');
+        }
+
+        return $table->for($query)
+            ->searchable(['workplaces.name', 'workplaces.cp', 'workplaces.address'])
+            ->filterUsing(
+                'is_preferred_seat',
+                function ($builder, string $type, mixed $value): void {
+                    $bool = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+                    if ($bool === null) {
+                        return;
+                    }
+
+                    match ($type) {
+                        '=', 'eq' => $builder->where('workplace_delegation.is_preferred_seat', $bool),
+                        '!=', 'neq' => $builder->where('workplace_delegation.is_preferred_seat', '!=', $bool),
+                        default => null,
+                    };
+                },
+            )
+            ->filterUsing(
+                'town_name',
+                function ($builder, string $type, mixed $value): void {
+                    $term = '%'.(string) $value.'%';
+                    match ($type) {
+                        'like', '=', 'eq' => $builder->whereHas(
+                            'town',
+                            fn ($town) => $town->where('name', 'like', $term),
+                        ),
+                        default => null,
+                    };
+                },
+            )
+            ->filterUsing(
+                'province_name',
+                function ($builder, string $type, mixed $value): void {
+                    $term = '%'.(string) $value.'%';
+                    match ($type) {
+                        'like', '=', 'eq' => $builder->whereHas(
+                            'town.province',
+                            fn ($province) => $province->where('name', 'like', $term),
+                        ),
+                        default => null,
+                    };
+                },
+            )
+            ->filterUsing(
+                'country_name',
+                function ($builder, string $type, mixed $value): void {
+                    $term = '%'.(string) $value.'%';
+                    match ($type) {
+                        'like', '=', 'eq' => $builder->whereHas(
+                            'town.province.country',
+                            fn ($country) => $country->where('name', 'like', $term),
+                        ),
+                        default => null,
+                    };
+                },
+            )
+            ->filterUsing(
+                'created_at',
+                function ($builder, string $type, mixed $value): void {
+                    if ($type !== 'date_between' || ! is_array($value)) {
+                        return;
+                    }
+
+                    $from = is_string($value['from'] ?? null) && $value['from'] !== ''
+                        ? $value['from']
+                        : null;
+                    $to = is_string($value['to'] ?? null) && $value['to'] !== ''
+                        ? $value['to']
+                        : null;
+
+                    if ($from !== null && $to !== null && $from > $to) {
+                        [$from, $to] = [$to, $from];
+                    }
+
+                    if ($from !== null) {
+                        $builder->whereDate('workplaces.created_at', '>=', $from);
+                    }
+
+                    if ($to !== null) {
+                        $builder->whereDate('workplaces.created_at', '<=', $to);
+                    }
+                },
+            )
+            ->request($request)
+            ->through(DelegationLinkedWorkplaceResource::class)
+            ->json();
+    }
+
+    public function setPreferredWorkplace(
+        SetDelegationPreferredWorkplaceRequest $request,
+        Company $delegation,
+        SetDelegationPreferredWorkplace $action,
+    ): JsonResponse {
+        $this->perimeter->assertOwns($delegation);
+
+        $workplaceId = $request->validated('workplace_id');
+        $action->handle(
+            $delegation,
+            $workplaceId !== null ? (int) $workplaceId : null,
+        );
+
+        return response()->json([
+            'workplace_id' => $workplaceId !== null ? (int) $workplaceId : null,
+            'is_preferred_seat' => $workplaceId !== null,
+        ]);
+    }
+
+    public function syncCurrencies(
+        SyncDelegationCurrenciesRequest $request,
+        Company $delegation,
+        SyncCompanyCurrencies $action,
+    ): RedirectResponse {
+        $this->perimeter->assertOwns($delegation);
+
+        /** @var list<int|string> $currencyIds */
+        $currencyIds = $request->validated('currency_ids');
+        $defaultId = $request->validated('default_currency_id');
+        $action->handle(
+            $delegation,
+            $currencyIds,
+            $defaultId !== null ? (int) $defaultId : null,
+        );
+
+        return back()->with('success', __('monedas_empresa_actualizadas'));
     }
 
     public function update(

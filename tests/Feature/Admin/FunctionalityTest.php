@@ -43,7 +43,7 @@ it('crea Functionality y provisiona 5 permisos + comodín', function () {
         expect(Permission::query()->where('name', "modules.{$ability}")->exists())->toBeTrue();
     }
 
-    expect(Permission::query()->where('name', 'configuracion.access')->exists())->toBeTrue()
+    expect(Permission::query()->where('name', 'settings.access')->exists())->toBeTrue()
         ->and($functionality->slug)->toBe('modules');
 });
 

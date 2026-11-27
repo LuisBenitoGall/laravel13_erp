@@ -32,9 +32,9 @@ export default function Edit({ contract_type }: Props) {
             breadcrumb={{
                 optionKey: 'tipos_de_contrato',
                 suboptionKey: 'editar',
-                optionHref: '/hr/contract-types',
+                optionHref: '/rrhh/contract-types',
             }}
-            backHref="/hr/contract-types"
+            backHref="/rrhh/contract-types"
             actions={[]}
         >
             <div className="w-full space-y-4">
@@ -46,7 +46,7 @@ export default function Edit({ contract_type }: Props) {
                 <ContractTypeForm
                     mode="edit"
                     method="put"
-                    submitUrl={`/hr/contract-types/${contract_type.id}`}
+                    submitUrl={`/rrhh/contract-types/${contract_type.id}`}
                     initial={contract_type}
                 />
             </div>

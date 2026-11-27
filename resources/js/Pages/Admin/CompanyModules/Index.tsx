@@ -29,7 +29,7 @@ export default function Index({
             breadcrumb={{
                 optionKey: 'modulos_empresa',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/company-modules',
+                optionHref: '/account/company-modules',
             }}
             showBack={false}
             actions={[]}
@@ -78,8 +78,8 @@ export default function Index({
                                     onClick={() =>
                                         router.post(
                                             module.enabled
-                                                ? `/admin/company-modules/${module.id}/disable`
-                                                : `/admin/company-modules/${module.id}/enable`,
+                                                ? `/account/company-modules/${module.id}/disable`
+                                                : `/account/company-modules/${module.id}/enable`,
                                         )
                                     }
                                 >

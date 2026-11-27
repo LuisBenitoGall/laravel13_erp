@@ -34,7 +34,8 @@ export default function HelpTip({ code }: { code: string }) {
     const { help_tips = {} } = usePage<SharedHelpProps>().props;
     const tip = help_tips[code];
 
-    if (!tip || (!tip.title && !tip.excerpt)) {
+    // Visible si hay título, extracto o cuerpo (Create nace con title vacío hasta Edit).
+    if (!tip || (!tip.title && !tip.excerpt && !tip.content)) {
         return null;
     }
 
@@ -48,7 +49,7 @@ export default function HelpTip({ code }: { code: string }) {
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    className="mt-0.5 shrink-0 rounded-full bg-amber-100 text-amber-800 hover:bg-amber-200 hover:text-amber-900"
+                    className="shrink-0 self-center rounded-full bg-amber-100 text-amber-800 hover:bg-amber-200 hover:text-amber-900"
                     aria-label={t('ayuda')}
                     data-testid={`helptip-${code}`}
                 >
@@ -61,6 +62,12 @@ export default function HelpTip({ code }: { code: string }) {
                 ) : null}
                 {tip.excerpt ? (
                     <p className="text-sm whitespace-pre-wrap text-slate-700">{tip.excerpt}</p>
+                ) : null}
+                {tip.content ? (
+                    <div
+                        className="prose prose-sm max-w-none text-slate-700"
+                        dangerouslySetInnerHTML={{ __html: tip.content }}
+                    />
                 ) : null}
                 {referrers.length > 0 ? (
                     <div className="flex flex-col gap-1">

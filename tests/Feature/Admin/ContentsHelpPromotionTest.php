@@ -58,6 +58,18 @@ it('CompanyForm usa FormHelpScope companies sin helpCode hardcodeado', function 
         ->and($form)->not->toContain('helpCode="companies.nif"');
 });
 
+it('Users Edit usa FormHelpScope users y fieldKey is_public', function () {
+    $edit = (string) file_get_contents(resource_path('js/Pages/Users/Edit.tsx'));
+    $field = (string) file_get_contents(resource_path('js/Components/Form/Field.tsx'));
+
+    expect($edit)->toContain('FormHelpScope')
+        ->and($edit)->toContain('value="users"')
+        ->and($edit)->toContain('fieldKey="is_public"')
+        ->and($edit)->toContain('tipAlign="center"')
+        ->and($edit)->not->toContain('helpCode="users.is_public"')
+        ->and($field)->toContain("tipAlign?: 'start' | 'center'");
+});
+
 it('ContentsHelpSeeder upserta companies.nif Active sin borrar ajenos', function () {
     Content::factory()->active()->create([
         'code' => 'other-tip',

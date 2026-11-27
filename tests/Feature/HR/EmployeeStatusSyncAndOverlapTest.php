@@ -124,7 +124,7 @@ it('opción B: rechaza dos scheduled solapados (caso ACME); día siguiente OK', 
     ]);
 
     // Temporal scheduled 24/11–10/01 → solapa → rechazo
-    $this->post(route('hr.employees.store'), [
+    $this->post(route('rrhh.employees.store'), [
         'user_id' => $member->id,
         'contract_type_id' => $temporal->id,
         'start_date' => '2026-11-24',
@@ -146,7 +146,7 @@ it('opción B: rechaza dos scheduled solapados (caso ACME); día siguiente OK', 
         'status' => EmployeeStatus::Scheduled,
     ]);
 
-    $this->post(route('hr.employees.store'), [
+    $this->post(route('rrhh.employees.store'), [
         'user_id' => $member->id,
         'contract_type_id' => $type->id,
         'start_date' => '2026-11-25',
@@ -174,7 +174,7 @@ it('Create que nace active cierra el active previo aunque solape en calendario',
     ]);
 
     // Hoy = 25/11 → start 20/11 nace active; exceptIds evita autobloqueo.
-    $this->post(route('hr.employees.store'), [
+    $this->post(route('rrhh.employees.store'), [
         'user_id' => $member->id,
         'contract_type_id' => $type->id,
         'start_date' => '2026-11-20',
@@ -206,7 +206,7 @@ it('Create scheduled vs active que solapa se rechaza (active no se cierra)', fun
         'status' => EmployeeStatus::Active,
     ]);
 
-    $this->post(route('hr.employees.store'), [
+    $this->post(route('rrhh.employees.store'), [
         'user_id' => $member->id,
         'contract_type_id' => $type->id,
         'start_date' => '2026-12-01',
@@ -231,7 +231,7 @@ it('renovar indefinido cierra con fin D-1', function () {
         'status' => EmployeeStatus::Active,
     ]);
 
-    $this->post(route('hr.employees.renew', $active), [
+    $this->post(route('rrhh.employees.renew', $active), [
         'contract_type_id' => $type->id,
         'start_date' => '2026-11-25',
         'end_date' => null,
@@ -266,7 +266,7 @@ it('permite solape de fechas entre companies distintas', function () {
 
     actingHrUser($companyB);
 
-    $this->post(route('hr.employees.store'), [
+    $this->post(route('rrhh.employees.store'), [
         'user_id' => $member->id,
         'contract_type_id' => $typeB->id,
         'start_date' => '2026-06-01',

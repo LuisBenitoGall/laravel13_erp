@@ -91,7 +91,7 @@ export default function Index() {
 
     function submitCreate(event: FormEvent) {
         event.preventDefault();
-        createForm.post('/admin/sectors', {
+        createForm.post('/settings/sectors', {
             preserveScroll: true,
             onSuccess: () => {
                 setCreateOpen(false);
@@ -106,7 +106,7 @@ export default function Index() {
             return;
         }
 
-        editForm.put(`/admin/sectors/${editing.id}`, {
+        editForm.put(`/settings/sectors/${editing.id}`, {
             preserveScroll: true,
             onSuccess: () => {
                 setEditing(null);
@@ -123,7 +123,7 @@ export default function Index() {
             checked: row.status === 'active',
             onToggle: async (_row, checked) => {
                 const status = checked ? 'active' : 'inactive';
-                await patchJson<{ status: string }>(`/admin/sectors/${row.id}/status`, {
+                await patchJson<{ status: string }>(`/settings/sectors/${row.id}/status`, {
                     status,
                 });
 
@@ -142,7 +142,7 @@ export default function Index() {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/admin/sectors/${current.id}`, {
+                router.delete(`/settings/sectors/${current.id}`, {
                     preserveScroll: true,
                     onSuccess: () => setTableKey((key) => key + 1),
                     onError: (errors) => {
@@ -161,7 +161,7 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'sectores',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/sectors',
+                optionHref: '/settings/sectors',
             }}
             showBack={false}
             actions={[
@@ -175,7 +175,7 @@ export default function Index() {
         >
             <ServerTable<SectorRow>
                 key={tableKey}
-                endpoint="/admin/sectors/table"
+                endpoint="/settings/sectors/table"
                 columns={columns}
                 persistKey="admin.sectors"
                 exportable={false}

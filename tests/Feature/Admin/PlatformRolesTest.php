@@ -87,14 +87,14 @@ it('Index de roles plataforma responde Inertia y el CTA Crear navega a Create', 
     $source = file_get_contents(resource_path('js/Pages/Admin/Roles/Index.tsx'));
 
     expect($source)->toContain("labelKey: 'rol_crear'")
-        ->and($source)->toContain("href: '/admin/roles/create'")
+        ->and($source)->toContain("href: '/settings/roles/create'")
         ->and($source)->not->toContain('disabled: true')
         ->and($source)->toContain('rowActions')
         ->and($source)->toContain('persistKey="admin.roles"')
         ->and($source)->toContain('exportable={false}')
         ->and($source)->toContain("headerFilterKind: 'string'")
         ->and($source)->toContain("labelKey: 'editar'")
-        ->and($source)->toContain('/admin/roles/${row.id}/edit')
+        ->and($source)->toContain('/settings/roles/${row.id}/edit')
         ->and($source)->not->toContain("labelKey: 'crear'")
         ->and($source)->not->toContain("field: 'accion'")
         ->and($source)->toContain("labelKey: 'eliminar'");

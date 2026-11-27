@@ -45,7 +45,7 @@ export default function CompanySectorsPanel({
             return;
         }
 
-        form.put(`/admin/companies/${companyId}/sectors`, {
+        form.put(`/companies/${companyId}/sectors`, {
             preserveScroll: true,
         });
     }

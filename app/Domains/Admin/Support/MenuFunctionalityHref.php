@@ -4,6 +4,7 @@ namespace App\Domains\Admin\Support;
 
 /**
  * Single source slug Functionality → href relativo (MenuBuilder + PreferenceModuleResolver).
+ * Primer segmento = Module slug inglés (kernel §4).
  */
 final class MenuFunctionalityHref
 {
@@ -36,8 +37,12 @@ final class MenuFunctionalityHref
             'company-users' => route('admin.company-users.index', absolute: false),
             'all-users' => route('admin.all-users.index', absolute: false),
             'profile' => route('admin.account.show', absolute: false),
-            'contract-types' => route('hr.contract-types.index', absolute: false),
-            'employees' => route('hr.employees.index', absolute: false),
+            'contract-types' => route('rrhh.contract-types.index', absolute: false),
+            'employees' => route('rrhh.employees.index', absolute: false),
+            'calendars' => route('rrhh.calendars.index', absolute: false),
+            'day-types' => route('rrhh.day-types.index', absolute: false),
+            'catalogue' => route('products.index', absolute: false),
+            'products' => route('products.index', absolute: false),
             default => '#',
         };
     }

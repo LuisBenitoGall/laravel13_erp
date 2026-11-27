@@ -37,7 +37,7 @@ it('Modules Index declara Crear en ViewActionBar y sin Volver', function () {
     $source = file_get_contents(resource_path('js/Pages/Admin/Modules/Index.tsx'));
 
     expect($source)->toContain("labelKey: 'crear'")
-        ->and($source)->toContain("href: '/admin/modules/create'")
+        ->and($source)->toContain("href: '/settings/modules/create'")
         ->and($source)->toContain('actions={[')
         ->and($source)->toContain('showBack={false}');
 });

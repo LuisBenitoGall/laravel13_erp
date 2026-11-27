@@ -56,7 +56,7 @@ class ContractTypeController extends Controller
     {
         $contractType = $action->handle($request->validated());
 
-        return to_route('hr.contract-types.edit', $contractType)
+        return to_route('rrhh.contract-types.edit', $contractType)
             ->with('success', __('tipo_contrato_creado'));
     }
 
@@ -84,7 +84,7 @@ class ContractTypeController extends Controller
         $this->authorize('delete', $contractType);
         $action->handle($contractType);
 
-        return to_route('hr.contract-types.index')
+        return to_route('rrhh.contract-types.index')
             ->with('success', __('tipo_contrato_eliminado'));
     }
 }

@@ -6,6 +6,7 @@ use App\Domains\Admin\Actions\AttachCompanyChild;
 use App\Domains\Admin\Actions\CreateCompany;
 use App\Domains\Admin\Actions\DeleteCompany;
 use App\Domains\Admin\Actions\DetachCompanyChild;
+use App\Domains\Admin\Actions\SyncCompanyCurrencies;
 use App\Domains\Admin\Actions\SyncCompanySectors;
 use App\Domains\Admin\Actions\UpdateCompany;
 use App\Domains\Admin\Actions\UpdateCompanyParent;
@@ -17,6 +18,7 @@ use App\Domains\Admin\Http\Requests\AttachCompanyChildRequest;
 use App\Domains\Admin\Http\Requests\CompanyTableRequest;
 use App\Domains\Admin\Http\Requests\DetachCompanyChildRequest;
 use App\Domains\Admin\Http\Requests\StoreCompanyRequest;
+use App\Domains\Admin\Http\Requests\SyncCompanyCurrenciesRequest;
 use App\Domains\Admin\Http\Requests\SyncCompanySectorsRequest;
 use App\Domains\Admin\Http\Requests\UpdateCompanyParentRequest;
 use App\Domains\Admin\Http\Requests\UpdateCompanyRequest;
@@ -25,6 +27,7 @@ use App\Domains\Admin\Http\Requests\UploadCompanyLogoRequest;
 use App\Domains\Admin\Http\Resources\CompanyResource;
 use App\Domains\Admin\Models\Company;
 use App\Domains\Admin\Models\Sector;
+use App\Domains\Admin\Support\CompanyCurrencyInertiaData;
 use App\Domains\Admin\Support\CompanyHierarchyOptions;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -95,7 +98,7 @@ class CompanyController extends Controller
         /** @var User $user */
         $user = request()->user();
 
-        $company->load(['parent:id,name', 'children:id,name,parent_id', 'sectors']);
+        $company->load(['parent:id,name', 'children:id,name,parent_id', 'sectors', 'currencies']);
 
         $locale = $locales->resolve(request());
         $sectorOptionsQuery = Sector::query()->where('status', SectorStatus::Active);
@@ -139,9 +142,11 @@ class CompanyController extends Controller
                 ->values()
                 ->all(),
             'sector_options' => $sectorOptions,
+            ...CompanyCurrencyInertiaData::for($company),
             'can' => [
                 'view_company_sectors' => $user->can('company-sectors.view'),
                 'update_company_sectors' => $user->can('company-sectors.update'),
+                'update_company_currencies' => $user->can('update', $company),
             ],
         ]);
     }
@@ -238,6 +243,25 @@ class CompanyController extends Controller
         $action->handle($company, $sectorIds);
 
         return back()->with('success', __('sectores_actualizados'));
+    }
+
+    public function syncCurrencies(
+        SyncCompanyCurrenciesRequest $request,
+        Company $company,
+        SyncCompanyCurrencies $action,
+    ): RedirectResponse {
+        $this->assertLinked($company);
+
+        /** @var list<int|string> $currencyIds */
+        $currencyIds = $request->validated('currency_ids');
+        $defaultId = $request->validated('default_currency_id');
+        $action->handle(
+            $company,
+            $currencyIds,
+            $defaultId !== null ? (int) $defaultId : null,
+        );
+
+        return back()->with('success', __('monedas_empresa_actualizadas'));
     }
 
     public function updateStatus(

@@ -67,7 +67,7 @@ function actingManagerWithUsersPerms(Company $company): User
     setPermissionsTeamId($company->id);
     $user->assignRole(Role::MANAGER);
     $user->givePermissionTo([
-        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('users.access'),
         Permission::findOrCreate('company-users.view'),
         Permission::findOrCreate('company-users.update'),
         Permission::findOrCreate('company-users.delete'),
@@ -170,11 +170,11 @@ it('Create y Edit están cableados sin máscaras de Index', function () {
     actingManagerWithUsersPerms($this->company);
 
     $source = file_get_contents(resource_path('js/Pages/Admin/CompanyUsers/Index.tsx'));
-    expect($source)->toContain('/admin/company-users/create')
-        ->and($source)->toContain('/admin/company-users/${row.id}/edit')
+    expect($source)->toContain('/users/company-users/create')
+        ->and($source)->toContain('/users/company-users/${row.id}/edit')
         ->and($source)->not->toContain('alta_usuario_mascara')
         ->and($source)->not->toContain('edicion_usuario_mascara')
-        ->and($source)->not->toContain("router.put('/admin/company-users");
+        ->and($source)->not->toContain("router.put('/users/company-users");
 
     expect(Route::has('admin.company-users.store'))->toBeTrue()
         ->and(Route::has('admin.company-users.create'))->toBeTrue()
@@ -199,7 +199,7 @@ it('manager recibe all-users.view tras sync Basic', function () {
 
     expect($user->can('all-users.view'))->toBeTrue()
         ->and($user->can('all-users.viewAny'))->toBeTrue()
-        ->and($user->can('usuarios.access'))->toBeTrue();
+        ->and($user->can('users.access'))->toBeTrue();
 });
 
 it('sin permiso view responde 403 en Indexes y table', function () {
@@ -207,7 +207,7 @@ it('sin permiso view responde 403 en Indexes y table', function () {
     actingWithCompany($user, $this->company);
 
     setPermissionsTeamId($this->company->id);
-    $user->givePermissionTo(Permission::findOrCreate('usuarios.access'));
+    $user->givePermissionTo(Permission::findOrCreate('users.access'));
     $user->unsetRelation('roles');
     $user->unsetRelation('permissions');
 

@@ -97,13 +97,13 @@ export default function Index({ contract_type_filter }: Props) {
             id: 'edit',
             icon: Pencil,
             labelKey: 'editar',
-            onClick: (current) => router.visit(`/hr/employees/${current.id}/edit`),
+            onClick: (current) => router.visit(`/rrhh/employees/${current.id}/edit`),
         },
         row.can?.renew === true && {
             id: 'renew',
             icon: RefreshCw,
             labelKey: 'renovar',
-            onClick: (current) => router.visit(`/hr/employees/${current.id}/renew`),
+            onClick: (current) => router.visit(`/rrhh/employees/${current.id}/renew`),
         },
         row.can?.end === true && {
             id: 'end',
@@ -112,7 +112,7 @@ export default function Index({ contract_type_filter }: Props) {
             confirm: true,
             onClick: (current) => {
                 router.post(
-                    `/hr/employees/${current.id}/end`,
+                    `/rrhh/employees/${current.id}/end`,
                     {},
                     {
                         preserveScroll: true,
@@ -133,7 +133,7 @@ export default function Index({ contract_type_filter }: Props) {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/hr/employees/${current.id}`, {
+                router.delete(`/rrhh/employees/${current.id}`, {
                     preserveScroll: true,
                     onSuccess: reload,
                     onError: (errors) => {
@@ -152,7 +152,7 @@ export default function Index({ contract_type_filter }: Props) {
             breadcrumb={{
                 optionKey: 'empleados',
                 suboptionKey: 'dashboard',
-                optionHref: '/hr/employees',
+                optionHref: '/rrhh/employees',
             }}
             showBack={false}
             actions={[
@@ -160,13 +160,13 @@ export default function Index({ contract_type_filter }: Props) {
                     type: 'button',
                     labelKey: 'empleo_nuevo',
                     icon: Plus,
-                    onClick: () => router.visit('/hr/employees/create'),
+                    onClick: () => router.visit('/rrhh/employees/create'),
                 },
             ]}
         >
             <ServerTable<EmployeeRow>
                 key={tableKey}
-                endpoint="/hr/employees/table"
+                endpoint="/rrhh/employees/table"
                 columns={columns}
                 persistKey="hr.employees"
                 exportable={false}

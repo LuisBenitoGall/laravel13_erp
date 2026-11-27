@@ -41,6 +41,25 @@ Change: `c2026-11-23-rrhh-contract-types-employees`. Ficha: `docs/modules/HR.md`
 Al archivar el change, mantener esta fila alineada con las specs principales
 archivadas (`openspec/specs/hr-*` tras sync/archive).
 
+## Ejemplo de referencia: Catalog (oleada 1)
+
+Change: `c2026-11-26-catalogue-product-crud`. Ficha: `docs/modules/Catalog.md`.
+
+| Qué | Cargar |
+|---|---|
+| Dominio | `App\Domains\Catalog`; Module slug `products` (Basic); ruta `/products` |
+| Entidades | `Product` (`products`) |
+| Standards | kernel · playbook · module-map (Catalog→Admin D) · architecture · frontend · glossary (Product / catalogue) |
+| Specs del change | `catalogue-module` · `catalogue-products` |
+| Reutilizar | ServerTable · form kit · `RecordEditLayout` / `RecordSummary` · AuthorizeBasicModules |
+| Skills | `new-module` · `tenancy-rbac` · `openspec-*` · `laravel-best-practices` · `form-layout-polish` · `inertia-react-development` |
+| Tests mínimos | R-TEN-05 · V-21 · Create→Inactive · type inmutable · soft delete |
+| No cargar | precios/familias/tarifas; Sales/Inventory; resto de Admin catalogs |
+
+Specs delta (mientras el change esté abierto):
+`openspec/changes/c2026-11-26-catalogue-product-crud/specs/catalogue-module/spec.md`,
+`…/catalogue-products/spec.md`. Tras archive: `openspec/specs/catalogue-*`.
+
 ## Mantenimiento
 
 - Cada módulo nuevo añade una fila “Ejemplo” o amplía la tabla de patrones si

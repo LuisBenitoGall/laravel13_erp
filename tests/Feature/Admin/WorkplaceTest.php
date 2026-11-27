@@ -44,7 +44,7 @@ function actingWorkplaceUser(Company $company, array $extra = []): User
     setPermissionsTeamId($company->id);
     $names = array_merge(
         [
-            'empresas.access',
+            'companies.access',
             'workplaces.view',
             'workplaces.viewAny',
             'workplaces.create',
@@ -191,7 +191,7 @@ it('sin workplaces.view responde 403', function () {
     $user = User::factory()->create(['status' => true]);
     actingWithCompany($user, $company);
     setPermissionsTeamId($company->id);
-    $user->givePermissionTo(Permission::findOrCreate('empresas.access'));
+    $user->givePermissionTo(Permission::findOrCreate('companies.access'));
     $user->unsetRelation('roles');
     $user->unsetRelation('permissions');
 
@@ -235,11 +235,11 @@ it('UI Create Edit no incluyen campos NonGoal v1', function () {
 
     expect($index)->toContain('ServerTable')
         ->and($create)->toContain('WorkplaceForm')
-        ->and($create)->toContain('backHref="/admin/workplaces"')
+        ->and($create)->toContain('backHref="/companies/workplaces"')
         ->and($edit)->toContain('WorkplaceForm')
         ->and($edit)->toContain('RecordSummary')
         ->and($edit)->toContain('edicion_centro_trabajo')
-        ->and($edit)->toContain('backHref="/admin/workplaces"')
+        ->and($edit)->toContain('backHref="/companies/workplaces"')
         ->and($form)->toContain('FormActions')
         ->and($form)->toContain("t('principal')")
         ->and($form)->toContain("t('direccion')")

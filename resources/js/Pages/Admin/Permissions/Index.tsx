@@ -81,7 +81,7 @@ export default function Index({ functionalities }: Props) {
 
     function submitCreate(event: FormEvent) {
         event.preventDefault();
-        createForm.post('/admin/permissions', {
+        createForm.post('/settings/permissions', {
             preserveScroll: true,
             onSuccess: () => {
                 setCreateOpen(false);
@@ -102,7 +102,7 @@ export default function Index({ functionalities }: Props) {
                 variant: 'danger',
                 confirm: true,
                 onClick: (current) => {
-                    router.delete(`/admin/permissions/${current.id}`, {
+                    router.delete(`/settings/permissions/${current.id}`, {
                         preserveScroll: true,
                         onSuccess: () => setTableKey((key) => key + 1),
                     });
@@ -116,7 +116,7 @@ export default function Index({ functionalities }: Props) {
             breadcrumb={{
                 optionKey: 'permisos',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/permissions',
+                optionHref: '/settings/permissions',
             }}
             showBack={false}
             actions={[
@@ -130,7 +130,7 @@ export default function Index({ functionalities }: Props) {
         >
             <ServerTable<PermissionRow>
                 key={tableKey}
-                endpoint="/admin/permissions/table"
+                endpoint="/settings/permissions/table"
                 columns={columns}
                 persistKey="admin.permissions"
                 exportable={false}

@@ -78,7 +78,7 @@ export default function Index({ country }: Props) {
 
     function submitCreate(event: FormEvent) {
         event.preventDefault();
-        createForm.post(`/admin/countries/${country.id}/provinces`, {
+        createForm.post(`/settings/countries/${country.id}/provinces`, {
             preserveScroll: true,
             onSuccess: () => {
                 setCreateOpen(false);
@@ -176,9 +176,9 @@ export default function Index({ country }: Props) {
             breadcrumb={{
                 optionKey: 'paises',
                 suboptionKey: 'provincias',
-                optionHref: '/admin/countries',
+                optionHref: '/settings/countries',
             }}
-            backHref={`/admin/countries`}
+            backHref={`/settings/countries`}
             actions={[
                 {
                     type: 'button',
@@ -194,7 +194,7 @@ export default function Index({ country }: Props) {
 
             <ServerTable<ProvinceRow>
                 key={tableKey}
-                endpoint={`/admin/countries/${country.id}/provinces/table`}
+                endpoint={`/settings/countries/${country.id}/provinces/table`}
                 columns={columns}
                 persistKey={`admin.countries.${country.id}.provinces`}
                 exportable={false}

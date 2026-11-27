@@ -57,7 +57,7 @@ export default function WorkplaceDelegationsPanel({ workplaceId, map }: Props) {
 
     function onSubmit(event: FormEvent) {
         event.preventDefault();
-        form.put(`/admin/workplaces/${workplaceId}/delegations`, { preserveScroll: true });
+        form.put(`/companies/workplaces/${workplaceId}/delegations`, { preserveScroll: true });
     }
 
     return (

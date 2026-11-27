@@ -167,7 +167,7 @@ it('Index/table con company-roles.view sin ser manager', function () {
 
     setPermissionsTeamId($this->company->id);
     $user->givePermissionTo([
-        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('users.access'),
         Permission::findOrCreate('company-roles.view'),
     ]);
     $user->unsetRelation('roles');
@@ -182,7 +182,7 @@ it('Index sin company-roles.view responde 403', function () {
     actingWithCompany($user, $this->company);
 
     setPermissionsTeamId($this->company->id);
-    $user->givePermissionTo(Permission::findOrCreate('usuarios.access'));
+    $user->givePermissionTo(Permission::findOrCreate('users.access'));
     $user->unsetRelation('roles');
     $user->unsetRelation('permissions');
 
@@ -328,7 +328,7 @@ it('Index cumple contrato ServerTable y CTA Crear', function () {
 
     $source = file_get_contents(resource_path('js/Pages/Admin/CompanyRoles/Index.tsx'));
 
-    expect($source)->toContain("href: '/admin/company-roles/create'")
+    expect($source)->toContain("href: '/users/company-roles/create'")
         ->and($source)->toContain("labelKey: 'crear'")
         ->and($source)->toContain('persistKey="admin.company-roles"')
         ->and($source)->toContain('exportable={false}')
@@ -379,7 +379,7 @@ it('sin ser manager Create→Edit es usable con create+update', function () {
 
     setPermissionsTeamId($this->company->id);
     $user->givePermissionTo([
-        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('users.access'),
         Permission::findOrCreate('company-roles.create'),
         Permission::findOrCreate('company-roles.update'),
     ]);
@@ -424,7 +424,7 @@ it('solo company-roles.create sin update no abre Edit', function () {
 
     setPermissionsTeamId($this->company->id);
     $user->givePermissionTo([
-        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('users.access'),
         Permission::findOrCreate('company-roles.create'),
     ]);
     $user->unsetRelation('roles');
@@ -606,7 +606,7 @@ it('Edit UI usa patchJson y layout plataforma sin mención universal ni copy', f
     $source = file_get_contents(resource_path('js/Pages/Admin/CompanyRoles/components/CompanyRoleForm.tsx'));
 
     expect($source)->toContain('patchJson')
-        ->and($source)->toContain('/admin/company-roles/')
+        ->and($source)->toContain('/users/company-roles/')
         ->and($source)->toContain('permissions')
         ->and($source)->toContain('functionalities')
         ->and($source)->toContain('ScrollToTop')

@@ -6,6 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { Field, FormActions, Input } from '@/Components/Form';
 import { Button } from '@/Components/ui/button';
 import AppLayout from '@/Layouts/AppLayout';
+import CompanyCurrenciesPanel, {
+    type CompanyCurrencyOption,
+} from '@/Pages/Admin/Companies/components/CompanyCurrenciesPanel';
 import CompanyLogoPanel from '@/Pages/Admin/Companies/components/CompanyLogoPanel';
 
 type LocaleMap = Record<string, string>;
@@ -35,27 +38,50 @@ type SetupState = {
     steps: {
         identity: { done: boolean; nif: boolean; logo: boolean };
         workplaces: { done: boolean };
+        currencies: { done: boolean };
     };
 };
 
 type Props = {
     company: CompanyPayload;
     workplaces: WorkplaceRow[];
+    currencies: CompanyCurrencyOption[];
+    currency_options: CompanyCurrencyOption[];
+    default_currency_id: number | null;
     setup: SetupState;
     wizard: boolean;
     can: {
         update_company: boolean;
         create_workplace: boolean;
+        update_company_currencies: boolean;
     };
 };
 
-type StepId = 'identity' | 'workplaces';
+type StepId = 'identity' | 'workplaces' | 'currencies';
 
-export default function Index({ company, workplaces, setup, wizard, can }: Props) {
+function firstIncompleteStep(setup: SetupState): StepId {
+    if (!setup.steps.identity.done) {
+        return 'identity';
+    }
+    if (!setup.steps.workplaces.done) {
+        return 'workplaces';
+    }
+    return 'currencies';
+}
+
+export default function Index({
+    company,
+    workplaces,
+    currencies,
+    currency_options,
+    default_currency_id,
+    setup,
+    wizard,
+    can,
+}: Props) {
     const { t } = useTranslation();
 
-    const firstIncomplete: StepId = !setup.steps.identity.done ? 'identity' : 'workplaces';
-    const [tab, setTab] = useState<StepId>(wizard ? firstIncomplete : 'identity');
+    const [tab, setTab] = useState<StepId>(wizard ? firstIncompleteStep(setup) : 'identity');
 
     const identityForm = useForm({
         name: company.name,
@@ -75,8 +101,8 @@ export default function Index({ company, workplaces, setup, wizard, can }: Props
         [setup.completed_steps, setup.total_steps, t],
     );
 
-    const createWorkplaceHref = `/admin/workplaces/create?return_to=${encodeURIComponent(
-        wizard ? '/admin/company-settings?wizard=1' : '/admin/company-settings',
+    const createWorkplaceHref = `/companies/workplaces/create?return_to=${encodeURIComponent(
+        wizard ? '/companies/company-settings?wizard=1' : '/companies/company-settings',
     )}`;
 
     function submitIdentity(event: FormEvent) {
@@ -94,14 +120,21 @@ export default function Index({ company, workplaces, setup, wizard, can }: Props
             description: identityForm.data.description,
         }));
 
-        identityForm.put(`/admin/companies/${company.id}`, {
+        identityForm.put(`/companies/${company.id}`, {
             preserveScroll: true,
             onSuccess: () => {
-                // No avanzar a Sedes si falta logo (identidad = nif + logo).
                 const nifOk = identityForm.data.nif.trim() !== '';
                 const logoOk = Boolean(company.logo_url) || setup.steps.identity.logo;
                 if (wizard && nifOk && logoOk && !setup.steps.workplaces.done) {
                     setTab('workplaces');
+                } else if (
+                    wizard &&
+                    nifOk &&
+                    logoOk &&
+                    setup.steps.workplaces.done &&
+                    !setup.steps.currencies.done
+                ) {
+                    setTab('currencies');
                 }
             },
         });
@@ -112,7 +145,7 @@ export default function Index({ company, workplaces, setup, wizard, can }: Props
             breadcrumb={{
                 optionKey: 'configuracion_de_la_empresa',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/company-settings',
+                optionHref: '/companies/company-settings',
             }}
             showBack={false}
             actions={
@@ -122,7 +155,7 @@ export default function Index({ company, workplaces, setup, wizard, can }: Props
                           {
                               type: 'link',
                               labelKey: 'continuar_asistente',
-                              href: '/admin/company-settings?wizard=1',
+                              href: '/companies/company-settings?wizard=1',
                               icon: ListChecks,
                           },
                       ]
@@ -138,7 +171,7 @@ export default function Index({ company, workplaces, setup, wizard, can }: Props
                         <div
                             className="h-full rounded-full bg-brand transition-all"
                             style={{
-                                width: `${(setup.completed_steps / setup.total_steps) * 100}%`,
+                                width: `${(setup.completed_steps / Math.max(setup.total_steps, 1)) * 100}%`,
                             }}
                         />
                     </div>
@@ -164,6 +197,16 @@ export default function Index({ company, workplaces, setup, wizard, can }: Props
                                 2. {t('paso_sedes')}
                                 {setup.steps.workplaces.done ? ` · ${t('completado')}` : ''}
                             </li>
+                            <li
+                                className={
+                                    setup.steps.currencies.done
+                                        ? 'font-medium text-brand-ink'
+                                        : 'text-slate-700'
+                                }
+                            >
+                                3. {t('paso_monedas')}
+                                {setup.steps.currencies.done ? ` · ${t('completado')}` : ''}
+                            </li>
                         </ol>
                     ) : null}
                 </section>
@@ -173,6 +216,7 @@ export default function Index({ company, workplaces, setup, wizard, can }: Props
                         [
                             ['identity', 'paso_identidad', setup.steps.identity.done],
                             ['workplaces', 'paso_sedes', setup.steps.workplaces.done],
+                            ['currencies', 'paso_monedas', setup.steps.currencies.done],
                         ] as const
                     ).map(([id, labelKey, done]) => (
                         <button
@@ -258,7 +302,9 @@ export default function Index({ company, workplaces, setup, wizard, can }: Props
                             ) : null}
                         </div>
                     </section>
-                ) : (
+                ) : null}
+
+                {tab === 'workplaces' ? (
                     <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
                         {setup.steps.workplaces.done ? (
                             <p className="text-sm text-brand-ink">{t('sede_completa')}</p>
@@ -298,8 +344,31 @@ export default function Index({ company, workplaces, setup, wizard, can }: Props
                                 <Link href={createWorkplaceHref}>{t('anadir_centro_trabajo')}</Link>
                             </Button>
                         ) : null}
+
+                        {wizard && setup.steps.workplaces.done && !setup.steps.currencies.done ? (
+                            <Button type="button" variant="outline" onClick={() => setTab('currencies')}>
+                                {t('paso_monedas')}
+                            </Button>
+                        ) : null}
                     </section>
-                )}
+                ) : null}
+
+                {tab === 'currencies' ? (
+                    <section className="space-y-4">
+                        {setup.steps.currencies.done ? (
+                            <p className="text-sm text-brand-ink">{t('monedas_completas')}</p>
+                        ) : (
+                            <p className="text-sm text-amber-700">{t('moneda_pendiente')}</p>
+                        )}
+                        <CompanyCurrenciesPanel
+                            submitUrl="/companies/company-settings/currencies"
+                            currencies={currencies}
+                            currencyOptions={currency_options}
+                            defaultCurrencyId={default_currency_id}
+                            canUpdate={can.update_company_currencies}
+                        />
+                    </section>
+                ) : null}
             </div>
         </AppLayout>
     );

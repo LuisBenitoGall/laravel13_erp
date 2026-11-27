@@ -37,7 +37,7 @@ function actingCompanyEditor(Company $company): User
 
     setPermissionsTeamId($company->id);
     $user->givePermissionTo([
-        Permission::findOrCreate('empresas.access'),
+        Permission::findOrCreate('companies.access'),
         Permission::findOrCreate('companies.view'),
         Permission::findOrCreate('companies.update'),
     ]);
@@ -284,8 +284,8 @@ it('Edit no expone members_url ni slug/logo de texto', function () {
             ->has('company')
             ->missing('members_url'));
 
-    $edit = file_get_contents(resource_path('js/Pages/admin/companies/Edit.tsx'));
-    $form = file_get_contents(resource_path('js/Pages/admin/companies/components/CompanyForm.tsx'));
+    $edit = file_get_contents(resource_path('js/Pages/Admin/Companies/Edit.tsx'));
+    $form = file_get_contents(resource_path('js/Pages/Admin/Companies/components/CompanyForm.tsx'));
 
     expect($edit)->toContain('RecordEditLayout')
         ->and($edit)->toContain('CompanyProfileReadout')

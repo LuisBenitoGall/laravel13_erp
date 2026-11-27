@@ -15,9 +15,9 @@ export default function Renew({ employee, options }: Props) {
             breadcrumb={{
                 optionKey: 'empleados',
                 suboptionKey: 'renovar',
-                optionHref: '/hr/employees',
+                optionHref: '/rrhh/employees',
             }}
-            backHref={`/hr/employees/${employee.id}/edit`}
+            backHref={`/rrhh/employees/${employee.id}/edit`}
             actions={[]}
         >
             <div className="w-full space-y-4">
@@ -29,7 +29,7 @@ export default function Renew({ employee, options }: Props) {
                 <EmployeeForm
                     mode="renew"
                     method="post"
-                    submitUrl={`/hr/employees/${employee.id}/renew`}
+                    submitUrl={`/rrhh/employees/${employee.id}/renew`}
                     options={options}
                     initial={employee}
                 />

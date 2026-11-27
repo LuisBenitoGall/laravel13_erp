@@ -271,7 +271,7 @@ export default function AppLayout({
                             variant="secondary"
                             onClick={() => {
                                 router.post(
-                                    '/admin/company-settings/dismiss-modal',
+                                    '/companies/company-settings/dismiss-modal',
                                     {},
                                     {
                                         preserveScroll: true,
@@ -284,7 +284,7 @@ export default function AppLayout({
                         </Button>
                         <Button asChild>
                             <Link
-                                href={company_setup?.wizard_url ?? '/admin/company-settings?wizard=1'}
+                                href={company_setup?.wizard_url ?? '/companies/company-settings?wizard=1'}
                                 onClick={() => setSetupModalOpen(false)}
                             >
                                 {t('ir_a_configuracion_empresa')}

@@ -129,7 +129,7 @@ export default function Index({ currencies }: Props) {
 
     function submitCreate(event: FormEvent) {
         event.preventDefault();
-        createForm.post('/admin/exchange-rates', {
+        createForm.post('/settings/exchange-rates', {
             preserveScroll: true,
             onSuccess: () => {
                 setCreateOpen(false);
@@ -144,7 +144,7 @@ export default function Index({ currencies }: Props) {
             return;
         }
 
-        editForm.put(`/admin/exchange-rates/${editing.id}`, {
+        editForm.put(`/settings/exchange-rates/${editing.id}`, {
             preserveScroll: true,
             onSuccess: () => {
                 setEditing(null);
@@ -166,7 +166,7 @@ export default function Index({ currencies }: Props) {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/admin/exchange-rates/${current.id}`, {
+                router.delete(`/settings/exchange-rates/${current.id}`, {
                     preserveScroll: true,
                     onSuccess: () => setTableKey((key) => key + 1),
                     onError: (errors) => {
@@ -190,7 +190,7 @@ export default function Index({ currencies }: Props) {
             breadcrumb={{
                 optionKey: 'conversion_monedas',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/exchange-rates',
+                optionHref: '/settings/exchange-rates',
             }}
             showBack={false}
             actions={[
@@ -204,7 +204,7 @@ export default function Index({ currencies }: Props) {
         >
             <ServerTable<ExchangeRateRow>
                 key={tableKey}
-                endpoint="/admin/exchange-rates/table"
+                endpoint="/settings/exchange-rates/table"
                 columns={columns}
                 persistKey="admin.exchange-rates"
                 exportable={false}

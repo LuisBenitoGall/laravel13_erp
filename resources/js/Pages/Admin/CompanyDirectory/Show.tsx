@@ -26,11 +26,11 @@ export default function Show({ company }: Props) {
             breadcrumb={{
                 optionKey: 'directorio',
                 suboptionKey: 'directorio_ficha',
-                optionHref: '/admin/company-directory',
+                optionHref: '/companies/company-directory',
                 suboptionParams: { name: company.name },
             }}
             showBack
-            backHref="/admin/company-directory"
+            backHref="/companies/company-directory"
         >
             <article className="mx-auto max-w-3xl space-y-6 rounded-xl border border-slate-200 bg-white p-6">
                 <div className="flex flex-wrap items-start gap-4">

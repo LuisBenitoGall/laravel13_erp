@@ -21,6 +21,11 @@ type FieldProps = {
     fieldKey?: string;
     /** Identidad RHF / nombre lógico (prioridad sobre htmlFor para fieldKey). */
     name?: string;
+    /**
+     * Alineación vertical control ↔ HelpTip.
+     * `center` para Switch/Checkbox (controles bajos); `start` (default) para Input/Textarea.
+     */
+    tipAlign?: 'start' | 'center';
     required?: boolean;
     className?: string;
     children: ReactNode;
@@ -76,6 +81,7 @@ export function Field({
     helpCode,
     fieldKey,
     name,
+    tipAlign = 'start',
     required,
     className,
     children,
@@ -89,8 +95,15 @@ export function Field({
                 {label}
                 {required ? <span className="text-red-600"> *</span> : null}
             </Label>
-            <div className="flex items-start gap-2">
-                <div className="min-w-0 flex-1">{children}</div>
+            <div
+                className={cn(
+                    'flex gap-2',
+                    tipAlign === 'center' ? 'items-center' : 'items-start',
+                )}
+            >
+                <div className={cn('min-w-0', tipAlign === 'center' ? 'w-auto' : 'flex-1')}>
+                    {children}
+                </div>
                 {resolvedCode ? <HelpTip code={resolvedCode} /> : null}
             </div>
             {help && !error ? <p className="text-xs text-slate-500">{help}</p> : null}
@@ -106,6 +119,7 @@ type FormFieldProps<T extends FieldValues> = {
     help?: string;
     helpCode?: string;
     fieldKey?: string;
+    tipAlign?: 'start' | 'center';
     required?: boolean;
     className?: string;
     children: (args: {
@@ -128,6 +142,7 @@ export function FormField<T extends FieldValues>({
     help,
     helpCode,
     fieldKey,
+    tipAlign,
     required,
     className,
     children,
@@ -148,6 +163,7 @@ export function FormField<T extends FieldValues>({
                     help={help}
                     helpCode={helpCode}
                     fieldKey={fieldKey}
+                    tipAlign={tipAlign}
                     required={required}
                     className={className}
                 >

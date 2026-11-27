@@ -29,7 +29,7 @@ export default function CompanyLogoPanel({ companyId, logoUrl }: Props) {
 
     function onSubmit(event: FormEvent) {
         event.preventDefault();
-        form.post(`/admin/companies/${companyId}/logo`, {
+        form.post(`/companies/${companyId}/logo`, {
             forceFormData: true,
             preserveScroll: true,
             onSuccess: () => {

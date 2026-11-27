@@ -19,7 +19,7 @@ it('CRUD de tipos de contrato de la company en sesión con slug y auditoría', f
     $company = Company::factory()->create();
     $user = actingHrUser($company);
 
-    $this->post(route('hr.contract-types.store'), [
+    $this->post(route('rrhh.contract-types.store'), [
         'name' => 'Indefinido',
         'duration' => null,
         'with_holidays' => true,
@@ -36,7 +36,7 @@ it('CRUD de tipos de contrato de la company en sesión con slug y auditoría', f
         ->and($type->created_by)->toBe($user->id)
         ->and($type->updated_by)->toBe($user->id);
 
-    $this->put(route('hr.contract-types.update', $type), [
+    $this->put(route('rrhh.contract-types.update', $type), [
         'name' => 'Indefinido jornada completa',
         'duration' => 365,
         'with_holidays' => false,
@@ -52,14 +52,14 @@ it('CRUD de tipos de contrato de la company en sesión con slug y auditoría', f
         ->and($type->status)->toBe(ContractTypeStatus::Inactive)
         ->and($type->updated_by)->toBe($user->id);
 
-    $this->get(route('hr.contract-types.table'))
+    $this->get(route('rrhh.contract-types.table'))
         ->assertOk()
         ->assertJsonPath('total', 1)
         ->assertJsonPath('data.0.slug', 'indefinido')
         ->assertJsonPath('data.0.duration', 365);
 
-    $this->delete(route('hr.contract-types.destroy', $type))
-        ->assertRedirect(route('hr.contract-types.index'));
+    $this->delete(route('rrhh.contract-types.destroy', $type))
+        ->assertRedirect(route('rrhh.contract-types.index'));
 
     expect(ContractType::query()->whereKey($type->id)->exists())->toBeFalse()
         ->and(ContractType::withTrashed()->whereKey($type->id)->exists())->toBeTrue();
@@ -68,11 +68,11 @@ it('CRUD de tipos de contrato de la company en sesión con slug y auditoría', f
 it('Index y Create renderizan las páginas Inertia de HR', function () {
     actingHrUser(Company::factory()->create());
 
-    $this->get(route('hr.contract-types.index'))
+    $this->get(route('rrhh.contract-types.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page->component('HR/ContractTypes/Index'));
 
-    $this->get(route('hr.contract-types.create'))
+    $this->get(route('rrhh.contract-types.create'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page->component('HR/ContractTypes/Create'));
 });
@@ -83,8 +83,8 @@ it('genera slugs únicos por company y repetibles entre companies', function () 
 
     actingHrUser($companyA);
     $payload = ['name' => 'Temporal', 'with_holidays' => false, 'status' => 'active'];
-    $this->post(route('hr.contract-types.store'), $payload)->assertRedirect();
-    $this->post(route('hr.contract-types.store'), $payload)->assertRedirect();
+    $this->post(route('rrhh.contract-types.store'), $payload)->assertRedirect();
+    $this->post(route('rrhh.contract-types.store'), $payload)->assertRedirect();
 
     $slugsA = ContractType::query()->pluck('slug')->all();
     expect($slugsA)->toHaveCount(2)
@@ -92,7 +92,7 @@ it('genera slugs únicos por company y repetibles entre companies', function () 
         ->and($slugsA[1])->not->toBe('temporal');
 
     actingHrUser($companyB);
-    $this->post(route('hr.contract-types.store'), $payload)->assertRedirect();
+    $this->post(route('rrhh.contract-types.store'), $payload)->assertRedirect();
 
     expect(ContractType::query()->pluck('slug')->all())->toBe(['temporal']);
 });
@@ -100,8 +100,8 @@ it('genera slugs únicos por company y repetibles entre companies', function () 
 it('valida name, duration y status', function () {
     actingHrUser(Company::factory()->create());
 
-    $this->from(route('hr.contract-types.create'))
-        ->post(route('hr.contract-types.store'), [
+    $this->from(route('rrhh.contract-types.create'))
+        ->post(route('rrhh.contract-types.store'), [
             'name' => '',
             'indefinite' => false,
             'duration' => 0,
@@ -114,7 +114,7 @@ it('valida name, duration y status', function () {
 it('persiste indefinido con duration null y rechaza temporal sin días', function () {
     actingHrUser(Company::factory()->create());
 
-    $this->post(route('hr.contract-types.store'), [
+    $this->post(route('rrhh.contract-types.store'), [
         'name' => 'Fijo indefinido',
         'indefinite' => true,
         'duration' => 365,
@@ -124,8 +124,8 @@ it('persiste indefinido con duration null y rechaza temporal sin días', functio
 
     expect(ContractType::query()->where('name', 'Fijo indefinido')->value('duration'))->toBeNull();
 
-    $this->from(route('hr.contract-types.create'))
-        ->post(route('hr.contract-types.store'), [
+    $this->from(route('rrhh.contract-types.create'))
+        ->post(route('rrhh.contract-types.store'), [
             'name' => 'Temporal sin días',
             'indefinite' => false,
             'duration' => null,
@@ -144,7 +144,7 @@ it('un tipo soft-deleted no se ofrece en altas nuevas pero conserva el históric
     $inactive = ContractType::factory()->inactive()->create(['company_id' => $company->id, 'name' => 'Inactivo']);
     $deleted->delete();
 
-    $this->get(route('hr.employees.create'))
+    $this->get(route('rrhh.employees.create'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('HR/Employees/Create')
@@ -170,17 +170,17 @@ it('aísla tipos de contrato entre companies (R-TEN-05)', function () {
         ->toContain($typeA->id)
         ->not->toContain($typeB->id);
 
-    $this->get(route('hr.contract-types.table'))
+    $this->get(route('rrhh.contract-types.table'))
         ->assertOk()
         ->assertJsonPath('total', 1)
         ->assertJsonPath('data.0.name', 'Tipo A');
 
-    $this->get(route('hr.contract-types.edit', $typeB))->assertNotFound();
-    $this->put(route('hr.contract-types.update', $typeB), [
+    $this->get(route('rrhh.contract-types.edit', $typeB))->assertNotFound();
+    $this->put(route('rrhh.contract-types.update', $typeB), [
         'name' => 'Hacked',
         'status' => 'active',
     ])->assertNotFound();
-    $this->delete(route('hr.contract-types.destroy', $typeB))->assertNotFound();
+    $this->delete(route('rrhh.contract-types.destroy', $typeB))->assertNotFound();
 
     expect($typeB->fresh()->name)->toBe('Tipo B');
 });
@@ -191,11 +191,11 @@ it('responde 403 sin permiso de contract-types', function () {
 
     actingHrUser($company, ['rrhh.access']);
 
-    $this->get(route('hr.contract-types.index'))->assertForbidden();
-    $this->get(route('hr.contract-types.table'))->assertForbidden();
-    $this->get(route('hr.contract-types.create'))->assertForbidden();
-    $this->post(route('hr.contract-types.store'), ['name' => 'X', 'status' => 'active'])->assertForbidden();
-    $this->get(route('hr.contract-types.edit', $type))->assertForbidden();
-    $this->put(route('hr.contract-types.update', $type), ['name' => 'X', 'status' => 'active'])->assertForbidden();
-    $this->delete(route('hr.contract-types.destroy', $type))->assertForbidden();
+    $this->get(route('rrhh.contract-types.index'))->assertForbidden();
+    $this->get(route('rrhh.contract-types.table'))->assertForbidden();
+    $this->get(route('rrhh.contract-types.create'))->assertForbidden();
+    $this->post(route('rrhh.contract-types.store'), ['name' => 'X', 'status' => 'active'])->assertForbidden();
+    $this->get(route('rrhh.contract-types.edit', $type))->assertForbidden();
+    $this->put(route('rrhh.contract-types.update', $type), ['name' => 'X', 'status' => 'active'])->assertForbidden();
+    $this->delete(route('rrhh.contract-types.destroy', $type))->assertForbidden();
 });

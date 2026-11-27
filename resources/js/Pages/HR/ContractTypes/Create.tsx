@@ -8,12 +8,12 @@ export default function Create() {
             breadcrumb={{
                 optionKey: 'tipos_de_contrato',
                 suboptionKey: 'tipo_contrato_nuevo',
-                optionHref: '/hr/contract-types',
+                optionHref: '/rrhh/contract-types',
             }}
-            backHref="/hr/contract-types"
+            backHref="/rrhh/contract-types"
             actions={[]}
         >
-            <ContractTypeForm mode="create" method="post" submitUrl="/hr/contract-types" />
+            <ContractTypeForm mode="create" method="post" submitUrl="/rrhh/contract-types" />
         </AppLayout>
     );
 }

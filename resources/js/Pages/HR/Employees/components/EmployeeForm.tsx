@@ -290,7 +290,7 @@ export default function EmployeeForm({
                 <Button
                     type="button"
                     variant="secondary"
-                    onClick={() => router.visit('/hr/employees')}
+                    onClick={() => router.visit('/rrhh/employees')}
                 >
                     {t('cancelar')}
                 </Button>

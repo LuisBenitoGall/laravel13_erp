@@ -21,6 +21,8 @@ módulos, no implementa dominio, no archiva changes.
   módulo que los pide).
 - shadcn/ui, Pest browser + Playwright, Laravel Boost (selectivo), MCP de workspace,
   `.vscode/` (extensions + settings).
+- Skills de DX frontend: `modern-web-guidance` (Google Chrome; Baseline Widely
+  available; subordinado a `frontend.md` / shadcn / ServerTable — ver `AGENTS.md`).
 - Calidad: Pint, PHPStan/Larastan, ESLint + Prettier + Tailwind, `tsc --noEmit`, CI.
 
 ## Lecturas obligatorias antes de instalar
@@ -41,6 +43,9 @@ después seguir. No parchear el código para saltarse el canon.
 - Instalar con constraints del canon (`composer require` / `npm install`).
 - Publicar assets (`vendor:publish`) y alinear `.env.example`.
 - Configurar workspace Cursor/VS Code y MCP (CodeGraph + Laravel Boost en `.mcp.json`).
+- Instalar/actualizar `modern-web-guidance` (skill de agentes, no runtime npm del ERP):
+  `npx skills add GoogleChrome/modern-web-guidance -y -s modern-web-guidance -a cursor -a claude-code --copy`
+  (Node ≥ 22; no instalar `chrome-extensions`).
 - Verificar con Pint, PHPStan, lint, typecheck, `composer test`, audits.
 
 ## Qué NO hace

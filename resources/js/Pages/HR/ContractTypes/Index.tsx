@@ -51,7 +51,7 @@ export default function Index() {
             id: 'edit',
             icon: Pencil,
             labelKey: 'editar',
-            onClick: (current) => router.visit(`/hr/contract-types/${current.id}/edit`),
+            onClick: (current) => router.visit(`/rrhh/contract-types/${current.id}/edit`),
         },
         {
             id: 'delete',
@@ -59,7 +59,7 @@ export default function Index() {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/hr/contract-types/${current.id}`, {
+                router.delete(`/rrhh/contract-types/${current.id}`, {
                     preserveScroll: true,
                     onSuccess: () => setTableKey((key) => key + 1),
                     onError: (errors) => {
@@ -78,7 +78,7 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'tipos_de_contrato',
                 suboptionKey: 'dashboard',
-                optionHref: '/hr/contract-types',
+                optionHref: '/rrhh/contract-types',
             }}
             showBack={false}
             actions={[
@@ -86,13 +86,13 @@ export default function Index() {
                     type: 'button',
                     labelKey: 'tipo_contrato_nuevo',
                     icon: Plus,
-                    onClick: () => router.visit('/hr/contract-types/create'),
+                    onClick: () => router.visit('/rrhh/contract-types/create'),
                 },
             ]}
         >
             <ServerTable<ContractTypeRow>
                 key={tableKey}
-                endpoint="/hr/contract-types/table"
+                endpoint="/rrhh/contract-types/table"
                 columns={columns}
                 persistKey="hr.contract-types"
                 exportable={false}

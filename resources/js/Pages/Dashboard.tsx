@@ -83,7 +83,7 @@ export default function Dashboard({ preferences = [], notes = [] }: Props) {
                                         className="absolute right-1 bottom-1 h-7 w-7 text-black/70 hover:bg-black/5 hover:text-red-600"
                                         aria-label={t('eliminar_nota')}
                                         onClick={() => {
-                                            router.delete(`/admin/notes/${item.id}`, {
+                                            router.delete(`/account/notes/${item.id}`, {
                                                 preserveScroll: true,
                                             });
                                         }}
@@ -133,7 +133,7 @@ export default function Dashboard({ preferences = [], notes = [] }: Props) {
                                         className="absolute top-1 right-1 text-slate-500 hover:text-red-600"
                                         aria-label={t('eliminar_favorito')}
                                         onClick={() => {
-                                            router.delete(`/admin/preferences/${preference.id}`, {
+                                            router.delete(`/account/preferences/${preference.id}`, {
                                                 preserveScroll: true,
                                             });
                                         }}

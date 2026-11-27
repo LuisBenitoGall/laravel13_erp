@@ -19,7 +19,7 @@ beforeEach(function () {
     Role::findOrCreate(Role::SUPER_ADMIN);
 
     Module::factory()->create([
-        'slug' => 'empresas',
+        'slug' => 'companies',
         'level' => ModuleLevel::Basic,
         'status' => ModuleStatus::Active,
     ]);
@@ -27,14 +27,14 @@ beforeEach(function () {
 
 function actingCompaniesManager(Company $company, bool $withUpdate = true): User
 {
-    enableModuleForCompany($company, 'empresas');
+    enableModuleForCompany($company, 'companies');
 
     $user = User::factory()->create(['status' => true]);
     actingWithCompany($user, $company);
 
     setPermissionsTeamId($company->id);
     $perms = [
-        Permission::findOrCreate('empresas.access'),
+        Permission::findOrCreate('companies.access'),
         Permission::findOrCreate('companies.view'),
         Permission::findOrCreate('companies.viewAny'),
     ];
@@ -147,7 +147,7 @@ it('status sin update o company no vinculada responde 403', function () {
 });
 
 it('Index Mis Empresas usa ServerTable canónico con Acciones', function () {
-    $index = file_get_contents(resource_path('js/Pages/admin/companies/Index.tsx'));
+    $index = file_get_contents(resource_path('js/Pages/Admin/Companies/Index.tsx'));
 
     expect($index)->toContain('ColumnDef')
         ->and($index)->toContain('persistKey="admin.companies"')

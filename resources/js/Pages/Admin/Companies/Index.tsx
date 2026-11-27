@@ -61,7 +61,7 @@ export default function Index({ operator = false }: { operator?: boolean }) {
                 checked: row.status === 'active',
                 onToggle: async (_current, checked) => {
                     const status = checked ? 'active' : 'closed';
-                    await patchJson<{ status: string }>(`/admin/companies/${row.id}/status`, {
+                    await patchJson<{ status: string }>(`/companies/${row.id}/status`, {
                         status,
                     });
 
@@ -72,7 +72,7 @@ export default function Index({ operator = false }: { operator?: boolean }) {
                 id: 'edit',
                 icon: Pencil,
                 labelKey: 'editar',
-                onClick: (current) => router.visit(`/admin/companies/${current.id}/edit`),
+                onClick: (current) => router.visit(`/companies/${current.id}/edit`),
             },
         ];
 
@@ -82,7 +82,7 @@ export default function Index({ operator = false }: { operator?: boolean }) {
                 icon: Shield,
                 labelKey: 'autorizaciones',
                 onClick: (current) =>
-                    router.visit(`/admin/company-module-authorizations?company_id=${current.id}`),
+                    router.visit(`/settings/company-module-authorizations?company_id=${current.id}`),
             });
         }
 
@@ -92,7 +92,7 @@ export default function Index({ operator = false }: { operator?: boolean }) {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/admin/companies/${current.id}`, { preserveScroll: true });
+                router.delete(`/companies/${current.id}`, { preserveScroll: true });
             },
         });
 
@@ -104,20 +104,20 @@ export default function Index({ operator = false }: { operator?: boolean }) {
             breadcrumb={{
                 optionKey: 'mis_empresas',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/companies',
+                optionHref: '/companies',
             }}
             showBack={false}
             actions={[
                 {
                     type: 'link',
                     labelKey: 'crear',
-                    href: '/admin/companies/create',
+                    href: '/companies/create',
                     icon: Plus,
                 },
             ]}
         >
             <ServerTable<CompanyRow>
-                endpoint="/admin/companies/table"
+                endpoint="/companies/table"
                 columns={columns}
                 persistKey="admin.companies"
                 exportable

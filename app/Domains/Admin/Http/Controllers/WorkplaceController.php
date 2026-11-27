@@ -65,15 +65,10 @@ class WorkplaceController extends Controller
             ->where('status', WorkplaceStatus::Active)
             ->exists();
 
-        $returnTo = $request->query('return_to');
-        $returnTo = is_string($returnTo) && preg_match('#^/admin/company-settings(?:\?.*)?$#', $returnTo)
-            ? $returnTo
-            : null;
-
         return Inertia::render('Admin/Workplaces/Create', [
             'countries' => $this->activeCountries(),
             'default_featured' => $defaultFeatured,
-            'return_to' => $returnTo,
+            'return_to' => $this->safeReturnTo($request->query('return_to')),
         ]);
     }
 
@@ -93,7 +88,7 @@ class WorkplaceController extends Controller
             ->with('success', __('centro_trabajo_creado'));
     }
 
-    public function edit(Workplace $workplace): InertiaResponse
+    public function edit(Request $request, Workplace $workplace): InertiaResponse
     {
         $this->authorize('update', $workplace);
         $workplace->load(['town.province.country']);
@@ -102,6 +97,7 @@ class WorkplaceController extends Controller
             'workplace' => WorkplaceResource::make($workplace)->resolve(),
             'countries' => $this->activeCountries(),
             'delegation_map' => $this->delegationMap($workplace),
+            'return_to' => $this->safeReturnTo($request->query('return_to')),
         ]);
     }
 
@@ -263,5 +259,22 @@ class WorkplaceController extends Controller
             ])
             ->values()
             ->all();
+    }
+
+    /**
+     * Whitelist de retornos internos (Create/Edit Workplace desde hub o Edit Delegación).
+     */
+    private function safeReturnTo(mixed $returnTo): ?string
+    {
+        if (! is_string($returnTo) || $returnTo === '') {
+            return null;
+        }
+
+        $allowed = preg_match(
+            '#^/admin/(company-settings(?:\?.*)?|delegations/\d+/edit(?:\?.*)?)$#',
+            $returnTo,
+        ) === 1;
+
+        return $allowed ? $returnTo : null;
     }
 }

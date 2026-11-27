@@ -109,7 +109,7 @@ export default function Show({ current, canRenew, renewUrl }: Props) {
             breadcrumb={{
                 optionKey: 'mi_cuenta',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/account',
+                optionHref: '/account',
             }}
             showBack={false}
             actions={
@@ -162,7 +162,7 @@ export default function Show({ current, canRenew, renewUrl }: Props) {
             </div>
 
             <ServerTable<CompanyAccountRow>
-                endpoint="/admin/account/company-accounts/table"
+                endpoint="/account/company-accounts/table"
                 columns={columns}
                 persistKey="admin.account.company-accounts"
                 exportable={false}

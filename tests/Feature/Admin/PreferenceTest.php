@@ -32,17 +32,17 @@ beforeEach(function () {
 });
 
 it('normaliza url sin host ni hash', function () {
-    expect(PreferenceUrlNormalizer::normalize('https://erp.test/admin/companies?tab=info#x'))
-        ->toBe('/admin/companies?tab=info')
-        ->and(PreferenceUrlNormalizer::normalize('admin/workplaces'))
-        ->toBe('/admin/workplaces');
+    expect(PreferenceUrlNormalizer::normalize('https://erp.test/companies?tab=info#x'))
+        ->toBe('/companies?tab=info')
+        ->and(PreferenceUrlNormalizer::normalize('companies/workplaces'))
+        ->toBe('/companies/workplaces');
 });
 
 it('rechaza protocol-relative y paths fuera de prefijos app', function () {
     expect(PreferenceUrlNormalizer::isAllowedAppPath(PreferenceUrlNormalizer::normalize('//evil.com/phish')))
         ->toBeFalse()
         ->and(PreferenceUrlNormalizer::isAllowedAppPath('/logout'))->toBeFalse()
-        ->and(PreferenceUrlNormalizer::isAllowedAppPath('/admin/workplaces'))->toBeTrue()
+        ->and(PreferenceUrlNormalizer::isAllowedAppPath('/companies/workplaces'))->toBeTrue()
         ->and(PreferenceUrlNormalizer::isAllowedAppPath('/dashboard'))->toBeTrue()
         ->and(PreferenceUrlNormalizer::isAllowedAppPath('/account'))->toBeTrue();
 
@@ -60,34 +60,34 @@ it('rechaza protocol-relative y paths fuera de prefijos app', function () {
 
     $this->post(route('admin.preferences.store'), [
         'name' => 'Empresas',
-        'url' => 'https://erp.test/admin/companies?x=1',
+        'url' => 'https://erp.test/companies?x=1',
     ])->assertRedirect();
 
     expect(Preference::query()->where('user_id', $this->user->id)->value('url'))
-        ->toBe('/admin/companies?x=1');
+        ->toBe('/companies?x=1');
 });
 
 it('resuelve module_id por longest prefix del menú', function () {
     $resolver = app(PreferenceModuleResolver::class);
-    $moduleId = $resolver->resolve('/admin/companies/1/edit');
+    $moduleId = $resolver->resolve('/companies/1/edit');
 
-    $empresas = Module::query()->where('slug', 'empresas')->value('id');
+    $empresas = Module::query()->where('slug', 'companies')->value('id');
 
     expect($moduleId)->toBe((int) $empresas)
         ->and($resolver->resolve('/ruta/desconocida'))->toBeNull()
-        ->and($resolver->resolve('/admin/companies'))->toBe((int) $empresas);
+        ->and($resolver->resolve('/companies'))->toBe((int) $empresas);
 });
 
 it('guarda favorito de la vista actual para user+company', function () {
     $this->post(route('admin.preferences.store'), [
         'name' => 'Mis empresas',
-        'url' => 'https://example.test/admin/companies?page=1',
+        'url' => 'https://example.test/companies?page=1',
     ])->assertRedirect();
 
     $preference = Preference::query()->where('user_id', $this->user->id)->firstOrFail();
 
     expect($preference->name)->toBe('Mis empresas')
-        ->and($preference->url)->toBe('/admin/companies?page=1')
+        ->and($preference->url)->toBe('/companies?page=1')
         ->and($preference->company_id)->toBe($this->company->id)
         ->and($preference->module_id)->not->toBeNull();
 });
@@ -95,12 +95,12 @@ it('guarda favorito de la vista actual para user+company', function () {
 it('re-guardar la misma url actualiza el nombre', function () {
     $this->post(route('admin.preferences.store'), [
         'name' => 'Uno',
-        'url' => '/admin/workplaces',
+        'url' => '/companies/workplaces',
     ])->assertRedirect();
 
     $this->post(route('admin.preferences.store'), [
         'name' => 'Dos',
-        'url' => '/admin/workplaces',
+        'url' => '/companies/workplaces',
     ])->assertRedirect();
 
     expect(Preference::query()->where('user_id', $this->user->id)->count())->toBe(1)
@@ -115,7 +115,7 @@ it('bloquea el tope de 20 favoritos por user+company', function () {
 
     $this->post(route('admin.preferences.store'), [
         'name' => 'Extra',
-        'url' => '/admin/extra-unique',
+        'url' => '/companies/extra-unique',
     ])->assertSessionHasErrors('name');
 
     expect(Preference::query()->where('user_id', $this->user->id)->count())
@@ -127,13 +127,13 @@ it('dashboard lista solo favoritos de la company de sesión', function () {
         'user_id' => $this->user->id,
         'company_id' => $this->company->id,
         'name' => 'De A',
-        'url' => '/admin/a',
+        'url' => '/companies/a',
     ]);
     Preference::factory()->create([
         'user_id' => $this->user->id,
         'company_id' => $this->otherCompany->id,
         'name' => 'De B',
-        'url' => '/admin/b',
+        'url' => '/settings/b',
     ]);
 
     $this->get(route('dashboard'))
@@ -160,7 +160,7 @@ it('elimina favorito propio y aísla destroy cruzado', function () {
     $own = Preference::factory()->create([
         'user_id' => $owner->id,
         'company_id' => $this->company->id,
-        'url' => '/admin/own',
+        'url' => '/companies/own',
     ]);
 
     $otherUser = User::factory()->create();
@@ -168,7 +168,7 @@ it('elimina favorito propio y aísla destroy cruzado', function () {
     $foreign = Preference::factory()->create([
         'user_id' => $otherUser->id,
         'company_id' => $this->company->id,
-        'url' => '/admin/foreign',
+        'url' => '/companies/foreign',
     ]);
 
     $this->delete(route('admin.preferences.destroy', $own))->assertRedirect();
@@ -180,7 +180,7 @@ it('elimina favorito propio y aísla destroy cruzado', function () {
     $otherCompanyPref = Preference::factory()->create([
         'user_id' => $owner->id,
         'company_id' => $this->otherCompany->id,
-        'url' => '/admin/other-co',
+        'url' => '/companies/other-co',
     ]);
 
     actingWithCompany($owner, $this->company);
@@ -192,7 +192,7 @@ it('FavoritesPopover sustituye el stub vacío', function () {
     $topbar = (string) file_get_contents(resource_path('js/Components/Topbar/AppTopbar.tsx'));
 
     expect($source)->toContain('mis_opciones_preferidas')
-        ->and($source)->toContain('/admin/preferences')
+        ->and($source)->toContain('/account/preferences')
         ->and($topbar)->toContain('FavoritesPopover')
         ->and($topbar)->not->toContain('FavoritesStub')
         ->and(file_exists(resource_path('js/Components/Topbar/FavoritesStub.tsx')))->toBeFalse();

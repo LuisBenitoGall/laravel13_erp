@@ -65,7 +65,7 @@ function actingImageManager(Company $company, bool $withUpdate = true): User
 
     setPermissionsTeamId($company->id);
     $perms = [
-        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('users.access'),
         Permission::findOrCreate('company-users.view'),
         Permission::findOrCreate('company-users.viewAny'),
     ];
@@ -282,7 +282,7 @@ it('company-users file: manager OK; perímetro ajeno 403', function () {
     ])->assertRedirect();
     $memberImage = UserImage::query()->where('user_id', $member->id)->firstOrFail();
 
-    expect($memberImage->url('company'))->toContain('/admin/company-users/');
+    expect($memberImage->url('company'))->toContain('/users/company-users/');
 
     $this->get(route('admin.company-users.images.file', [$member, $memberImage]))
         ->assertOk();
@@ -324,7 +324,7 @@ it('company-users file: view sin update → 200; sin view → 403', function () 
     $noView = User::factory()->create(['status' => true]);
     actingWithCompany($noView, $this->company);
     setPermissionsTeamId($this->company->id);
-    $noView->givePermissionTo([Permission::findOrCreate('usuarios.access')]);
+    $noView->givePermissionTo([Permission::findOrCreate('users.access')]);
     setPermissionsTeamId(null);
 
     $this->get(route('admin.company-users.images.file', [$member, $memberImage]))
@@ -362,12 +362,12 @@ it('all-users directory file: guest denegado; público 200; no público 404', fu
     actingWithCompany($viewer, $this->company);
     setPermissionsTeamId($this->company->id);
     $viewer->givePermissionTo([
-        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('users.access'),
         Permission::findOrCreate('all-users.view'),
     ]);
     setPermissionsTeamId(null);
 
-    expect($image->url('directory'))->toContain('/admin/all-users/')
+    expect($image->url('directory'))->toContain('/users/all-users/')
         ->and($image->url('directory'))->not->toContain('/storage/');
 
     $payload = app(UserQuickViewData::class)->build($public, false, 'directory');

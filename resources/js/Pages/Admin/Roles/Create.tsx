@@ -17,7 +17,7 @@ export default function Create() {
 
     function submit(e: FormEvent) {
         e.preventDefault();
-        router.post('/admin/roles', {
+        router.post('/settings/roles', {
             name: data.name,
             description: data.description,
             universal: data.universal,
@@ -29,9 +29,9 @@ export default function Create() {
             breadcrumb={{
                 optionKey: 'roles',
                 suboptionKey: 'rol_crear',
-                optionHref: '/admin/roles',
+                optionHref: '/settings/roles',
             }}
-            backHref="/admin/roles"
+            backHref="/settings/roles"
         >
             <form
                 onSubmit={submit}
@@ -46,7 +46,7 @@ export default function Create() {
                 />
 
                 <FormActions>
-                    <Button type="button" variant="secondary" onClick={() => router.visit('/admin/roles')}>
+                    <Button type="button" variant="secondary" onClick={() => router.visit('/settings/roles')}>
                         {t('cancelar')}
                     </Button>
                     <Button type="submit" disabled={processing}>

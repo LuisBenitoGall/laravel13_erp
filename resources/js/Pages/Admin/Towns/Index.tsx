@@ -160,15 +160,15 @@ export default function Index({ province, country }: Props) {
     }
 
     const provincesHref = country
-        ? `/admin/countries/${country.id}/provinces`
-        : `/admin/countries/${province.country_id}/provinces`;
+        ? `/settings/countries/${country.id}/provinces`
+        : `/settings/countries/${province.country_id}/provinces`;
 
     return (
         <AppLayout
             breadcrumb={{
                 optionKey: 'paises',
                 suboptionKey: 'poblaciones',
-                optionHref: '/admin/countries',
+                optionHref: '/settings/countries',
             }}
             backHref={provincesHref}
             actions={[

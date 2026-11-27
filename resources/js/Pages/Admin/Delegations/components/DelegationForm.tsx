@@ -100,7 +100,7 @@ export default function DelegationForm({
         }
 
         let cancelled = false;
-        fetchJson<GeoOption[]>(`/admin/workplaces/geo/countries/${countryId}/provinces`)
+        fetchJson<GeoOption[]>(`/companies/workplaces/geo/countries/${countryId}/provinces`)
             .then((rows) => {
                 if (!cancelled) {
                     setProvinces(rows);
@@ -124,7 +124,7 @@ export default function DelegationForm({
         }
 
         let cancelled = false;
-        fetchJson<GeoOption[]>(`/admin/workplaces/geo/provinces/${provinceId}/towns`)
+        fetchJson<GeoOption[]>(`/companies/workplaces/geo/provinces/${provinceId}/towns`)
             .then((rows) => {
                 if (!cancelled) {
                     setTowns(rows);

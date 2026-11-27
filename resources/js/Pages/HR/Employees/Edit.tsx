@@ -44,9 +44,9 @@ export default function Edit({ employee, history, options }: Props) {
             breadcrumb={{
                 optionKey: 'empleados',
                 suboptionKey: 'editar',
-                optionHref: '/hr/employees',
+                optionHref: '/rrhh/employees',
             }}
-            backHref="/hr/employees"
+            backHref="/rrhh/employees"
             actions={[
                 ...(employee.can?.renew
                     ? [
@@ -54,7 +54,7 @@ export default function Edit({ employee, history, options }: Props) {
                               type: 'button' as const,
                               labelKey: 'renovar',
                               icon: RefreshCw,
-                              onClick: () => router.visit(`/hr/employees/${employee.id}/renew`),
+                              onClick: () => router.visit(`/rrhh/employees/${employee.id}/renew`),
                           },
                       ]
                     : []),
@@ -63,7 +63,7 @@ export default function Edit({ employee, history, options }: Props) {
                           {
                               type: 'delete' as const,
                               onConfirm: () => {
-                                  router.delete(`/hr/employees/${employee.id}`);
+                                  router.delete(`/rrhh/employees/${employee.id}`);
                               },
                           },
                       ]
@@ -79,7 +79,7 @@ export default function Edit({ employee, history, options }: Props) {
                 <EmployeeForm
                     mode="edit"
                     method="put"
-                    submitUrl={`/hr/employees/${employee.id}`}
+                    submitUrl={`/rrhh/employees/${employee.id}`}
                     options={options}
                     initial={employee}
                 />

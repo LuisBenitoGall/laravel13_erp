@@ -48,7 +48,7 @@ function actingWithCompany(User $user, Company $company): void
  * Autoriza un módulo para la company; si es Optional, también lo enciende.
  * Basic/AdminOnly: solo autorización (Basic = siempre on; AdminOnly = SA).
  */
-function enableModuleForCompany(Company $company, string $moduleSlug = 'configuracion'): Module
+function enableModuleForCompany(Company $company, string $moduleSlug = 'settings'): Module
 {
     $module = Module::query()->where('slug', $moduleSlug)->firstOrFail();
     app(AuthorizeModuleForCompany::class)->handle($company, $module);

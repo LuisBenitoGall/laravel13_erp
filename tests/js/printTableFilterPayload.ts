@@ -5,7 +5,7 @@ import {
 } from '../../resources/js/Components/Table/tableFilters.ts';
 
 const origin = 'http://localhost';
-const endpoint = '/admin/modules/table';
+const endpoint = '/settings/modules/table';
 
 const header: TableFilter[] = [
     { field: 'status', type: '=', value: 'active' },

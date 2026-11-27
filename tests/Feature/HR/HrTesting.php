@@ -6,6 +6,7 @@ use App\Domains\Admin\Enums\FunctionalityStatus;
 use App\Domains\Admin\Enums\ModuleLevel;
 use App\Domains\Admin\Enums\ModuleStatus;
 use App\Domains\Admin\Models\Company;
+use App\Domains\Admin\Models\Functionality;
 use App\Domains\Admin\Models\Module;
 use App\Models\User;
 use Spatie\Permission\Models\Permission;
@@ -19,23 +20,27 @@ if (! function_exists('ensureHrCatalog')) {
     {
         $module = Module::query()->where('slug', 'rrhh')->first();
 
-        if ($module !== null) {
-            return $module;
+        if ($module === null) {
+            $module = app(CreateModule::class)->handle([
+                'name' => 'rrhh',
+                'label' => ['es' => 'RRHH', 'en' => 'HR', 'ca' => 'RRHH'],
+                'color' => '#be185d',
+                'icon' => 'user-cog',
+                'level' => ModuleLevel::Optional->value,
+                'status' => ModuleStatus::Active->value,
+            ]);
         }
-
-        $module = app(CreateModule::class)->handle([
-            'name' => 'rrhh',
-            'label' => ['es' => 'RRHH', 'en' => 'HR', 'ca' => 'RRHH'],
-            'color' => '#be185d',
-            'icon' => 'user-cog',
-            'level' => ModuleLevel::Optional->value,
-            'status' => ModuleStatus::Active->value,
-        ]);
 
         foreach ([
             'contract-types' => 'Tipos de contrato',
             'employees' => 'Empleados',
+            'calendars' => 'Calendarios',
+            'day-types' => 'Tipos de jornada',
         ] as $slug => $label) {
+            if (Functionality::withTrashed()->where('slug', $slug)->exists()) {
+                continue;
+            }
+
             app(CreateFunctionality::class)->handle([
                 'module_id' => $module->id,
                 'name' => ucfirst(str_replace('-', ' ', $slug)),
@@ -55,7 +60,7 @@ if (! function_exists('hrPermissions')) {
     {
         $names = ['rrhh.access'];
 
-        foreach (['contract-types', 'employees'] as $slug) {
+        foreach (['contract-types', 'employees', 'calendars', 'day-types'] as $slug) {
             foreach (['view', 'viewAny', 'create', 'update', 'delete'] as $ability) {
                 $names[] = "{$slug}.{$ability}";
             }

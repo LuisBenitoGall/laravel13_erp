@@ -71,8 +71,8 @@ it('sin currencies.* las rutas de monedas responden 403', function () {
 it('usuario con currencies.view abre el Index', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
-    $user->givePermissionTo(['configuracion.access', 'currencies.view']);
+    Permission::findOrCreate('settings.access');
+    $user->givePermissionTo(['settings.access', 'currencies.view']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.currencies.index'))->assertOk();

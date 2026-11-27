@@ -43,7 +43,7 @@ function actingMapUser(Company $session, array $abilities = ['view', 'viewAny', 
     actingWithCompany($user, $session);
 
     setPermissionsTeamId($session->id);
-    $names = ['empresas.access'];
+    $names = ['companies.access'];
     foreach ($abilities as $ability) {
         $names[] = "workplaces.{$ability}";
     }

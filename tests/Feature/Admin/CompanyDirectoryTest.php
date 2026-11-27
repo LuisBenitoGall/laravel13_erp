@@ -42,7 +42,7 @@ function actingDirectoryViewer(Company $sessionCompany, array $extra = []): User
 
     setPermissionsTeamId($sessionCompany->id);
     $names = array_merge(
-        ['empresas.access', 'company-directory.view'],
+        ['companies.access', 'company-directory.view'],
         $extra,
     );
     $user->givePermissionTo(
@@ -203,7 +203,7 @@ it('sin company-directory.view responde 403', function () {
     $user = User::factory()->create(['status' => true]);
     actingWithCompany($user, $session);
     setPermissionsTeamId($session->id);
-    $user->givePermissionTo(Permission::findOrCreate('empresas.access'));
+    $user->givePermissionTo(Permission::findOrCreate('companies.access'));
 
     $this->get(route('admin.company-directory.index'))->assertForbidden();
 });
@@ -221,5 +221,5 @@ it('Mis empresas Index sigue siendo ServerTable forUser', function () {
 
     $index = (string) file_get_contents(resource_path('js/Pages/Admin/Companies/Index.tsx'));
     expect($index)->toContain('ServerTable')
-        ->and($index)->toContain('/admin/companies/table');
+        ->and($index)->toContain('/companies/table');
 });

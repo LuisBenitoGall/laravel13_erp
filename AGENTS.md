@@ -26,6 +26,17 @@
 Explore no implementa ni ejecuta OpenSpec. Flujo: debate → brief
 `docs/prompts/<Change>.md` → **sesión nueva** 10-architecture.
 
+## Modern Web Guidance (DX frontend)
+
+- Skill: `modern-web-guidance` (`.agents/skills/` · `.claude/skills/`). Instala /
+  actualiza: Agent Setup (`/setup`) con
+  `npx skills add GoogleChrome/modern-web-guidance -y -s modern-web-guidance -a cursor -a claude-code --copy`.
+- **Baseline target:** Baseline Widely available.
+- MWG informa patrones de plataforma (HTML/CSS/JS cliente, a11y, CWV). **No
+  prevalece** sobre `docs/standards/frontend.md`, shadcn/ui ni `<ServerTable>`
+  (Tabulator). No sustituye el design system ni se eleva a `docs/standards/`.
+- Consumo típico: 20-implementation (UI); a veces 40-e2e. No backend/tenancy/OpenSpec.
+
 ## Anti-patrones de contexto (coste)
 
 - No pegar ni “leer todas” las specs / standards en un hilo.

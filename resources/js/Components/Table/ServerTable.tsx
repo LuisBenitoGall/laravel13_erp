@@ -528,11 +528,13 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                         if (action.kind === 'toggle') {
                             const label = document.createElement('label');
                             label.className = 'tabulator-actions-toggle';
-                            label.title = t(action.labelKey);
+                            const toggleTitle = t(action.labelKey);
+                            label.title = toggleTitle;
                             const input = document.createElement('input');
                             input.type = 'checkbox';
                             input.checked = Boolean(action.checked);
-                            input.setAttribute('aria-label', t(action.labelKey));
+                            input.title = toggleTitle;
+                            input.setAttribute('aria-label', toggleTitle);
                             input.addEventListener('click', (event) => {
                                 event.stopPropagation();
                             });

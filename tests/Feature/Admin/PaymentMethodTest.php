@@ -82,8 +82,8 @@ it('sin payment-methods.* las rutas responden 403', function () {
 it('usuario con payment-methods.view abre el Index', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
-    $user->givePermissionTo(['configuracion.access', 'payment-methods.view']);
+    Permission::findOrCreate('settings.access');
+    $user->givePermissionTo(['settings.access', 'payment-methods.view']);
     actingWithCompany($user, $this->company);
 
     $this->get(route('admin.payment-methods.index'))->assertOk();

@@ -38,7 +38,7 @@ beforeEach(function () {
     ]);
 
     $this->configuracion = app(CreateModule::class)->handle([
-        'name' => 'Configuracion',
+        'name' => 'Settings',
         'label' => ['es' => 'Configuración', 'en' => 'Settings'],
         'color' => '#0f766e',
         'icon' => 'settings',
@@ -69,7 +69,7 @@ beforeEach(function () {
     }
 
     $this->empresas = app(CreateModule::class)->handle([
-        'name' => 'Empresas',
+        'name' => 'Companies',
         'label' => ['es' => 'Empresas'],
         'color' => '#0369a1',
         'icon' => 'briefcase',
@@ -94,7 +94,7 @@ beforeEach(function () {
     ]);
 
     $this->usuarios = app(CreateModule::class)->handle([
-        'name' => 'Usuarios',
+        'name' => 'Users',
         'label' => ['es' => 'Usuarios'],
         'color' => '#0369a1',
         'icon' => 'users',
@@ -127,7 +127,7 @@ beforeEach(function () {
     ]);
 
     $this->cuenta = app(CreateModule::class)->handle([
-        'name' => 'Cuenta',
+        'name' => 'Account',
         'label' => ['es' => 'Cuenta'],
         'color' => '#7c3aed',
         'icon' => 'user',
@@ -143,7 +143,7 @@ beforeEach(function () {
         'status' => FunctionalityStatus::Active->value,
     ]);
 
-    foreach (['dashboard', 'empresas', 'usuarios', 'cuenta'] as $slug) {
+    foreach (['dashboard', 'companies', 'users', 'account'] as $slug) {
         enableModuleForCompany($this->company, $slug);
     }
 
@@ -156,23 +156,23 @@ it('SA ve Configuración como Module con catálogo', function () {
     withCurrentCompany($this->company);
 
     $menu = app(MenuBuilder::class)->forUser($sa);
-    $config = collect($menu)->firstWhere('slug', 'configuracion');
+    $config = collect($menu)->firstWhere('slug', 'settings');
     $slugs = collect($config['functionalities'])->pluck('slug')->all();
 
-    expect(collect($menu)->pluck('slug')->all())->toContain('configuracion')
+    expect(collect($menu)->pluck('slug')->all())->toContain('settings')
         ->and($slugs)->toContain('modules', 'roles', 'permissions', 'countries', 'currencies', 'banks', 'units', 'payment-methods', 'vat-types', 'accounting-account-types')
         ->and($slugs)->not->toContain('companies', 'company-modules', 'functionalities');
 });
 
-it('SA ve Mis empresas bajo Module empresas', function () {
+it('SA ve Mis empresas bajo Module companies', function () {
     $sa = User::factory()->create();
     $sa->assignRole(Role::SUPER_ADMIN);
     withCurrentCompany($this->company);
 
     $menu = app(MenuBuilder::class)->forUser($sa);
-    $empresas = collect($menu)->firstWhere('slug', 'empresas');
+    $empresas = collect($menu)->firstWhere('slug', 'companies');
     $companies = collect($empresas['functionalities'] ?? [])->firstWhere('slug', 'companies');
-    $configSlugs = collect($menu)->firstWhere('slug', 'configuracion')['functionalities'];
+    $configSlugs = collect($menu)->firstWhere('slug', 'settings')['functionalities'];
 
     $settings = collect($empresas['functionalities'] ?? [])->firstWhere('slug', 'company-settings');
 
@@ -184,18 +184,18 @@ it('SA ve Mis empresas bajo Module empresas', function () {
         ->and(collect($configSlugs)->pluck('slug')->all())->not->toContain('companies');
 });
 
-it('no-SA sin comodín configuracion no ve Configuración', function () {
+it('no-SA sin comodín settings no ve Configuración', function () {
     Permission::findOrCreate('company-roles.view');
-    Permission::findOrCreate('usuarios.access');
+    Permission::findOrCreate('users.access');
 
     $user = User::factory()->create();
-    $user->givePermissionTo(['company-roles.view', 'usuarios.access']);
+    $user->givePermissionTo(['company-roles.view', 'users.access']);
     withCurrentCompany($this->company);
 
     $slugs = collect(app(MenuBuilder::class)->forUser($user))->pluck('slug')->all();
 
-    expect($slugs)->not->toContain('configuracion')
-        ->and($slugs)->toContain('usuarios');
+    expect($slugs)->not->toContain('settings')
+        ->and($slugs)->toContain('users');
 });
 
 it('Usuarios empresa apunta al Index ServerTable company-users', function () {
@@ -203,7 +203,7 @@ it('Usuarios empresa apunta al Index ServerTable company-users', function () {
     $user->companies()->attach($this->company->id);
     setPermissionsTeamId($this->company->id);
     $user->givePermissionTo([
-        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('users.access'),
         Permission::findOrCreate('company-users.view'),
         Permission::findOrCreate('all-users.view'),
     ]);
@@ -211,7 +211,7 @@ it('Usuarios empresa apunta al Index ServerTable company-users', function () {
 
     $menu = app(MenuBuilder::class)->forUser($user);
 
-    $usuarios = collect($menu)->firstWhere('slug', 'usuarios');
+    $usuarios = collect($menu)->firstWhere('slug', 'users');
     $item = collect($usuarios['functionalities'] ?? [])->firstWhere('slug', 'company-users');
     $allUsers = collect($usuarios['functionalities'] ?? [])->firstWhere('slug', 'all-users');
 
@@ -221,11 +221,11 @@ it('Usuarios empresa apunta al Index ServerTable company-users', function () {
         ->and($allUsers['href'])->toBe(route('admin.all-users.index', absolute: false));
 });
 
-it('no-SA con usuarios.access y company-users.view abre Index Usuarios empresa', function () {
+it('no-SA con users.access y company-users.view abre Index Usuarios empresa', function () {
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
     $user->givePermissionTo([
-        Permission::findOrCreate('usuarios.access'),
+        Permission::findOrCreate('users.access'),
         Permission::findOrCreate('company-users.view'),
     ]);
     setPermissionsTeamId(null);
@@ -245,13 +245,13 @@ it('SA abre Members de su company vinculada', function () {
 it('Mis módulos bajo Module cuenta', function () {
     $user = User::factory()->create();
     $user->givePermissionTo([
-        Permission::findOrCreate('cuenta.access'),
+        Permission::findOrCreate('account.access'),
         Permission::findOrCreate('company-modules.view'),
     ]);
     withCurrentCompany($this->company);
 
     $menu = app(MenuBuilder::class)->forUser($user);
-    $cuenta = collect($menu)->firstWhere('slug', 'cuenta');
+    $cuenta = collect($menu)->firstWhere('slug', 'account');
     $item = collect($cuenta['functionalities'] ?? [])->firstWhere('slug', 'company-modules');
 
     expect($cuenta)->not->toBeNull()

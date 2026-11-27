@@ -41,7 +41,7 @@ function actingHierarchyEditor(Company ...$companies): User
 
     setPermissionsTeamId($session->id);
     $user->givePermissionTo([
-        Permission::findOrCreate('empresas.access'),
+        Permission::findOrCreate('companies.access'),
         Permission::findOrCreate('companies.view'),
         Permission::findOrCreate('companies.update'),
         Permission::findOrCreate('companies.create'),

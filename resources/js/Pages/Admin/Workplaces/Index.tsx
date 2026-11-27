@@ -66,7 +66,7 @@ export default function Index() {
             checked: row.status === 'active',
             onToggle: async (_current, checked) => {
                 const status = checked ? 'active' : 'inactive';
-                await patchJson<{ status: string }>(`/admin/workplaces/${row.id}/status`, {
+                await patchJson<{ status: string }>(`/companies/workplaces/${row.id}/status`, {
                     status,
                 });
 
@@ -77,7 +77,7 @@ export default function Index() {
             id: 'edit',
             icon: Pencil,
             labelKey: 'editar',
-            onClick: (current) => router.visit(`/admin/workplaces/${current.id}/edit`),
+            onClick: (current) => router.visit(`/companies/workplaces/${current.id}/edit`),
         },
         {
             id: 'delete',
@@ -85,7 +85,7 @@ export default function Index() {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/admin/workplaces/${current.id}`, {
+                router.delete(`/companies/workplaces/${current.id}`, {
                     preserveScroll: true,
                     onSuccess: () => setTableKey((key) => key + 1),
                     onError: (errors) => {
@@ -104,7 +104,7 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'centros_de_trabajo',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/workplaces',
+                optionHref: '/companies/workplaces',
             }}
             showBack={false}
             actions={[
@@ -112,13 +112,13 @@ export default function Index() {
                     type: 'button',
                     labelKey: 'nuevo_centro_trabajo',
                     icon: Plus,
-                    onClick: () => router.visit('/admin/workplaces/create'),
+                    onClick: () => router.visit('/companies/workplaces/create'),
                 },
             ]}
         >
             <ServerTable<WorkplaceRow>
                 key={tableKey}
-                endpoint="/admin/workplaces/table"
+                endpoint="/companies/workplaces/table"
                 columns={columns}
                 persistKey="admin.workplaces"
                 exportable={false}

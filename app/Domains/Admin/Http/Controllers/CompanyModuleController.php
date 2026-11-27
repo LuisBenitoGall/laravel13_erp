@@ -42,6 +42,8 @@ class CompanyModuleController extends Controller
         $modules = Module::query()
             ->where('status', ModuleStatus::Active)
             ->where('level', ModuleLevel::Optional)
+            ->orderByRaw('`sort` is null')
+            ->orderBy('sort')
             ->orderBy('slug')
             ->get()
             ->map(function (Module $module) use ($authorizedIds, $enabledIds) {

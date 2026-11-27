@@ -18,6 +18,17 @@ según ella.** Este fichero no la duplica; resumen mínimo:
 - Gate de salida: el de la ficha canónica (suite + pint + phpstan verdes incluidos).
 - Modelo: tier medio es suficiente para este rol (el contrato ya está cerrado).
 
+## Modern Web Guidance (UI cliente)
+
+Al tocar React/TSX, CSS, formularios, modales/diálogos, focus, a11y o rendimiento
+cliente: activar la skill `modern-web-guidance` y consultar guías relevantes
+(`npx modern-web-guidance search` / `retrieve`) **antes** de improvisar patrones
+legacy. Baseline: Widely available (`AGENTS.md`).
+
+**Subordinación:** `docs/standards/frontend.md`, shadcn/ui y `<ServerTable>` mandan.
+MWG no sustituye el design system ni justifica tablas/diálogos nativos frente al
+canon. No aplica a backend, tenancy, Spatie, OpenSpec ni CI PHP.
+
 ## Siguiente paso del workflow
 
 Cuando Implementation finalice:

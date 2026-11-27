@@ -60,12 +60,13 @@
 | Contenido | `Content` | Content | Pieza CMS ligera Admin; kinds Help (UI «Información») y Article (UI «Contenido»); ancla `code`; `company_id` nullable (alta = null); ≠ `Note` ni WordPress |
 | Información (contenido) | `ContentKind::Help` | type=1 | Tip/ancla HelpTip; Create elige este tipo |
 | Contenido (kind) | `ContentKind::Article` | type=2 | Pieza editorial; Edit real = change futuro |
-| Ancla (contenido) | `code` | code | Identificador estable HelpTip; convención `{helpScope}.{fieldKey}` (ej. `companies.nif`). Create Help: code **explícito** (sin slugify del nombre; admite `.` y `-`); Create Article: auto-slug desde nombre; inmutable en Edit; `helpCode` en Field = override del derive |
+| Ancla (contenido) | `code` | code | Identificador estable HelpTip; convención `{helpScope}.{fieldKey}` (ej. `companies.nif`, `users.is_public`). Create Help: code **explícito** (sin slugify del nombre; segmentos `a-z0-9_` unidos por `.` o `-`); Create Article: auto-slug desde nombre; inmutable en Edit; `helpCode` en Field = override del derive |
 | Configuración de la empresa | hub `company-settings` | Company settings | Hub/onboarding de la company en sesión (Functionality bajo `empresas`); readiness = nif+logo+≥1 workplace Active; ≠ Configuración SA |
 | Centro de trabajo | `Workplace` | Workplace | Sede/dirección operativa; en el grupo societario `company_id` = **matriz** (`BelongsToCompany`); se asocia a Delegaciones solo vía mapa sede–delegación; ≠ Obra (`Worksite`) ni `Workspace` |
 | Principal (centro) | `featured` | — | Flag `Workplace.featured`; UI «Principal»; ≤1/company; dirección default facturación/pedidos (consumo = changes futuros) |
 | Mapa sede–delegación | pivote `workplace_delegation` (`Workplace::delegations()` / `Company::workplacesViaMap()`) | — | Única relación N:N entre `Workplace` de la matriz y Delegaciones hijas; se gestiona en Edit Workplace con `workplaces.update`; `company_id` del pivote = delegación (sin `BelongsToCompany` en el pivote) |
-| Delegación preferida (de sede) | `workplace_delegation.is_preferred` | — | ≤1 por `Workplace` entre las vinculadas; opcional (0 es válido); UI «Delegación preferida»; default de sociedad por sede (consumo = changes futuros, p. ej. pedidos); no existe preferida global por delegación |
+| Delegación preferida (de sede) | `workplace_delegation.is_preferred` | — | ≤1 por `Workplace` entre las vinculadas; opcional (0 es válido); UI «Delegación preferida»; default de sociedad por sede (consumo = changes futuros, p. ej. pedidos); eje distinto de sede preferida por Delegación |
+| Sede preferida (de Delegación) | `workplace_delegation.is_preferred_seat` | — | ≤1 por Delegación (`company_id` del pivote) entre sus sedes vinculadas; opcional (0 es válido); UI «Sede preferida»; editable en Edit Delegación; **no** reutiliza ni altera `is_preferred` |
 | Obra | `Worksite` | Obra | Decisión de naming 2026-07-14; ≠ Centro de trabajo (`Workplace`) |
 | UTE | `JointVenture` | UTE | UI muestra "UTE" |
 | Contacto | `Contact` | Contact | |
@@ -77,10 +78,25 @@
 | Vínculo user–empresa | `UserCompany` / `user_companies` | — | Membresía/acceso ERP; `position`/`department` nullable en pivot; ≠ Empleo |
 | Empleo / periodo laboral | `Employee` | Employee | Periodo laboral RRHH (`employees`); `BelongsToCompany`; ≠ `UserCompany`; historial = N filas; ≤1 `active` por user+company |
 | Tipo de contrato laboral | `ContractType` | — | Catálogo por company (`contract_types`); duration en días; ≠ periodo `Employee` |
+| Tipo de jornada | `DayType` | DayTypes | Catálogo por company (`day_types`); color + `is_working`; dominio Calendar; ≠ tipo de contrato |
+| Calendario laboral | `WorkCalendar` | WorkCalendar | 1:1 por `Workplace` (`work_calendars`); `company_id` = matriz; dominio Calendar |
+| Día de calendario laboral | `WorkCalendarDay` | — | Fecha + nombre + `DayType` en un `WorkCalendar` (`work_calendar_days`) |
+| Dominio Calendar | `App\Domains\Calendar` | — | Capa Extensiones; consumido por Module `rrhh` (menú/permisos); no vive solo en HR |
 | Apellidos | `surname` | surname | Campo de `User`; UI «Apellidos»; obligatorio en registro (columna nullable en BD) |
 | Perfil público | `is_public` | — | Flag de `User`; visible en directorio «Todos los usuarios» solo si true; default true en Create company-users |
 | NIF (histórico) | `CompanyIdentifier` + `NifResolver` | ídem | Se porta tal cual |
-| Producto / Artículo | `Product` | Product | UI: "artículo" |
+| Producto / Artículo | `Product` | Product | UI: "artículo"; dominio Catalog; Module SaaS `products`; Functionality `catalogue` |
+| Imagen de producto | `ProductImage` | — | `product_images`; disco privado; `featured` = portada; `public` + Product Active = elegible fuera de Edit; ≠ `UserImage` / `MediaAsset` |
+| Documento de producto | `ProductDoc` | — | `product_docs`; disco privado; sin featured; `public` + Product Active = elegible fuera de Edit; ≠ `UserDoc` / `MediaAsset` |
+| Producto físico | `ProductType::Physical` | — | Valor `physical`; inmutable tras alta |
+| Servicio (producto) | `ProductType::Service` | — | Valor `service`; inmutable tras alta; ≠ Service de dominio |
+| Module (SaaS) | `Module` slug inglés | — | `name`+`slug` EN; ruta `/{slug}/…`; `{slug}.access` |
+| Module Products | Module slug `products` | — | Basic; menú → `/products` (Catálogo UI) |
+| Module Companies | Module slug `companies` | — | Basic; antes `empresas` |
+| Module Users | Module slug `users` | — | Basic; antes `usuarios` |
+| Module Account | Module slug `account` | — | Basic; antes `cuenta` |
+| Module Settings | Module slug `settings` | — | AdminOnly; antes `configuracion` |
+| Module HR | Module slug `rrhh` | — | Optional; ruta `/rrhh` |
 | Tarifa | `Rate` | Rate | 5 tarifas venta + tipológicas A/B/C |
 | Precio (histórico) | `ProductPrice` | ProductPrices | Singular en v2 |
 | Familia / Categoría | `Family` / `Category` | ídem | |
@@ -113,6 +129,7 @@
 | Tipo de IVA | `VatType` | Tipo de IVA | Catálogo global Admin por `Country` (sin `company_id`); `rate` + RE nullable; Functionality `vat-types`; Tax consume a futuro |
 | Grupo contable | `AccountingAccountType` | Grupo contable | Catálogo jerárquico PGC Admin (sin `company_id`/status); `autoreference`/`code`/`name`/`mode`; Functionality `accounting-account-types`; Accounting consume a futuro |
 | Moneda | `Currency` | Moneda | Catálogo global Admin (sin `company_id`); `code` ISO 4217 y `number` inmutables tras el alta; Functionality `currencies` |
+| Monedas de uso | `company_currencies` (pivote) | monedas de uso | Pivote Company↔Currency + `is_default`; N permitidas y ≤1 default ∈ set; sin Functionality propia (sync vía update company/delegación / company-settings) |
 | Cotización / tipo de cambio | `ExchangeRate` | Conversión monedas | Catálogo global Admin (sin `company_id`); par dirigido `from`→`to`, `rate` 6 dec; par unordered único (sin historial por fecha); vigente = rate actual; snapshot en operación (aplazado); Functionality `exchange-rates` |
 | Provincia | `Province` | Provincia | Hija de `Country`; catálogo global |
 | Población | `Town` | Población | Hija de `Province`; código `Town` como v1 (no Municipality) |

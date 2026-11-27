@@ -91,7 +91,7 @@ export default function Edit({ module }: { module: ModuleRecord }) {
 
     function selectTab(next: EditTab) {
         setTab(next);
-        const path = `/admin/modules/${module.id}/edit`;
+        const path = `/settings/modules/${module.id}/edit`;
         const href = next === 'functionalities' ? `${path}?tab=functionalities` : path;
         window.history.replaceState(window.history.state, '', href);
     }
@@ -136,7 +136,7 @@ export default function Edit({ module }: { module: ModuleRecord }) {
 
     function submit(event: FormEvent) {
         event.preventDefault();
-        put(`/admin/modules/${module.id}`);
+        put(`/settings/modules/${module.id}`);
     }
 
     function openCreateModal() {
@@ -151,7 +151,7 @@ export default function Edit({ module }: { module: ModuleRecord }) {
 
     function submitCreate(event: FormEvent) {
         event.preventDefault();
-        createForm.post(`/admin/modules/${module.id}/functionalities`, {
+        createForm.post(`/settings/modules/${module.id}/functionalities`, {
             preserveScroll: true,
             onSuccess: () => {
                 setCreateOpen(false);
@@ -243,7 +243,7 @@ export default function Edit({ module }: { module: ModuleRecord }) {
             breadcrumb={{
                 optionKey: 'modulos',
                 suboptionKey: 'modulo_editar',
-                optionHref: '/admin/modules',
+                optionHref: '/settings/modules',
             }}
             actions={[
                 {
@@ -258,13 +258,13 @@ export default function Edit({ module }: { module: ModuleRecord }) {
                           {
                               type: 'delete' as const,
                               onConfirm: () => {
-                                  router.delete(`/admin/modules/${module.id}`);
+                                  router.delete(`/settings/modules/${module.id}`);
                               },
                           },
                       ]),
             ]}
             showBack
-            backHref="/admin/modules"
+            backHref="/settings/modules"
         >
             <div className="w-full">
                 <RecordSummary
@@ -406,7 +406,7 @@ export default function Edit({ module }: { module: ModuleRecord }) {
                     <div className="mt-4">
                         <ServerTable<FunctionalityRow>
                             key={tableKey}
-                            endpoint={`/admin/modules/${module.id}/functionalities/table`}
+                            endpoint={`/settings/modules/${module.id}/functionalities/table`}
                             columns={functionalityColumns}
                             persistKey={`admin.modules.${module.id}.functionalities`}
                             exportable={false}

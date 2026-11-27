@@ -62,7 +62,7 @@ export default function Index({ assets, maxKilobytes, maxPerUpload, can }: Props
         const data = new FormData();
         batch.forEach((file) => data.append('images[]', file));
 
-        router.post('/admin/gallery', data, {
+        router.post('/settings/gallery', data, {
             forceFormData: true,
             preserveScroll: true,
             onFinish: () => setUploading(false),
@@ -81,7 +81,7 @@ export default function Index({ assets, maxKilobytes, maxPerUpload, can }: Props
             return;
         }
 
-        editForm.put(`/admin/gallery/${editing.id}`, {
+        editForm.put(`/settings/gallery/${editing.id}`, {
             preserveScroll: true,
             onSuccess: () => setEditing(null),
         });
@@ -100,7 +100,7 @@ export default function Index({ assets, maxKilobytes, maxPerUpload, can }: Props
         if (pendingDelete === null) {
             return;
         }
-        router.delete(`/admin/gallery/${pendingDelete.id}`, { preserveScroll: true });
+        router.delete(`/settings/gallery/${pendingDelete.id}`, { preserveScroll: true });
         setPendingDelete(null);
     }
 
@@ -113,7 +113,7 @@ export default function Index({ assets, maxKilobytes, maxPerUpload, can }: Props
         <AppLayout
             breadcrumb={{
                 optionKey: 'galeria',
-                optionHref: '/admin/gallery',
+                optionHref: '/settings/gallery',
             }}
             showBack={false}
             actions={[]}

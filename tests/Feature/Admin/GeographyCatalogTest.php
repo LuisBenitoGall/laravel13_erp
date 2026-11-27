@@ -90,8 +90,8 @@ it('options acepta usuarios con countries.view', function () {
 
     $user = User::factory()->create();
     setPermissionsTeamId($this->company->id);
-    Permission::findOrCreate('configuracion.access');
-    $user->givePermissionTo(['configuracion.access', 'countries.view']);
+    Permission::findOrCreate('settings.access');
+    $user->givePermissionTo(['settings.access', 'countries.view']);
     actingWithCompany($user, $this->company);
 
     $this->getJson(route('admin.countries.provinces.options', $country))

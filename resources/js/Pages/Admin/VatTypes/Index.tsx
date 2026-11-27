@@ -129,7 +129,7 @@ export default function Index() {
 
     function submitCreate(event: FormEvent) {
         event.preventDefault();
-        createForm.post('/admin/vat-types', {
+        createForm.post('/settings/vat-types', {
             preserveScroll: true,
             onSuccess: () => {
                 setCreateOpen(false);
@@ -144,7 +144,7 @@ export default function Index() {
             return;
         }
 
-        editForm.put(`/admin/vat-types/${editing.id}`, {
+        editForm.put(`/settings/vat-types/${editing.id}`, {
             preserveScroll: true,
             onSuccess: () => {
                 setEditing(null);
@@ -161,7 +161,7 @@ export default function Index() {
             checked: row.status === 'active',
             onToggle: async (_row, checked) => {
                 const status = checked ? 'active' : 'inactive';
-                await patchJson<{ status: string }>(`/admin/vat-types/${row.id}/status`, {
+                await patchJson<{ status: string }>(`/settings/vat-types/${row.id}/status`, {
                     status,
                 });
 
@@ -180,7 +180,7 @@ export default function Index() {
             variant: 'danger',
             confirm: true,
             onClick: (current) => {
-                router.delete(`/admin/vat-types/${current.id}`, {
+                router.delete(`/settings/vat-types/${current.id}`, {
                     preserveScroll: true,
                     onSuccess: () => setTableKey((key) => key + 1),
                     onError: (errors) => {
@@ -280,7 +280,7 @@ export default function Index() {
             breadcrumb={{
                 optionKey: 'tipos_de_iva',
                 suboptionKey: 'dashboard',
-                optionHref: '/admin/vat-types',
+                optionHref: '/settings/vat-types',
             }}
             showBack={false}
             actions={[
@@ -294,7 +294,7 @@ export default function Index() {
         >
             <ServerTable<VatTypeRow>
                 key={tableKey}
-                endpoint="/admin/vat-types/table"
+                endpoint="/settings/vat-types/table"
                 columns={columns}
                 persistKey="admin.vat-types"
                 exportable={false}

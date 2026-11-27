@@ -117,7 +117,7 @@ it('niega el update sin permiso modules.update', function () {
 it('Edit declara tabs, kit y Volver fijo al Index', function () {
     $source = file_get_contents(resource_path('js/Pages/Admin/Modules/Edit.tsx'));
 
-    expect($source)->toContain('backHref="/admin/modules"')
+    expect($source)->toContain('backHref="/settings/modules"')
         ->and($source)->toContain('showBack')
         ->and($source)->toContain('IconPicker')
         ->and($source)->toContain('ColorPicker')

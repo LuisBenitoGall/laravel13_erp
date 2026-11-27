@@ -93,7 +93,7 @@ class EmployeeController extends Controller
     {
         $employee = $action->handle($request->validated());
 
-        return to_route('hr.employees.edit', $employee)
+        return to_route('rrhh.employees.edit', $employee)
             ->with('success', __('empleo_creado'));
     }
 
@@ -140,7 +140,7 @@ class EmployeeController extends Controller
     {
         $renewed = $action->handle($employee, $request->validated());
 
-        return to_route('hr.employees.edit', $renewed)
+        return to_route('rrhh.employees.edit', $renewed)
             ->with('success', __('empleo_renovado'));
     }
 
@@ -156,7 +156,7 @@ class EmployeeController extends Controller
         $this->authorize('delete', $employee);
         $action->handle($employee);
 
-        return to_route('hr.employees.index')
+        return to_route('rrhh.employees.index')
             ->with('success', __('empleo_eliminado'));
     }
 
