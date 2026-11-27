@@ -1,8 +1,8 @@
 ## Purpose
 
-CRUD mínimo de Product por Company: alta con nombre y tipo, status Inactive
-por defecto, tipo inmutable en summary, Edit con tabs (General) y listado
-en `/admin/catalogue`.
+CRUD de Product por Company: alta con nombre y tipo, status Inactive por
+defecto, tipo inmutable en summary, Edit con tabs (General con
+clasificación opcional, Imágenes, Documentos) y listado en `/products`.
 
 ## Requirements
 
@@ -46,11 +46,13 @@ y auditoría. SHALL NOT aceptar cambio de tipo en el update.
 
 ### Requirement: Edit con tabs y tab General
 La ficha de edición SHALL usar layout con tabs. SHALL existir el tab de
-información genérica donde se editan al menos nombre y status
-(`active`|`inactive`). SHALL existir el tab Imágenes operable según la
-capability `catalogue-product-images`. SHALL existir el tab Documentos
-operable según la capability `catalogue-product-docs`, tras Imágenes.
-SHALL NOT añadir tabs stub de otras fases futuras en este change.
+información genérica donde se editan al menos nombre, status
+(`active`|`inactive`) y la clasificación opcional Family 0..1, Categories
+0..N y Tags 0..N (incl. alta in situ de tags según
+`catalogue-product-classification`). SHALL existir el tab Imágenes
+operable según la capability `catalogue-product-images`. SHALL existir el
+tab Documentos operable según la capability `catalogue-product-docs`, tras
+Imágenes. SHALL NOT añadir un tab Clasificación dedicado.
 
 #### Scenario: Activar desde Edit
 - **WHEN** un actor autorizado pone status Active en el tab General y guarda
@@ -64,17 +66,24 @@ SHALL NOT añadir tabs stub de otras fases futuras en este change.
 - **WHEN** se abre la edición de un producto
 - **THEN** existe el tab Documentos operable tras Imágenes
 
-### Requirement: Listado y rutas /admin/catalogue
-El listado SHALL estar en `GET /admin/catalogue` y el resto del recurso
-CRUD bajo ese prefijo (create/edit/update/destroy y endpoint de tabla).
+#### Scenario: Guardar clasificación en General
+- **WHEN** un actor actualiza familia/categorías/tags en General y guarda
+- **THEN** los vínculos quedan persistidos sin cambiar el tipo del
+  producto
+
+### Requirement: Listado y rutas /products
+El listado SHALL estar en `GET /products` y el resto del recurso CRUD bajo
+ese prefijo (create/edit/update/destroy y endpoint de tabla). Las rutas
+SHALL exigir Module `products` activo y permisos `catalogue.*` (+ comodín
+`products.access` según kernel).
 
 #### Scenario: Acceso al Index
-- **WHEN** un actor autorizado navega a `/admin/catalogue`
+- **WHEN** un actor autorizado navega a `/products`
 - **THEN** obtiene el listado ServerTable de productos de su company
 
 ### Requirement: Soft delete de Product
 El sistema SHALL permitir eliminar un producto con soft delete cuando el
-actor tenga permiso `products.delete` y el registro pertenezca a su
+actor tenga permiso `catalogue.delete` y el registro pertenezca a su
 company.
 
 #### Scenario: Destroy soft

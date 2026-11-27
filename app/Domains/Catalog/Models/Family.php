@@ -10,10 +10,11 @@ use Database\Factories\FamilyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Familia de catálogo de la company en sesión (maestro; sin vínculo Product aún).
+ * Familia de catálogo de la company en sesión (maestro; Product 0..1 vía family_id).
  *
  * @property int $id
  * @property int $company_id
@@ -43,6 +44,12 @@ class Family extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /** @return HasMany<Product, $this> */
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
     }
 
     protected static function newFactory(): FamilyFactory

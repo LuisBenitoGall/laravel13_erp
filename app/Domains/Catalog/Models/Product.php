@@ -11,6 +11,7 @@ use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $name
  * @property ProductType $type
  * @property ProductStatus $status
+ * @property int|null $family_id
  */
 class Product extends Model
 {
@@ -32,6 +34,7 @@ class Product extends Model
         'name',
         'type',
         'status',
+        'family_id',
     ];
 
     protected function casts(): array
@@ -39,6 +42,7 @@ class Product extends Model
         return [
             'type' => ProductType::class,
             'status' => ProductStatus::class,
+            'family_id' => 'integer',
         ];
     }
 
@@ -46,6 +50,24 @@ class Product extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /** @return BelongsTo<Family, $this> */
+    public function family(): BelongsTo
+    {
+        return $this->belongsTo(Family::class);
+    }
+
+    /** @return BelongsToMany<Category, $this> */
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class)->withTimestamps();
+    }
+
+    /** @return BelongsToMany<Tag, $this> */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class)->withTimestamps();
     }
 
     /** @return HasMany<ProductImage, $this> */

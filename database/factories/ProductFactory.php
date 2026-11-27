@@ -51,4 +51,11 @@ class ProductFactory extends Factory
             'status' => ProductStatus::Inactive,
         ]);
     }
+
+    public function forFamily(int $familyId): static
+    {
+        return $this->state(fn (): array => [
+            'family_id' => $familyId,
+        ]);
+    }
 }

@@ -30,7 +30,7 @@ export async function getJson<TResponse = unknown>(
 }
 
 async function writeJson<TResponse = unknown>(
-    method: 'PATCH' | 'PUT',
+    method: 'POST' | 'PATCH' | 'PUT',
     url: string,
     body: Record<string, unknown>,
 ): Promise<TResponse> {
@@ -65,6 +65,14 @@ async function writeJson<TResponse = unknown>(
     }
 
     return (await response.json()) as TResponse;
+}
+
+/** POST JSON same-origin (p. ej. quick-create). */
+export async function postJson<TResponse = unknown>(
+    url: string,
+    body: Record<string, unknown>,
+): Promise<TResponse> {
+    return writeJson<TResponse>('POST', url, body);
 }
 
 /**

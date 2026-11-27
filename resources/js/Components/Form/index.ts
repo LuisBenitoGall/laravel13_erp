@@ -7,6 +7,8 @@ export { Wysiwyg, type WysiwygProps } from './Wysiwyg';
 export { MediaPicker, type MediaPickerAsset, type MediaPickerProps } from './MediaPicker';
 export { NumberInput, type NumberInputProps } from './NumberInput';
 export { Select, type SelectOption, type SelectProps } from './Select';
+export { MultiSelect, type MultiSelectOption, type MultiSelectProps } from './MultiSelect';
+
 export { DatePicker, type DatePickerProps } from './DatePicker';
 export { Checkbox, CheckboxControl, type FormCheckboxProps } from './Checkbox';
 export { RadioGroup, type RadioGroupOption, type RadioGroupProps } from './RadioGroup';

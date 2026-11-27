@@ -7,8 +7,16 @@ export interface ProductRow {
     name: string;
     type: ProductType;
     status: ProductStatus;
+    family_id?: number | null;
+    category_ids?: number[];
+    tag_ids?: number[];
     created_at?: string | null;
     updated_at?: string | null;
+}
+
+export interface ClassificationOption {
+    value: string;
+    label: string;
 }
 
 export interface FamilyRow {

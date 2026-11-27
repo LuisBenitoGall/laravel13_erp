@@ -5,17 +5,24 @@ namespace App\Domains\Catalog\Http\Controllers;
 use App\Domains\Catalog\Actions\CreateProduct;
 use App\Domains\Catalog\Actions\DeleteProduct;
 use App\Domains\Catalog\Actions\UpdateProduct;
+use App\Domains\Catalog\Enums\CategoryStatus;
+use App\Domains\Catalog\Enums\FamilyStatus;
 use App\Domains\Catalog\Enums\ProductStatus;
+use App\Domains\Catalog\Enums\TagStatus;
 use App\Domains\Catalog\Http\Requests\ProductTableRequest;
 use App\Domains\Catalog\Http\Requests\StoreProductRequest;
 use App\Domains\Catalog\Http\Requests\UpdateProductRequest;
 use App\Domains\Catalog\Http\Resources\ProductResource;
+use App\Domains\Catalog\Models\Category;
+use App\Domains\Catalog\Models\Family;
 use App\Domains\Catalog\Models\Product;
+use App\Domains\Catalog\Models\Tag;
 use App\Http\Controllers\Controller;
 use App\Support\Table\ActiveFirstOrder;
 use App\Support\Table\TableBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -64,6 +71,8 @@ class ProductController extends Controller
     {
         $this->authorize('update', $product);
 
+        $product->load(['categories:id', 'tags:id']);
+
         $images = $product->images()
             ->orderByDesc('featured')
             ->orderBy('id')
@@ -90,15 +99,20 @@ class ProductController extends Controller
             ])
             ->all();
 
-        $canManage = request()->user()?->can('update', $product) ?? false;
+        $user = request()->user();
+        $canManage = $user?->can('update', $product) ?? false;
 
         return Inertia::render('Catalog/Products/Edit', [
             'product' => ProductResource::make($product)->resolve(),
             'images' => $images,
             'docs' => $docs,
+            'family_options' => $this->familyOptions($product),
+            'category_options' => $this->categoryOptions($product),
+            'tag_options' => $this->tagOptions($product),
             'can' => [
                 'manage_images' => $canManage,
                 'manage_docs' => $canManage,
+                'create_tags' => $user?->can('create', Tag::class) ?? false,
             ],
             'image_limits' => [
                 'max_files' => (int) config('product_images.max_per_product', 20),
@@ -128,5 +142,95 @@ class ProductController extends Controller
 
         return to_route('products.index')
             ->with('success', __('producto_eliminado'));
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    private function familyOptions(Product $product): array
+    {
+        $linkedId = $product->family_id;
+
+        return Family::query()
+            ->where(function ($query) use ($linkedId): void {
+                $query->where('status', FamilyStatus::Active);
+                if ($linkedId !== null) {
+                    $query->orWhere('id', $linkedId);
+                }
+            })
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn (Family $row): array => [
+                'value' => (string) $row->id,
+                'label' => $row->name,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    private function categoryOptions(Product $product): array
+    {
+        /** @var Collection<int, int> $linkedIds */
+        $linkedIds = $product->categories->pluck('id');
+
+        $all = Category::query()->get(['id', 'name', 'parent_id', 'status']);
+        $byId = $all->keyBy('id');
+
+        return $all
+            ->filter(fn (Category $row): bool => $row->status === CategoryStatus::Active
+                || $linkedIds->contains($row->id))
+            ->map(fn (Category $row): array => [
+                'value' => (string) $row->id,
+                'label' => $this->categoryPathLabel($row, $byId),
+            ])
+            ->sortBy('label', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    private function tagOptions(Product $product): array
+    {
+        /** @var Collection<int, int> $linkedIds */
+        $linkedIds = $product->tags->pluck('id');
+
+        return Tag::query()
+            ->where(function ($query) use ($linkedIds): void {
+                $query->where('status', TagStatus::Active);
+                if ($linkedIds->isNotEmpty()) {
+                    $query->orWhereIn('id', $linkedIds);
+                }
+            })
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn (Tag $row): array => [
+                'value' => (string) $row->id,
+                'label' => $row->name,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  Collection<int, Category>  $byId
+     */
+    private function categoryPathLabel(Category $category, Collection $byId): string
+    {
+        $parts = [$category->name];
+        $parentId = $category->parent_id;
+
+        while ($parentId !== null && $byId->has($parentId)) {
+            /** @var Category $parent */
+            $parent = $byId->get($parentId);
+            array_unshift($parts, $parent->name);
+            $parentId = $parent->parent_id;
+        }
+
+        return implode(' › ', $parts);
     }
 }

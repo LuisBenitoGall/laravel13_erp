@@ -4,8 +4,10 @@ namespace App\Domains\Catalog\Http\Controllers;
 
 use App\Domains\Catalog\Actions\CreateTag;
 use App\Domains\Catalog\Actions\DeleteTag;
+use App\Domains\Catalog\Actions\QuickCreateTag;
 use App\Domains\Catalog\Actions\UpdateTag;
 use App\Domains\Catalog\Enums\TagStatus;
+use App\Domains\Catalog\Http\Requests\QuickCreateTagRequest;
 use App\Domains\Catalog\Http\Requests\StoreTagRequest;
 use App\Domains\Catalog\Http\Requests\TagTableRequest;
 use App\Domains\Catalog\Http\Requests\UpdateTagRequest;
@@ -58,6 +60,18 @@ class TagController extends Controller
 
         return to_route('products.tags.edit', $tag)
             ->with('success', __('etiqueta_creada'));
+    }
+
+    public function quickStore(QuickCreateTagRequest $request, QuickCreateTag $action): JsonResponse
+    {
+        $tag = $action->handle((string) $request->validated('name'));
+
+        return response()->json([
+            'id' => $tag->id,
+            'name' => $tag->name,
+            'slug' => $tag->slug,
+            'status' => $tag->status->value,
+        ], 201);
     }
 
     public function edit(Tag $tag): InertiaResponse

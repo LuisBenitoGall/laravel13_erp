@@ -99,9 +99,9 @@
 | Module HR | Module slug `rrhh` | — | Optional; ruta `/rrhh` |
 | Tarifa | `Rate` | Rate | 5 tarifas venta + tipológicas A/B/C |
 | Precio (histórico) | `ProductPrice` | ProductPrices | Singular en v2 |
-| Familia | `Family` | Family | Dominio Catalog; tabla `families`; Functionality `families` (menú Familias bajo Catálogo); sin vínculo Product en esta oleada |
-| Categoría (producto) | `Category` | Category | Dominio Catalog; tabla `categories`; árbol N (`parent_id`); Functionality `categories` (menú Categorías); ≠ Family; sin vínculo Product/Family↔Category aún |
-| Etiqueta (catálogo) | `Tag` | Tag | Dominio Catalog; tabla `tags`; Functionality `tags` (menú Etiquetas); plano; ≠ CSV v1; sin pivote Product↔Tag aún |
+| Familia | `Family` | Family | Dominio Catalog; tabla `families`; Functionality `families`; vínculo Product 0..1 vía `products.family_id` |
+| Categoría (producto) | `Category` | Category | Dominio Catalog; tabla `categories`; árbol N (`parent_id`); Functionality `categories`; pivote `category_product` (Product 0..N); Family↔Category pendiente |
+| Etiqueta (catálogo) | `Tag` | Tag | Dominio Catalog; tabla `tags`; Functionality `tags`; plano; ≠ CSV v1; pivote `product_tag` (Product 0..N); quick-create Active desde ficha Product |
 | Almacén | `Store` | Store | Continuidad v1 (no `Warehouse`) |
 | Kardex / movimiento stock | `Stock` (movimiento) | Stock | Histórico inmutable, sin soft delete |
 | Stock consolidado | `StockTotal` | StockTotal | |

@@ -10,10 +10,11 @@ use Database\Factories\TagFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Etiqueta de catálogo de la company (maestro plano; sin pivote Product aún).
+ * Etiqueta de catálogo de la company (maestro plano; pivote Product↔Tag).
  *
  * @property int $id
  * @property int $company_id
@@ -43,6 +44,12 @@ class Tag extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /** @return BelongsToMany<Product, $this> */
+    public function products(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class)->withTimestamps();
     }
 
     protected static function newFactory(): TagFactory

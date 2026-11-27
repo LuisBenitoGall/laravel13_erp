@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Domains\Catalog\Http\Requests;
+
+use App\Domains\Catalog\Models\Tag;
+use Illuminate\Foundation\Http\FormRequest;
+
+class QuickCreateTagRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return $this->user()->can('create', Tag::class);
+    }
+
+    /** @return array<string, mixed> */
+    public function rules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:255'],
+        ];
+    }
+}

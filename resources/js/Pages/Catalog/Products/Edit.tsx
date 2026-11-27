@@ -6,7 +6,12 @@ import RecordSummary from '@/Components/Records/RecordSummary';
 import AppLayout from '@/Layouts/AppLayout';
 import { formatDate } from '@/lib/format';
 import { auditRecordSummaryFields } from '@/lib/recordSummary';
-import type { ProductDocItem, ProductImageItem, ProductRow } from '@/types/catalog';
+import type {
+    ClassificationOption,
+    ProductDocItem,
+    ProductImageItem,
+    ProductRow,
+} from '@/types/catalog';
 
 import ProductDocsPanel from './components/ProductDocsPanel';
 import ProductForm from './components/ProductForm';
@@ -16,9 +21,13 @@ type Props = {
     product: ProductRow;
     images: ProductImageItem[];
     docs: ProductDocItem[];
+    family_options: ClassificationOption[];
+    category_options: ClassificationOption[];
+    tag_options: ClassificationOption[];
     can: {
         manage_images: boolean;
         manage_docs: boolean;
+        create_tags: boolean;
     };
     image_limits: {
         max_files: number;
@@ -30,7 +39,17 @@ type Props = {
     };
 };
 
-export default function Edit({ product, images, docs, can, image_limits, doc_limits }: Props) {
+export default function Edit({
+    product,
+    images,
+    docs,
+    family_options,
+    category_options,
+    tag_options,
+    can,
+    image_limits,
+    doc_limits,
+}: Props) {
     const { t, i18n } = useTranslation();
 
     const typeLabel = product.type === 'service' ? t('servicio') : t('producto_fisico');
@@ -74,6 +93,10 @@ export default function Edit({ product, images, docs, can, image_limits, doc_lim
                                 method="put"
                                 submitUrl={`/products/${product.id}`}
                                 initial={product}
+                                familyOptions={family_options}
+                                categoryOptions={category_options}
+                                tagOptions={tag_options}
+                                canCreateTags={can.create_tags}
                             />
                         ),
                     },
