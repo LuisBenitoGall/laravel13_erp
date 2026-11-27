@@ -59,6 +59,67 @@ if (! function_exists('cataloguePermissions')) {
     }
 }
 
+if (! function_exists('ensureFamiliesCatalog')) {
+    /** Module `products` + Functionality `families` (+ permisos Spatie). */
+    function ensureFamiliesCatalog(): Module
+    {
+        $module = ensureCatalogueCatalog();
+
+        if (! Functionality::withTrashed()->where('slug', 'families')->exists()) {
+            app(CreateFunctionality::class)->handle([
+                'module_id' => $module->id,
+                'name' => 'Families',
+                'slug' => 'families',
+                'label' => ['es' => 'Familias', 'en' => 'Families', 'ca' => 'Famílies'],
+                'status' => FunctionalityStatus::Active->value,
+            ]);
+        }
+
+        return $module;
+    }
+}
+
+if (! function_exists('familiesPermissions')) {
+    /** @return list<string> */
+    function familiesPermissions(): array
+    {
+        $names = ['products.access'];
+
+        foreach (['view', 'viewAny', 'create', 'update', 'delete'] as $ability) {
+            $names[] = "families.{$ability}";
+        }
+
+        return $names;
+    }
+}
+
+if (! function_exists('actingFamiliesUser')) {
+    /**
+     * Usuario miembro de $company con `products` autorizado/encendido y permisos families.
+     *
+     * @param  list<string>|null  $permissions
+     */
+    function actingFamiliesUser(Company $company, ?array $permissions = null): User
+    {
+        ensureFamiliesCatalog();
+        enableModuleForCompany($company, 'products');
+
+        $user = User::factory()->create(['status' => true]);
+        actingWithCompany($user, $company);
+
+        setPermissionsTeamId($company->id);
+        $user->givePermissionTo(
+            collect($permissions ?? familiesPermissions())
+                ->map(fn (string $name) => Permission::findOrCreate($name))
+                ->all(),
+        );
+        $user->unsetRelation('roles');
+        $user->unsetRelation('permissions');
+
+        return $user;
+    }
+}
+
 if (! function_exists('actingCatalogueUser')) {
     /**
      * Usuario miembro de $company con `products` autorizado/encendido y permisos dados.
@@ -76,6 +137,67 @@ if (! function_exists('actingCatalogueUser')) {
         setPermissionsTeamId($company->id);
         $user->givePermissionTo(
             collect($permissions ?? cataloguePermissions())
+                ->map(fn (string $name) => Permission::findOrCreate($name))
+                ->all(),
+        );
+        $user->unsetRelation('roles');
+        $user->unsetRelation('permissions');
+
+        return $user;
+    }
+}
+
+if (! function_exists('ensureCategoriesCatalog')) {
+    /** Module `products` + Functionality `categories` (+ permisos Spatie). */
+    function ensureCategoriesCatalog(): Module
+    {
+        $module = ensureCatalogueCatalog();
+
+        if (! Functionality::withTrashed()->where('slug', 'categories')->exists()) {
+            app(CreateFunctionality::class)->handle([
+                'module_id' => $module->id,
+                'name' => 'Categories',
+                'slug' => 'categories',
+                'label' => ['es' => 'Categorías', 'en' => 'Categories', 'ca' => 'Categories'],
+                'status' => FunctionalityStatus::Active->value,
+            ]);
+        }
+
+        return $module;
+    }
+}
+
+if (! function_exists('categoriesPermissions')) {
+    /** @return list<string> */
+    function categoriesPermissions(): array
+    {
+        $names = ['products.access'];
+
+        foreach (['view', 'viewAny', 'create', 'update', 'delete'] as $ability) {
+            $names[] = "categories.{$ability}";
+        }
+
+        return $names;
+    }
+}
+
+if (! function_exists('actingCategoriesUser')) {
+    /**
+     * Usuario miembro de $company con `products` autorizado/encendido y permisos categories.
+     *
+     * @param  list<string>|null  $permissions
+     */
+    function actingCategoriesUser(Company $company, ?array $permissions = null): User
+    {
+        ensureCategoriesCatalog();
+        enableModuleForCompany($company, 'products');
+
+        $user = User::factory()->create(['status' => true]);
+        actingWithCompany($user, $company);
+
+        setPermissionsTeamId($company->id);
+        $user->givePermissionTo(
+            collect($permissions ?? categoriesPermissions())
                 ->map(fn (string $name) => Permission::findOrCreate($name))
                 ->all(),
         );

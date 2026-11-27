@@ -85,13 +85,13 @@
 | Apellidos | `surname` | surname | Campo de `User`; UI «Apellidos»; obligatorio en registro (columna nullable en BD) |
 | Perfil público | `is_public` | — | Flag de `User`; visible en directorio «Todos los usuarios» solo si true; default true en Create company-users |
 | NIF (histórico) | `CompanyIdentifier` + `NifResolver` | ídem | Se porta tal cual |
-| Producto / Artículo | `Product` | Product | UI: "artículo"; dominio Catalog; Module SaaS `products`; Functionality `catalogue` |
+| Producto / Artículo | `Product` | Product | UI: "artículo"; dominio Catalog; Module SaaS `products`; Functionality `catalogue` (menú Artículos) |
 | Imagen de producto | `ProductImage` | — | `product_images`; disco privado; `featured` = portada; `public` + Product Active = elegible fuera de Edit; ≠ `UserImage` / `MediaAsset` |
 | Documento de producto | `ProductDoc` | — | `product_docs`; disco privado; sin featured; `public` + Product Active = elegible fuera de Edit; ≠ `UserDoc` / `MediaAsset` |
 | Producto físico | `ProductType::Physical` | — | Valor `physical`; inmutable tras alta |
 | Servicio (producto) | `ProductType::Service` | — | Valor `service`; inmutable tras alta; ≠ Service de dominio |
 | Module (SaaS) | `Module` slug inglés | — | `name`+`slug` EN; ruta `/{slug}/…`; `{slug}.access` |
-| Module Products | Module slug `products` | — | Basic; menú → `/products` (Catálogo UI) |
+| Module Products | Module slug `products` | — | Optional; menú grupo **Catálogo** → Artículos `/products` + Familias `/products/families` + Categorías `/products/categories` |
 | Module Companies | Module slug `companies` | — | Basic; antes `empresas` |
 | Module Users | Module slug `users` | — | Basic; antes `usuarios` |
 | Module Account | Module slug `account` | — | Basic; antes `cuenta` |
@@ -99,7 +99,8 @@
 | Module HR | Module slug `rrhh` | — | Optional; ruta `/rrhh` |
 | Tarifa | `Rate` | Rate | 5 tarifas venta + tipológicas A/B/C |
 | Precio (histórico) | `ProductPrice` | ProductPrices | Singular en v2 |
-| Familia / Categoría | `Family` / `Category` | ídem | |
+| Familia | `Family` | Family | Dominio Catalog; tabla `families`; Functionality `families` (menú Familias bajo Catálogo); sin vínculo Product en esta oleada |
+| Categoría (producto) | `Category` | Category | Dominio Catalog; tabla `categories`; árbol N (`parent_id`); Functionality `categories` (menú Categorías); ≠ Family; sin vínculo Product/Family↔Category aún |
 | Almacén | `Store` | Store | Continuidad v1 (no `Warehouse`) |
 | Kardex / movimiento stock | `Stock` (movimiento) | Stock | Histórico inmutable, sin soft delete |
 | Stock consolidado | `StockTotal` | StockTotal | |

@@ -35,6 +35,7 @@ it('el seeder registra Module products Optional Active con catalogue y permisos'
         ->and($module->status)->toBe(ModuleStatus::Active)
         ->and(Functionality::query()->where('module_id', $module->id)->pluck('slug')->all())
         ->toContain('catalogue')
+        ->toContain('families')
         ->and(Functionality::query()->where('slug', 'catalogue')->where('status', '!=', FunctionalityStatus::Active)->exists())->toBeFalse();
 
     $names = Permission::query()->pluck('name');
@@ -44,7 +45,7 @@ it('el seeder registra Module products Optional Active con catalogue y permisos'
     }
 });
 
-it('menú Productos → Catálogo: capas Optional + comodín + catalogue.view; href /products', function () {
+it('menú Catálogo → Artículos: capas Optional + comodín + catalogue.view; href /products', function () {
     $this->seed(AdminCatalogSeeder::class);
 
     $company = Company::query()->where('slug', 'acme')->firstOrFail();
@@ -65,17 +66,22 @@ it('menú Productos → Catálogo: capas Optional + comodín + catalogue.view; h
     $items = collect($entry['functionalities'] ?? [])->keyBy('slug');
 
     $locale = app()->getLocale();
-    $moduleLabel = $module->getTranslation('label', $locale)
+    $moduleLabel = $module->fresh()->getTranslation('label', $locale)
         ?: $module->getTranslation('label', 'es')
-        ?: 'Productos';
+        ?: 'Catálogo';
     $catalogue = Functionality::query()->where('slug', 'catalogue')->firstOrFail();
     $catalogueLabel = $catalogue->getTranslation('label', $locale)
         ?: $catalogue->getTranslation('label', 'es')
-        ?: 'Catálogo';
+        ?: 'Artículos';
+
+    $expectedModuleLabel = ['es' => 'Catálogo', 'en' => 'Catalogue', 'ca' => 'Catàleg'][$locale] ?? 'Catálogo';
+    $expectedCatalogueLabel = ['es' => 'Artículos', 'en' => 'Articles', 'ca' => 'Articles'][$locale] ?? 'Artículos';
 
     expect($entry['label'])->toBe($moduleLabel)
+        ->and($moduleLabel)->toBe($expectedModuleLabel)
         ->and($items->has('catalogue'))->toBeTrue()
         ->and($items['catalogue']['label'])->toBe($catalogueLabel)
+        ->and($catalogueLabel)->toBe($expectedCatalogueLabel)
         ->and($items['catalogue']['href'])->toBe(route('products.index', absolute: false));
 
     $user = User::factory()->create(['status' => true]);

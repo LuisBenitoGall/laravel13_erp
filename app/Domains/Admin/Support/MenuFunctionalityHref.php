@@ -43,6 +43,8 @@ final class MenuFunctionalityHref
             'day-types' => route('rrhh.day-types.index', absolute: false),
             'catalogue' => route('products.index', absolute: false),
             'products' => route('products.index', absolute: false),
+            'families' => route('products.families.index', absolute: false),
+            'categories' => route('products.categories.index', absolute: false),
             default => '#',
         };
     }

@@ -60,7 +60,7 @@ class RealignMenuCatalog
         'users' => ['company-users', 'all-users', 'company-roles'],
         'account' => ['company-modules', 'profile'],
         'rrhh' => ['contract-types', 'employees', 'calendars', 'day-types'],
-        'products' => ['catalogue'],
+        'products' => ['catalogue', 'families', 'categories'],
     ];
 
     public function __construct(
@@ -169,14 +169,14 @@ class RealignMenuCatalog
             ],
             'products' => [
                 'name' => 'Products',
-                'label' => ['es' => 'Productos', 'en' => 'Products', 'ca' => 'Productes'],
+                'label' => ['es' => 'Catálogo', 'en' => 'Catalogue', 'ca' => 'Catàleg'],
                 'color' => '#c2410c',
                 'icon' => 'package',
                 'level' => ModuleLevel::Optional,
                 'explanation' => [
-                    'es' => 'Productos y servicios de la empresa',
-                    'en' => 'Company products and services',
-                    'ca' => 'Productes i serveis de l\'empresa',
+                    'es' => 'Artículos, familias y taxonomía del catálogo',
+                    'en' => 'Articles, families and catalogue taxonomy',
+                    'ca' => 'Articles, famílies i taxonomia del catàleg',
                 ],
             ],
             'settings' => [
@@ -275,7 +275,6 @@ class RealignMenuCatalog
                     'settings' => 'Settings',
                     'products' => 'Products',
                     'deliveries' => 'Deliveries',
-                    default => $legacy->name,
                 },
             ])->save();
 
@@ -731,7 +730,10 @@ class RealignMenuCatalog
         }
     }
 
-    /** Functionality `catalogue` bajo Module Optional `products` (UI: Productos → Catálogo). */
+    /**
+     * Functionalities bajo Module Optional `products`:
+     * `catalogue` (Artículos) + `families` (Familias).
+     */
     private function ensureProductsFunctionalities(Module $products): void
     {
         foreach (['productos', 'products'] as $legacySlug) {
@@ -752,7 +754,7 @@ class RealignMenuCatalog
                     'slug' => 'catalogue',
                     'name' => 'Catalogue',
                     'module_id' => $products->id,
-                    'label' => ['es' => 'Catálogo', 'en' => 'Catalogue', 'ca' => 'Catàleg'],
+                    'label' => ['es' => 'Artículos', 'en' => 'Articles', 'ca' => 'Articles'],
                     'status' => FunctionalityStatus::Active,
                 ])->save();
             }
@@ -767,17 +769,63 @@ class RealignMenuCatalog
             $calendarios->delete();
         }
 
-        $existing = Functionality::withTrashed()->where('slug', 'catalogue')->first();
+        $catalogue = Functionality::withTrashed()->where('slug', 'catalogue')->first();
 
-        if ($existing !== null) {
-            if ($existing->trashed()) {
-                $existing->restore();
+        if ($catalogue !== null) {
+            if ($catalogue->trashed()) {
+                $catalogue->restore();
             }
 
-            $existing->forceFill([
+            $catalogue->forceFill([
                 'module_id' => $products->id,
                 'name' => 'Catalogue',
-                'label' => ['es' => 'Catálogo', 'en' => 'Catalogue', 'ca' => 'Catàleg'],
+                'label' => ['es' => 'Artículos', 'en' => 'Articles', 'ca' => 'Articles'],
+                'status' => FunctionalityStatus::Active,
+            ])->save();
+        } else {
+            $this->createFunctionality->handle([
+                'module_id' => $products->id,
+                'name' => 'Catalogue',
+                'slug' => 'catalogue',
+                'label' => ['es' => 'Artículos', 'en' => 'Articles', 'ca' => 'Articles'],
+                'status' => FunctionalityStatus::Active->value,
+            ]);
+        }
+
+        $families = Functionality::withTrashed()->where('slug', 'families')->first();
+
+        if ($families !== null) {
+            if ($families->trashed()) {
+                $families->restore();
+            }
+
+            $families->forceFill([
+                'module_id' => $products->id,
+                'name' => 'Families',
+                'label' => ['es' => 'Familias', 'en' => 'Families', 'ca' => 'Famílies'],
+                'status' => FunctionalityStatus::Active,
+            ])->save();
+        } else {
+            $this->createFunctionality->handle([
+                'module_id' => $products->id,
+                'name' => 'Families',
+                'slug' => 'families',
+                'label' => ['es' => 'Familias', 'en' => 'Families', 'ca' => 'Famílies'],
+                'status' => FunctionalityStatus::Active->value,
+            ]);
+        }
+
+        $categories = Functionality::withTrashed()->where('slug', 'categories')->first();
+
+        if ($categories !== null) {
+            if ($categories->trashed()) {
+                $categories->restore();
+            }
+
+            $categories->forceFill([
+                'module_id' => $products->id,
+                'name' => 'Categories',
+                'label' => ['es' => 'Categorías', 'en' => 'Categories', 'ca' => 'Categories'],
                 'status' => FunctionalityStatus::Active,
             ])->save();
 
@@ -786,9 +834,9 @@ class RealignMenuCatalog
 
         $this->createFunctionality->handle([
             'module_id' => $products->id,
-            'name' => 'Catalogue',
-            'slug' => 'catalogue',
-            'label' => ['es' => 'Catálogo', 'en' => 'Catalogue', 'ca' => 'Catàleg'],
+            'name' => 'Categories',
+            'slug' => 'categories',
+            'label' => ['es' => 'Categorías', 'en' => 'Categories', 'ca' => 'Categories'],
             'status' => FunctionalityStatus::Active->value,
         ]);
     }

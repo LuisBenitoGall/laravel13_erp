@@ -1,5 +1,7 @@
 <?php
 
+use App\Domains\Catalog\Http\Controllers\CategoryController;
+use App\Domains\Catalog\Http\Controllers\FamilyController;
 use App\Domains\Catalog\Http\Controllers\ProductController;
 use App\Domains\Catalog\Http\Controllers\ProductDocController;
 use App\Domains\Catalog\Http\Controllers\ProductImageController;
@@ -10,6 +12,23 @@ Route::middleware(['auth', 'company', 'module:products'])
     ->prefix('products')
     ->name('products.')
     ->group(function () {
+        // Static segments BEFORE {product}.
+        Route::get('families/table', [FamilyController::class, 'table'])->name('families.table');
+        Route::get('families', [FamilyController::class, 'index'])->name('families.index');
+        Route::get('families/create', [FamilyController::class, 'create'])->name('families.create');
+        Route::post('families', [FamilyController::class, 'store'])->name('families.store');
+        Route::get('families/{family}/edit', [FamilyController::class, 'edit'])->name('families.edit');
+        Route::put('families/{family}', [FamilyController::class, 'update'])->name('families.update');
+        Route::delete('families/{family}', [FamilyController::class, 'destroy'])->name('families.destroy');
+
+        Route::get('categories/table', [CategoryController::class, 'table'])->name('categories.table');
+        Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
+        Route::get('categories/create', [CategoryController::class, 'create'])->name('categories.create');
+        Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
+        Route::get('categories/{category}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
+        Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+        Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
         Route::get('table', [ProductController::class, 'table'])->name('table');
         Route::get('/', [ProductController::class, 'index'])->name('index');
         Route::get('create', [ProductController::class, 'create'])->name('create');

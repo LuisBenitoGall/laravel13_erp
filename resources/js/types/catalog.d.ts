@@ -1,5 +1,6 @@
 export type ProductType = 'physical' | 'service';
 export type ProductStatus = 'active' | 'inactive';
+export type FamilyStatus = 'active' | 'inactive';
 
 export interface ProductRow {
     id: number;
@@ -8,6 +9,33 @@ export interface ProductRow {
     status: ProductStatus;
     created_at?: string | null;
     updated_at?: string | null;
+}
+
+export interface FamilyRow {
+    id: number;
+    name: string;
+    slug: string;
+    status: FamilyStatus;
+    created_at?: string | null;
+    updated_at?: string | null;
+}
+
+export type CategoryStatus = 'active' | 'inactive';
+
+export interface CategoryRow {
+    id: number;
+    name: string;
+    slug: string;
+    status: CategoryStatus;
+    parent_id: number | null;
+    parent_name?: string | null;
+    created_at?: string | null;
+    updated_at?: string | null;
+}
+
+export interface CategoryParentOption {
+    value: string;
+    label: string;
 }
 
 export interface ProductImageItem {
