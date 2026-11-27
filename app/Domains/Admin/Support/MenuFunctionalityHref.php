@@ -45,6 +45,7 @@ final class MenuFunctionalityHref
             'products' => route('products.index', absolute: false),
             'families' => route('products.families.index', absolute: false),
             'categories' => route('products.categories.index', absolute: false),
+            'tags' => route('products.tags.index', absolute: false),
             default => '#',
         };
     }

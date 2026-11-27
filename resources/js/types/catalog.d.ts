@@ -38,6 +38,17 @@ export interface CategoryParentOption {
     label: string;
 }
 
+export type TagStatus = 'active' | 'inactive';
+
+export interface TagRow {
+    id: number;
+    name: string;
+    slug: string;
+    status: TagStatus;
+    created_at?: string | null;
+    updated_at?: string | null;
+}
+
 export interface ProductImageItem {
     id: number;
     url: string;

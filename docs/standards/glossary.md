@@ -91,7 +91,7 @@
 | Producto físico | `ProductType::Physical` | — | Valor `physical`; inmutable tras alta |
 | Servicio (producto) | `ProductType::Service` | — | Valor `service`; inmutable tras alta; ≠ Service de dominio |
 | Module (SaaS) | `Module` slug inglés | — | `name`+`slug` EN; ruta `/{slug}/…`; `{slug}.access` |
-| Module Products | Module slug `products` | — | Optional; menú grupo **Catálogo** → Artículos `/products` + Familias `/products/families` + Categorías `/products/categories` |
+| Module Products | Module slug `products` | — | Optional; menú grupo **Catálogo** → Artículos `/products` + Familias `/products/families` + Categorías `/products/categories` + Etiquetas `/products/tags` |
 | Module Companies | Module slug `companies` | — | Basic; antes `empresas` |
 | Module Users | Module slug `users` | — | Basic; antes `usuarios` |
 | Module Account | Module slug `account` | — | Basic; antes `cuenta` |
@@ -101,6 +101,7 @@
 | Precio (histórico) | `ProductPrice` | ProductPrices | Singular en v2 |
 | Familia | `Family` | Family | Dominio Catalog; tabla `families`; Functionality `families` (menú Familias bajo Catálogo); sin vínculo Product en esta oleada |
 | Categoría (producto) | `Category` | Category | Dominio Catalog; tabla `categories`; árbol N (`parent_id`); Functionality `categories` (menú Categorías); ≠ Family; sin vínculo Product/Family↔Category aún |
+| Etiqueta (catálogo) | `Tag` | Tag | Dominio Catalog; tabla `tags`; Functionality `tags` (menú Etiquetas); plano; ≠ CSV v1; sin pivote Product↔Tag aún |
 | Almacén | `Store` | Store | Continuidad v1 (no `Warehouse`) |
 | Kardex / movimiento stock | `Stock` (movimiento) | Stock | Histórico inmutable, sin soft delete |
 | Stock consolidado | `StockTotal` | StockTotal | |

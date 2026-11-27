@@ -60,7 +60,7 @@ class RealignMenuCatalog
         'users' => ['company-users', 'all-users', 'company-roles'],
         'account' => ['company-modules', 'profile'],
         'rrhh' => ['contract-types', 'employees', 'calendars', 'day-types'],
-        'products' => ['catalogue', 'families', 'categories'],
+        'products' => ['catalogue', 'families', 'categories', 'tags'],
     ];
 
     public function __construct(
@@ -828,15 +828,38 @@ class RealignMenuCatalog
                 'label' => ['es' => 'Categorías', 'en' => 'Categories', 'ca' => 'Categories'],
                 'status' => FunctionalityStatus::Active,
             ])->save();
+        } else {
+            $this->createFunctionality->handle([
+                'module_id' => $products->id,
+                'name' => 'Categories',
+                'slug' => 'categories',
+                'label' => ['es' => 'Categorías', 'en' => 'Categories', 'ca' => 'Categories'],
+                'status' => FunctionalityStatus::Active->value,
+            ]);
+        }
+
+        $tags = Functionality::withTrashed()->where('slug', 'tags')->first();
+
+        if ($tags !== null) {
+            if ($tags->trashed()) {
+                $tags->restore();
+            }
+
+            $tags->forceFill([
+                'module_id' => $products->id,
+                'name' => 'Tags',
+                'label' => ['es' => 'Etiquetas', 'en' => 'Tags', 'ca' => 'Etiquetes'],
+                'status' => FunctionalityStatus::Active,
+            ])->save();
 
             return;
         }
 
         $this->createFunctionality->handle([
             'module_id' => $products->id,
-            'name' => 'Categories',
-            'slug' => 'categories',
-            'label' => ['es' => 'Categorías', 'en' => 'Categories', 'ca' => 'Categories'],
+            'name' => 'Tags',
+            'slug' => 'tags',
+            'label' => ['es' => 'Etiquetas', 'en' => 'Tags', 'ca' => 'Etiquetes'],
             'status' => FunctionalityStatus::Active->value,
         ]);
     }

@@ -3,11 +3,13 @@
 > Ficha playbook §1. Changes: `c2026-11-26-catalogue-product-crud`,
 > `c2026-11-27-catalogue-product-images`, `c2026-11-27-catalogue-product-docs`,
 > `c2026-11-27-catalogue-product-families`,
-> `c2026-11-27-catalogue-product-categories`.
+> `c2026-11-27-catalogue-product-categories`,
+> `c2026-11-27-catalogue-product-tags`.
 > Dominio PHP: `App\Domains\Catalog`. Module SaaS **`products`** (Optional).
 > Functionalities: **`catalogue`** (Artículos → `/products`), **`families`**
 > (Familias → `/products/families`), **`categories`** (Categorías →
-> `/products/categories`). Menú grupo **Catálogo**.
+> `/products/categories`), **`tags`** (Etiquetas → `/products/tags`).
+> Menú grupo **Catálogo**.
 
 ## Propósito y alcance
 
@@ -19,25 +21,25 @@
   listado `/products`.
 - **ProductImage** / **ProductDoc**: tabs en Edit; disco `local` privado;
   elegibilidad fuera de Edit = Active ∧ public.
-- **Family** (`families`): maestro por Company; slug auto; status;
-  Auditable; CRUD en `/products/families`. **Sin** vínculo a Product.
-- **Category** (`categories`): maestro por Company; árbol N niveles
-  (`parent_id`); slug auto; status; Auditable; CRUD en
-  `/products/categories`; anti-ciclo; delete bloqueado si hay hijos.
-  **Sin** vínculo a Product ni Family↔Category.
+- **Family** (`families`): maestro plano; slug auto; CRUD
+  `/products/families`. **Sin** vínculo a Product.
+- **Category** (`categories`): árbol N (`parent_id`); anti-ciclo; delete
+  bloqueado con hijos; CRUD `/products/categories`.
+- **Tag** (`tags`): maestro plano (≠ CSV v1); slug auto; status;
+  Auditable; CRUD `/products/tags`. **Sin** pivote Product↔Tag.
 - Module `products` + Functionalities `catalogue` + `families` +
-  `categories` + menú.
+  `categories` + `tags` + menú.
 
 **No entra:**
 
 - Traducciones del nombre; SKU/código; unidades; IVA; cuentas.
-- Vínculo Product↔Family/Category; Tag; Family↔Category N:N;
+- Vínculo Product↔Family/Category/Tag; Family↔Category N:N;
   clasificación en ficha Product.
 - Precios versionados, tarifas A/B/C, catálogo proveedor.
 - Thumbs en Index; MediaPicker/Galería; OCR/preview/versionado docs.
 - Consumo Sales/Inventory/Purchasing; entrega cross-company (R-TEN-10).
 
-**Backlog clasificación:** Tag → clasificación ficha → Family↔Category N:N.
+**Backlog clasificación:** clasificación ficha Product → Family↔Category N:N.
 
 ## Entidades
 
@@ -47,12 +49,13 @@
 | `ProductImage` | `product_images` | Catalog | path disco `local`; featured ≤1; public |
 | `ProductDoc` | `product_docs` | Catalog | path disco `local`; sin featured; public |
 | `Family` | `families` | Catalog | `BelongsToCompany`; `name`, `slug`, `status`; Auditable |
-| `Category` | `categories` | Catalog | `BelongsToCompany`; `parent_id` árbol N; `name`, `slug`, `status`; Auditable |
+| `Category` | `categories` | Catalog | `parent_id` árbol N; Auditable |
+| `Tag` | `tags` | Catalog | `BelongsToCompany`; `name`, `slug`, `status`; Auditable; plano |
 
 ## Dependencias
 
 - **Admin** (Catalog → Admin = D): Company de sesión (`CurrentCompany`).
-- Sin dependencia de dominio nueva (Family/Category maestros en Catalog).
+- Sin dependencia de dominio nueva.
 
 ## Librerías
 
@@ -65,11 +68,12 @@ Ninguna fuera del canon (`docs/standards/libraries.md`).
 | `catalogue` | `catalogue.{view,viewAny,create,update,delete}` + `products.access` | manager: CRUD; guest: view |
 | `families` | `families.{view,viewAny,create,update,delete}` + `products.access` | manager: CRUD; guest: view |
 | `categories` | `categories.{view,viewAny,create,update,delete}` + `products.access` | manager: CRUD; guest: view |
+| `tags` | `tags.{view,viewAny,create,update,delete}` + `products.access` | manager: CRUD; guest: view |
 
 Imágenes y documentos: sin Spatie nuevo; mutaciones vía `ProductPolicy::update`.
 
 Module level: **Optional** (`products`). Rutas: `/products`, `/products/families`,
-`/products/categories`.
+`/products/categories`, `/products/tags`.
 
 ## Referencia v1
 
@@ -77,8 +81,9 @@ Module level: **Optional** (`products`). Rutas: `/products`, `/products/families
 |---|---|
 | `Product` / Livewire CRUD | `Product` Inertia + ServerTable (MVP campos) |
 | Category 2 niveles | `Category` árbol N (`parent_id`) |
-| Menú Catálogo → Artículos / Familias / Categorías | Module `products` + functionalities |
-| Precios / Tag / … | Changes posteriores |
+| Tags CSV multilocal | `Tag` entidad por company |
+| Menú Catálogo | Module `products` + functionalities |
+| Precios / clasificación ficha / … | Changes posteriores |
 
 ## Migración de datos v1→v2
 
@@ -89,11 +94,11 @@ Module level: **Optional** (`products`). Rutas: `/products`, `/products/families
 | Id | ¿Aplica? | Nota |
 |---|---|---|
 | V-01..V-06 | No | |
-| V-07 | Sí | `catalogue.*` + `families.*` + `categories.*` + `products.access` |
-| V-08 | Sí | Menú Catálogo → Artículos / Familias / Categorías |
+| V-07 | Sí | `catalogue.*` + `families.*` + `categories.*` + `tags.*` + `products.access` |
+| V-08 | Sí | Menú Catálogo → Artículos / Familias / Categorías / Etiquetas |
 | V-09 | Sí | Module `products` Optional (ya existía) |
 | V-10..V-19 | No | |
-| V-20 | Sí (Product, Family, Category) / No (adjuntos) | Auditable |
+| V-20 | Sí (Product, Family, Category, Tag) / No (adjuntos) | Auditable |
 | V-21 | Sí | Rutas `/products*` bajo `module:products` |
-| R-TEN-05 | Sí | Product + adjuntos + Family + Category con `company_id` |
+| R-TEN-05 | Sí | Product + adjuntos + Family + Category + Tag con `company_id` |
 | E2E | N/A | Feature HTTP basta |

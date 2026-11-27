@@ -207,3 +207,64 @@ if (! function_exists('actingCategoriesUser')) {
         return $user;
     }
 }
+
+if (! function_exists('ensureTagsCatalog')) {
+    /** Module `products` + Functionality `tags` (+ permisos Spatie). */
+    function ensureTagsCatalog(): Module
+    {
+        $module = ensureCatalogueCatalog();
+
+        if (! Functionality::withTrashed()->where('slug', 'tags')->exists()) {
+            app(CreateFunctionality::class)->handle([
+                'module_id' => $module->id,
+                'name' => 'Tags',
+                'slug' => 'tags',
+                'label' => ['es' => 'Etiquetas', 'en' => 'Tags', 'ca' => 'Etiquetes'],
+                'status' => FunctionalityStatus::Active->value,
+            ]);
+        }
+
+        return $module;
+    }
+}
+
+if (! function_exists('tagsPermissions')) {
+    /** @return list<string> */
+    function tagsPermissions(): array
+    {
+        $names = ['products.access'];
+
+        foreach (['view', 'viewAny', 'create', 'update', 'delete'] as $ability) {
+            $names[] = "tags.{$ability}";
+        }
+
+        return $names;
+    }
+}
+
+if (! function_exists('actingTagsUser')) {
+    /**
+     * Usuario miembro de $company con `products` autorizado/encendido y permisos tags.
+     *
+     * @param  list<string>|null  $permissions
+     */
+    function actingTagsUser(Company $company, ?array $permissions = null): User
+    {
+        ensureTagsCatalog();
+        enableModuleForCompany($company, 'products');
+
+        $user = User::factory()->create(['status' => true]);
+        actingWithCompany($user, $company);
+
+        setPermissionsTeamId($company->id);
+        $user->givePermissionTo(
+            collect($permissions ?? tagsPermissions())
+                ->map(fn (string $name) => Permission::findOrCreate($name))
+                ->all(),
+        );
+        $user->unsetRelation('roles');
+        $user->unsetRelation('permissions');
+
+        return $user;
+    }
+}
