@@ -60,7 +60,21 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Inertia (X-Inertia) sigue en redirect+session. JSON solo para api/*
+        // o fetch con Accept application/json (p. ej. presets ServerTable).
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*'),
+            function (Request $request): bool {
+                if ($request->is('api/*')) {
+                    return true;
+                }
+
+                if ($request->headers->has('X-Inertia')) {
+                    return false;
+                }
+
+                $accept = (string) $request->header('Accept', '');
+
+                return str_contains($accept, 'application/json');
+            },
         );
     })->create();

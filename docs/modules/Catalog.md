@@ -39,12 +39,16 @@
 **No entra:**
 
 - Traducciones del nombre; SKU/código; unidades; IVA; cuentas.
-- Family↔Category N:N; tab Clasificación; filtros Index por taxonomía.
+- Tab Clasificación; Family↔Category N:N (**abandonado** — no pendiente).
 - Precios versionados, tarifas A/B/C, catálogo proveedor.
 - Thumbs en Index; MediaPicker/Galería; OCR/preview/versionado docs.
 - Consumo Sales/Inventory/Purchasing; entrega cross-company (R-TEN-10).
 
-**Backlog:** Family↔Category N:N; precios/tarifas.
+**Entra (Index):** filtros avanzados ServerTable en Artículos (`catalog.products`)
+con presets personales (máx. 5) + filterable name/type/status/familia/
+categoría/etiqueta.
+
+**Backlog:** precios/tarifas.
 
 ## Entidades
 
@@ -90,7 +94,8 @@ Module level: **Optional** (`products`). Rutas: `/products`, `/products/families
 | Tags CSV multilocal | `Tag` entidad por company |
 | Menú Catálogo | Module `products` + functionalities |
 | Clasificación ficha | Edit/General: Family / Categories / Tags |
-| Precios / Family↔Category / … | Changes posteriores |
+| Precios / tarifas / … | Changes posteriores |
+| Family↔Category N:N | **Abandonado** (no backlog) |
 
 ## Migración de datos v1→v2
 

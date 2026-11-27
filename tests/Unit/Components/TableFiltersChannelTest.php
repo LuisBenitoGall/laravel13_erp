@@ -121,5 +121,18 @@ it('ServerTable y el modal usan el canal filter del modal', function () {
         ->and($table)->toContain('buildTableEndpointUrl')
         ->and($table)->toContain('advancedFilterMode')
         ->and($table)->toContain('exportFormat: format')
-        ->and($modal)->toContain('onApply(current)');
+        ->and($modal)->toContain('useState<TableFilter[]>([])')
+        ->and($modal)->toContain('onApply(draft)')
+        ->and($modal)->not->toContain('onApply(current)');
+
+    // Seleccionar preset: rellena draft; no aplica a la tabla en ese handler.
+    expect($modal)->toContain('setDraft(')
+        ->and(preg_match(
+            '/onClick=\{\(\)\s*=>\s*setDraft\([\s\S]*?preset\.filters[\s\S]*?\)\s*\}/',
+            $modal,
+        ))->toBe(1)
+        ->and(preg_match(
+            '/onClick=\{\(\)\s*=>\s*\{[\s\S]*?setDraft\([\s\S]*?preset\.filters[\s\S]*?onApply/',
+            $modal,
+        ))->toBe(0);
 });

@@ -92,3 +92,34 @@ export async function putJson<TResponse = unknown>(
 ): Promise<TResponse> {
     return writeJson<TResponse>('PUT', url, body);
 }
+
+/** DELETE JSON same-origin (p. ej. presets; admite 204 sin body). */
+export async function deleteJson(url: string): Promise<void> {
+    const response = await fetch(url, {
+        method: 'DELETE',
+        credentials: 'same-origin',
+        headers: {
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-XSRF-TOKEN': xsrfToken(),
+        },
+    });
+
+    if (!response.ok) {
+        let message = `HTTP ${response.status}`;
+        try {
+            const payload = (await response.json()) as {
+                message?: string;
+                errors?: Record<string, string[]>;
+            };
+            const firstError = payload.errors
+                ? Object.values(payload.errors).flat()[0]
+                : undefined;
+            message = firstError ?? payload.message ?? message;
+        } catch {
+            // keep status message
+        }
+
+        throw new Error(message);
+    }
+}

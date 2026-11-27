@@ -27,6 +27,7 @@ use App\Domains\Admin\Http\Controllers\PlatformRoleController;
 use App\Domains\Admin\Http\Controllers\PreferenceController;
 use App\Domains\Admin\Http\Controllers\ProvinceController;
 use App\Domains\Admin\Http\Controllers\SectorController;
+use App\Domains\Admin\Http\Controllers\TableFilterPresetController;
 use App\Domains\Admin\Http\Controllers\TownController;
 use App\Domains\Admin\Http\Controllers\UnitController;
 use App\Domains\Admin\Http\Controllers\UserCompanyController;
@@ -68,6 +69,16 @@ Route::middleware(['auth', 'company'])->prefix('account')->name('admin.')->group
     Route::post('preferences', [PreferenceController::class, 'store'])->name('preferences.store');
     Route::delete('preferences/{preference}', [PreferenceController::class, 'destroy'])
         ->name('preferences.destroy');
+
+    // Presets de filtros avanzados ServerTable (personales; sin Functionality).
+    Route::get('table-filter-presets', [TableFilterPresetController::class, 'index'])
+        ->name('table-filter-presets.index');
+    Route::post('table-filter-presets', [TableFilterPresetController::class, 'store'])
+        ->name('table-filter-presets.store');
+    Route::patch('table-filter-presets/{table_filter_preset}', [TableFilterPresetController::class, 'update'])
+        ->name('table-filter-presets.update');
+    Route::delete('table-filter-presets/{table_filter_preset}', [TableFilterPresetController::class, 'destroy'])
+        ->name('table-filter-presets.destroy');
 
     // Notas internas personales (sin company_id; D2/D6).
     Route::post('notes', [NoteController::class, 'store'])->name('notes.store');

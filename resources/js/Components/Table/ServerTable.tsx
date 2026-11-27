@@ -236,6 +236,11 @@ type ServerTableProps<T extends object> = {
     pageSize?: number;
     className?: string;
     toolbarExtra?: ReactNode;
+    /**
+     * Opt-in: botón «Filtros avanzados» a la izquierda de columnas.
+     * Sin prop = sin botón (p. ej. Modules Index).
+     */
+    onOpenAdvancedSearch?: () => void;
 } & (
     | {
           advancedFilters?: undefined;
@@ -263,6 +268,7 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
     pageSize: initialPageSize = 25,
     className,
     toolbarExtra,
+    onOpenAdvancedSearch,
     advancedFilters,
     advancedFilterMode,
 }: ServerTableProps<T>) {
@@ -905,6 +911,21 @@ export default function ServerTable<T extends object = Record<string, unknown>>(
                             </div>
                         ) : null}
                     </div>
+                ) : null}
+
+                {onOpenAdvancedSearch ? (
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                            setMassOpen(false);
+                            setColumnsOpen(false);
+                            onOpenAdvancedSearch();
+                        }}
+                    >
+                        {t('filtros_avanzados')}
+                    </Button>
                 ) : null}
 
                 <div className="relative">

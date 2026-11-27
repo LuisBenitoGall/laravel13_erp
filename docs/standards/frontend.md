@@ -165,14 +165,19 @@ grid mediático 6 cols, sin ServerTable — `c2026-11-20-admin-gallery`):
    JSON remoto, respeta filtros); paginador a la derecha (misma franja). Sin opt-in.
 6. **i18n Tabulator** (paginador/textos) al locale de sesión; reactiva al cambio de idioma
    sin F5 (`ca` usa override de strings del proyecto).
-7. **AdvancedSearchModal** opt-in: primer CTA en `ViewActionBar` tras Volver cuando la
-   página lo active. Módulos: **sin** botón. Campos por `fields` o `children` (render
-   prop `{ filters, setFilters }`). `onApply(filters)` entrega `[{ field, type, value }]`.
+7. **AdvancedSearchModal** opt-in: disparador canónico = botón **Filtros avanzados**
+   en la toolbar de `ServerTable` (`onOpenAdvancedSearch`), a la **izquierda** de
+   «Mostrar/ocultar columnas». Sin prop = sin botón (p. ej. Módulos). ActionBar sigue
+   compatible si alguien lo usa; no es el canon. Campos por `fields` o `children`
+   (render prop `{ filters, setFilters }`). Footer: **Limpiar** (vacía draft +
+   `onClear` → `advancedFilters` `undefined`), Cancelar, **Aplicar**. Con `tableKey`
+   (misma clave que `persistKey`): presets personales (máx. 5) vía
+   `/account/table-filter-presets` — guardar / seleccionar (solo rellena form) /
+   renombrar / borrar. `onApply(filters)` entrega `[{ field, type, value }]`.
    La página guarda esa lista en `ServerTable` `advancedFilters` y declara
-   `advancedFilterMode`: `merge` (el query `filter` es la cabecera seguida del modal;
-   un mismo `field` se envía dos veces) o `replace` (el query `filter` es solo la lista
-   del modal). No hay otro modo. `advancedFilters` en `undefined` = el modal no ha
-   aplicado (solo cabecera). El mismo `filter` sale en el endpoint `table` y en Excel/PDF.
+   `advancedFilterMode`: `merge` (cabecera + modal) o `replace` (solo modal).
+   `advancedFilters` en `undefined` = solo cabecera. Primer consumidor: Products
+   Index (`catalog.products`, mode `merge`, taxonomía familia/categoría/etiqueta).
 
 - `ServerTable` es el único wrapper Tabulator (R-FE-07). Estilos: solo `tabulator-erp.css`.
 - Formatters tipados en `Components/Table/formatters.tsx` — no HTML strings ad-hoc.
@@ -185,8 +190,8 @@ módulo, comprobar aquí. Al añadir uno nuevo: fila en esta tabla + template si
 
 | Componente | Propósito / contrato resumido |
 |---|---|
-| `Table/ServerTable` | Listados server-side (§3): header filters, `rowActions`, `massActions` opt-in, toolbar, export, i18n Tabulator; referencia = Admin Modules |
-| `Table/AdvancedSearchModal` | Modal búsqueda avanzada opt-in (`fields` o `children` render prop + `onApply(filters)`). `ServerTable`: `advancedFilters` + `advancedFilterMode` `merge` o `replace`; mismo query `filter` (table y Excel/PDF) |
+| `Table/ServerTable` | Listados server-side (§3): header filters, `rowActions`, `massActions` opt-in, toolbar (`onOpenAdvancedSearch` opt-in), export, i18n Tabulator; referencia = Admin Modules |
+| `Table/AdvancedSearchModal` | Modal filtros avanzados opt-in (`fields`/`children` + Limpiar/Aplicar + presets si `tableKey`). `ServerTable`: `advancedFilters` + `advancedFilterMode` `merge`\|`replace`; canal `filter`; consumidor: Products |
 | `Table/formatters` | Formatters tipados: `money(dec)`, `date`, `number(dec)`, `boolean` (+ ampliar por dominio); con `valueKind`/`headerFilterKind` date|number → header center + value right |
 | `Form/Field` + kit MVP | **Implementado** (`…` + `c2026-11-20-helptip-company-nif` + `c2026-11-20-helptip-auto-code`): `Field`/`FormField` + kit (Input, Textarea, Wysiwyg, Select, Switch, RadioGroup, LangTabs, …). **HelpTip en campos:** envolver el form con `FormHelpScope value="{scope}"`; el Field deriva `code = {scope}.{fieldKey}` (`fieldKey` prop → `name` → último segmento de `htmlFor` tras `-`). Override: `helpCode` explícito. Hint textual `help` bajo el label es independiente. Icono solo si existe Help Active. **Grupo booleanos/radios:** `flex … gap-x-8` (mín. `gap-x-6`). |
 | `Form/MediaPicker` | Diálogo reutilizable de selección de `MediaAsset` (`open`/`onOpenChange`/`onSelect`; shape `{id,name,alt,url}`); búsqueda + infinite scroll vía `GET admin/gallery/picker`. Consumidor actual: `Form/Wysiwyg` con `enableGalleryInsert` (Article). Sin acoplarse a TipTap/Content. |

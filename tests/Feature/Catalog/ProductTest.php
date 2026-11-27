@@ -82,7 +82,11 @@ it('Index y Create renderizan páginas Inertia de Catalog', function () {
 
     $this->get(route('products.index'))
         ->assertOk()
-        ->assertInertia(fn ($page) => $page->component('Catalog/Products/Index'));
+        ->assertInertia(fn ($page) => $page
+            ->component('Catalog/Products/Index')
+            ->has('family_options')
+            ->has('category_options')
+            ->has('tag_options'));
 
     $this->get(route('products.create'))
         ->assertOk()

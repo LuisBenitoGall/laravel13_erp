@@ -20,6 +20,7 @@ use App\Domains\Catalog\Models\Tag;
 use App\Http\Controllers\Controller;
 use App\Support\Table\ActiveFirstOrder;
 use App\Support\Table\TableBuilder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
@@ -32,7 +33,11 @@ class ProductController extends Controller
     {
         $this->authorize('viewAny', Product::class);
 
-        return Inertia::render('Catalog/Products/Index');
+        return Inertia::render('Catalog/Products/Index', [
+            'family_options' => $this->activeFamilyOptions(),
+            'category_options' => $this->activeCategoryOptions(),
+            'tag_options' => $this->activeTagOptions(),
+        ]);
     }
 
     public function table(ProductTableRequest $request, TableBuilder $table): JsonResponse
@@ -47,6 +52,26 @@ class ProductController extends Controller
 
         return $table->for($query)
             ->searchable(['name'])
+            ->filterUsing('category_id', function (Builder $builder, string $type, mixed $value): void {
+                if ($value === null || $value === '') {
+                    return;
+                }
+
+                $builder->whereHas(
+                    'categories',
+                    fn (Builder $q) => $q->where('categories.id', (int) $value),
+                );
+            })
+            ->filterUsing('tag_id', function (Builder $builder, string $type, mixed $value): void {
+                if ($value === null || $value === '') {
+                    return;
+                }
+
+                $builder->whereHas(
+                    'tags',
+                    fn (Builder $q) => $q->where('tags.id', (int) $value),
+                );
+            })
             ->request($request)
             ->through(ProductResource::class)
             ->json();
@@ -232,5 +257,59 @@ class ProductController extends Controller
         }
 
         return implode(' › ', $parts);
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    private function activeFamilyOptions(): array
+    {
+        return Family::query()
+            ->where('status', FamilyStatus::Active)
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn (Family $row): array => [
+                'value' => (string) $row->id,
+                'label' => $row->name,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    private function activeCategoryOptions(): array
+    {
+        $all = Category::query()
+            ->where('status', CategoryStatus::Active)
+            ->get(['id', 'name', 'parent_id', 'status']);
+        $byId = $all->keyBy('id');
+
+        return $all
+            ->map(fn (Category $row): array => [
+                'value' => (string) $row->id,
+                'label' => $this->categoryPathLabel($row, $byId),
+            ])
+            ->sortBy('label', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    private function activeTagOptions(): array
+    {
+        return Tag::query()
+            ->where('status', TagStatus::Active)
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn (Tag $row): array => [
+                'value' => (string) $row->id,
+                'label' => $row->name,
+            ])
+            ->values()
+            ->all();
     }
 }

@@ -8,5 +8,13 @@ class ProductTableRequest extends TableRequest
 {
     protected array $sortable = ['name', 'type', 'status', 'updated_at', 'created_at'];
 
-    protected array $filterable = ['name', 'type', 'status', 'search'];
+    protected array $filterable = [
+        'name',
+        'type',
+        'status',
+        'search',
+        'family_id',
+        'category_id',
+        'tag_id',
+    ];
 }
